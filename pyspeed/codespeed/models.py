@@ -1,22 +1,37 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 
+class Revision(models.Model):
+    def __unicode__(self):
+        return str(self.number)
+    number = models.IntegerField()
+    project = models.CharField(max_length=50)
+    tag = models.CharField(max_length=50, blank=True)
+    message = models.CharField(max_length=200, blank=True)
+    date = models.DateTimeField(blank=True, null=True)
+
+
 class Interpreter(models.Model):
     def __unicode__(self):
-        return str(self.name + " rev" + str(self.revision))
+        return str(self.name + " " + str(self.revision))
     name = models.CharField(max_length=50)
-    revision = models.IntegerField()
-    tag = models.CharField(max_length=50, blank=True)
     coptions = models.CharField("compile options", max_length=100, blank=True)
+    revision = models.ForeignKey(Revision)
+    
     class Meta:
-        unique_together = (("name", "revision", "coptions"),)
+        unique_together = ("name", "coptions", "revision")
 
 
 class Benchmark(models.Model):
+    TYPES = (
+        ('T', 'Trunk'),
+        ('D', 'Debug'),
+        ('M', 'Multilanguage'),
+    )
     def __unicode__(self):
         return str(self.name)
     name = models.CharField(unique=True, max_length=50)
-    multi = models.BooleanField("is multilanguage", default=False)
+    benchmark_type = models.CharField(max_length=1, choices=TYPES, default='T')
     description = models.CharField(max_length=200, blank=True)
 
 

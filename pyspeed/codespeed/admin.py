@@ -8,7 +8,7 @@ class RevisionAdmin(admin.ModelAdmin):
 admin.site.register(Revision, RevisionAdmin)
 
 class InterpreterAdmin(admin.ModelAdmin):
-    list_display = ('name', 'revision', 'coptions')
+    list_display = ('name', 'coptions')
 
 admin.site.register(Interpreter, InterpreterAdmin)
 
@@ -23,6 +23,6 @@ class EnvironmentAdmin(admin.ModelAdmin):
 admin.site.register(Environment, EnvironmentAdmin)
 
 class ResultAdmin(admin.ModelAdmin):
-    list_display = ('key', 'value', 'result_type', 'interpreter', 'benchmark', 'date')
+            list_display = ('key', 'value', 'result_type', 'revision', 'interpreter', 'benchmark', 'date')
 
 admin.site.register(Result, ResultAdmin)

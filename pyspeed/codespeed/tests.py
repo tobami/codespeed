@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This file demonstrates two different styles of tests (one doctest and one
 unittest). These will both pass when you run "manage.py test".
@@ -6,18 +7,29 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
+import urllib, urllib2
+import simplejson
+from datetime import datetime
 
-class SimpleTest(TestCase):
-    def test_basic_addition(self):
+class AddResultTest(TestCase):
+    def test_add_result(self):
         """
-        Tests that 1 + 1 always equals 2.
+        Add result data
         """
-        self.failUnlessEqual(1 + 1, 2)
-
-__test__ = {"doctest": """
-Another way to test that 1 + 1 is equal to 2.
-
->>> 1 + 1 == 2
-True
-"""}
+        data = {
+            'revision_number': '23232',
+            'revision_project': 'pypy',
+            'interpreter_name': 'pypy-c',
+            'interpreter_coptions': 'gc=Boehm',
+            'benchmark_name': 'Richards',
+            'environment': 1,
+            'result_key': 'total',
+            'result_value': 456,
+            'result_date': datetime.today(),
+        }
+        params = urllib.urlencode(data)
+        f = urllib2.urlopen('http://localhost:8000/pypy/result/add/', params)
+        data = f.read()
+        print "Server response:", data
+        f.close()
 

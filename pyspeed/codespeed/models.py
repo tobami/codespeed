@@ -16,7 +16,7 @@ class Interpreter(models.Model):
     def __unicode__(self):
         return str(self.name + " " + str(self.coptions))
     name = models.CharField(max_length=50)
-    coptions = models.CharField("compile options", max_length=100, blank=True)
+    coptions = models.CharField("compile options", max_length=100)
     
     class Meta:
         unique_together = ("name", "coptions")
@@ -38,7 +38,7 @@ class Benchmark(models.Model):
 class Environment(models.Model):
     def __unicode__(self):
         return str(self.name)
-    name = models.CharField(max_length=50)
+    name = models.CharField(unique=True,max_length=50)
     cpu = models.CharField(max_length=20)
     memory = models.CharField(max_length=20)
     os = models.CharField(max_length=20)

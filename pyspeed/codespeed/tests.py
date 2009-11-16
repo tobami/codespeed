@@ -3,10 +3,11 @@ from django.test import TestCase
 from datetime import datetime
 from django.test.client import Client
 from pyspeed.codespeed.models import Benchmark, Revision, Interpreter, Environment, Result
+from django.core.urlresolvers import reverse
 
 class AddResultTest(TestCase):
     def setUp(self):
-        self.path = '/result/add/'
+        self.path = reverse('pyspeed.codespeed.views.addresult')
         self.client = Client()
         self.e = Environment(name='Dual Core Linux', cpu='Core 2 Duo 8200')
         self.e.save()

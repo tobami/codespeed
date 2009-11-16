@@ -3,7 +3,7 @@ from pyspeed.codespeed.models import Revision, Interpreter, Benchmark, Result, E
 from django.contrib import admin
 
 class RevisionAdmin(admin.ModelAdmin):
-    list_display = ('number', 'project', 'tag')
+    list_display = ('number', 'project', 'tag', 'date')
     
 admin.site.register(Revision, RevisionAdmin)
 

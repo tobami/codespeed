@@ -33,7 +33,7 @@ urlpatterns = patterns('pyspeed.codespeed.views',
     (r'^pypy/result/$', list_detail.object_list, result_list),
     (r'^pypy/revision/$', list_detail.object_list, revision_list),
     # URL interface for adding results
-    (r'^pypy/result/add/$', 'addresult'),
+    (r'^result/add/$', 'addresult'),
 )
 
 if settings.DEBUG:

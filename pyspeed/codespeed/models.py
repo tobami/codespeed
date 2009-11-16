@@ -26,6 +26,7 @@ class Benchmark(models.Model):
     TYPES = (
         ('T', 'Trunk'),
         ('D', 'Debug'),
+        ('P', 'Python'),
         ('M', 'Multilanguage'),
     )
     def __unicode__(self):

@@ -30,8 +30,8 @@ revision_list = {
 
 urlpatterns = patterns('pyspeed.codespeed.views',
     #(r'^$', 'index'),
-    (r'^pypy/result/$', list_detail.object_list, result_list),
-    (r'^pypy/revision/$', list_detail.object_list, revision_list),
+    (r'^result/$', list_detail.object_list, result_list),
+    (r'^revision/$', list_detail.object_list, revision_list),
     # URL interface for adding results
     (r'^result/add/$', 'addresult'),
 )

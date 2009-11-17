@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import get_object_or_404
 from pyspeed.codespeed.models import Revision, Result, Interpreter, Benchmark, Environment
-from django.http import HttpResponse, Http404, HttpResponseBadRequest, HttpResponseNotFound
+from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 
 def addresult(request):
     if request.method != 'POST':

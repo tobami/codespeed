@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import simplejson, urllib, urllib2, pprint
+import simplejson, urllib, urllib2
 import sys
 from xml.dom.minidom import parse
 from datetime import datetime
@@ -7,7 +7,7 @@ from datetime import datetime
 RESULTS_URL = 'http://buildbot.pypy.org/bench_results/'
 SPEEDURL = 'http://localhost:8080/'# This will be pyspeed.pypy.org/
 SAVE_CPYTHON = False
-START_REV = 71154
+START_REV = 71212
 
 def saveresult(data):
     params = urllib.urlencode(data)
@@ -56,6 +56,9 @@ for filename in filelist:
     print "Reading %s..." % filename
     f = urllib2.urlopen(RESULTS_URL + filename)
     result = simplejson.load(f)
+    f.close()
+    print filename
+    print result
     current_date = datetime.today()
     proj = 'pypy'
     revision = result['revision']
@@ -100,5 +103,4 @@ for filename in filelist:
             'result_date': current_date,
         }
         saveresult(data)
-    f.close()
 print "\nOK"

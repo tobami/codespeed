@@ -49,7 +49,8 @@ def save(revision, results, options, branch):
             'result_value': value,
             'result_date': current_date,
         }
-        return send(data)
+        send(data)
+    return 0
     
 def send(data):
     #save results
@@ -71,6 +72,4 @@ def send(data):
             response = '\n  The server couldn\'t fulfill the request\n'
             response += '  Error code: ' + str(e)
         logger.critical("Server (%s) response: %s\n" % (SPEEDURL, response))
-        return 1
-    return 0
-    
+        return 1   

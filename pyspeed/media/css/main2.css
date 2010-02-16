@@ -14,15 +14,19 @@ div#title {
 }
 div#title img { float: left; }
 div#title h1 { float: left; margin-top: 23px; }
-/* div#navigation { float: right; color: #222222; } */
-div#subnavigation { width: 100%; float: left; margin-bottom: 0.8em; }
+
+div#navigation { width: 100%; float: left; margin-bottom: 0.8em; }
 div#tabs { width: 100%; color: #FFFFFF; }
-div#tabs ul { margin: 0; padding: 0; padding-left: 2em; font-weight: bold; }
+div#tabs ul { margin: 0; padding: 0; padding-left: 2em; }
 div#tabs li {
     display: inline-block;
+    margin-left: 0.5em;
+}
+div#tabs ul li a:link, div#tabs ul li a:visited {
+    display: block;
+    text-decoration: none;
     background-color: #F5F5F5;
     color: #888888;
-    margin-left: 0.8em;
     padding: 1em;
     padding-top: 0.6em;
     padding-bottom: 0.3em;
@@ -31,10 +35,13 @@ div#tabs li {
     -webkit-border-radius-topleft: 20px;
     -webkit-border-radius-topright: 20px;
 }
-div#tabs li.current { background-color: #E5E5E5;  color: #000000;}
-div#tabs li.highlight { background-color: #E5E5E5; color: #2D2F32;}
+div#tabs ul li a.current {
+    background-color: #E5E5E5;
+    color: #000000;
+    font-weight: bold;
+}
+div#tabs ul li a:hover { background-color: #E5E5E5; color: #2D2F32; }
 
-div#wrapper { width: 100%; margin-top: 0; float:left; }
 div#configbar {
     width: 97.8%;
     position: relative;
@@ -43,6 +50,9 @@ div#configbar {
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;
 }
+
+div#wrapper { width: 100%; margin-top: 0; float:left; }
+
 div#navbar {
     float: left;
     margin-right: 20px;
@@ -84,7 +94,7 @@ div#content {
     font-weight: bold; 
     font-size: 1.2em; 
     line-height: 1em;
-/*     text-shadow: rgba(0,0,0,.4) 0px 2px 5px; /* Safari-only, but cool */ */
+/*     text-shadow: rgba(0,0,0,.4) 0px 2px 5px; /* Safari-only, but cool */
 }
 .boxbody {
 /*     background: url(sbbody-l.gif) no-repeat bottom left; */
@@ -104,6 +114,8 @@ div#content {
 }
 
 /* tables */
+table#results thead tr th { width: 7em; }
+
 table.tablesorter {
     width: 60em;
     font-family:arial;
@@ -121,7 +133,6 @@ table.tablesorter thead tr th, table.tablesorter tfoot tr th {
     border: 1px solid #CDCDCD;
     font-size: 8pt;
     padding: 4px;
-    width: 7em;
 }
 table.tablesorter thead tr .header {
     background-image: url(/media/images/bg.gif);
@@ -152,9 +163,9 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
 
 table.tablesorter tbody td.text {text-align: left;}
 
-table.tablesorter thead th.value {width: 450px;}
-table.tablesorter tbody td.value {
-    background-image: url(/media/images/gridline.gif);
+table.tablesorter thead th.bar { width: 440px !important; }
+table.tablesorter tbody td.bar {
+    background-image: url(/media/images/gridline.png);
     background-repeat: repeat-x;
     background-position: left top;
     text-align: left;
@@ -162,15 +173,27 @@ table.tablesorter tbody td.value {
     border: none;
     background-color:transparent;
 }
-td.value img {
+table.tablesorter tbody td.bar img {
     vertical-align: middle;
     margin: 5px 5px 5px 0;
     border: none;
 }
 
+table.tablesorter tbody span {
+  display: block; 
+/*   top: 10px;  */
+/*   left: 0;  */
+  height: 1.45em;
+  margin-top: 0.2em;
+  background: #5AA1D3; 
+  text-indent: -9999px; 
+  overflow: hidden; 
+/*   background-color: #FF4141; margin-bottom: 0.1em; */
+}
+
 table.tablesorter tbody tr td.status-red { background-color: #FF4141; }
 table.tablesorter tbody tr td.status-green { background-color: #B7FFB8; }
-table.tablesorter tbody tr td.status-yellow { background-color: yellow; }
+table.tablesorter tbody tr td.status-yellow { background-color: #FEE772; }
 table.tablesorter tbody tr.highlight td {
     background-color: #9DADC6 !important;
     cursor: pointer;
@@ -185,5 +208,3 @@ table.tablesorter tbody tr.highlight td {
     clear: both;
     height: 0;
     }
-* html .clearfix             { zoom: 1; } /* IE6 */
-*:first-child+html .clearfix { zoom: 1; } /* IE7 */

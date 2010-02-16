@@ -3,40 +3,38 @@
 <script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript">
   $(function() {
-    $("#results > tbody > tr").each(function() {
-      //Color change column
-//       var change = $(this).children("td:eq(2)").text().slice(0, -1);
-//       var colorcode = "status-yellow";
-//       if(change > 0.3) { colorcode = "status-red"; }
-//       else if(change < -0.3) { colorcode = "status-green"; }
-//       $(this).children("td:eq(2)").addClass(colorcode);
-//       //Color comparison column
-//       var comp = $(this).children("td:eq(4)").text().slice(0, -1);
-// //       $(this).children("td:eq(4)").text(comp + "x");
-//       colorcode = "status-yellow";
-//       if(comp < 0.8) { colorcode = "status-red"; }
-//       else if(comp > 1.2) { colorcode = "status-green"; }
-//       $(this).children("td:eq(4)").addClass(colorcode);
-//       //Size bars according to comparison value
-//       comp = comp*13.2;
-//       if (comp > 100) {comp = 100;}
-//       $(this).children("td:eq(5)").find("img").width(comp + "%");
-//       });
-//       $.tablesorter.defaults.sortList = [[4,0]];
-//       $.tablesorter.defaults.headers = { 5: { sorter: false } };
-      $("#results").tablesorter({widgets: ['zebra']});
-      $("#results tbody td").hover(function() {
+    $("#result_list").tablesorter({widgets: ['zebra']});
+      $("#result_list tbody td").hover(function() {
         $(this).parents('tr').addClass('highlight');
       }, function() {
         $(this).parents('tr').removeClass('highlight');
       });
   });
 </script>
+{% endblock %}
+
+{% block navigation %}
+  <div id="tabs">
+    <ul>
+      <li><a href="/overview/">Overview</a></li>
+      <li><a href="#">Timeline</a></li>
+      <li><a href="#" class="current">Results</a></li>
+    </ul>
+  </div>
+  <div id="configbar">List of test results. Filter: none.</div>
+{% endblock %}
+
 {% block body %}
-<table id="results"><tr><th>Revision</th><th>Interpreter</th><th>Compile options</th><th>Benchmark</th><th>Result</th><th>run date</th></tr>
-{% for result in result_list %}<tr>
-<td>{{ result.revision.number }}</td><td>{{ result.interpreter.name }}</td><td>{{ result.interpreter.coptions }}</td><td>{{ result.benchmark }}</td><td>{{ result.value }}</td><td>{{ result.date }}</td>
-</tr>{% endfor %}
+<table id="result_list" class="tablesorter">
+  <thead>
+    <tr><th>Revision</th><th>Interpreter</th><th>Compile options</th><th>Benchmark</th><th>Result</th><th>run date</th></tr>
+  </thead>
+  <tbody>
+{% for result in result_list %}  <tr>
+    <td>{{ result.revision.number }}</td><td>{{ result.interpreter.name }}</td><td>{{ result.interpreter.coptions }}</td><td>{{ result.benchmark }}</td><td>{{ result.value }}</td><td>{{ result.date }}</td>
+  </tr>
+{% endfor %}
+  </tbody>
 </table>
 {% endblock %}
 {% block footer %}

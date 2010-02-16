@@ -6,7 +6,7 @@
 
   <link href="/media/css/main2.css" rel="stylesheet" type="text/css" />
   
-  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+  <script type="text/javascript" src="/media/js/jquery-1.4.1.min.js"></script>
   <script type="text/javascript" src="/media/js/codespeed.js"></script>
 {% block script %}
 {% endblock %}
@@ -19,9 +19,19 @@
 </div>
 
 <div id="wrapper">
-{% block subnavigation %}<div id="subnavigation"></div>{% endblock %}
+<div id="navigation">
+{% block navigation %}
+  <div id="tabs">
+    <ul>
+      <li><a href="/overview/">Overview</a></li>
+      <li><a href="#">Timeline</a></li>
+      <li><a href="/results/">Results</a></li>
+    </ul>
+  </div>
+    <div id="configbar">Start page</div>{% endblock %}
+</div>
+
 {% block body %}
-<p>Start page</p>
 {% endblock %}
 </div>
 {% block footer %}

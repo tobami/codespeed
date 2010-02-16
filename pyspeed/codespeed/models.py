@@ -51,11 +51,14 @@ class Result(models.Model):
         ('M', 'Memory'),
         ('S', 'Score'),
     )
-    key = models.CharField('test', max_length=20)
-    value = models.FloatField()
-    date = models.DateTimeField()
+    value = models.FloatField(blank=True, null=True)
+    date = models.DateTimeField(blank=True, null=True)
     result_type = models.CharField(max_length=1, choices=TYPES, default='T')
     revision = models.ForeignKey(Revision)
     interpreter = models.ForeignKey(Interpreter)
     benchmark = models.ForeignKey(Benchmark)
     environment = models.ForeignKey(Environment)
+    
+    class Meta:
+        unique_together = ("revision", "interpreter", "benchmark", "environment" , "result_type")
+    

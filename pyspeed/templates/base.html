@@ -5,16 +5,30 @@
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
 {% block script %}
   <link href="/media/css/main.css" rel="stylesheet" type="text/css" />
-  <script type="text/javascript" src="/media/js/jquery-1.3.2.min.js"></script>
+  
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
+  <script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
+  <script type="text/javascript" src="/media/js/codespeed.js"></script>
 {% endblock %}
 </head>
+
 <body>
+<div id="containter">
+<div id="header">
+<div id="title"><h1><img src="/media/images/logo-pypy.png" hight="86" width="248" align="middle"/>SPEED CENTER</h1></div>
+<div id="navigation"></div>
+{% block subnavigation %}
+<div id="subnavigation"><ul><li>Overview</li><li>Timeline</li></ul></div>
+{% endblock %}
+</div>
+
 <div id="wrapper">
 {% block body %}
+<p>Start page</p>
 {% endblock %}
 </div>
 {% block footer %}
-<p><a href="/">volver</a></p>
 {% endblock %}
+</div>
 </body>
 </html>

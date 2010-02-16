@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block subnavigation %}
+<div id="subnavigation"><ul><li class="current">Overview</li><li>Timeline</li></ul></div>
+{% endblock %}
+{% block body %}
+<script type="text/javascript">
+  $(function() {
+    $("#results > tbody > tr").each(function() {
+      //Color change column
+      var change = $(this).children("td:eq(2)").text().slice(0, -1);
+      var colorcode = "status-yellow";
+      if(change > 0.3) { colorcode = "status-red"; }
+      else if(change < -0.3) { colorcode = "status-green"; }
+      $(this).children("td:eq(2)").addClass(colorcode);
+      //Color comparison column
+      var comp = $(this).children("td:eq(4)").text().slice(0, -1);
+//       $(this).children("td:eq(4)").text(comp + "x");
+      colorcode = "status-yellow";
+      if(comp < 0.8) { colorcode = "status-red"; }
+      else if(comp > 1.2) { colorcode = "status-green"; }
+      $(this).children("td:eq(4)").addClass(colorcode);
+      //Size bars according to comparison value
+      comp = comp*13.2;
+      if (comp > 100) {comp = 100;}
+      $(this).children("td:eq(5)").find("img").width(comp + "%");
+      });
+      $.tablesorter.defaults.sortList = [[4,0]];
+      $.tablesorter.defaults.headers = { 5: { sorter: false } };
+      $("#results").tablesorter({widgets: ['zebra']});
+      $("#results tbody td").hover(function() {
+        $(this).parents('tr').addClass('highlight');
+      }, function() {
+        $(this).parents('tr').removeClass('highlight');
+      });
+  });
+</script>
+<div id="configbar">revision:</div>
+<div id="navbar">
+<div id="interpreter" class="sidebox">
+  <div class="boxhead"><h2>Interpreter</h2></div>
+  <div class="boxbody">
+    <ul>
+    {% for inter in interpreters %}
+        <li id="interpreter{{inter.id}}">{{ inter }}</li>{% endfor %}
+    </ul>
+  </div>
+</div>
+<div class="sidebox">
+  <div class="boxhead"><h2>Host</h2></div>
+  <div class="boxbody">
+  <ul>
+    {% for host in hostlist %}  <li>{{ host }}</li>{% endfor %}
+  </ul>
+  </div>
+</div>
+<div id="options" class="sidebox">
+  <div class="boxhead"><h2>Options</h2></div>
+  <div class="boxbody">
+  <ul>
+    <li>Trend</li>
+  </ul>
+  </div>
+</div>
+</div>
+
+<div id="content">
+<table id="results" class="tablesorter">
+<thead>
+  <tr>
+    <th>Benchmark</th><th>Result (s)</th><th>Current change</th><th>Trend</th><th>Relative to cpython</th><th class="value"></th>
+  </tr>
+</thead>
+<tbody>
+{% for row in table_list %}  <tr>
+        <td class="text">{{ row.benchmark }}</td><td>{{ row.result|floatformat:3 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{{ row.trend|floatformat:2 }}%</td><td>{{ row.relative|floatformat:2 }}x</td><td class="value"><img src="/media/images/bar.png" alt="" width="{% widthratio row.relative 8.1 100 %}%" height="16" /></td>
+  </tr>{% endfor %}
+</tbody>
+</table>
+<p>Results for pypy revision {{ lastrevision }}</p>
+</div>
+{% endblock %}

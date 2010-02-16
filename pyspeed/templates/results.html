@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body %}
+<p>Results for pypy revision {{ revision }}</p>
+<table>
+  <tr>
+    <th>Benchmark</th><th>Result</th><th>Relative to cpython</th>
+  </tr>
+{% for result in result_list %}  <tr>
+    <td>{{ result.benchmark }}</td><td>{{ result.value }}</td><td></td>
+  </tr>{% endfor %}
+</table>
+{% endblock %}

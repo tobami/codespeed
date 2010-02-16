@@ -19,7 +19,6 @@ class AddResultTest(TestCase):
                 'interpreter_coptions': 'gc=Böhm',
                 'benchmark_name': 'Richards',
                 'environment': 'Dual Core Linux',
-                'result_key': 'total',
                 'result_value': 456,
                 'result_date': self.cdate,
         }        
@@ -35,7 +34,6 @@ class AddResultTest(TestCase):
         r = Revision.objects.get(number='23232', project='pypy')
         i = Interpreter.objects.get(name='pypy-c', coptions='gc=Böhm')
         self.assertTrue(Result.objects.get(
-            key='total',
             value=456,
             date=self.cdate,
             revision=r,

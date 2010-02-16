@@ -1,11 +1,12 @@
-# -*- coding: utf-8 -*-
+    # -*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
 from django.views.generic import list_detail
+from django.views.generic.simple import direct_to_template
 from pyspeed.codespeed.models import Result, Revision, Interpreter
 from pyspeed import settings
 
 result_list = {
-    'queryset': Result.objects.filter(revision__project=settings.PROJECT_NAME).order_by('-date'),
+    'queryset': Result.objects.order_by('-date'),
     'template_name': 'result_list.html',
     'template_object_name': 'result',
 }
@@ -28,9 +29,13 @@ revision_list = {
     }
 }
 
-urlpatterns = patterns('pyspeed.codespeed.views',
-    #(r'^$', 'index'),
-    (r'^result/$', list_detail.object_list, result_list),
+urlpatterns = patterns('',
+    (r'^$', direct_to_template, {'template': 'base.html'}),
+)
+
+urlpatterns += patterns('pyspeed.codespeed.views',
+    (r'^overview/$', 'overview'),
+    (r'^results/$', list_detail.object_list, result_list),
     (r'^revision/$', list_detail.object_list, revision_list),
     # URL interface for adding results
     (r'^result/add/$', 'addresult'),

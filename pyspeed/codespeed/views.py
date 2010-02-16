@@ -1,12 +1,80 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
 from pyspeed.codespeed.models import Revision, Result, Interpreter, Benchmark, Environment
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
+from pyspeed import settings
+
+def overview(request):
+    interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
+    lastrevisions = Revision.objects.filter(
+        project=settings.PROJECT_NAME
+    ).order_by('-number')[:11]
+    lastrevision = lastrevisions[0].number
+    changerevision = lastrevisions[1].number    
+    pastrevisions = lastrevisions[8:11]
+    
+    result_list = Result.objects.filter(
+        revision__number=lastrevision
+    ).filter(revision__project=settings.PROJECT_NAME)
+
+    change_list = Result.objects.filter(
+        revision__number=changerevision
+    ).filter(revision__project=settings.PROJECT_NAME)
+    
+    lastbase = Revision.objects.filter(
+        tag__isnull=False
+    ).filter(
+        project='cpython'
+    ).order_by('-number')[0].number
+    base_list = Result.objects.filter(
+        revision__number=lastbase
+    ).filter(revision__project='cpython')
+    
+    table_list = []
+    for bench in Benchmark.objects.all():
+        result = result_list.filter(benchmark=bench)[0].value
+        
+        change = 0
+        c = change_list.filter(benchmark=bench)
+        if c.count():
+            change = (result - c[0].value)*100/c[0].value
+        
+        #calculate past average
+        average = 0
+        for rev in pastrevisions:
+            past_rev = Result.objects.filter(
+                revision__number=rev.number
+            ).filter(
+                revision__project=settings.PROJECT_NAME
+            ).filter(benchmark=bench)
+            if past_rev.count():
+                average += past_rev[0].value
+            else:
+                average = 0
+                break
+        trend = 0
+        if average:
+            average = average / len(pastrevisions)
+            trend =  (result - average)*100/average
+        
+        relative = 0
+        c = base_list.filter(benchmark=bench)
+        if c.count():
+            relative =  c[0].value / result
+        table_list.append({
+            'benchmark': bench.name,
+            'result': result,
+            'change': change,
+            'trend': trend,
+            'relative': relative
+        })
+    hostlist = Environment.objects.all()
+    return render_to_response('overview.html', locals())
 
 def addresult(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed('POST')
-    data =  request.POST
+    data = request.POST
     
     mandatory_data = [
         'revision_number',
@@ -15,15 +83,16 @@ def addresult(request):
         'interpreter_coptions',
         'benchmark_name',
         'environment',
-        'result_key',
         'result_value',
         'result_date',
     ]
+    
     for key in mandatory_data:
         if data.has_key(key):
             if data[key] == "":
                 return HttpResponseBadRequest('Key "' + key + '" empty in request')
         else: return HttpResponseBadRequest('Key "' + key + '" missing from request')
+
     b, created = Benchmark.objects.get_or_create(name=data["benchmark_name"])
     if data.has_key('benchmark_type'):
         b.benchmark_type = data['benchmark_type']
@@ -41,13 +110,14 @@ def addresult(request):
     if data.has_key('result_type'):
         result_type = data['result_type']
     r, created = Result.objects.get_or_create(
-            key=data["result_key"],
-            value=data["result_value"],
             result_type=result_type,
-            date=data["result_date"],
             revision=rev,
             interpreter=inter,
             benchmark=b,
             environment=e
     )
+    r.value = data["result_value"]
+    r.date = data["result_date"]
+    r.save()
+    
     return HttpResponse("Result data saved succesfully")

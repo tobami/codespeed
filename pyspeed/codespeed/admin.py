@@ -23,6 +23,6 @@ class EnvironmentAdmin(admin.ModelAdmin):
 admin.site.register(Environment, EnvironmentAdmin)
 
 class ResultAdmin(admin.ModelAdmin):
-            list_display = ('key', 'value', 'result_type', 'revision', 'interpreter', 'benchmark', 'date')
+            list_display = ('revision', 'benchmark', 'value', 'result_type', 'interpreter', 'date')
 
 admin.site.register(Result, ResultAdmin)

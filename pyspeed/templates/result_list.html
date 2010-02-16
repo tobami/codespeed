@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block body %}
-<table class="sample"><tr><th>Revision</th><th>Interpreter</th><th>Compile options</th><th>Benchmark</th><th>Test</th><th>Result</th><th>run date</th></tr>
+<table><tr><th>Revision</th><th>Interpreter</th><th>Compile options</th><th>Benchmark</th><th>Result</th><th>run date</th></tr>
 {% for result in result_list %}<tr>
-<td>{{ result.revision.number }}</td><td>{{ result.interpreter.name }}</td><td>{{ result.interpreter.coptions }}</td><td>{{ result.benchmark }}</td><td>{{ result.key }}</td><td>{{ result.value }}</td><td>{{ result.date }}</td>
+<td>{{ result.revision.number }}</td><td>{{ result.interpreter.name }}</td><td>{{ result.interpreter.coptions }}</td><td>{{ result.benchmark }}</td><td>{{ result.value }}</td><td>{{ result.date }}</td>
 </tr>{% endfor %}
 </table>
 {% endblock %}

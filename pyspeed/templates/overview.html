@@ -1,6 +1,6 @@
 {% extends "base.html" %}
-<div id="subnavigation"><ul><li class="current">Overview</li><li>Timeline</li></ul></div>
-{% block body %}
+{% block script %}
+<script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript">
   $(function() {
     $("#results > tbody > tr").each(function() {
@@ -32,7 +32,16 @@
       });
   });
 </script>
-<div id="configbar">revision:</div>
+{% endblock %}
+
+{% block subnavigation %}
+<div id="subnavigation">
+  <div id="tabs"><ul><li class="current">Overview</li><li>Timeline</li></ul></div>
+  <div id="configbar">revision:</div>
+</div>
+{% endblock %}
+{% block body %}
+
 <div id="navbar">
 <div id="interpreter" class="sidebox">
   <div class="boxhead"><h2>Interpreter</h2></div>

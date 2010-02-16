@@ -1,31 +1,32 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
-<title>{% block title %}PyPy Speed Center{% endblock %}</title>
+<title>{% block title %}PyPy Speed{% endblock %}</title>
 <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-{% block script %}
-  <link href="/media/css/main.css" rel="stylesheet" type="text/css" />
+
+  <link href="/media/css/main2.css" rel="stylesheet" type="text/css" />
   
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.1/jquery.min.js"></script>
-  <script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
   <script type="text/javascript" src="/media/js/codespeed.js"></script>
+{% block script %}
 {% endblock %}
 </head>
 
 <body>
 <div id="containter">
 <div id="header">
-<div id="title"><h1><img src="/media/images/logo-pypy.png" hight="86" width="248" align="middle"/>SPEED CENTER</h1></div>
-<div id="navigation"></div>
+<div id="title"><img src="/media/images/logo-pypy.png" hight="86" width="248" align="middle"/><h1>SPEED CENTER</h1></div>
 </div>
 
 <div id="wrapper">
+{% block subnavigation %}<div id="subnavigation"></div>{% endblock %}
 {% block body %}
 <p>Start page</p>
 {% endblock %}
 </div>
 {% block footer %}
 {% endblock %}
+<div style="clear: both;">
 </div>
 </body>
 </html>

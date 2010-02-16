@@ -1,7 +1,7 @@
-body { margin: 0; padding: 0; background-color: #2D2F32; }
+body { margin: 0; padding: 0; background-color: #FFFFFF; }
 h1 { margin: 0; }
 div#containter { width: 74em; margin-left: auto; margin-right: auto; }
-div#header { width: 100%; margin: 0; margin-bottom: 1.6em; float:left; }
+div#header { width: 100%; margin: 0; margin-bottom: 0.8em; float:left; }
 div#title {
     width: 100%;
     float: left;
@@ -17,19 +17,22 @@ div#title h1 { float: left; margin-top: 23px; }
 /* div#navigation { float: right; color: #222222; } */
 div#subnavigation { width: 100%; float: left; margin-bottom: 0.8em; }
 div#tabs { width: 100%; color: #FFFFFF; }
-div#tabs ul { margin: 0; padding: 0; font-weight: bold; }
+div#tabs ul { margin: 0; padding: 0; padding-left: 2em; font-weight: bold; }
 div#tabs li {
     display: inline-block;
-    margin-left: 1.8em;
-    padding: 0.8em;
-    padding-bottom: 0.4em;
-    -moz-border-radius-topleft: 6px;
-    -moz-border-radius-topright: 6px;
-    -webkit-border-radius-topleft: 6px;
-    -webkit-border-radius-topright: 6px;
+    background-color: #F5F5F5;
+    color: #888888;
+    margin-left: 0.8em;
+    padding: 1em;
+    padding-top: 0.6em;
+    padding-bottom: 0.3em;
+    -moz-border-radius-topleft: 20px;
+    -moz-border-radius-topright: 20px;
+    -webkit-border-radius-topleft: 20px;
+    -webkit-border-radius-topright: 20px;
 }
 div#tabs li.current { background-color: #E5E5E5;  color: #000000;}
-div#tabs li.highlight { background-color: #FFFFFF; color: #2D2F32;}
+div#tabs li.highlight { background-color: #E5E5E5; color: #2D2F32;}
 
 div#wrapper { width: 100%; margin-top: 0; float:left; }
 div#configbar {
@@ -49,7 +52,7 @@ div#navbar {
 div#content {
     float: right;
     clear:right;
-    padding: 0.8em;
+/*     padding: 0.8em; */
     background-color: #FFFFFF;
     -moz-border-radius: 6px;
     -webkit-border-radius: 6px;

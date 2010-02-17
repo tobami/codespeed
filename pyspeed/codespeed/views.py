@@ -3,15 +3,17 @@ from django.shortcuts import get_object_or_404, render_to_response
 from pyspeed.codespeed.models import Revision, Result, Interpreter, Benchmark, Environment
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from pyspeed import settings
+from time import sleep
 
-def overview(request):
-    interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
+def overviewtable(request):
+    #sleep(4)
+    trendconfig = int(request.GET["trend"])
     lastrevisions = Revision.objects.filter(
         project=settings.PROJECT_NAME
     ).order_by('-number')[:11]
     lastrevision = lastrevisions[0].number
     changerevision = lastrevisions[1].number    
-    pastrevisions = lastrevisions[8:11]
+    pastrevisions = lastrevisions[trendconfig-2:trendconfig+1]
     
     result_list = Result.objects.filter(
         revision__number=lastrevision
@@ -68,6 +70,22 @@ def overview(request):
             'trend': trend,
             'relative': relative
         })
+    
+    return render_to_response('overview_table.html', locals())
+    #return HttpResponse("<div>Aquí estoy!<br>Trend="+ str(request.GET["trend"]) +"</div>")
+    
+def overview(request):
+    trendconfig = 10
+    # TODO: list of posible <select> values. choose from nearest
+    #if request.GET.has_key("trend"):
+        #if request.GET["trend"] > 0:
+            #trendconfig = int(request.GET["trend"])
+
+    interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
+    lastrevision = Revision.objects.filter(
+        project=settings.PROJECT_NAME
+    ).order_by('-number')[0].number
+    
     hostlist = Environment.objects.all()
     return render_to_response('overview.html', locals())
 

@@ -2,7 +2,9 @@
 {% block script %}
 <script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript">
-  $(function() {
+  var config = {"petardo": 2};
+  
+  function updateTable() {
     var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
     $("#results > tbody > tr").each(function() {
       //Color change column
@@ -36,6 +38,46 @@
     }, function() {
       $(this).parents('tr').removeClass('highlight');
     });
+  }
+  
+  function readConfiguration() {
+    config["trend"] = $("#trend option:selected").val();
+  }
+  
+  function refreshContent() {
+    readConfiguration();
+    $.ajaxSetup ({  
+         cache: false  
+    });
+    
+    //loading text
+    w = "width:" + $("#content").css("width");
+    h2 = parseInt($("#content").css("height")) - 16;
+    if(h2 < 40) { h2 = 40; }
+    h = "height:" + h2;
+//     alert(h);
+    h2 = h2/2 + 30;
+//     alert(h + " parsed: " + parseInt(h));
+    var ajax_load = '<div style="text-align:center;' + w + ';' + h + 'px;"><p style="line-height:' + h2 + 'px;">loading...</p></div>';
+    
+    var loadUrl = "table/";
+    $("#content").html(ajax_load).load(loadUrl, $.param(config), function(responseText) { updateTable(); });
+//     alert($("#content").css("height"));
+  }
+  
+  function onSelectChange() {
+    var selected = $("#trend option:selected");     
+    var output = "";
+    if(selected.val() != 0){
+      output = "You Selected " + selected.text();
+    }
+    refreshContent();
+  }
+
+  $(function() {
+    $("#trend").val({{ trendconfig }});
+    $("#trend").change(onSelectChange);
+    refreshContent();
   });
 </script>
 {% endblock %}
@@ -48,11 +90,10 @@
       <li><a href="/results/">Results</a></li>
     </ul>
   </div>
-  <div id="configbar">revision:</div>
 {% endblock %}
 
 {% block body %}
-<div id="navbar">
+<div id="sidebar">
 <div id="interpreter" class="sidebox">
   <div class="boxhead"><h2>Interpreter</h2></div>
   <div class="boxbody">
@@ -74,26 +115,16 @@
   <div class="boxhead"><h2>Options</h2></div>
   <div class="boxbody">
   <ul>
-    <li>Trend</li>
+    <li title="Trend since {{ trendconfig }} tested revisions ago">Trend: <select id="trend"><option value="5">5</option><option value="10">10</option><option value="20">20</option></select>
+    </li>
+<!--     <li id="output">{{ trendconfig }}</li> -->
   </ul>
   </div>
 </div>
 </div>
 
+<div id="configbar">Results for revision {{ lastrevision }}</div>
 <div id="content">
-<table id="results" class="tablesorter">
-<thead>
-  <tr>
-    <th>Benchmark</th><th>Result (s)</th><th>Current change</th><th>Trend</th><th>Relative to cpython</th><th class="bar"></th>
-  </tr>
-</thead>
-<tbody>
-{% for row in table_list %}  <tr>
-        <td class="text">{{ row.benchmark }}</td><td>{{ row.result|floatformat:3 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{{ row.trend|floatformat:2 }}%</td><td>{{ row.relative|floatformat:2 }}x</td><td class="bar"><span>1</span></td>
-<!--         <img src="/media/images/bar.png" alt="" height="16" width="34" /> -->
-  </tr>{% endfor %}
-</tbody>
-</table>
-<p>Results for pypy revision {{ lastrevision }}</p>
+<table class="tablesorter"></table>
 </div>
 {% endblock %}

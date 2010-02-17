@@ -21,10 +21,11 @@
       <li><a href="#" class="current">Results</a></li>
     </ul>
   </div>
-  <div id="configbar">List of test results. Filter: none.</div>
 {% endblock %}
 
 {% block body %}
+<div id="configbar">List of test results. Filter: none.</div>
+<div id="content">
 <table id="result_list" class="tablesorter">
   <thead>
     <tr><th>Revision</th><th>Interpreter</th><th>Compile options</th><th>Benchmark</th><th>Result</th><th>run date</th></tr>
@@ -36,6 +37,7 @@
 {% endfor %}
   </tbody>
 </table>
+</div>
 {% endblock %}
 {% block footer %}
 {% endblock %}

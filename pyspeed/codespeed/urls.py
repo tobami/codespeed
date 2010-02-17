@@ -35,6 +35,7 @@ urlpatterns = patterns('',
 
 urlpatterns += patterns('pyspeed.codespeed.views',
     (r'^overview/$', 'overview'),
+    (r'^overview/table/$', 'overviewtable'),
     (r'^results/$', list_detail.object_list, result_list),
     (r'^revision/$', list_detail.object_list, revision_list),
     # URL interface for adding results

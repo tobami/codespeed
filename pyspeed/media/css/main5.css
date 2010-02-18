@@ -5,13 +5,12 @@ body {
 }
 
 h1 { margin: 0; font-style: italic; }
-div#containter { width: 75em; margin-left: auto; margin-right: auto; }
+div#containter { width: 73em; margin-left: auto; margin-right: auto; }
 div#header { width: 100%; margin: 0; margin-bottom: 0.8em; float:left; }
 div#title {
     width: 100%;
     float: left;
     background-color: #EAEAEA; color: #000000;
-    padding-bottom: 6px;
     -moz-border-radius-bottomleft: 12px;
     -moz-border-radius-bottomright: 12px;
     -webkit-border-radius-bottomleft: 12px;
@@ -160,6 +159,7 @@ table.tablesorter tbody td {
     border: 1px solid #CDCDCD;
     vertical-align: top;
     text-align: right;
+    white-space: nowrap;
 }
 table.tablesorter tbody tr.odd td {
     background-color:#F0F0F6;
@@ -209,7 +209,7 @@ table.tablesorter tbody tr td.status-green { background-color: #9FD54D; }
 table.tablesorter tbody tr td.status-yellow { background-color: #FEE772; }
 table.tablesorter tbody tr.highlight td {
     background-color: #9DADC6 !important;
-    cursor: pointer;
+/*     cursor: pointer; */
 }
 
 /* new clearfix */

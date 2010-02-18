@@ -2,7 +2,7 @@
 {% block script %}
 <script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript">
-  var config = {"petardo": 2};
+  var config = new Object();
   
   function updateTable() {
     var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
@@ -42,6 +42,7 @@
   
   function readConfiguration() {
     config["trend"] = $("#trend option:selected").val();
+    config["revision"] = $("#revision option:selected").val();
   }
   
   function refreshContent() {
@@ -55,28 +56,18 @@
     h2 = parseInt($("#content").css("height")) - 16;
     if(h2 < 40) { h2 = 40; }
     h = "height:" + h2;
-//     alert(h);
     h2 = h2/2 + 30;
-//     alert(h + " parsed: " + parseInt(h));
     var ajax_load = '<div style="text-align:center;' + w + ';' + h + 'px;"><p style="line-height:' + h2 + 'px;">loading...</p></div>';
     
     var loadUrl = "table/";
-    $("#content").html(ajax_load).load(loadUrl, $.param(config), function(responseText) { updateTable(); });
-//     alert($("#content").css("height"));
+    $("#content").fadeOut("fast").html(ajax_load).fadeIn("fast").load(loadUrl, $.param(config), function(responseText) { updateTable(); });
   }
   
-  function onSelectChange() {
-    var selected = $("#trend option:selected");     
-    var output = "";
-    if(selected.val() != 0){
-      output = "You Selected " + selected.text();
-    }
-    refreshContent();
-  }
-
   $(function() {
     $("#trend").val({{ trendconfig }});
-    $("#trend").change(onSelectChange);
+    $("#trend").change(refreshContent);
+    $("#revision").val({{ selectedrevision }});
+    $("#revision").change(refreshContent);
     refreshContent();
   });
 </script>
@@ -115,7 +106,12 @@
   <div class="boxhead"><h2>Options</h2></div>
   <div class="boxbody">
   <ul>
-    <li title="Trend since {{ trendconfig }} tested revisions ago">Trend: <select id="trend"><option value="5">5</option><option value="10">10</option><option value="20">20</option></select>
+    <li title="Trend since {{ trendconfig }} tested revisions ago">Trend:
+      <select id="trend">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+      </select>
     </li>
 <!--     <li id="output">{{ trendconfig }}</li> -->
   </ul>
@@ -123,7 +119,11 @@
 </div>
 </div>
 
-<div id="configbar">Results for revision {{ lastrevision }}</div>
+<div id="configbar">Results for revision
+  <select id="revision">{% for rev in lastrevisions %}
+    <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
+  </select>
+</div>
 <div id="content">
 <table class="tablesorter"></table>
 </div>

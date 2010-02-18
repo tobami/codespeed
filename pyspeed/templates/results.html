@@ -1,12 +1,56 @@
 {% extends "base.html" %}
+{% block script %}
+<script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript">
+  function updateTable() {
+    $("#results").tablesorter({widgets: ['zebra']});
+    $("#results tbody td").hover(function() {
+      $(this).parents('tr').addClass('highlight');
+    }, function() {
+      $(this).parents('tr').removeClass('highlight');
+    });
+  }
+    
+  function refreshContent() {
+//     readConfiguration();
+    $.ajaxSetup ({  
+         cache: false  
+    });
+    
+    //loading text
+    w = "width:" + $("#content").css("width");
+    h2 = parseInt($("#content").css("height")) - 16;
+    if(h2 < 40) { h2 = 40; }
+    h = "height:" + h2;
+    h2 = h2/2 + 30;
+    var ajax_load = '<div style="text-align:center;' + w + ';' + h + 'px;"><p style="line-height:' + h2 + 'px;">loading...</p></div>';
+    
+    var loadUrl = "table/";
+    $("#content").hide();
+    $("#content").html(ajax_load).fadeIn().load(loadUrl, function(responseText) { updateTable(); });
+  }
+  
+  $(function() {
+    refreshContent();
+  });
+</script>
+{% endblock %}
+
+{% block navigation %}
+  <div id="tabs">
+    <ul>
+      <li><a href="/overview/">Overview</a></li>
+      <li><a href="#">Timeline</a></li>
+      <li><a href="#" class="current">Results</a></li>
+    </ul>
+  </div>
+{% endblock %}
+
 {% block body %}
-<p>Results for pypy revision {{ revision }}</p>
-<table>
-  <tr>
-    <th>Benchmark</th><th>Result</th><th>Relative to cpython</th>
-  </tr>
-{% for result in result_list %}  <tr>
-    <td>{{ result.benchmark }}</td><td>{{ result.value }}</td><td></td>
-  </tr>{% endfor %}
-</table>
+<div id="configbar">List of test results. Filter: none.</div>
+<div id="content">
+<table class="tablesorter"></table>
+</div>
+{% endblock %}
+{% block footer %}
 {% endblock %}

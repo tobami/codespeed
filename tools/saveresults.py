@@ -16,12 +16,12 @@ logger.addHandler(handler)
 SPEEDURL = "http://localhost:8080/"# This will be pyspeed.pypy.org/
 HOST = "Dual Core Linux"
 
-def save(revision, results, options, branch):
+def save(revision, results, options, branch, interpreter):
     #Parse data
     data = {}
     current_date = datetime.today()
     proj = "pypy"
-    interpreter = "pypy-c-jit"
+    #interpreter = "pypy-c-jit"
     int_options = "gc=hybrid"
     if branch != "" and branch != "trunk":
         interpreter = branch

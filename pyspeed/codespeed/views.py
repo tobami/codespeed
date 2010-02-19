@@ -15,9 +15,10 @@ def results(request):
 def overviewtable(request):
     #sleep(2)
     trendconfig = int(request.GET["trend"])
+    revision = int(request.GET["revision"])
     lastrevisions = Revision.objects.filter(
         project=settings.PROJECT_NAME
-    ).order_by('-number')[:11]
+    ).filter(number__lte=revision).order_by('-number')[:11]
     lastrevision = lastrevisions[0].number
     changerevision = lastrevisions[1].number    
     pastrevisions = lastrevisions[trendconfig-2:trendconfig+1]
@@ -50,21 +51,23 @@ def overviewtable(request):
         
         #calculate past average
         average = 0
-        if len(pastrevisions):
-            for rev in pastrevisions:
-                past_rev = Result.objects.filter(
-                    revision__number=rev.number
-                ).filter(
-                    revision__project=settings.PROJECT_NAME
-                ).filter(benchmark=bench)
-                if past_rev.count():
-                    average += past_rev[0].value
-        else: average = "-"
+        averagecount = 0
+        for rev in pastrevisions:
+            past_rev = Result.objects.filter(
+                revision__number=rev.number
+            ).filter(
+                revision__project=settings.PROJECT_NAME
+            ).filter(benchmark=bench)
+            if past_rev.count():
+                average += past_rev[0].value
+                averagecount += 1
         trend = 0
-        if average and average != "-":
-            average = average / len(pastrevisions)
+        if average:
+            average = average / averagecount
             trend =  (result - average)*100/average
-        
+        else:
+            average = "-"
+
         relative = 0
         c = base_list.filter(benchmark=bench)
         if c.count():
@@ -92,7 +95,7 @@ def overview(request):
     interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
     lastrevisions = Revision.objects.filter(
         project=settings.PROJECT_NAME
-    ).order_by('-number')[:10]
+    ).order_by('-number')[:15]
     selectedrevision = lastrevisions[0].number
     if data.has_key("revision"):
         if data["revision"] > 0:

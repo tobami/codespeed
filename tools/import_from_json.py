@@ -7,7 +7,7 @@ from datetime import datetime
 RESULTS_URL = 'http://buildbot.pypy.org/bench_results/'
 SPEEDURL = 'http://localhost:8080/'# This will be pyspeed.pypy.org/
 SAVE_CPYTHON = False
-START_REV = 71212
+START_REV = 71154
 
 def saveresult(data):
     params = urllib.urlencode(data)
@@ -98,7 +98,7 @@ for filename in filelist:
             'interpreter_name': interpreter,
             'interpreter_coptions': int_options,
             'benchmark_name': bench_name,
-            'environment': "Dual Core Linux",
+            'environment': "bigdog",
             'result_value': value,
             'result_date': current_date,
         }

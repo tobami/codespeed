@@ -19,11 +19,11 @@ div#title {
 div#title img { float: left; }
 div#title h1 { float: left; margin-top: 23px; }
 
-div#wrapper { width: 100%; margin-top: 0; float:left; }
+div#wrapper { width: 100%; margin: 0; margin-bottom: 0.8em; float:left; }
 
 div#navigation { float: left; }
 div#tabs { width: 100%; color: #FFFFFF; }
-div#tabs ul { margin: 0; padding: 0; padding-left: 17em; }
+div#tabs ul { margin: 0; padding: 0; padding-left: 18em; }
 div#tabs li {
     display: inline-block;
     margin-left: 0.5em;
@@ -73,9 +73,11 @@ div#sidebar {
     -webkit-border-radius: 12px;
 }
 div#content {
+    width: 52.2em;
     float: right;
     clear:right;
     padding: 0.8em;
+    text-align: center;
     background-color: #FFFFFF;
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
@@ -129,9 +131,8 @@ div#content {
 table#results thead tr th { width: 7em; }
 
 table.tablesorter {
-    width: 57em;
+/*     width: 57em; */
     font-family:arial;
-/*     margin:0.8em; */
     font-size: 11pt;
     text-align: left;
     background-color: #fafafa;
@@ -209,8 +210,12 @@ table.tablesorter tbody tr td.status-green { background-color: #9FD54D; }
 table.tablesorter tbody tr td.status-yellow { background-color: #FEE772; }
 table.tablesorter tbody tr.highlight td {
     background-color: #9DADC6 !important;
-/*     cursor: pointer; */
+    cursor: pointer;
 }
+
+a#permalink { float: right; font-size: small;}
+
+div#plot { height: 500px; width: 825px; }
 
 /* new clearfix */
 .clearfix:after {

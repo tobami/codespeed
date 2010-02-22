@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block script %}
+<script type="text/javascript" src="/media/js/jquery-1.4.1.min.js"></script>
+<!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.js"></script><![endif]-->
+<link rel="stylesheet" type="text/css" href="/media/js/jqplot/jquery.jqplot.min.css" />
+<script language="javascript" type="text/javascript" src="/media/js/jqplot/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="/media/js/jqplot/jqplot.cursor.min.js"></script>
+<script type="text/javascript" src="/media/js/jqplot/jqplot.highlighter.min.js"></script>
+
+<script type="text/javascript">
+  var config = new Object();
+  var seriesColors = ["#0085cc", "#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"];
+  
+  function readConfiguration() {
+    config["interpreters"] = "";
+    $("input[name='interpreter']:checked").each(function() {
+      config["interpreters"] += $(this).val() + ",";
+    });
+    config["interpreters"] = config["interpreters"].slice(0, -1);
+    config["benchmark"] = $("input[name='benchmark']:checked").val();
+    config["revisions"] = $("#revisions option:selected").val();
+  }
+  
+  function permalink() {
+    readConfiguration();
+    window.location="?" + ued_encode(config);
+  }
+  
+  function renderPlot(data) {
+    var plotdata = new Array();
+    var colors = new Array();
+    $("input[name='interpreter']:checked").each(function() {
+      id = $(this).val();
+      colors.push({"label": $("label[for*='" + this.id + "']").html(), "color": seriesColors[id-1]});
+//       $(this).parent().css("background-color", seriesColors[id-1]);
+//       $(this).parent().css("opacity", 0.3);
+      plotdata.push(data[id]);
+    });
+
+    //reverse plotdata so that colors stay the same???
+    plot = $.jqplot('plot',  plotdata, {
+      series: colors,
+      axes:{
+        yaxis:{min: 0, autoscale:true, tickOptions:{formatString:'%.2f'}},
+        xaxis:{pad: 1.01, autoscale:true, tickOptions:{formatString:'%d'}}
+      },
+      legend: {show: true, location: 'nw'},
+      highlighter: {sizeAdjust: 7.5},
+      cursor:{zoom:true, showTooltip:false, clickReset:true}
+    });
+  }
+  
+  function refreshContent() {
+    readConfiguration();
+    $.ajaxSetup ({  
+         cache: false  
+    });
+    
+    //loading text
+    h2 = parseInt($("#content").css("height")) - 16;
+    if(h2 < 40) { h2 = 40; }
+    h = "height:" + h2;
+    h2 = h2/2 + 30;
+    var ajax_load = '<div style="' + h + 'px;"><p style="line-height:' + h2 + 'px;">loading...</p></div>';
+    
+    $("#plot").fadeOut("fast", function() {
+      $(this).html(ajax_load);
+    }).fadeIn("fast", function() { $.getJSON("json/", config, renderPlot); }
+//     }).fadeIn("fast", function() { $.getJSON("json/", $.URLEncode($.toJSON(config)), renderPlot); }
+    );
+  }
+  
+  $(function() {
+    $("#revisions").val({{ defaultlast }});
+    $("#revisions").change(refreshContent);
+    $("input:checkbox").removeAttr('checked');
+    {% for defaultinterpreter in defaultinterpreters %}
+    $("input[name='interpreter']").filter('[value={{ defaultinterpreter }}]').attr('checked', true);
+    {% endfor %}
+    $("input[name='interpreter']").change(refreshContent);
+    $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
+    $("input[name='benchmark']").change(refreshContent);
+
+    refreshContent();
+    
+  });
+</script>
+{% endblock %}
+
+{% block navigation %}
+  <div id="tabs">
+    <ul>
+      <li><a href="/overview/">Overview</a></li>
+      <li><a href="/timeline/" class="current">Timeline</a></li>
+      <li><a href="/results/">Results</a></li>
+    </ul>
+  </div>
+{% endblock %}
+
+{% block body %}
+<div id="sidebar">
+<div id="interpreter" class="sidebox">
+  <div class="boxhead"><h2>Interpreter</h2></div>
+  <div class="boxbody"><ul>
+    {% for inter in interpreters %}<li>
+    <input id="interpreter{{ inter.id }}" type="checkbox" name="interpreter" value="{{ inter.id }}" />
+    <label for="interpreter{{ inter.id }}">{{ inter }}</label></li>
+<!--     <br> -->
+    {% endfor %}
+    </ul>
+  </div>
+</div>
+<div id="benchmark" class="sidebox">
+  <div class="boxhead"><h2>Benchmark</h2></div>
+  <div class="boxbody">
+<!--   {% regroup benchmarks by name as bench_list%} -->
+    {% for bench in benchmarks|dictsort:"name" %}
+    <input id="benchmark{{ bench.id }}" type="radio" name="benchmark" value="{{ bench.id }}" />
+    <label for="benchmark{{ bench.id }}">{{ bench }}</label>
+    <br>
+    {% endfor %}
+  </div>
+</div>
+<div class="sidebox">
+  <div class="boxhead"><h2>Host</h2></div>
+  <div class="boxbody">
+  <ul>
+    {% for host in hostlist %}  <li>{{ host }}</li>{% endfor %}
+  </ul>
+  </div>
+</div>
+</div>
+
+<div id="configbar">Results for last
+  <select id="revisions" title="Last {{ rev }} revisions tested">{% for rev in lastrevisions %}
+    <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
+  </select> revisions<a id="permalink" href="javascript:permalink();">Permalink</a>
+</div>
+<div id="content">
+<div id="plot" class="plot"></div>
+</div>
+{% endblock %}

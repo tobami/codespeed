@@ -4,16 +4,86 @@ from pyspeed.codespeed.models import Revision, Result, Interpreter, Benchmark, E
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from pyspeed import settings
 from time import sleep
+import json
 
 def resultstable(request):
-    result_list = Result.objects.order_by('-date')[:200]
+    result_list = Result.objects.order_by('-date')[:300]
     return render_to_response('results_table.html', locals())
 
 def results(request):
     return render_to_response('results.html')
 
+def getdata(request):
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
+    data = request.GET
+    #print "getdata"
+    #for d in data: print "key: %s, value: %s" % (d, data[d])
+
+    lastrevisions = Revision.objects.filter(
+        project=settings.PROJECT_NAME
+    ).order_by('-number')[:data["revisions"]]
+    
+    result_list = {}
+    for interpreter in data["interpreters"].split(","):
+        results = []
+        for rev in lastrevisions:
+            res = Result.objects.filter(
+                revision__number=rev.number
+            ).filter(
+                revision__project=settings.PROJECT_NAME
+            ).filter(
+                benchmark=data["benchmark"]
+            ).filter(interpreter=interpreter)
+            if len(res): results.append([rev.number, res[0].value])
+        result_list[interpreter] = results
+    
+    #response = {
+        #"revisions": data["revisions"],
+        #"benchmark": data["benchmark"],
+        #"interpreters": data["interpreters"].split(","),
+        #"results": result_list,
+    #}
+    return HttpResponse(json.dumps( result_list ))
+
+def timeline(request):
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
+    data = request.GET
+    #print "timeline"
+    #for d in data: print "key: %s, value: %s" % (d, data[d])
+    # Configuration of default parameters
+    defaultbenchmark = 1
+    if data.has_key("benchmark"):
+        try:
+            defaultbenchmark = int(data["benchmark"])
+        except ValueError:
+            defaultbenchmark = get_object_or_404(Benchmark, name=data["benchmark"]).id
+    
+    defaultinterpreters = [2]
+    if data.has_key("interpreters"):
+        defaultinterpreters = []
+        for i in data["interpreters"].split(","):
+            selected = Interpreter.objects.filter(id=int(i))
+            if len(selected): defaultinterpreters.append(selected[0].id)
+    if not len(defaultinterpreters): defaultinterpreters = [2]
+    print defaultinterpreters
+    lastrevisions = [20, 50, 100]
+    defaultlast = 50
+    if data.has_key("lastrevisions"):
+        if data["lastrevisions"] in lastrevisions:
+            defaultlast = data["lastrevisions"]
+
+        
+    # Information for template
+    interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
+    benchmarks = Benchmark.objects.all()
+    hostlist = Environment.objects.all()
+    return render_to_response('timeline.html', locals())
+
 def overviewtable(request):
     #sleep(2)
+    interpreter = int(request.GET["interpreter"])
     trendconfig = int(request.GET["trend"])
     revision = int(request.GET["revision"])
     lastrevisions = Revision.objects.filter(
@@ -25,11 +95,15 @@ def overviewtable(request):
     
     result_list = Result.objects.filter(
         revision__number=lastrevision
-    ).filter(revision__project=settings.PROJECT_NAME)
+    ).filter(
+        revision__project=settings.PROJECT_NAME
+    ).filter(interpreter=interpreter)
 
     change_list = Result.objects.filter(
         revision__number=changerevision
-    ).filter(revision__project=settings.PROJECT_NAME)
+    ).filter(
+        revision__project=settings.PROJECT_NAME
+    ).filter(interpreter=interpreter)
     
     lastbase = Revision.objects.filter(
         tag__isnull=False
@@ -38,10 +112,13 @@ def overviewtable(request):
     ).order_by('-number')[0].number
     base_list = Result.objects.filter(
         revision__number=lastbase
-    ).filter(revision__project='cpython')
+    ).filter(
+        revision__project='cpython'
+    ).filter(interpreter=1)
     
     table_list = []
     for bench in Benchmark.objects.all():
+        if not len(result_list.filter(benchmark=bench)): continue
         result = result_list.filter(benchmark=bench)[0].value
         
         change = 0
@@ -57,6 +134,8 @@ def overviewtable(request):
                 revision__number=rev.number
             ).filter(
                 revision__project=settings.PROJECT_NAME
+            ).filter(
+                interpreter=interpreter
             ).filter(benchmark=bench)
             if past_rev.count():
                 average += past_rev[0].value
@@ -65,8 +144,9 @@ def overviewtable(request):
         if average:
             average = average / averagecount
             trend =  (result - average)*100/average
+            trend = "%.2f" % trend
         else:
-            average = "-"
+            trend = "-"
 
         relative = 0
         c = base_list.filter(benchmark=bench)
@@ -86,12 +166,19 @@ def overview(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
     data = request.GET
-    trendconfig = 10
-    # TODO: list of posible <select> values. choose from nearest
-    #if data.has_key("trend"):
-        #if data["trend"] > 0:
-            #trendconfig = int(request.GET["trend"])
+    # Configuration of default parameters
+    defaulttrend = 10
+    trends = [5, 10, 20]
+    if data.has_key("trend"):
+        if data["trend"] in trends:
+            defaulttrend = int(request.GET["trend"])
 
+    defaultinterpreter = 2
+    if data.has_key("interpreter"):
+        selected = Interpreter.objects.filter(id=int(data["interpreter"]))
+        if len(selected): defaultinterpreter = selected[0].id
+    
+    # Information for template
     interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
     lastrevisions = Revision.objects.filter(
         project=settings.PROJECT_NAME
@@ -101,8 +188,8 @@ def overview(request):
         if data["revision"] > 0:
             # TODO: Create 404 html embeded in the overview
             selectedrevision = get_object_or_404(Revision, number=data["revision"])
-    
     hostlist = Environment.objects.all()
+    
     return render_to_response('overview.html', locals())
 
 def addresult(request):

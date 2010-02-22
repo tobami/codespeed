@@ -3,10 +3,27 @@
 <script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript">
   var config = new Object();
+  function readConfiguration() {
+    config["trend"] = $("#trend option:selected").val();
+    config["revision"] = $("#revision option:selected").val();
+    config["interpreter"] = $("input[name='interpreter']:checked").val();
+  }
+  
+  function permalink() {
+    readConfiguration();
+    window.location="?" + $.param(config);
+  }
+  
+  function permalinkToTimeline(benchmark) {
+    var conf = new Object();
+    conf["interpreters"] = $("input[name='interpreter']:checked").val();
+    conf["benchmark"] = benchmark;
+    window.location="/timeline/?" + ued_encode(conf);
+  }
   
   function updateTable() {
-    var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
     $("#results > tbody > tr").each(function() {
+      var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
       //Color change column
       var change = $(this).children("td:eq(2)").text().slice(0, -1);
       var colorcode = "status-yellow";
@@ -14,7 +31,7 @@
       else if(change < -0.3) { colorcode = "status-green"; }
       $(this).children("td:eq(2)").addClass(colorcode);
       //Color comparison column
-      var comp = $(this).children("td:eq(4)").text().slice(0, -1);
+      var comp = parseFloat($(this).children("td:eq(4)").text())//remember to remove "x".slice(0, -1);
 //       $(this).children("td:eq(4)").text(comp + "x");
       colorcode = "status-yellow";
       if(comp < 0.8) { colorcode = "status-red"; }
@@ -27,22 +44,20 @@
       } else { comp = comp + "px"; }
 /*      $(this).children("td:eq(5)").find("img").width(comp);*/
       $(this).children("td:eq(5)").find("span").css("width", comp);
+      $(this).click(function () { 
+        permalinkToTimeline($(this).children("td:eq(0)").text());
+      });
     });
     //sort by default by the 5th column
     $.tablesorter.defaults.sortList = [[4,0]];
-    //disable sorting for graphs
+    //disable sorting for bar column
     $.tablesorter.defaults.headers = { 5: { sorter: false } };
     $("#results").tablesorter({widgets: ['zebra']});
     $("#results tbody td").hover(function() {
-    $(this).parents('tr').addClass('highlight');
+      $(this).parents('tr').addClass('highlight');
     }, function() {
       $(this).parents('tr').removeClass('highlight');
     });
-  }
-  
-  function readConfiguration() {
-    config["trend"] = $("#trend option:selected").val();
-    config["revision"] = $("#revision option:selected").val();
   }
   
   function refreshContent() {
@@ -52,22 +67,26 @@
     });
     
     //loading text
-    w = "width:" + $("#content").css("width");
     h2 = parseInt($("#content").css("height")) - 16;
     if(h2 < 40) { h2 = 40; }
     h = "height:" + h2;
     h2 = h2/2 + 30;
-    var ajax_load = '<div style="text-align:center;' + w + ';' + h + 'px;"><p style="line-height:' + h2 + 'px;">loading...</p></div>';
+    var ajax_load = '<div style="' + h + 'px;"><p style="line-height:' + h2 + 'px;">loading...</p></div>';
     
     var loadUrl = "table/";
-    $("#content").fadeOut("fast").html(ajax_load).fadeIn("fast").load(loadUrl, $.param(config), function(responseText) { updateTable(); });
+    $("#results").fadeOut("fast", function() { $("#content").html(ajax_load); });
+    $("#content").load(loadUrl, $.param(config), function(responseText) { updateTable(); });
   }
   
   $(function() {
-    $("#trend").val({{ trendconfig }});
+    $("#trend").val({{ defaulttrend }});
     $("#trend").change(refreshContent);
     $("#revision").val({{ selectedrevision }});
     $("#revision").change(refreshContent);
+    $("input:radio[name=interpreter]").filter('[value={{ defaultinterpreter }}]').attr('checked', true);
+    $("input[name='interpreter']").change(refreshContent);
+
+
     refreshContent();
   });
 </script>
@@ -76,8 +95,8 @@
 {% block navigation %}
   <div id="tabs">
     <ul>
-      <li><a href="#" class="current">Overview</a></li>
-      <li><a href="#">Timeline</a></li>
+      <li><a href="/overview/" class="current">Overview</a></li>
+      <li><a href="/timeline/">Timeline</a></li>
       <li><a href="/results/">Results</a></li>
     </ul>
   </div>
@@ -88,10 +107,11 @@
 <div id="interpreter" class="sidebox">
   <div class="boxhead"><h2>Interpreter</h2></div>
   <div class="boxbody">
-    <ul>
     {% for inter in interpreters %}
-        <li id="interpreter{{inter.id}}">{{ inter }}</li>{% endfor %}
-    </ul>
+    <input id="interpreter{{ inter.id }}" type="radio" name="interpreter" value="{{ inter.id }}" />
+    <label for="interpreter{{ inter.id }}">{{ inter }}</label>
+    <br>
+    {% endfor %}
   </div>
 </div>
 <div class="sidebox">
@@ -106,14 +126,11 @@
   <div class="boxhead"><h2>Options</h2></div>
   <div class="boxbody">
   <ul>
-    <li title="Trend since {{ trendconfig }} tested revisions ago">Trend:
+    <li title="Trend since {{ defaulttrend }} tested revisions ago. Average of 3 revisions">Trend:
       <select id="trend">
-        <option value="5">5</option>
-        <option value="10">10</option>
-        <option value="20">20</option>
+      {% for trend in trends %}<option value="{{ trend }}">{{ trend }}</option><br>{% endfor %}
       </select>
     </li>
-<!--     <li id="output">{{ trendconfig }}</li> -->
   </ul>
   </div>
 </div>
@@ -122,7 +139,7 @@
 <div id="configbar">Results for revision
   <select id="revision">{% for rev in lastrevisions %}
     <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
-  </select>
+  </select><a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content">
 <table class="tablesorter"></table>

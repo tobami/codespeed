@@ -1,7 +1,7 @@
     # -*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
 from django.views.generic import list_detail
-from django.views.generic.simple import direct_to_template
+from django.views.generic.simple import direct_to_template, redirect_to
 from pyspeed.codespeed.models import Result, Revision, Interpreter
 from pyspeed import settings
 
@@ -24,15 +24,17 @@ revision_list = {
 }
 
 urlpatterns = patterns('',
-    (r'^$', direct_to_template, {'template': 'base.html'}),
+    #(r'^$', direct_to_template, {'template': 'base.html'}),
+    (r'^$', redirect_to, {'url': '/overview'}),
 )
 
 urlpatterns += patterns('pyspeed.codespeed.views',
     (r'^overview/$', 'overview'),
     (r'^overview/table/$', 'overviewtable'),
+    (r'^timeline/$', 'timeline'),
+    (r'^timeline/json/$', 'getdata'),
     (r'^results/$', 'results'),
     (r'^results/table/$', 'resultstable'),
-    (r'^revision/$', list_detail.object_list, revision_list),
     # URL interface for adding results
     (r'^result/add/$', 'addresult'),
 )

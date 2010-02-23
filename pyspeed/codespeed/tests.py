@@ -9,7 +9,7 @@ class AddResultTest(TestCase):
     def setUp(self):
         self.path = reverse('pyspeed.codespeed.views.addresult')
         self.client = Client()
-        self.e = Environment(name='Dual Core Linux', cpu='Core 2 Duo 8200')
+        self.e = Environment(name='bigdog', cpu='Core 2 Duo 8200')
         self.e.save()
         self.cdate = datetime.today()
         self.data = {
@@ -18,7 +18,7 @@ class AddResultTest(TestCase):
                 'interpreter_name': 'pypy-c',
                 'interpreter_coptions': 'gc=Böhm',
                 'benchmark_name': 'Richards',
-                'environment': 'Dual Core Linux',
+                'environment': 'bigdog',
                 'result_value': 456,
                 'result_date': self.cdate,
         }        
@@ -29,7 +29,7 @@ class AddResultTest(TestCase):
         response = self.client.post(self.path, self.data)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.content, "Result data saved succesfully")
-        e = Environment.objects.get(name='Dual Core Linux')        
+        e = Environment.objects.get(name='bigdog')        
         b = Benchmark.objects.get(name='Richards')
         r = Revision.objects.get(number='23232', project='pypy')
         i = Interpreter.objects.get(name='pypy-c', coptions='gc=Böhm')
@@ -46,12 +46,12 @@ class AddResultTest(TestCase):
         """
         Add result associated with non-existing environment
         """
-        no_name = 'Dual Core Linux1'
-        self.data['environment'] = no_name
+        bad_name = 'bigdog1'
+        self.data['environment'] = bad_name
         response = self.client.post(self.path, self.data)
         self.assertEquals(response.status_code, 404)
-        self.assertEquals(response.content, "Environment " + no_name + " not found")
-        self.data['environment'] = 'Dual Core Linux'
+        self.assertEquals(response.content, "Environment " + bad_name + " not found")
+        self.data['environment'] = 'bigdog'
     
     def test_empty_argument(self):
         """

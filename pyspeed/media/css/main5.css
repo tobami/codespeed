@@ -3,9 +3,11 @@ body {
     background-image: url(/media/images/vgradient-s.png);
     background-repeat: repeat-x;
 }
+a:link, a:visited { text-decoration: none; }
+a:hover { text-decoration: underline; }
 
 h1 { margin: 0; font-style: italic; }
-div#containter { width: 73em; margin-left: auto; margin-right: auto; }
+div#containter { width: 68em; margin-left: auto; margin-right: auto; }
 div#header { width: 100%; margin: 0; margin-bottom: 0.8em; float:left; }
 div#title {
     width: 100%;
@@ -23,7 +25,7 @@ div#wrapper { width: 100%; margin: 0; margin-bottom: 0.8em; float:left; }
 
 div#navigation { float: left; }
 div#tabs { width: 100%; color: #FFFFFF; }
-div#tabs ul { margin: 0; padding: 0; padding-left: 18em; }
+div#tabs ul { margin: 0; padding: 0; padding-left: 14.3em; }
 div#tabs li {
     display: inline-block;
     margin-left: 0.5em;
@@ -49,7 +51,7 @@ div#tabs ul li a.current {
 div#tabs ul li a:hover { background-color: #EAEAEA; color: #2D2F32; }
 
 div#configbar {
-    width: 52.2em;
+    width: 51em;
     position: relative;
     float: right;
     background-color: #FFFFFF;
@@ -68,12 +70,12 @@ div#workarea {
 div#sidebar {
 /*     border: 1px dashed red; */
     float: left;
-    margin-right: 20px;
+    margin-right: 0.8em;
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
 }
 div#content {
-    width: 52.2em;
+    width: 51em;
     float: right;
     clear:right;
     padding: 0.8em;
@@ -84,12 +86,11 @@ div#content {
 }
 
 .sidebox {
-/*     border: 1px dashed red; */
     margin: 0;
     margin-bottom: 2.2em;
-    width: 16em; /* ems so it will grow */
+    width: 14.2em;
 /*     background: url(sbbody-r.gif) no-repeat bottom right; */
-    font-size: 100%;
+    font-size: 90%;
 }
 .boxhead {
 /*     background: url(sbhead-r.gif) no-repeat top right; */
@@ -106,9 +107,8 @@ div#content {
     padding: 0.5em 0.8em 0.3em;
     color: white; 
     font-weight: bold; 
-    font-size: 1.2em; 
+    font-size: 1.1em; 
     line-height: 1em;
-/*     text-shadow: rgba(0,0,0,.4) 0px 2px 5px; /* Safari-only, but cool */
 }
 .boxbody {
 /*     background: url(sbbody-l.gif) no-repeat bottom left; */
@@ -129,9 +129,9 @@ div#content {
 
 /* tables */
 table#results thead tr th { width: 7em; }
+table#result_list thead tr th { width: 8em; }
 
 table.tablesorter {
-/*     width: 57em; */
     font-family:arial;
     font-size: 11pt;
     text-align: left;
@@ -177,7 +177,7 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
 
 table.tablesorter tbody td.text {text-align: left;}
 
-table.tablesorter thead th.bar { width: 440px !important; }
+table.tablesorter thead th.bar { width: 410px !important; }
 table.tablesorter tbody td.bar {
     background-image: url(/media/images/gridline.png);
     background-repeat: repeat-x;
@@ -202,7 +202,6 @@ table.tablesorter tbody span {
   background: #5AA1D3; 
   text-indent: -9999px; 
   overflow: hidden; 
-/*   background-color: #FF4141; margin-bottom: 0.1em; */
 }
 
 table.tablesorter tbody tr td.status-red { background-color: #FF5640; }
@@ -215,7 +214,7 @@ table.tablesorter tbody tr.highlight td {
 
 a#permalink { float: right; font-size: small;}
 
-div#plot { height: 500px; width: 825px; }
+div#plot { height: 500px; width: 800px; }
 
 /* new clearfix */
 .clearfix:after {

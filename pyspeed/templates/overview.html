@@ -2,16 +2,16 @@
 {% block script %}
 <script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript">
-  var config = new Object();
-  function readConfiguration() {
+  function getConfiguration() {
+    var config = new Object();
     config["trend"] = $("#trend option:selected").val();
     config["revision"] = $("#revision option:selected").val();
     config["interpreter"] = $("input[name='interpreter']:checked").val();
+    return config;
   }
   
   function permalink() {
-    readConfiguration();
-    window.location="?" + $.param(config);
+    window.location="?" + $.param(getConfiguration());
   }
   
   function permalinkToTimeline(benchmark) {
@@ -32,7 +32,6 @@
       $(this).children("td:eq(2)").addClass(colorcode);
       //Color comparison column
       var comp = parseFloat($(this).children("td:eq(4)").text())//remember to remove "x".slice(0, -1);
-//       $(this).children("td:eq(4)").text(comp + "x");
       colorcode = "status-yellow";
       if(comp < 0.8) { colorcode = "status-red"; }
       else if(comp > 1.2) { colorcode = "status-green"; }
@@ -42,16 +41,14 @@
       if (comp > tdwidth) {
           comp = "100%";
       } else { comp = comp + "px"; }
-/*      $(this).children("td:eq(5)").find("img").width(comp);*/
       $(this).children("td:eq(5)").find("span").css("width", comp);
       $(this).click(function () { 
         permalinkToTimeline($(this).children("td:eq(0)").text());
       });
     });
-    //sort by default by the 5th column
-    $.tablesorter.defaults.sortList = [[4,0]];
-    //disable sorting for bar column
-    $.tablesorter.defaults.headers = { 5: { sorter: false } };
+    //Configure table as tablesorter
+    $.tablesorter.defaults.sortList = [[4,0]];//sort by default by the 5th column
+    $.tablesorter.defaults.headers = { 5: { sorter: false } };//disable sorting for bar column
     $("#results").tablesorter({widgets: ['zebra']});
     $("#results tbody td").hover(function() {
       $(this).parents('tr').addClass('highlight');
@@ -61,12 +58,11 @@
   }
   
   function refreshContent() {
-    readConfiguration();
-    $.ajaxSetup ({  
-         cache: false  
+    $.ajaxSetup ({
+      cache: false
     });
     
-    //loading text
+    //Create loading text
     h2 = parseInt($("#content").css("height")) - 16;
     if(h2 < 40) { h2 = 40; }
     h = "height:" + h2;
@@ -75,7 +71,7 @@
     
     var loadUrl = "table/";
     $("#results").fadeOut("fast", function() { $("#content").html(ajax_load); });
-    $("#content").load(loadUrl, $.param(config), function(responseText) { updateTable(); });
+    $("#content").load(loadUrl, $.param(getConfiguration()), function(responseText) { updateTable(); });
   }
   
   $(function() {
@@ -85,7 +81,6 @@
     $("#revision").change(refreshContent);
     $("input:radio[name=interpreter]").filter('[value={{ defaultinterpreter }}]').attr('checked', true);
     $("input[name='interpreter']").change(refreshContent);
-
 
     refreshContent();
   });

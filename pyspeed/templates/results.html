@@ -3,27 +3,20 @@
 <script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript">
   function updateTable() {
-    $("#results").tablesorter({widgets: ['zebra']});
-    $("#results tbody td").hover(function() {
-      $(this).parents('tr').addClass('highlight');
-    }, function() {
-      $(this).parents('tr').removeClass('highlight');
-    });
+    $("#result_list").tablesorter({widgets: ['zebra']});
   }
     
   function refreshContent() {
-//     readConfiguration();
     $.ajaxSetup ({  
          cache: false  
     });
     
     //loading text
-    w = "width:" + $("#content").css("width");
     h2 = parseInt($("#content").css("height")) - 16;
     if(h2 < 40) { h2 = 40; }
     h = "height:" + h2;
     h2 = h2/2 + 30;
-    var ajax_load = '<div style="text-align:center;' + w + ';' + h + 'px;"><p style="line-height:' + h2 + 'px;">loading...</p></div>';
+    var ajax_load = '<div style="text-align:center;' + h + 'px;"><p style="line-height:' + h2 + 'px;">loading...</p></div>';
     
     var loadUrl = "table/";
     $("#content").hide();

@@ -5,7 +5,7 @@ from xml.dom.minidom import parse
 from datetime import datetime
 
 RESULTS_URL = 'http://buildbot.pypy.org/bench_results/'
-SPEEDURL = 'http://localhost:8080/'# This will be pyspeed.pypy.org/
+SPEEDURL = 'http://speed.pypy.org/'# This will be pyspeed.pypy.org/
 SAVE_CPYTHON = False
 START_REV = 71154
 
@@ -57,8 +57,6 @@ for filename in filelist:
     f = urllib2.urlopen(RESULTS_URL + filename)
     result = simplejson.load(f)
     f.close()
-    print filename
-    print result
     current_date = datetime.today()
     proj = 'pypy'
     revision = result['revision']

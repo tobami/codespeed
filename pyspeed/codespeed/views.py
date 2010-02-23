@@ -3,7 +3,6 @@ from django.shortcuts import get_object_or_404, render_to_response
 from pyspeed.codespeed.models import Revision, Result, Interpreter, Benchmark, Environment
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from pyspeed import settings
-from time import sleep
 import json
 
 def resultstable(request):
@@ -17,9 +16,7 @@ def getdata(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
     data = request.GET
-    #print "getdata"
-    #for d in data: print "key: %s, value: %s" % (d, data[d])
-
+    
     lastrevisions = Revision.objects.filter(
         project=settings.PROJECT_NAME
     ).order_by('-number')[:data["revisions"]]
@@ -37,21 +34,13 @@ def getdata(request):
             ).filter(interpreter=interpreter)
             if len(res): results.append([rev.number, res[0].value])
         result_list[interpreter] = results
-    
-    #response = {
-        #"revisions": data["revisions"],
-        #"benchmark": data["benchmark"],
-        #"interpreters": data["interpreters"].split(","),
-        #"results": result_list,
-    #}
     return HttpResponse(json.dumps( result_list ))
 
 def timeline(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
     data = request.GET
-    #print "timeline"
-    #for d in data: print "key: %s, value: %s" % (d, data[d])
+    
     # Configuration of default parameters
     defaultbenchmark = 1
     if data.has_key("benchmark"):
@@ -67,14 +56,13 @@ def timeline(request):
             selected = Interpreter.objects.filter(id=int(i))
             if len(selected): defaultinterpreters.append(selected[0].id)
     if not len(defaultinterpreters): defaultinterpreters = [2]
-    print defaultinterpreters
+
     lastrevisions = [20, 50, 100]
     defaultlast = 50
     if data.has_key("lastrevisions"):
         if data["lastrevisions"] in lastrevisions:
             defaultlast = data["lastrevisions"]
-
-        
+    
     # Information for template
     interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
     benchmarks = Benchmark.objects.all()
@@ -82,7 +70,6 @@ def timeline(request):
     return render_to_response('timeline.html', locals())
 
 def overviewtable(request):
-    #sleep(2)
     interpreter = int(request.GET["interpreter"])
     trendconfig = int(request.GET["trend"])
     revision = int(request.GET["revision"])
@@ -166,6 +153,7 @@ def overview(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
     data = request.GET
+    
     # Configuration of default parameters
     defaulttrend = 10
     trends = [5, 10, 20]

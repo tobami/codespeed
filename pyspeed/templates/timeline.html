@@ -8,10 +8,10 @@
 <script type="text/javascript" src="/media/js/jqplot/jqplot.highlighter.min.js"></script>
 
 <script type="text/javascript">
-  var config = new Object();
   var seriesColors = ["#0085cc", "#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"];
   
-  function readConfiguration() {
+  function getConfiguration() {
+    var config = new Object();
     config["interpreters"] = "";
     $("input[name='interpreter']:checked").each(function() {
       config["interpreters"] += $(this).val() + ",";
@@ -19,11 +19,11 @@
     config["interpreters"] = config["interpreters"].slice(0, -1);
     config["benchmark"] = $("input[name='benchmark']:checked").val();
     config["revisions"] = $("#revisions option:selected").val();
+    return config;
   }
   
   function permalink() {
-    readConfiguration();
-    window.location="?" + ued_encode(config);
+    window.location="?" + ued_encode(getConfiguration());
   }
   
   function renderPlot(data) {
@@ -37,7 +37,6 @@
       plotdata.push(data[id]);
     });
 
-    //reverse plotdata so that colors stay the same???
     plot = $.jqplot('plot',  plotdata, {
       series: colors,
       axes:{
@@ -51,7 +50,6 @@
   }
   
   function refreshContent() {
-    readConfiguration();
     $.ajaxSetup ({  
          cache: false  
     });
@@ -65,9 +63,7 @@
     
     $("#plot").fadeOut("fast", function() {
       $(this).html(ajax_load);
-    }).fadeIn("fast", function() { $.getJSON("json/", config, renderPlot); }
-//     }).fadeIn("fast", function() { $.getJSON("json/", $.URLEncode($.toJSON(config)), renderPlot); }
-    );
+    }).fadeIn("fast", function() { $.getJSON("json/", getConfiguration(), renderPlot); });
   }
   
   $(function() {
@@ -82,7 +78,6 @@
     $("input[name='benchmark']").change(refreshContent);
 
     refreshContent();
-    
   });
 </script>
 {% endblock %}
@@ -113,7 +108,6 @@
 <div id="benchmark" class="sidebox">
   <div class="boxhead"><h2>Benchmark</h2></div>
   <div class="boxbody">
-<!--   {% regroup benchmarks by name as bench_list%} -->
     {% for bench in benchmarks|dictsort:"name" %}
     <input id="benchmark{{ bench.id }}" type="radio" name="benchmark" value="{{ bench.id }}" />
     <label for="benchmark{{ bench.id }}">{{ bench }}</label>

@@ -13,16 +13,16 @@ handler = logging.handlers.RotatingFileHandler(
 logger.addHandler(handler)
 ################
 
-SPEEDURL = "http://localhost:8080/"# This will be pyspeed.pypy.org/
-HOST = "Dual Core Linux"
+SPEEDURL = "http://speed.pypy.org/"
+HOST = "bigdog"
 
-def save(revision, results, options, branch, interpreter):
+def save(revision, results, options, branch, interpreter, int_options):
     #Parse data
     data = {}
     current_date = datetime.today()
     proj = "pypy"
     #interpreter = "pypy-c-jit"
-    int_options = "gc=hybrid"
+    #int_options = "gc=hybrid"
     if branch != "" and branch != "trunk":
         interpreter = branch
         int_options = ""
@@ -57,7 +57,7 @@ def send(data):
     params = urllib.urlencode(data)
     f = None
     response = "None"
-    info = "Saving result for " + data['interpreter_name'] + " revision "
+    info = str(datetime.today()) + ": Saving result for " + data['interpreter_name'] + " revision "
     info += str(data['revision_number']) + ", benchmark " + data['benchmark_name']
     logger.info(info)
     try:

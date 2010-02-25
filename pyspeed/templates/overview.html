@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block title %}PyPy Speed Center: Overview{% endblock %}
 {% block script %}
 <script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript">
@@ -60,7 +61,7 @@
       cache: false
     });
     
-    h = parseInt($("#content").css("height"));//get height for loading text
+    var h = parseInt($("#content").css("height"));//get height for loading text
     $("#results").fadeOut("fast", function() {
       $("#content").html(getLoadText("Loading...", h));
     });
@@ -75,6 +76,8 @@
     $("#revision").change(refreshContent);
     $("input:radio[name=interpreter]").filter('[value={{ defaultinterpreter }}]').attr('checked', true);
     $("input[name='interpreter']").change(refreshContent);
+    $("input:radio[name=host]").filter('[value={{ defaulthost }}]').attr('checked', true);
+    $("input[name='host']").change(refreshContent);
 
     refreshContent();
   });
@@ -98,31 +101,34 @@
   <div class="boxbody">
     {% for inter in interpreters %}
     <input id="interpreter{{ inter.id }}" type="radio" name="interpreter" value="{{ inter.id }}" />
-    <label for="interpreter{{ inter.id }}">{{ inter }}</label>
+    <label for="interpreter{{ inter.id }}">{{ inter.name }}</label>
     <br>
     {% endfor %}
-  </div>
-</div>
-<div class="sidebox">
-  <div class="boxhead"><h2>Host</h2></div>
-  <div class="boxbody">
-  <ul>
-    {% for host in hostlist %}  <li>{{ host }}</li>{% endfor %}
-  </ul>
   </div>
 </div>
 <div id="options" class="sidebox">
   <div class="boxhead"><h2>Options</h2></div>
   <div class="boxbody">
   <ul>
-    <li title="Trend since {{ defaulttrend }} tested revisions ago. Average of 3 revisions">Trend:
+    <li title="Trend since a given number of tested revisions ago. Average of 3 revisions">Trend:
       <select id="trend">
-      {% for trend in trends %}<option value="{{ trend }}">{{ trend }}</option><br>{% endfor %}
+      {% for trend in trends %}<option value="{{ trend }}">{{ trend }}</option>{% endfor %}
       </select>
     </li>
   </ul>
   </div>
 </div>
+<div class="sidebox">
+  <div class="boxhead"><h2>Host</h2></div>
+  <div class="boxbody">
+  {% for host in hostlist %}
+    <input id="host{{ host.id }}" type="radio" name="host" value="{{ host.id }}" />
+    <label for="host{{ host.id }}">{{ host }}</label>
+    <br>
+    {% endfor %}
+  </div>
+</div>
+
 </div>
 
 <div id="configbar">Results for revision

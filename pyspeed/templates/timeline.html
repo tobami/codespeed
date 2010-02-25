@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% block title %}PyPy Speed Center: Timeline{% endblock %}
 {% block script %}
 <script type="text/javascript" src="/media/js/jquery-1.4.1.min.js"></script>
 <!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.js"></script><![endif]-->
@@ -80,6 +81,8 @@
     $("input[name='interpreter']").change(refreshContent);
     $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
     $("input[name='benchmark']").change(refreshContent);
+    $("input:radio[name=host]").filter('[value={{ defaulthost }}]').attr('checked', true);
+    $("input[name='host']").change(refreshContent);
     
     refreshContent();
   });
@@ -101,7 +104,7 @@
   <div class="boxbody"><ul>
     {% for inter in interpreters %}<li>
     <input id="interpreter{{ inter.id }}" type="checkbox" name="interpreter" value="{{ inter.id }}" />
-    <label for="interpreter{{ inter.id }}">{{ inter }}</label></li>
+    <label for="interpreter{{ inter.id }}">{{ inter.name }}</label></li>
     {% endfor %}
     </ul>
   </div>
@@ -118,10 +121,12 @@
 </div>
 <div class="sidebox">
   <div class="boxhead"><h2>Host</h2></div>
-  <div class="boxbody">
-  <ul>
-    {% for host in hostlist %}  <li>{{ host }}</li>{% endfor %}
-  </ul>
+    <div class="boxbody">
+  {% for host in hostlist %}
+    <input id="host{{ host.id }}" type="radio" name="host" value="{{ host.id }}" />
+    <label for="host{{ host.id }}">{{ host }}</label>
+    <br>
+    {% endfor %}
   </div>
 </div>
 </div>

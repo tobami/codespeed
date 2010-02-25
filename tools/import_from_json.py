@@ -5,9 +5,9 @@ from xml.dom.minidom import parse
 from datetime import datetime
 
 RESULTS_URL = 'http://buildbot.pypy.org/bench_results/'
-SPEEDURL = 'http://speed.pypy.org/'# This will be pyspeed.pypy.org/
+SPEEDURL = 'http://speed.pypy.org/'
 SAVE_CPYTHON = False
-START_REV = 71392
+START_REV = 71480
 
 def saveresult(data):
     params = urllib.urlencode(data)

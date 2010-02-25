@@ -50,6 +50,7 @@ def timeline(request):
     data = request.GET
     
     # Configuration of default parameters
+    defaulthost = 1
     defaultbenchmark = 1
     if data.has_key("benchmark"):
         try:
@@ -65,8 +66,8 @@ def timeline(request):
             if len(selected): defaultinterpreters.append(selected[0].id)
     if not len(defaultinterpreters): defaultinterpreters = [2]
 
-    lastrevisions = [20, 50, 100]
-    defaultlast = 50
+    lastrevisions = [50, 200, 1000]
+    defaultlast = 200
     if data.has_key("lastrevisions"):
         if data["lastrevisions"] in lastrevisions:
             defaultlast = data["lastrevisions"]
@@ -163,8 +164,9 @@ def overview(request):
     data = request.GET
     
     # Configuration of default parameters
+    defaulthost = 1
     defaulttrend = 10
-    trends = [5, 10, 20]
+    trends = [5, 10, 20, 100]
     if data.has_key("trend"):
         if data["trend"] in trends:
             defaulttrend = int(request.GET["trend"])

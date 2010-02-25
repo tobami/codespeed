@@ -27,16 +27,21 @@
   }
   
   function renderPlot(data) {
+    if(data["error"] != "None") {
+      h = parseInt($("#content").css("height"));
+      $("#content").html(getLoadText(data["error"], h));
+      return 1;
+    }
     var plotdata = new Array();
     var colors = new Array();
     $("input[name='interpreter']:checked").each(function() {
       id = $(this).val();
       colors.push({"label": $("label[for*='" + this.id + "']").html(), "color": seriesColors[id-1]});
-//       $(this).parent().css("background-color", seriesColors[id-1]);
-//       $(this).parent().css("opacity", 0.3);
+    // TODO: color list?       $(this).parent().css("background-color", seriesColors[id-1]);
+    //       $(this).parent().css("opacity", 0.3);
       plotdata.push(data[id]);
     });
-
+    $("#content").html('<div id="plot"></div>');
     plot = $.jqplot('plot',  plotdata, {
       series: colors,
       axes:{
@@ -50,23 +55,22 @@
   }
   
   function refreshContent() {
-    $.ajaxSetup ({  
-         cache: false  
-    });
-    
-    //loading text
-    h2 = parseInt($("#content").css("height")) - 16;
-    if(h2 < 40) { h2 = 40; }
-    h = "height:" + h2;
-    h2 = h2/2 + 30;
-    var ajax_load = '<div style="' + h + 'px;"><p style="line-height:' + h2 + 'px;">loading...</p></div>';
-    
-    $("#plot").fadeOut("fast", function() {
-      $(this).html(ajax_load);
-    }).fadeIn("fast", function() { $.getJSON("json/", getConfiguration(), renderPlot); });
+    var h = parseInt($("#content").css("height"));//get height for loading text
+    if ($("#plot").length == 0) {//Previous error, no plot div
+      $("#content").html(getLoadText("Loading...", h));
+      $.getJSON("json/", getConfiguration(), renderPlot);
+    } else {//normal case
+      $("#plot").fadeOut("fast", function() {
+        $("#content").html(getLoadText("Loading...", h));
+        $.getJSON("json/", getConfiguration(), renderPlot);
+      });
+    }
   }
   
   $(function() {
+    $.ajaxSetup ({  
+      cache: false  
+    });
     $("#revisions").val({{ defaultlast }});
     $("#revisions").change(refreshContent);
     $("input:checkbox").removeAttr('checked');
@@ -76,20 +80,18 @@
     $("input[name='interpreter']").change(refreshContent);
     $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
     $("input[name='benchmark']").change(refreshContent);
-
+    
     refreshContent();
   });
 </script>
 {% endblock %}
 
 {% block navigation %}
-  <div id="tabs">
     <ul>
       <li><a href="/overview/">Overview</a></li>
       <li><a href="/timeline/" class="current">Timeline</a></li>
-      <li><a href="/results/">Results</a></li>
+<!--       <li><a href="/comparison/">Comparison</a></li> -->
     </ul>
-  </div>
 {% endblock %}
 
 {% block body %}
@@ -100,7 +102,6 @@
     {% for inter in interpreters %}<li>
     <input id="interpreter{{ inter.id }}" type="checkbox" name="interpreter" value="{{ inter.id }}" />
     <label for="interpreter{{ inter.id }}">{{ inter }}</label></li>
-<!--     <br> -->
     {% endfor %}
     </ul>
   </div>
@@ -131,6 +132,6 @@
   </select> revisions<a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content">
-<div id="plot" class="plot"></div>
+<div id="plot"></div>
 </div>
 {% endblock %}

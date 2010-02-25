@@ -33,8 +33,12 @@ urlpatterns += patterns('pyspeed.codespeed.views',
     (r'^overview/table/$', 'overviewtable'),
     (r'^timeline/$', 'timeline'),
     (r'^timeline/json/$', 'getdata'),
-    (r'^results/$', 'results'),
-    (r'^results/table/$', 'resultstable'),
+    #(r'^comparison/$', 'comparison'),
+    #(r'^results/$', 'results'),
+    #(r'^results/table/$', 'resultstable'),
+)
+
+urlpatterns += patterns('pyspeed.codespeed.views',
     # URL interface for adding results
     (r'^result/add/$', 'addresult'),
 )

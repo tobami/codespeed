@@ -23,7 +23,6 @@
   
   function updateTable() {
     $("#results > tbody > tr").each(function() {
-      var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
       //Color change column
       var change = $(this).children("td:eq(2)").text().slice(0, -1);
       var colorcode = "status-yellow";
@@ -31,17 +30,16 @@
       else if(change < -0.3) { colorcode = "status-green"; }
       $(this).children("td:eq(2)").addClass(colorcode);
       //Color comparison column
-      var comp = parseFloat($(this).children("td:eq(4)").text())//remember to remove "x".slice(0, -1);
+      var comp = parseFloat($(this).children("td:eq(4)").text())
       colorcode = "status-yellow";
       if(comp < 0.8) { colorcode = "status-red"; }
       else if(comp > 1.2) { colorcode = "status-green"; }
       $(this).children("td:eq(4)").addClass(colorcode);
-      //Size bars according to comparison value
-      comp = comp*58;
-      if (comp > tdwidth) {
-          comp = "100%";
-      } else { comp = comp + "px"; }
-      $(this).children("td:eq(5)").find("span").css("width", comp);
+      //Size plot bars
+      var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
+      var bar = transToLogBars(58, tdwidth, comp);
+      $(this).children("td:eq(5)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]);
+      //Link rows to timelines
       $(this).click(function () { 
         permalinkToTimeline($(this).children("td:eq(0)").text());
       });
@@ -62,19 +60,15 @@
       cache: false
     });
     
-    //Create loading text
-    h2 = parseInt($("#content").css("height")) - 16;
-    if(h2 < 40) { h2 = 40; }
-    h = "height:" + h2;
-    h2 = h2/2 + 30;
-    var ajax_load = '<div style="' + h + 'px;"><p style="line-height:' + h2 + 'px;">loading...</p></div>';
-    
-    var loadUrl = "table/";
-    $("#results").fadeOut("fast", function() { $("#content").html(ajax_load); });
-    $("#content").load(loadUrl, $.param(getConfiguration()), function(responseText) { updateTable(); });
+    h = parseInt($("#content").css("height"));//get height for loading text
+    $("#results").fadeOut("fast", function() {
+      $("#content").html(getLoadText("Loading...", h));
+    });
+    $("#content").load("table/", $.param(getConfiguration()), function(responseText) { updateTable(); });
   }
   
   $(function() {
+    // Configure defaults
     $("#trend").val({{ defaulttrend }});
     $("#trend").change(refreshContent);
     $("#revision").val({{ selectedrevision }});
@@ -88,13 +82,13 @@
 {% endblock %}
 
 {% block navigation %}
-  <div id="tabs">
+<!--   <div id="tabs"> -->
     <ul>
       <li><a href="/overview/" class="current">Overview</a></li>
       <li><a href="/timeline/">Timeline</a></li>
-      <li><a href="/results/">Results</a></li>
+<!--       <li><a href="/comparison/">Comparison</a></li> -->
     </ul>
-  </div>
+<!--   </div> -->
 {% endblock %}
 
 {% block body %}
@@ -137,6 +131,6 @@
   </select><a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content">
-<table class="tablesorter"></table>
+<table id="results" class="tablesorter" style="height: 232px;"></table>
 </div>
 {% endblock %}

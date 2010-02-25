@@ -1,13 +1,12 @@
 <table id="results" class="tablesorter">
 <thead>
   <tr>
-    <th>Benchmark</th><th>Result (s)</th><th>Current change</th><th>Trend</th><th>Times cpython</th><th class="bar"></th>
+    <th class="w">Benchmark</th><th class="w">Result (s)</th><th class="w">Current change</th><th class="w">Trend</th><th class="w">Times cpython</th><th class="bar">(logarithmic base 2)</th>
   </tr>
 </thead>
 <tbody>
 {% for row in table_list %}  <tr>
         <td class="text">{{ row.benchmark }}</td><td>{{ row.result|floatformat:3 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{{ row.trend }}{% ifnotequal row.trend "-" %}%{% endifnotequal %}</td><td>{{ row.relative|floatformat:2 }}</td><td class="bar"><span>-</span></td>
-<!--         <img src="/media/images/bar.png" alt="" height="16" width="34" /> -->
   </tr>{% endfor %}
 </tbody>
 </table>

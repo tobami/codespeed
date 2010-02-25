@@ -18,22 +18,19 @@
 
 <body>
 <div id="containter">
-<!-- <div id="header"> -->
-<div id="title"><img src="/media/images/pypy_logo.png" hight="68" width="200" align="middle"/><h1>SPEED CENTER</h1></div>
-<!-- </div> -->
+<div id="title"><img src="/media/images/pypy_logo.png" hight="68" width="200" /><h1>SPEED CENTER</h1></div>
 
 <div id="wrapper">
-<div id="navigation">
+<div id="nav">
 {% block navigation %}
-  <div id="tabs">
     <ul>
       <li><a href="/overview/">Overview</a></li>
       <li><a href="#">Timeline</a></li>
       <li><a href="/results/">Results</a></li>
     </ul>
-  </div>{% endblock %}
+{% endblock %}
 </div>
-<div id="workarea">
+<div id="workarea" class="clearfix">
 {% block body %}
   <div id="configbar">Start page</div>
 {% endblock %}
@@ -41,7 +38,7 @@
 </div>
 {% block footer %}
 {% endblock %}
-<div style="clear: both;">
+<!-- <div style="clear: both;"> -->
 </div>
 </body>
 </html>

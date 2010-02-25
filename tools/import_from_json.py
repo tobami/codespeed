@@ -7,7 +7,7 @@ from datetime import datetime
 RESULTS_URL = 'http://buildbot.pypy.org/bench_results/'
 SPEEDURL = 'http://speed.pypy.org/'# This will be pyspeed.pypy.org/
 SAVE_CPYTHON = False
-START_REV = 71154
+START_REV = 71392
 
 def saveresult(data):
     params = urllib.urlencode(data)

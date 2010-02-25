@@ -1,4 +1,5 @@
 body {
+    min-width: 960px;
     margin: 0; padding: 0; background-color: #596A74;
     background-image: url(/media/images/vgradient-s.png);
     background-repeat: repeat-x;
@@ -6,14 +7,11 @@ body {
 a:link, a:visited { text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-h1 { margin: 0; font-style: italic; }
-div#containter { width: 68em; margin-left: auto; margin-right: auto; }
-/* div#header { width: 100%; margin: 0; margin-bottom: 0.8em; padding: 0.8em; float:left; } */
+div#containter { width: 98%; margin-bottom: 1%; margin-left: auto; margin-right: auto; }
+
 div#title {
-    width: 100%;
-    float: left;
+    position: relative;
     margin-bottom: 0.8em;
-    padding: 0.2em;
     background-color: #F1F1F1;
     color: #000000;
     -moz-border-radius-bottomleft: 12px;
@@ -21,25 +19,21 @@ div#title {
     -webkit-border-radius-bottomleft: 12px;
     -webkit-border-radius-bottomright: 12px;
 }
-div#title img { float: left; }
-div#title h1 { float: left; margin-top: 19px; }
+div#title img { float: left; padding: 0.2em;}
+div#title h1 { line-height: 72px; margin: 0; font-style: italic; }
+div#wrapper { margin: 0; }
 
-div#wrapper { width: 100%; margin: 0; margin-bottom: 0.8em; float:left; }
+div#nav ul { margin: 0; padding: 0; padding-left: 15.3em; }
+div#nav li { display: inline-block; }
 
-div#navigation { float: left; }
-div#tabs { width: 100%; color: #FFFFFF; }
-div#tabs ul { margin: 0; padding: 0; padding-left: 14.3em; }
-div#tabs li {
-    display: inline-block;
-    margin-left: 0.5em;
-}
-
-div#tabs ul li a:link, div#tabs ul li a:visited {
+div#nav ul li a:link, div#nav ul li a:visited {
     display: block;
+    width: 8.5em;
     text-decoration: none;
+    text-align: center;
     background-color: #DADADA;
     color: #888888;
-    padding: 1em;
+/*     padding: 1em; */
     padding-top: 0.6em;
     padding-bottom: 0.3em;
     -moz-border-radius-topleft: 20px;
@@ -48,48 +42,41 @@ div#tabs ul li a:link, div#tabs ul li a:visited {
     -webkit-border-radius-topright: 20px;
 }
 
-div#tabs ul li a.current {
+div#nav ul li a.current {
     background-color: #F1F1F1;
     color: #000000;
     font-weight: bold;
 }
 
-div#tabs ul li a:hover { background-color: #F1F1F1; color: #2D2F32; }
-
+div#nav ul li a:hover { background-color: #F1F1F1; color: #2D2F32; }
 
 div#workarea {
-    float: left;
-    width: 98%;
     background-color: #F1F1F1;
-    padding: 0.8em;
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
-}
-
-div#configbar {
-    width: 51em;
-    position: relative;
-    float: right;
-    background-color: #FFFFFF;
-    margin-bottom: 0.8em;
-/*     border: 1px dashed red; */
     padding: 0.8em;
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
 }
 
 div#sidebar {
-/*     border: 1px dashed red; */
+    width: 13.7em;
     float: left;
-    margin-right: 0.8em;
+    -moz-border-radius: 12px;
+    -webkit-border-radius: 12px;
+}
+
+
+div#configbar {
+    position: relative;
+    margin-left: 14.5em;
+    background-color: #FFFFFF;
+    margin-bottom: 0.8em;
+    padding: 0.8em;
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
 }
 
 div#content {
-    width: 51em;
-    float: right;
-    clear:right;
+    margin-left: 14.5em;
     padding: 0.8em;
     text-align: center;
     background-color: #FFFFFF;
@@ -98,9 +85,9 @@ div#content {
 }
 
 .sidebox {
+    overflow: hidden;
     margin: 0;
     margin-bottom: 2.2em;
-    width: 14.2em;
 /*     background: url(sbbody-r.gif) no-repeat bottom right; */
     font-size: 90%;
 }
@@ -140,10 +127,8 @@ div#content {
 }
 
 /* tables */
-table#results thead tr th { width: 7em; }
-table#result_list thead tr th { width: 8em; }
-
 table.tablesorter {
+    width: 100%;
     font-family:arial;
     font-size: 11pt;
     text-align: left;
@@ -152,6 +137,17 @@ table.tablesorter {
     border-spacing: 0px;
     border: 1px solid #CDCDCD;
 }
+
+table#results thead tr th { padding-right: 9px; }
+table#results thead tr th.w {  width: 6em; }
+table#results thead tr th.bar {
+    background-image: url(/media/images/gridline_units.png);
+    background-repeat: no-repeat;
+    background-position: left bottom;
+    vertical-align: top;
+    text-align: center;
+}
+
 table.tablesorter thead tr td{}
 table.tablesorter thead tr th, table.tablesorter tfoot tr th {
     background-color: #9DADC6;
@@ -189,10 +185,9 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
 
 table.tablesorter tbody td.text {text-align: left;}
 
-table.tablesorter thead th.bar { width: 410px !important; }
 table.tablesorter tbody td.bar {
     background-image: url(/media/images/gridline.png);
-    background-repeat: repeat-x;
+    background-repeat: repeat;
     background-position: left top;
     text-align: left;
     padding: 0px;
@@ -207,8 +202,6 @@ table.tablesorter tbody td.bar img {
 
 table.tablesorter tbody span {
   display: block; 
-/*   top: 10px;  */
-/*   left: 0;  */
   height: 1.45em;
   margin-top: 0.2em;
   background: #5AA1D3; 
@@ -224,9 +217,9 @@ table.tablesorter tbody tr.highlight td {
     cursor: pointer;
 }
 
-a#permalink { float: right; font-size: small;}
+a#permalink { float: right; font-size: small; }
 
-div#plot { height: 500px; width: 800px; }
+div#plot { height: 500px; width: 100%; }
 
 /* new clearfix */
 .clearfix:after {

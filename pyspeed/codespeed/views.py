@@ -12,6 +12,9 @@ def resultstable(request):
 def results(request):
     return render_to_response('results.html')
 
+def compare(request):
+    return render_to_response('comparison.html')
+    
 def getdata(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
@@ -22,7 +25,12 @@ def getdata(request):
     ).order_by('-number')[:data["revisions"]]
     
     result_list = {}
-    for interpreter in data["interpreters"].split(","):
+    result_list["error"] = "None"
+    interpreters = data["interpreters"].split(",")
+    if interpreters[0] == "":
+        result_list["error"] = "No interpreters selected"
+        return HttpResponse(json.dumps( result_list ))
+    for interpreter in interpreters:
         results = []
         for rev in lastrevisions:
             res = Result.objects.filter(

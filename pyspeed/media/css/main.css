@@ -64,7 +64,6 @@ div#sidebar {
     -webkit-border-radius: 12px;
 }
 
-
 div#configbar {
     position: relative;
     margin-left: 14.5em;
@@ -78,7 +77,6 @@ div#configbar {
 div#content {
     margin-left: 14.5em;
     padding: 0.8em;
-    text-align: center;
     background-color: #FFFFFF;
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
@@ -125,6 +123,8 @@ div#content {
   margin: 0;
   padding: 0.2em;
 }
+.boxbody input[type="radio"] { margin-left: 0; }
+.boxbody input[type="checkbox"] { margin-left: 0; }
 
 /* tables */
 table.tablesorter {

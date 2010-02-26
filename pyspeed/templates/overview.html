@@ -99,11 +99,14 @@
 <div id="interpreter" class="sidebox">
   <div class="boxhead"><h2>Interpreter</h2></div>
   <div class="boxbody">
-    {% for inter in interpreters %}
-    <input id="interpreter{{ inter.id }}" type="radio" name="interpreter" value="{{ inter.id }}" />
-    <label for="interpreter{{ inter.id }}">{{ inter.name }}</label>
-    <br>
+    <ul>
+      <li>
+    {% for inter in interpreters|dictsort:"id" %}
+      <input id="interpreter{{ inter.id }}" type="radio" name="interpreter" value="{{ inter.id }}" />
+      <label for="interpreter{{ inter.id }}">{{ inter.name }}</label>
+    </li>
     {% endfor %}
+    </ul>
   </div>
 </div>
 <div id="options" class="sidebox">
@@ -121,11 +124,14 @@
 <div class="sidebox">
   <div class="boxhead"><h2>Host</h2></div>
   <div class="boxbody">
-  {% for host in hostlist %}
-    <input id="host{{ host.id }}" type="radio" name="host" value="{{ host.id }}" />
-    <label for="host{{ host.id }}">{{ host }}</label>
-    <br>
+    <ul>
+    {% for host in hostlist %}
+      <li title="{{ host.os }}, {{ host.cpu }}">
+        <input id="host{{ host.id }}" type="radio" name="host" value="{{ host.id }}" />
+        <label for="host{{ host.id }}">{{ host }}</label>
+      </li>
     {% endfor %}
+    </ul>
   </div>
 </div>
 

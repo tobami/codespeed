@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}PyPy Speed Center: Timeline{% endblock %}
 {% block script %}
-<script type="text/javascript" src="/media/js/jquery-1.4.1.min.js"></script>
 <!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.js"></script><![endif]-->
 <link rel="stylesheet" type="text/css" href="/media/js/jqplot/jquery.jqplot.min.css" />
 <script language="javascript" type="text/javascript" src="/media/js/jqplot/jquery.jqplot.min.js"></script>
@@ -9,7 +8,7 @@
 <script type="text/javascript" src="/media/js/jqplot/jqplot.highlighter.min.js"></script>
 
 <script type="text/javascript">
-  var seriesColors = ["#0085cc", "#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#d8b83f", "#ff5800", "#0085cc"];
+  var seriesColors = ["#d8b83f", "#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#ff5800", "#0085cc"];
   
   function getConfiguration() {
     var config = new Object();
@@ -18,6 +17,7 @@
       config["interpreters"] += $(this).val() + ",";
     });
     config["interpreters"] = config["interpreters"].slice(0, -1);
+    config["baseline"] = $("#baseline").is(':checked');
     config["benchmark"] = $("input[name='benchmark']:checked").val();
     config["revisions"] = $("#revisions option:selected").val();
     return config;
@@ -34,20 +34,36 @@
       return 1;
     }
     var plotdata = new Array();
-    var colors = new Array();
+    var series = new Array();
+    var xmin = 71100;
+    var xmax = 71200;
+    datalength = 0;
     $("input[name='interpreter']:checked").each(function() {
-      id = $(this).val();
-      colors.push({"label": $("label[for*='" + this.id + "']").html(), "color": seriesColors[id-1]});
-    // TODO: color list?       $(this).parent().css("background-color", seriesColors[id-1]);
-    //       $(this).parent().css("opacity", 0.3);
+      var id = $(this).val();
+      series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
       plotdata.push(data[id]);
+      if (data[id].length > datalength) {
+        datalength = data[id].length;
+        xmin = data[id][data[id].length-1][0];
+        xmax = data[id][0][0];
+      }
+      // TODO: color list?       $(this).parent().css("background-color", seriesColors[id-1]);
     });
+    if ($("#baseline").is(':checked')) {
+      var id = $("#baseline").val();
+      series.push({
+        "label": $("label[for*='baseline']").html(), "color": seriesColors[id-1],
+        showMarker: false, 
+        lineWidth: 1
+      });
+      plotdata.push([[xmin, data["baseline"]], [xmax, data["baseline"]]]);
+    }
     $("#content").html('<div id="plot"></div>');
     plot = $.jqplot('plot',  plotdata, {
-      series: colors,
+      series: series,
       axes:{
-        yaxis:{min: 0, autoscale:true, tickOptions:{formatString:'%.2f'}},
-        xaxis:{pad: 1.01, autoscale:true, tickOptions:{formatString:'%d'}}
+        yaxis:{label: '(s)', min: 0, autoscale:true, tickOptions:{formatString:'%.2f'}},
+        xaxis:{label: 'Revision', pad: 1.01, autoscale:true, tickOptions:{formatString:'%d'}}
       },
       legend: {show: true, location: 'nw'},
       highlighter: {sizeAdjust: 7.5},
@@ -75,6 +91,8 @@
     $("#revisions").val({{ defaultlast }});
     $("#revisions").change(refreshContent);
     $("input:checkbox").removeAttr('checked');
+    {% if defaultbaseline %}$("input[name='baseline']").attr('checked', true);{% endif %}
+    $("input[name='baseline']").change(refreshContent);
     {% for defaultinterpreter in defaultinterpreters %}
     $("input[name='interpreter']").filter('[value={{ defaultinterpreter }}]').attr('checked', true);
     {% endfor %}
@@ -102,30 +120,40 @@
 <div id="interpreter" class="sidebox">
   <div class="boxhead"><h2>Interpreter</h2></div>
   <div class="boxbody"><ul>
-    {% for inter in interpreters %}<li>
+    {% for inter in interpreters|dictsort:"id" %}<li>
     <input id="interpreter{{ inter.id }}" type="checkbox" name="interpreter" value="{{ inter.id }}" />
     <label for="interpreter{{ inter.id }}">{{ inter.name }}</label></li>
     {% endfor %}
+    </ul>
+    <ul>
+      <li>
+        <input id="baseline" type="checkbox" name="baseline" value="{{ baseline.id }}" />
+        <label for="baseline">{{ baseline.name }} {{ baselinetag }}</label></li>
     </ul>
   </div>
 </div>
 <div id="benchmark" class="sidebox">
   <div class="boxhead"><h2>Benchmark</h2></div>
   <div class="boxbody">
+  <ul>
     {% for bench in benchmarks|dictsort:"name" %}
-    <input id="benchmark{{ bench.id }}" type="radio" name="benchmark" value="{{ bench.id }}" />
-    <label for="benchmark{{ bench.id }}">{{ bench }}</label>
-    <br>
+    <li{% ifnotequal bench.description "" %} title="{{ bench.description }}"{% endifnotequal %}>
+      <input id="benchmark{{ bench.id }}" type="radio" name="benchmark" value="{{ bench.id }}" />
+      <label for="benchmark{{ bench.id }}">{{ bench }}</label>
+    </li>
     {% endfor %}
+  </ul>
   </div>
 </div>
 <div class="sidebox">
   <div class="boxhead"><h2>Host</h2></div>
-    <div class="boxbody">
-  {% for host in hostlist %}
-    <input id="host{{ host.id }}" type="radio" name="host" value="{{ host.id }}" />
-    <label for="host{{ host.id }}">{{ host }}</label>
-    <br>
+  <div class="boxbody">
+    <ul>
+    {% for host in hostlist %}
+      <li title="{{ host.os }}, {{ host.cpu }}">
+        <input id="host{{ host.id }}" type="radio" name="host" value="{{ host.id }}" />
+        <label for="host{{ host.id }}">{{ host }}</label>
+      </li>
     {% endfor %}
   </div>
 </div>

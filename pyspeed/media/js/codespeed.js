@@ -2,7 +2,7 @@ function getLoadText(text, h) {
     //Create loading text
     h = h - 32;
     if(h < 80) { h = 200; }
-    var loadtext = '<div><p style="line-height:' + h + 'px;">' + text + '</p></div>';
+    var loadtext = '<div style="text-align:center;"><p style="line-height:' + h + 'px;">' + text + '</p></div>';
     return loadtext;
 }
 

@@ -15,32 +15,35 @@ def results(request):
 def compare(request):
     return render_to_response('comparison.html')
     
-def getdata(request):
+def gettimelinedata(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
     data = request.GET
     
-    lastrevisions = Revision.objects.filter(
-        project=settings.PROJECT_NAME
-    ).order_by('-number')[:data["revisions"]]
+    result_list = {}    
+    baseline = Interpreter.objects.get(id=1)
+    baselinerev = Revision.objects.get(tag="2.6.2")
+    if data["baseline"] == "true":
+        result_list["baseline"] = Result.objects.get(
+            interpreter=baseline, benchmark=data["benchmark"], revision=baselinerev
+        ).value
     
-    result_list = {}
     result_list["error"] = "None"
     interpreters = data["interpreters"].split(",")
     if interpreters[0] == "":
         result_list["error"] = "No interpreters selected"
         return HttpResponse(json.dumps( result_list ))
     for interpreter in interpreters:
-        results = []
-        for rev in lastrevisions:
-            res = Result.objects.filter(
-                revision__number=rev.number
-            ).filter(
+        resultquery = Result.objects.filter(
                 revision__project=settings.PROJECT_NAME
             ).filter(
                 benchmark=data["benchmark"]
-            ).filter(interpreter=interpreter)
-            if len(res): results.append([rev.number, res[0].value])
+            ).filter(
+                interpreter=interpreter
+            ).order_by('-revision__number')[:data["revisions"]]
+        results = []
+        for res in resultquery:
+            results.append([res.revision.number, res.value])
         result_list[interpreter] = results
     return HttpResponse(json.dumps( result_list ))
 
@@ -50,6 +53,18 @@ def timeline(request):
     data = request.GET
     
     # Configuration of default parameters
+    baseline = Interpreter.objects.get(id=1)
+    lastbase = Revision.objects.filter(
+        tag__isnull=False
+    ).filter(
+        project='cpython'
+    ).order_by('-number')[0]
+    baselinetag = lastbase.tag
+    defaultbaseline = True
+    if data.has_key("baseline"):
+        if data["baseline"] == "false":
+            defaultbaseline = False
+    
     defaulthost = 1
     defaultbenchmark = 1
     if data.has_key("benchmark"):
@@ -58,7 +73,7 @@ def timeline(request):
         except ValueError:
             defaultbenchmark = get_object_or_404(Benchmark, name=data["benchmark"]).id
     
-    defaultinterpreters = [2]
+    defaultinterpreters = [2, 3]
     if data.has_key("interpreters"):
         defaultinterpreters = []
         for i in data["interpreters"].split(","):
@@ -78,7 +93,7 @@ def timeline(request):
     hostlist = Environment.objects.all()
     return render_to_response('timeline.html', locals())
 
-def overviewtable(request):
+def getoverviewtable(request):
     interpreter = int(request.GET["interpreter"])
     trendconfig = int(request.GET["trend"])
     revision = int(request.GET["revision"])
@@ -106,6 +121,7 @@ def overviewtable(request):
     ).filter(
         project='cpython'
     ).order_by('-number')[0].number
+    
     base_list = Result.objects.filter(
         revision__number=lastbase
     ).filter(
@@ -114,8 +130,9 @@ def overviewtable(request):
     
     table_list = []
     for bench in Benchmark.objects.all():
-        if not len(result_list.filter(benchmark=bench)): continue
-        result = result_list.filter(benchmark=bench)[0].value
+        resultquery = result_list.filter(benchmark=bench)
+        if not len(resultquery): continue
+        result = resultquery.filter(benchmark=bench)[0].value
         
         change = 0
         c = change_list.filter(benchmark=bench)

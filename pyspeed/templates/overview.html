@@ -22,23 +22,43 @@
     window.location="/timeline/?" + ued_encode(conf);
   }
   
-  function updateTable() {
+  function isNumeric(textvalue) { 
+    if (textvalue.match(/^\d+$/) == null) 
+        return false; 
+    else 
+        return true; 
+  }
+
+  function getColorcode(change, theigh, tlow) {
+    var colorcode = "status-yellow";
+    if(change < tlow) { colorcode = "status-red"; }
+    else if(change > theigh) { colorcode = "status-green"; }
+    return colorcode;
+  }
+  
+  function colorTable() {
+    var changethres = {{ defaultchangethres }};
+    var trendthres = {{ defaulttrendthres }};
+    var compthres = {{ defaultcompthres }};
     $("#results > tbody > tr").each(function() {
       //Color change column
       var change = $(this).children("td:eq(2)").text().slice(0, -1);
-      var colorcode = "status-yellow";
-      if(change > 0.3) { colorcode = "status-red"; }
-      else if(change < -0.3) { colorcode = "status-green"; }
-      $(this).children("td:eq(2)").addClass(colorcode);
+      $(this).children("td:eq(2)").addClass(getColorcode(-change, changethres, -changethres));
+      //Color trend column
+      var trend = $(this).children("td:eq(3)").text().slice(0, -1);
+      $(this).children("td:eq(3)").addClass(getColorcode(-trend, trendthres, -trendthres));
       //Color comparison column
-      var comp = parseFloat($(this).children("td:eq(4)").text())
-      colorcode = "status-yellow";
-      if(comp < 0.8) { colorcode = "status-red"; }
-      else if(comp > 1.2) { colorcode = "status-green"; }
-      $(this).children("td:eq(4)").addClass(colorcode);
+      var comp = parseFloat($(this).children("td:eq(4)").text());
+      $(this).children("td:eq(4)").addClass(getColorcode(comp, 1+compthres, 1-compthres));
+    });
+  }
+  
+  function updateTable() {
+    colorTable();
+    $("#results > tbody > tr").each(function() {
       //Size plot bars
       var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
-      var bar = transToLogBars(58, tdwidth, comp);
+      var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq(4)").text()));
       $(this).children("td:eq(5)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]);
       //Link rows to timelines
       $(this).click(function () { 
@@ -78,7 +98,6 @@
     $("input[name='interpreter']").change(refreshContent);
     $("input:radio[name=host]").filter('[value={{ defaulthost }}]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
-
     refreshContent();
   });
 </script>

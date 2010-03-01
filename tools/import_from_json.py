@@ -7,7 +7,8 @@ from datetime import datetime
 RESULTS_URL = 'http://buildbot.pypy.org/bench_results/'
 SPEEDURL = 'http://speed.pypy.org/'
 SAVE_CPYTHON = False
-START_REV = 71480
+START_REV = 71557
+INTERP = "pypy-c-jit"
 
 def saveresult(data):
     params = urllib.urlencode(data)
@@ -60,7 +61,7 @@ for filename in filelist:
     current_date = datetime.today()
     proj = 'pypy'
     revision = result['revision']
-    interpreter = "pypy-c-jit"
+    interpreter = INTERP
     int_options = "gc=hybrid"
     if result.has_key('branch'):
         if result['branch'] != 'trunk':

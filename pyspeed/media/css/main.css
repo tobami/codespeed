@@ -23,8 +23,12 @@ div#title img { float: left; padding: 0.2em;}
 div#title h1 { line-height: 72px; margin: 0; font-style: italic; }
 div#wrapper { margin: 0; }
 
-div#nav ul { margin: 0; padding: 0; padding-left: 15.3em; }
-div#nav li { display: inline-block; }
+div#nav ul {
+    display: inline;
+    margin: 0; padding: 0; padding-left: 15.3em;
+    font-family: Verdana, sans-serif;
+}
+div#nav li { display: inline-block; list-style: none; }
 
 div#nav ul li a:link, div#nav ul li a:visited {
     display: block;
@@ -33,7 +37,6 @@ div#nav ul li a:link, div#nav ul li a:visited {
     text-align: center;
     background-color: #DADADA;
     color: #888888;
-/*     padding: 1em; */
     padding-top: 0.6em;
     padding-bottom: 0.3em;
     -moz-border-radius-topleft: 20px;
@@ -123,9 +126,15 @@ div#content {
   margin: 0;
   padding: 0.2em;
 }
+.boxbody ul li ul { margin: 0; padding: 0; }
+.boxbody ul li ul h4 { margin: 0 0 0.4em; padding: 0; font-size: 1em; font-weight: normal;}
+.boxbody ul li ul li { margin-left: 1em; }
 .boxbody input[type="radio"] { margin-left: 0; }
 .boxbody input[type="checkbox"] { margin-left: 0; }
-
+.boxbody label { vertical-align: top; }
+.boxbody input[type="text"] {
+    margin-left: 0; margin-right: 2.5em; margin-bottom: 0.2em; float: right; width: 2em;
+}
 /* tables */
 table.tablesorter {
     width: 100%;
@@ -211,7 +220,7 @@ table.tablesorter tbody span {
 
 table.tablesorter tbody tr td.status-red { background-color: #FF5640; }
 table.tablesorter tbody tr td.status-green { background-color: #9FD54D; }
-table.tablesorter tbody tr td.status-yellow { background-color: #FEE772; }
+/* table.tablesorter tbody tr td.status-yellow { background-color: #FEE772; } */
 table.tablesorter tbody tr.highlight td {
     background-color: #9DADC6 !important;
     cursor: pointer;
@@ -230,3 +239,5 @@ div#plot { height: 500px; width: 100%; }
     clear: both;
     height: 0;
 }
+* html .clearfix             { zoom: 1; } /* IE6 */
+*:first-child+html .clearfix { zoom: 1; } /* IE7 */

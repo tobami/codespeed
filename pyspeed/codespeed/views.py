@@ -99,11 +99,11 @@ def getoverviewtable(request):
     revision = int(request.GET["revision"])
     lastrevisions = Revision.objects.filter(
         project=settings.PROJECT_NAME
-    ).filter(number__lte=revision).order_by('-number')[:11]
+    ).filter(number__lte=revision).order_by('-number')[:trendconfig+1]
     lastrevision = lastrevisions[0].number
     changerevision = lastrevisions[1].number    
     pastrevisions = lastrevisions[trendconfig-2:trendconfig+1]
-    
+    print pastrevisions
     result_list = Result.objects.filter(
         revision__number=lastrevision
     ).filter(
@@ -167,6 +167,7 @@ def getoverviewtable(request):
             relative =  c[0].value / result
         table_list.append({
             'benchmark': bench.name,
+            'bench_description': bench.description,
             'result': result,
             'change': change,
             'trend': trend,
@@ -182,6 +183,9 @@ def overview(request):
     
     # Configuration of default parameters
     defaulthost = 1
+    defaultchangethres = 3
+    defaulttrendthres = 3
+    defaultcompthres = 0.2
     defaulttrend = 10
     trends = [5, 10, 20, 100]
     if data.has_key("trend"):

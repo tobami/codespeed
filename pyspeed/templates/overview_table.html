@@ -6,7 +6,7 @@
 </thead>
 <tbody>
 {% for row in table_list %}  <tr>
-        <td class="text">{{ row.benchmark }}</td><td>{{ row.result|floatformat:3 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{{ row.trend }}{% ifnotequal row.trend "-" %}%{% endifnotequal %}</td><td>{{ row.relative|floatformat:2 }}</td><td class="bar"><span>-</span></td>
+        <td class="text"{% ifnotequal row.bench_description "" %} title="{{ row.bench_description }}"{% endifnotequal %}>{{ row.benchmark }}</td><td>{{ row.result|floatformat:3 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{{ row.trend }}{% ifnotequal row.trend "-" %}%{% endifnotequal %}</td><td>{{ row.relative|floatformat:2 }}</td><td class="bar"><span>-</span></td>
   </tr>{% endfor %}
 </tbody>
 </table>

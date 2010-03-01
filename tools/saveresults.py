@@ -1,28 +1,15 @@
 # -*- coding: utf-8 -*-
 import urllib, urllib2
 from datetime import datetime
-import logging, logging.handlers
-
-## SETUP LOGS ##
-LOG_FILENAME = 'pyspeed.log'
-logger = logging.getLogger('MyLogger')
-logger.setLevel(logging.DEBUG)
-# Add the log message handler to the logger
-handler = logging.handlers.RotatingFileHandler(
-    LOG_FILENAME, maxBytes=100000, backupCount=1)
-logger.addHandler(handler)
-################
 
 SPEEDURL = "http://speed.pypy.org/"
 HOST = "bigdog"
 
-def save(revision, results, options, branch, interpreter, int_options):
+def save(project, revision, results, options, branch, interpreter, int_options, testing=False):
+    testparams = []
     #Parse data
     data = {}
     current_date = datetime.today()
-    proj = "pypy"
-    #interpreter = "pypy-c-jit"
-    #int_options = "gc=hybrid"
     if branch != "" and branch != "trunk":
         interpreter = branch
         int_options = ""
@@ -37,11 +24,11 @@ def save(revision, results, options, branch, interpreter, int_options):
         elif res_type == "ComparisonResult":
             value = results['avg_changed']
         else:
-            logger.critical("ERROR: result type unknown " + b[1])
+            print("ERROR: result type unknown " + b[1])
             return 1
         data = {
             'revision_number': revision,
-            'revision_project': proj,
+            'revision_project': project,
             'interpreter_name': interpreter,
             'interpreter_coptions': int_options,
             'benchmark_name': bench_name,
@@ -49,8 +36,10 @@ def save(revision, results, options, branch, interpreter, int_options):
             'result_value': value,
             'result_date': current_date,
         }
-        send(data)
-    return 0
+        if testing: testparams.append(data)
+        else: send(data)
+    if testing: return testparams
+    else: return 0
     
 def send(data):
     #save results
@@ -59,7 +48,7 @@ def send(data):
     response = "None"
     info = str(datetime.today()) + ": Saving result for " + data['interpreter_name'] + " revision "
     info += str(data['revision_number']) + ", benchmark " + data['benchmark_name']
-    logger.info(info)
+    print(info)
     try:
         f = urllib2.urlopen(SPEEDURL + 'result/add/', params)
         response = f.read()
@@ -71,5 +60,5 @@ def send(data):
         elif hasattr(e, 'code'):
             response = '\n  The server couldn\'t fulfill the request\n'
             response += '  Error code: ' + str(e)
-        logger.critical("Server (%s) response: %s\n" % (SPEEDURL, response))
+        print("Server (%s) response: %s\n" % (SPEEDURL, response))
         return 1   

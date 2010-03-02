@@ -51,10 +51,20 @@
       var comp = parseFloat($(this).children("td:eq(4)").text());
       $(this).children("td:eq(4)").addClass(getColorcode(comp, 1+compthres, 1-compthres));
     });
+    //process average row
+    $("#results > tfoot > tr").each(function() {
+      //Color change column
+      var change = $(this).children("td:eq(2)").text().slice(0, -1);
+      $(this).children("td:eq(2)").addClass(getColorcode(-change, changethres, -changethres));
+      //Color trend column
+      var trend = $(this).children("td:eq(3)").text().slice(0, -1);
+      $(this).children("td:eq(3)").addClass(getColorcode(-trend, trendthres, -trendthres));
+    });
   }
   
   function updateTable() {
     colorTable();
+    //process table rows
     $("#results > tbody > tr").each(function() {
       //Size plot bars
       var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
@@ -65,8 +75,15 @@
         permalinkToTimeline($(this).children("td:eq(0)").text());
       });
     });
+    //process average row
+    $("#results > tfoot > tr").each(function() {
+      //Size plot bar for Average
+      var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
+      var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq(4)").text()));
+      $(this).children("td:eq(5)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]);
+    });
     //Configure table as tablesorter
-    $.tablesorter.defaults.sortList = [[4,0]];//sort by default by the 5th column
+    $.tablesorter.defaults.sortList = [[4,1]];//sort by default by the 5th column
     $.tablesorter.defaults.headers = { 5: { sorter: false } };//disable sorting for bar column
     $("#results").tablesorter({widgets: ['zebra']});
     $("#results tbody td").hover(function() {
@@ -104,13 +121,11 @@
 {% endblock %}
 
 {% block navigation %}
-<!--   <div id="tabs"> -->
     <ul>
       <li><a href="/overview/" class="current">Overview</a></li>
       <li><a href="/timeline/">Timeline</a></li>
 <!--       <li><a href="/comparison/">Comparison</a></li> -->
     </ul>
-<!--   </div> -->
 {% endblock %}
 
 {% block body %}

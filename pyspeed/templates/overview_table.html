@@ -4,9 +4,12 @@
     <th class="w">Benchmark</th><th class="w">Time (s)</th><th class="w">Current change</th><th class="w">Trend ({{ trendconfig }})</th><th class="w" title="Compared to cpython">Times cpython</th><th class="bar" title="Compared to cpython in log 2 scale"><div style="float:left;font-size:smaller;">slower</div><div style="float:left;margin-left:48px;">(log<sub>2</sub> scale)</div><div style="float:left;margin-left:60px;font-size:smaller;">faster</div></th>
   </tr>
 </thead>
+<tfoot>
+  <tr><td class="text">Average</td><td></td><td>{{ totals.change|floatformat:2 }}%</td><td>{{ totals.trend|floatformat:2 }}%</td><td>{{ totals.relative|floatformat:2 }}</td><td class="bar"><span>-</span></td></tr>
+</tfoot>
 <tbody>
 {% for row in table_list %}  <tr>
-        <td class="text"{% ifnotequal row.bench_description "" %} title="{{ row.bench_description }}"{% endifnotequal %}>{{ row.benchmark }}</td><td>{{ row.result|floatformat:3 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{{ row.trend }}{% ifnotequal row.trend "-" %}%{% endifnotequal %}</td><td>{{ row.relative|floatformat:2 }}</td><td class="bar"><span>-</span></td>
+        <td class="text"{% ifnotequal row.bench_description "" %} title="{{ row.bench_description }}"{% endifnotequal %}>{{ row.benchmark }}</td><td>{{ row.result|floatformat:3 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td><td>{{ row.relative|floatformat:2 }}</td><td class="bar"><span>-</span></td>
   </tr>{% endfor %}
 </tbody>
 </table>

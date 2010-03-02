@@ -1,13 +1,14 @@
 body {
     min-width: 960px;
-    margin: 0; padding: 0; background-color: #596A74;
+    margin: 0; padding: 0;
+    background-color: #596A74;
     background-image: url(/media/images/vgradient-s.png);
     background-repeat: repeat-x;
 }
 a:link, a:visited { text-decoration: none; }
 a:hover { text-decoration: underline; }
 
-div#containter { width: 98%; margin-bottom: 1%; margin-left: auto; margin-right: auto; }
+div#containter { width: 98%; margin-left: auto; margin-right: auto; }
 
 div#title {
     position: relative;
@@ -24,11 +25,16 @@ div#title h1 { line-height: 72px; margin: 0; font-style: italic; }
 div#wrapper { margin: 0; }
 
 div#nav ul {
-    display: inline;
     margin: 0; padding: 0; padding-left: 15.3em;
     font-family: Verdana, sans-serif;
 }
-div#nav li { display: inline-block; list-style: none; }
+div#nav li {
+    display: inline-block;
+    vertical-align: top;
+    list-style: none;
+    zoom: 1; /* IE7 (hasLayout)*/
+    *display: inline; /* IE */
+}
 
 div#nav ul li a:link, div#nav ul li a:visited {
     display: block;
@@ -157,8 +163,7 @@ table#results thead tr th.bar {
     text-align: center;
 }
 
-table.tablesorter thead tr td{}
-table.tablesorter thead tr th, table.tablesorter tfoot tr th {
+table.tablesorter thead tr th {
     background-color: #9DADC6;
     border: 1px solid #CDCDCD;
     font-size: 8pt;
@@ -170,6 +175,14 @@ table.tablesorter thead tr .header {
     background-position: center right;
     cursor: pointer;
 }
+table.tablesorter tfoot tr td {
+    border: 2px solid #CDCDCD;
+    border-right: 1px solid #CDCDCD;
+    padding: 4px;
+    vertical-align: top;
+    text-align: right;
+}
+table.tablesorter tfoot tr td.text { text-align: left; }
 table.tablesorter tbody td {
     color: #3D3D3D;
     padding: 4px;
@@ -194,7 +207,7 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
 
 table.tablesorter tbody td.text {text-align: left;}
 
-table.tablesorter tbody td.bar {
+table.tablesorter tbody td.bar, table.tablesorter tfoot tr td.bar {
     background-image: url(/media/images/gridline.png);
     background-repeat: repeat;
     background-position: left top;
@@ -203,13 +216,16 @@ table.tablesorter tbody td.bar {
     border: none;
     background-color:transparent;
 }
+
+table.tablesorter tfoot tr td.bar { border: 2px solid #CDCDCD; border-left: 1px solid #CDCDCD;}/*Firefox table border-collapse bug*/
+    
 table.tablesorter tbody td.bar img {
     vertical-align: middle;
     margin: 5px 5px 5px 0;
     border: none;
 }
 
-table.tablesorter tbody span {
+table.tablesorter tbody span, table.tablesorter tfoot span {
   display: block; 
   height: 1.45em;
   margin-top: 0.2em;
@@ -218,8 +234,8 @@ table.tablesorter tbody span {
   overflow: hidden; 
 }
 
-table.tablesorter tbody tr td.status-red { background-color: #FF5640; }
-table.tablesorter tbody tr td.status-green { background-color: #9FD54D; }
+table.tablesorter tbody tr td.status-red, .status-red  { background-color: #FF5640; }
+table.tablesorter tbody tr td.status-green, .status-green { background-color: #9FD54D; }
 /* table.tablesorter tbody tr td.status-yellow { background-color: #FEE772; } */
 table.tablesorter tbody tr.highlight td {
     background-color: #9DADC6 !important;

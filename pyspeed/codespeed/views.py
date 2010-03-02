@@ -22,7 +22,11 @@ def gettimelinedata(request):
     
     result_list = {}    
     baseline = Interpreter.objects.get(id=1)
-    baselinerev = Revision.objects.get(tag="2.6.2")
+    baselinerev = lastbase = Revision.objects.filter(
+        tag__isnull=False
+    ).filter(
+        project='cpython'
+    ).order_by('-number')[0]
     if data["baseline"] == "true":
         result_list["baseline"] = Result.objects.get(
             interpreter=baseline, benchmark=data["benchmark"], revision=baselinerev
@@ -54,19 +58,21 @@ def timeline(request):
     
     # Configuration of default parameters
     baseline = Interpreter.objects.get(id=1)
-    lastbase = Revision.objects.filter(
+    lastbaserev = Revision.objects.filter(
         tag__isnull=False
     ).filter(
         project='cpython'
     ).order_by('-number')[0]
-    baselinetag = lastbase.tag
+    baselinetag = lastbaserev.tag
+    baselinerev = lastbaserev.number
+
     defaultbaseline = True
     if data.has_key("baseline"):
         if data["baseline"] == "false":
             defaultbaseline = False
     
     defaulthost = 1
-    defaultbenchmark = 1
+    defaultbenchmark = 2
     if data.has_key("benchmark"):
         try:
             defaultbenchmark = int(data["benchmark"])
@@ -83,15 +89,27 @@ def timeline(request):
 
     lastrevisions = [50, 200, 1000]
     defaultlast = 200
-    if data.has_key("lastrevisions"):
-        if data["lastrevisions"] in lastrevisions:
-            defaultlast = data["lastrevisions"]
+    if data.has_key("revisions"):
+        if int(data["revisions"]) in lastrevisions:
+            defaultlast = data["revisions"]
     
     # Information for template
     interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
     benchmarks = Benchmark.objects.all()
     hostlist = Environment.objects.all()
-    return render_to_response('timeline.html', locals())
+    return render_to_response('timeline.html', {
+        'defaultinterpreters': defaultinterpreters,
+        'defaultbaseline': defaultbaseline,
+        'baseline': baseline,
+        'baselinetag': baselinetag,
+        'defaultbenchmark': defaultbenchmark,
+        'defaulthost': defaulthost,
+        'lastrevisions': lastrevisions,
+        'defaultlast': defaultlast,
+        'interpreters': interpreters,
+        'benchmarks': benchmarks,
+        'hostlist': hostlist
+    })
 
 def getoverviewtable(request):
     interpreter = int(request.GET["interpreter"])
@@ -103,7 +121,6 @@ def getoverviewtable(request):
     lastrevision = lastrevisions[0].number
     changerevision = lastrevisions[1].number    
     pastrevisions = lastrevisions[trendconfig-2:trendconfig+1]
-    print pastrevisions
     result_list = Result.objects.filter(
         revision__number=lastrevision
     ).filter(
@@ -157,7 +174,7 @@ def getoverviewtable(request):
         if average:
             average = average / averagecount
             trend =  (result - average)*100/average
-            trend = "%.2f" % trend
+            #trend = "%.2f" % trend
         else:
             trend = "-"
 
@@ -174,6 +191,16 @@ def getoverviewtable(request):
             'relative': relative
         })
     
+    totals = {'result': 0, 'change': 0, 'trend': 0, 'relative': 0}
+    lengths = {'result': 0, 'change': 0, 'trend': 0, 'relative': 0}
+    for row in table_list:
+        for key in totals.keys():
+            if type(row[key]) == float:
+                totals[key] += row[key]
+                lengths[key] += 1
+    for tot in totals:
+        if lengths[tot]: totals[tot] = totals[tot]/lengths[tot]
+
     return render_to_response('overview_table.html', locals())
     
 def overview(request):

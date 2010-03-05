@@ -18,6 +18,11 @@
   function permalinkToTimeline(benchmark) {
     var conf = new Object();
     conf["interpreters"] = $("input[name='interpreter']:checked").val();
+    //configure default interpreters checked (2 and 3)
+    //if interpreter is pypy-c or pypy-c-jit add the other one.
+    //If it is none of those keep just that one
+    if (conf["interpreters"] == "2") { conf["interpreters"] += ",3"; }
+    else if (conf["interpreters"] == "3") { conf["interpreters"] += ",2"; }
     conf["benchmark"] = benchmark;
     window.location="/timeline/?" + ued_encode(conf);
   }
@@ -40,19 +45,7 @@
     var changethres = {{ defaultchangethres }};
     var trendthres = {{ defaulttrendthres }};
     var compthres = {{ defaultcompthres }};
-    $("#results > tbody > tr").each(function() {
-      //Color change column
-      var change = $(this).children("td:eq(2)").text().slice(0, -1);
-      $(this).children("td:eq(2)").addClass(getColorcode(-change, changethres, -changethres));
-      //Color trend column
-      var trend = $(this).children("td:eq(3)").text().slice(0, -1);
-      $(this).children("td:eq(3)").addClass(getColorcode(-trend, trendthres, -trendthres));
-      //Color comparison column
-      var comp = parseFloat($(this).children("td:eq(4)").text());
-      $(this).children("td:eq(4)").addClass(getColorcode(comp, 1+compthres, 1-compthres));
-    });
-    //process average row
-    $("#results > tfoot > tr").each(function() {
+    $("#results > :not(thead) > tr").each(function() {
       //Color change column
       var change = $(this).children("td:eq(2)").text().slice(0, -1);
       $(this).children("td:eq(2)").addClass(getColorcode(-change, changethres, -changethres));
@@ -65,9 +58,9 @@
   function updateTable() {
     colorTable();
     //process table rows
+    var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
     $("#results > tbody > tr").each(function() {
       //Size plot bars
-      var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
       var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq(4)").text()));
       $(this).children("td:eq(5)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]);
       //Link rows to timelines
@@ -78,7 +71,6 @@
     //process average row
     $("#results > tfoot > tr").each(function() {
       //Size plot bar for Average
-      var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
       var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq(4)").text()));
       $(this).children("td:eq(5)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]);
     });

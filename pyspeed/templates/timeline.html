@@ -29,7 +29,7 @@
   
   function renderPlot(data) {
     if(data["error"] != "None") {
-      h = parseInt($("#content").css("height"));
+      h = parseInt($("#content").css("height"));//get height for error message
       $("#content").html(getLoadText(data["error"], h));
       return 1;
     }
@@ -160,7 +160,7 @@
 </div>
 
 <div id="configbar">Results for last
-  <select id="revisions" title="Last {{ rev }} revisions tested">{% for rev in lastrevisions %}
+  <select id="revisions" title="Last {{ defaultlast }} revisions tested">{% for rev in lastrevisions %}
     <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
   </select> revisions<a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>

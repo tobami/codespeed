@@ -146,6 +146,7 @@ def getoverviewtable(request):
     ).filter(interpreter=1)
     
     table_list = []
+    totals = {'change': [], 'trend': [], 'relative': []}
     for bench in Benchmark.objects.all():
         resultquery = result_list.filter(benchmark=bench)
         if not len(resultquery): continue
@@ -155,6 +156,7 @@ def getoverviewtable(request):
         c = change_list.filter(benchmark=bench)
         if c.count():
             change = (result - c[0].value)*100/c[0].value
+            totals['change'].append(result / c[0].value)
         
         #calculate past average
         average = 0
@@ -174,7 +176,7 @@ def getoverviewtable(request):
         if average:
             average = average / averagecount
             trend =  (result - average)*100/average
-            #trend = "%.2f" % trend
+            totals['trend'].append(result / average)
         else:
             trend = "-"
 
@@ -182,6 +184,7 @@ def getoverviewtable(request):
         c = base_list.filter(benchmark=bench)
         if c.count():
             relative =  c[0].value / result
+            totals['relative'].append(relative)
         table_list.append({
             'benchmark': bench.name,
             'bench_description': bench.description,
@@ -191,15 +194,23 @@ def getoverviewtable(request):
             'relative': relative
         })
     
-    totals = {'result': 0, 'change': 0, 'trend': 0, 'relative': 0}
-    lengths = {'result': 0, 'change': 0, 'trend': 0, 'relative': 0}
-    for row in table_list:
-        for key in totals.keys():
-            if type(row[key]) == float:
-                totals[key] += row[key]
-                lengths[key] += 1
-    for tot in totals:
-        if lengths[tot]: totals[tot] = totals[tot]/lengths[tot]
+    # Compute Arithmetic averages
+    for key in totals.keys():
+        totals[key] = float(sum(totals[key]) / len(totals[key]))
+    totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
+    totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
+    
+    # Compute Geometric average
+    #for key in totals:
+        #if not len(totals[key]):
+            #totals[key] = "-"
+            #continue
+        ## taken from python-statlib
+        #mult = 1.0
+        #one_over_n = 1.0/len(totals[key])
+        #for item in totals[key]:
+            #mult = mult * pow(item,one_over_n)
+        #totals[key] = mult - 1.0
 
     return render_to_response('overview_table.html', locals())
     

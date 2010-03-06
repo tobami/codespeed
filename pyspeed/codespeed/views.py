@@ -146,7 +146,7 @@ def getoverviewtable(request):
     ).filter(interpreter=1)
     
     table_list = []
-    totals = {'change': [], 'trend': [], 'relative': []}
+    totals = {'change': [], 'trend': [],}
     for bench in Benchmark.objects.all():
         resultquery = result_list.filter(benchmark=bench)
         if not len(resultquery): continue
@@ -184,7 +184,7 @@ def getoverviewtable(request):
         c = base_list.filter(benchmark=bench)
         if c.count():
             relative =  c[0].value / result
-            totals['relative'].append(relative)
+            #totals['relative'].append(relative)#deactivate average for comparison
         table_list.append({
             'benchmark': bench.name,
             'bench_description': bench.description,
@@ -196,7 +196,8 @@ def getoverviewtable(request):
     
     # Compute Arithmetic averages
     for key in totals.keys():
-        totals[key] = float(sum(totals[key]) / len(totals[key]))
+        if len(totals[key]):
+            totals[key] = float(sum(totals[key]) / len(totals[key]))
     totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
     totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
     

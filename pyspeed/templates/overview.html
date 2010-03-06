@@ -68,12 +68,6 @@
         permalinkToTimeline($(this).children("td:eq(0)").text());
       });
     });
-    //process average row
-    $("#results > tfoot > tr").each(function() {
-      //Size plot bar for Average
-      var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq(4)").text()));
-      $(this).children("td:eq(5)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]);
-    });
     //Configure table as tablesorter
     $.tablesorter.defaults.sortList = [[4,1]];//sort by default by the 5th column
     $.tablesorter.defaults.headers = { 5: { sorter: false } };//disable sorting for bar column

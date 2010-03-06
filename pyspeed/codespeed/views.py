@@ -200,18 +200,6 @@ def getoverviewtable(request):
             totals[key] = float(sum(totals[key]) / len(totals[key]))
     totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
     totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
-    
-    # Compute Geometric average
-    #for key in totals:
-        #if not len(totals[key]):
-            #totals[key] = "-"
-            #continue
-        ## taken from python-statlib
-        #mult = 1.0
-        #one_over_n = 1.0/len(totals[key])
-        #for item in totals[key]:
-            #mult = mult * pow(item,one_over_n)
-        #totals[key] = mult - 1.0
 
     return render_to_response('overview_table.html', locals())
     

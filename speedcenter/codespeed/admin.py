@@ -4,6 +4,7 @@ from django.contrib import admin
 
 class RevisionAdmin(admin.ModelAdmin):
     list_display = ('number', 'project', 'tag', 'date')
+    list_filter    = ('project', 'tag')
     
 admin.site.register(Revision, RevisionAdmin)
 
@@ -23,6 +24,7 @@ class EnvironmentAdmin(admin.ModelAdmin):
 admin.site.register(Environment, EnvironmentAdmin)
 
 class ResultAdmin(admin.ModelAdmin):
-            list_display = ('revision', 'benchmark', 'value', 'result_type', 'interpreter', 'date')
+    list_display = ('revision', 'benchmark', 'value', 'result_type', 'interpreter', 'date')
+    list_filter    = ('date', 'interpreter', 'benchmark')
 
 admin.site.register(Result, ResultAdmin)

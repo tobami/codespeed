@@ -7,13 +7,13 @@ import json
 
 def resultstable(request):
     result_list = Result.objects.order_by('-date')[:300]
-    return render_to_response('results_table.html', locals())
+    return render_to_response('codespeed/results_table.html', locals())
 
 def results(request):
-    return render_to_response('results.html')
+    return render_to_response('codespeed/results.html')
 
 def compare(request):
-    return render_to_response('comparison.html')
+    return render_to_response('codespeed/comparison.html')
     
 def gettimelinedata(request):
     if request.method != 'GET':
@@ -97,7 +97,7 @@ def timeline(request):
     interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
     benchmarks = Benchmark.objects.all()
     hostlist = Environment.objects.all()
-    return render_to_response('timeline.html', {
+    return render_to_response('codespeed/timeline.html', {
         'defaultinterpreters': defaultinterpreters,
         'defaultbaseline': defaultbaseline,
         'baseline': baseline,
@@ -201,7 +201,7 @@ def getoverviewtable(request):
     totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
     totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
 
-    return render_to_response('overview_table.html', locals())
+    return render_to_response('codespeed/overview_table.html', locals())
     
 def overview(request):
     if request.method != 'GET':
@@ -236,7 +236,7 @@ def overview(request):
             selectedrevision = get_object_or_404(Revision, number=data["revision"])
     hostlist = Environment.objects.all()
     
-    return render_to_response('overview.html', locals())
+    return render_to_response('codespeed/overview.html', locals())
 
 def addresult(request):
     if request.method != 'POST':

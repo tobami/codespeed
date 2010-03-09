@@ -87,7 +87,7 @@ def timeline(request):
             if len(selected): defaultinterpreters.append(selected[0].id)
     if not len(defaultinterpreters): defaultinterpreters = [2]
 
-    lastrevisions = [50, 200, 1000]
+    lastrevisions = [10, 50, 200, 1000]
     defaultlast = 200
     if data.has_key("revisions"):
         if int(data["revisions"]) in lastrevisions:

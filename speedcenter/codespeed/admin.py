@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from pyspeed.codespeed.models import Revision, Interpreter, Benchmark, Result, Environment
+from codespeed.models import Revision, Interpreter, Benchmark, Result, Environment
 from django.contrib import admin
 
 class RevisionAdmin(admin.ModelAdmin):

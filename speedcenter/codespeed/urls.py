@@ -2,8 +2,8 @@
 from django.conf.urls.defaults import *
 from django.views.generic import list_detail
 from django.views.generic.simple import direct_to_template, redirect_to
-from pyspeed.codespeed.models import Result, Revision, Interpreter
-from pyspeed import settings
+from codespeed.models import Result, Revision, Interpreter
+import settings
 
 def getresults():
     #Function so that results are not cached
@@ -28,7 +28,7 @@ urlpatterns = patterns('',
     (r'^$', redirect_to, {'url': '/overview'}),
 )
 
-urlpatterns += patterns('pyspeed.codespeed.views',
+urlpatterns += patterns('codespeed.views',
     (r'^overview/$', 'overview'),
     (r'^overview/table/$', 'getoverviewtable'),
     (r'^timeline/$', 'timeline'),
@@ -38,12 +38,7 @@ urlpatterns += patterns('pyspeed.codespeed.views',
     #(r'^results/table/$', 'resultstable'),
 )
 
-urlpatterns += patterns('pyspeed.codespeed.views',
+urlpatterns += patterns('codespeed.views',
     # URL interface for adding results
     (r'^result/add/$', 'addresult'),
 )
-
-if settings.DEBUG:
-    urlpatterns += patterns('',
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': settings.MEDIA_ROOT}),
-    )

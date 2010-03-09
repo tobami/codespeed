@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import get_object_or_404, render_to_response
-from pyspeed.codespeed.models import Revision, Result, Interpreter, Benchmark, Environment
+from codespeed.models import Revision, Result, Interpreter, Benchmark, Environment
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
-from pyspeed import settings
+from codespeed import settings
 import json
 
 def resultstable(request):

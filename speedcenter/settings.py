@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Django settings for pyspeed project.
+# Django settings for a speedcenter project.
 import os
 
 DEBUG = True
@@ -67,7 +67,7 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.auth.middleware.AuthenticationMiddleware',
 )
 
-ROOT_URLCONF = 'pyspeed.urls'
+ROOT_URLCONF = 'speedcenter.urls'
 
 TEMPLATE_DIRS = (
     os.path.join(os.path.dirname(__file__), 'templates').replace('\\','/'),
@@ -79,7 +79,5 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.sites',
     'django.contrib.admin',
-    'pyspeed.codespeed',
+    'speedcenter.codespeed',
 )
-
-PROJECT_NAME = "pypy"

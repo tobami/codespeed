@@ -7,7 +7,7 @@ from datetime import datetime
 RESULTS_URL = 'http://buildbot.pypy.org/bench_results/'
 SPEEDURL = 'http://speed.pypy.org/'
 SAVE_CPYTHON = False
-START_REV = 71557
+START_REV = 71943
 INTERP = "pypy-c-jit"
 
 def saveresult(data):

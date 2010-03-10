@@ -85,7 +85,7 @@ def timeline(request):
         for i in data["interpreters"].split(","):
             selected = Interpreter.objects.filter(id=int(i))
             if len(selected): defaultinterpreters.append(selected[0].id)
-    if not len(defaultinterpreters): defaultinterpreters = [2]
+    if not len(defaultinterpreters): defaultinterpreters = [2, 3]
 
     lastrevisions = [10, 50, 200, 1000]
     defaultlast = 200
@@ -198,8 +198,12 @@ def getoverviewtable(request):
     for key in totals.keys():
         if len(totals[key]):
             totals[key] = float(sum(totals[key]) / len(totals[key]))
-    totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
-    totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
+        else:
+            totals[key] = "-"
+    if totals['change'] != "-":
+        totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
+    if totals['trend'] != "-":
+        totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
 
     return render_to_response('codespeed/overview_table.html', locals())
     

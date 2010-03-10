@@ -19,6 +19,8 @@ div#title {
     -moz-border-radius-bottomright: 12px;
     -webkit-border-radius-bottomleft: 12px;
     -webkit-border-radius-bottomright: 12px;
+    border-radius-bottomleft: 12px;
+    border-radius-bottomright: 12px;
 }
 div#title img { float: left; padding: 0.2em;}
 div#title h1 { line-height: 72px; margin: 0; font-style: italic; }
@@ -85,6 +87,7 @@ div#configbar {
 
 div#content {
     margin-left: 14.5em;
+    text-align: center;
     padding: 0.8em;
     background-color: #FFFFFF;
     -moz-border-radius: 12px;
@@ -138,9 +141,12 @@ div#content {
 .boxbody input[type="radio"] { margin-left: 0; }
 .boxbody input[type="checkbox"] { margin-left: 0; }
 .boxbody label { vertical-align: top; }
-.boxbody input[type="text"] {
+/*.boxbody input[type="text"] {
     margin-left: 0; margin-right: 2.5em; margin-bottom: 0.2em; float: right; width: 2em;
-}
+}*/
+
+.seriescolor { float: right; margin-top: 3px; height: 12px; width: 12px; }
+
 /* tables */
 table.tablesorter {
     width: 100%;
@@ -244,7 +250,19 @@ table.tablesorter tbody tr.highlight td {
 
 a#permalink { float: right; font-size: small; }
 
-div#plot { height: 500px; width: 100%; }
+div#plot { text-align: left; height: 500px; width: 100%; }
+div.miniplot {
+    cursor: pointer;
+    margin: 0.5em;
+    text-align: left;
+    float: left;
+    height: 130px;
+    width: 23%;
+    -moz-border-radius: 12px;
+    -webkit-border-radius: 12px;
+    border-radius: 12px;
+}
+div.miniplot:hover {background-color: #F1F1F1;}
 
 /* new clearfix */
 .clearfix:after {

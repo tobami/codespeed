@@ -14,42 +14,56 @@ def results(request):
 
 def compare(request):
     return render_to_response('codespeed/comparison.html')
-    
+
 def gettimelinedata(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
     data = request.GET
     
-    result_list = {}    
+    timeline_list = {'error': 'None', 'timelines': []}
+    interpreters = data['interpreters'].split(",")
+    if interpreters[0] == "":
+        timeline_list['error'] = "No interpreters selected"
+        return HttpResponse(json.dumps( timeline_list ))
+    
+    benchmarks = []
+    number_of_rev = data['revisions']
+    if data['benchmark'] == 'grid':
+        benchmarks = Benchmark.objects.all().order_by('name')
+        number_of_rev = 10
+    else:
+        benchmarks.append(Benchmark.objects.get(id=data['benchmark']))
+    
     baseline = Interpreter.objects.get(id=1)
     baselinerev = lastbase = Revision.objects.filter(
         tag__isnull=False
     ).filter(
         project='cpython'
     ).order_by('-number')[0]
-    if data["baseline"] == "true":
-        result_list["baseline"] = Result.objects.get(
-            interpreter=baseline, benchmark=data["benchmark"], revision=baselinerev
-        ).value
-    
-    result_list["error"] = "None"
-    interpreters = data["interpreters"].split(",")
-    if interpreters[0] == "":
-        result_list["error"] = "No interpreters selected"
-        return HttpResponse(json.dumps( result_list ))
-    for interpreter in interpreters:
-        resultquery = Result.objects.filter(
-                revision__project=settings.PROJECT_NAME
-            ).filter(
-                benchmark=data["benchmark"]
-            ).filter(
-                interpreter=interpreter
-            ).order_by('-revision__number')[:data["revisions"]]
-        results = []
-        for res in resultquery:
-            results.append([res.revision.number, res.value])
-        result_list[interpreter] = results
-    return HttpResponse(json.dumps( result_list ))
+
+    for bench in benchmarks:
+        timeline = {}
+        timeline['benchmark'] = bench.name
+        timeline['benchmark_id'] = bench.id
+        timeline['interpreters'] = {}
+        if data['baseline'] == "true":
+            timeline['baseline'] = Result.objects.get(
+                interpreter=baseline, benchmark=bench, revision=baselinerev
+            ).value
+        for interpreter in interpreters:
+            resultquery = Result.objects.filter(
+                    revision__project=settings.PROJECT_NAME
+                ).filter(
+                    benchmark=bench
+                ).filter(
+                    interpreter=interpreter
+                ).order_by('-revision__number')[:number_of_rev]
+            results = []
+            for res in resultquery:
+                results.append([res.revision.number, res.value])
+            timeline['interpreters'][interpreter] = results
+        timeline_list['timelines'].append(timeline)
+    return HttpResponse(json.dumps( timeline_list ))
 
 def timeline(request):
     if request.method != 'GET':
@@ -72,7 +86,7 @@ def timeline(request):
             defaultbaseline = False
     
     defaulthost = 1
-    defaultbenchmark = 2
+    defaultbenchmark = "grid"
     if data.has_key("benchmark"):
         try:
             defaultbenchmark = int(data["benchmark"])

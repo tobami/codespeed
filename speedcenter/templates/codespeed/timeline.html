@@ -28,27 +28,22 @@
   }
   
   function renderPlot(data) {
-    if(data["error"] != "None") {
-      h = parseInt($("#content").css("height"));//get height for error message
-      $("#content").html(getLoadText(data["error"], h));
-      return 1;
-    }
     var plotdata = new Array();
     var series = new Array();
     var xmin = 71100;
     var xmax = 71200;
     datalength = 0;
-    $("input[name='interpreter']:checked").each(function() {
-      var id = $(this).val();
+//     $("input[name='interpreter']:checked").each(function() {
+    for (id in data['interpreters']) {
+//       var id = $(this).val();
       series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
-      plotdata.push(data[id]);
-      if (data[id].length > datalength) {
-        datalength = data[id].length;
-        xmin = data[id][data[id].length-1][0];
-        xmax = data[id][0][0];
+      plotdata.push(data['interpreters'][id]);
+      if (data['interpreters'][id].length > datalength) {
+        datalength = data['interpreters'][id].length;
+        xmin = data['interpreters'][id][data['interpreters'][id].length-1][0];
+        xmax = data['interpreters'][id][0][0];
       }
-      // TODO: color list?       $(this).parent().css("background-color", seriesColors[id-1]);
-    });
+    }
     if ($("#baseline").is(':checked')) {
       var id = $("#baseline").val();
       series.push({
@@ -58,7 +53,7 @@
       });
       plotdata.push([[xmin, data["baseline"]], [xmax, data["baseline"]]]);
     }
-    $("#content").html('<div id="plot"></div>');
+    $("#plotgrid").html('<div id="plot"></div>');
     plot = $.jqplot('plot',  plotdata, {
       series: series,
       axes:{
@@ -71,36 +66,104 @@
     });
   }
   
+  function renderMiniplot(plotid, benchname,  data) {
+    var plotdata = new Array();
+    var series = new Array();
+    var xmin = 71100;
+    var xmax = 71200;
+    datalength = 0;
+    for (id in data['interpreters']) {
+      series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
+      plotdata.push(data['interpreters'][id]);
+      if (data['interpreters'][id].length > datalength) {
+        datalength = data['interpreters'][id].length;
+        xmin = data['interpreters'][id][data['interpreters'][id].length-1][0];
+        xmax = data['interpreters'][id][0][0];
+      }
+    }
+    if ($("#baseline").is(':checked')) {
+      var id = $("#baseline").val();
+      series.push({
+        "label": $("label[for*='baseline']").html(), "color": seriesColors[id-1],
+        showMarker: false, 
+        lineWidth: 1.5
+      });
+      plotdata.push([[xmin, data["baseline"]], [xmax, data["baseline"]]]);
+    }
+    plot = $.jqplot(plotid, plotdata, {
+      title: {text: benchname, fontSize: '1.1em'},
+      seriesDefaults: {lineWidth:2, markerOptions:{style:'circle', size:6}},
+      series: series,
+      axes:{
+        yaxis:{min: 0, autoscale:true, showTicks: false},
+        xaxis:{pad: 1.01, autoscale:true, showTicks: false}
+      },
+      highlighter: {show: false},
+      cursor:{showTooltip:true, style: 'pointer'}
+    });
+  }
+  
+  function render(data) {
+    $("#revisions").attr("disabled", false);
+    $("#plotgrid").html("");
+    if(data["error"] != "None") {
+      h = parseInt($("#content").css("height"));//get height for error message
+      $("#plotgrid").html(getLoadText(data["error"], h));
+      return 1;
+    } else if (data["timelines"].length == 0) {
+      h = parseInt($("#content").css("height"));//get height for error message
+      $("#plotgrid").html(getLoadText("No data available", h));
+    } else if (data["timelines"].length == 1) {
+      //render single plot when only one benchmark selected
+      renderPlot(data["timelines"][0]);
+      return 1;
+    } else {
+      //Render Grid of plots
+      $("#revisions").attr("disabled",true);
+      for (bench in data["timelines"]) {
+        plotid = "plot" + data["timelines"][bench]["benchmark_id"];
+        $("#plotgrid").append('<div id="' + plotid + '" class="miniplot"></div>');
+        $("#" + plotid).click(function() {
+          $("input:radio[name='benchmark']").filter('[value=' + $(this).attr("id").slice(4) + ']').attr('checked', true);
+          refreshContent();
+        });
+        renderMiniplot(plotid, data["timelines"][bench]["benchmark"], data["timelines"][bench]);
+      }
+    }
+  }
+  
   function refreshContent() {
     var h = parseInt($("#content").css("height"));//get height for loading text
-    if ($("#plot").length == 0) {//Previous error, no plot div
-      $("#content").html(getLoadText("Loading...", h));
-      $.getJSON("json/", getConfiguration(), renderPlot);
-    } else {//normal case
-      $("#plot").fadeOut("fast", function() {
-        $("#content").html(getLoadText("Loading...", h));
-        $.getJSON("json/", getConfiguration(), renderPlot);
+      $("#plotgrid").fadeOut("fast", function() {
+        $("#plotgrid").html(getLoadText("Loading...", h)).show();
+        $.getJSON("json/", getConfiguration(), render);
       });
-    }
   }
   
   $(function() {
     $.ajaxSetup ({  
       cache: false  
     });
+    //set default amount of revisions shown
     $("#revisions").val({{ defaultlast }});
     $("#revisions").change(refreshContent);
     $("input:checkbox").removeAttr('checked');
+    //set default selected interpreters
     {% if defaultbaseline %}$("input[name='baseline']").attr('checked', true);{% endif %}
     $("input[name='baseline']").change(refreshContent);
     {% for defaultinterpreter in defaultinterpreters %}
     $("input[name='interpreter']").filter('[value={{ defaultinterpreter }}]').attr('checked', true);
     {% endfor %}
     $("input[name='interpreter']").change(refreshContent);
+    //set default selected benchmark
     $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
     $("input[name='benchmark']").change(refreshContent);
     $("input:radio[name=host]").filter('[value={{ defaulthost }}]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
+    $("#interpreter div.boxbody ul li").each(function() {
+      var serieid = $(this).find("input").val()
+      $(this).find("div.seriescolor").css("background-color", seriesColors[serieid-1]);
+    });
     
     refreshContent();
   });
@@ -122,19 +185,25 @@
   <div class="boxbody"><ul>
     {% for inter in interpreters|dictsort:"id" %}<li>
     <input id="interpreter{{ inter.id }}" type="checkbox" name="interpreter" value="{{ inter.id }}" />
-    <label for="interpreter{{ inter.id }}">{{ inter.name }}</label></li>
+    <label for="interpreter{{ inter.id }}">{{ inter.name }}</label><div class="seriescolor"></div></li>
     {% endfor %}
     </ul>
     <ul>
       <li>
         <input id="baseline" type="checkbox" name="baseline" value="{{ baseline.id }}" />
-        <label for="baseline">{{ baseline.name }} {{ baselinetag }}</label></li>
+        <label for="baseline">{{ baseline.name }} {{ baselinetag }}</label><div class="seriescolor"></div></li>
     </ul>
   </div>
 </div>
 <div id="benchmark" class="sidebox">
   <div class="boxhead"><h2>Benchmark</h2></div>
   <div class="boxbody">
+  <ul>
+    <li>
+      <input id="benchmarkgrid" type="radio" name="benchmark" value="grid" />
+      <label for="benchmarkgrid">Display all in a grid</label>
+    </li>
+  </ul>
   <ul>
     {% for bench in benchmarks|dictsort:"name" %}
     <li{% ifnotequal bench.description "" %} title="{{ bench.description }}"{% endifnotequal %}>
@@ -164,7 +233,7 @@
     <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
   </select> revisions<a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
-<div id="content">
-<div id="plot"></div>
+<div id="content" class="clearfix">
+<div id="plotgrid"></div>
 </div>
 {% endblock %}

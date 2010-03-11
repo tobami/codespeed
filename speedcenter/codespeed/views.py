@@ -30,7 +30,7 @@ def gettimelinedata(request):
     number_of_rev = data['revisions']
     if data['benchmark'] == 'grid':
         benchmarks = Benchmark.objects.all().order_by('name')
-        number_of_rev = 10
+        number_of_rev = 15
     else:
         benchmarks.append(Benchmark.objects.get(id=data['benchmark']))
     

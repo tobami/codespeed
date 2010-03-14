@@ -39,7 +39,7 @@
 //       var id = $(this).val();
       series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
       plotdata.push(data['interpreters'][id]);
-      lastvalues.push(data['interpreters'][id][data['interpreters'][id].length-1][1]);
+      lastvalues.push(data['interpreters'][id][0][1]);
       if (data['interpreters'][id].length > datalength) {
         datalength = data['interpreters'][id].length;
         xmin = data['interpreters'][id][data['interpreters'][id].length-1][0];

@@ -53,11 +53,19 @@
       });
       plotdata.push([[xmin, data["baseline"]], [xmax, data["baseline"]]]);
     }
+    //determine significant digits
+    var digits = 2;
+    var value = plotdata[0][0][1];
+    while( value < 1 ) {
+      value *= 10;
+      digits++;
+    }
+    
     $("#plotgrid").html('<div id="plot"></div>');
     plot = $.jqplot('plot',  plotdata, {
       series: series,
       axes:{
-        yaxis:{label: '(s)', min: 0, autoscale:true, tickOptions:{formatString:'%.3f'}},
+        yaxis:{label: '(s)', min: 0, autoscale:true, tickOptions:{formatString:'%.' + digits + 'f'}},
         xaxis:{label: 'Revision', pad: 1.01, autoscale:true, tickOptions:{formatString:'%d'}}
       },
       legend: {show: true, location: 'nw'},
@@ -94,12 +102,16 @@
       title: {text: benchname, fontSize: '1.1em'},
       seriesDefaults: {lineWidth:2, markerOptions:{style:'circle', size:6}},
       series: series,
-      axes:{
-        yaxis:{min: 0, autoscale:true, showTicks: false},
-        xaxis:{pad: 1.01, autoscale:true, showTicks: false}
+      axes: {
+        yaxis: {
+          min: 0, autoscale:true, showTicks: false, tickOptions:{formatString:'%.3f seconds'}
+        },
+        xaxis: {
+          pad: 1.01, autoscale:true, showTicks: false, tickOptions:{formatString:'revision %d'}
+        }
       },
-      highlighter: {show: false},
-      cursor:{showTooltip:true, style: 'pointer'}
+      highlighter: {show:false},
+      cursor:{showTooltip: false, style: 'pointer'}
     });
   }
   

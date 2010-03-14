@@ -33,11 +33,13 @@
     var xmin = 71100;
     var xmax = 71200;
     datalength = 0;
+    var lastvalues = new Array();
 //     $("input[name='interpreter']:checked").each(function() {
     for (id in data['interpreters']) {
 //       var id = $(this).val();
       series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
       plotdata.push(data['interpreters'][id]);
+      lastvalues.push(data['interpreters'][id][data['interpreters'][id].length-1][1]);
       if (data['interpreters'][id].length > datalength) {
         datalength = data['interpreters'][id].length;
         xmin = data['interpreters'][id][data['interpreters'][id].length-1][0];
@@ -55,7 +57,10 @@
     }
     //determine significant digits
     var digits = 2;
-    var value = plotdata[0][0][1];
+    Array.min = function( array ){
+      return Math.min.apply( Math, array );
+    };
+    var value = Array.min(lastvalues);
     while( value < 1 ) {
       value *= 10;
       digits++;

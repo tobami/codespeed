@@ -18,21 +18,21 @@
 
 <body>
 <div id="containter">
-<div id="title"><img src="/media/images/pypy_logo.png" hight="68" width="200" /><h1>SPEED CENTER</h1></div>
+<div id="title">
+  <img src="/media/images/pypy_logo.png" hight="68" width="200" /><h1>SPEED CENTER</h1>
+  <ul id="links" class="inline">
+    <li><a href="/">&#187;Home</a></li><li><a href="/about/">&#187;About</a></li>
+  </ul>
+</div>
 
 <div id="wrapper">
 <div id="nav">
 {% block navigation %}
-    <ul>
-      <li><a href="/overview/">Overview</a></li>
-      <li><a href="#">Timeline</a></li>
-      <li><a href="/results/">Results</a></li>
-    </ul>
 {% endblock %}
 </div>
 <div id="workarea" class="clearfix">
 {% block body %}
-  <div id="configbar">Start page</div>
+  <div id="configbar">Base template</div>
 {% endblock %}
 </div>
 </div>

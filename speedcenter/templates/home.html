@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}PyPy Speed Center{% endblock %}
+{% block body %}
+<div id="presentation_wrapper">
+<p><a href="about/">This site</a> monitors <a href="http://www.pypy.org">PyPy</a>'s performance</p>
+<div id="presentation" class="clearfix">
+  <a href="/overview/">
+    <div>
+      <h2>Overview</h2>
+      <p>Track performance changes in the latest trunk revisions</p>
+      <img src="/media/images/overview.png" height="130" width="250" />
+    </div>
+  </a>
+  <a href="/timeline/">
+    <div>
+      <h2>Timeline</h2>
+      <p>Analyze performance over time</p>
+      <img src="/media/images/timeline.png" height="150" width="250" />
+    </div>
+  </a>
+</div>
+</div>
+{% endblock %}

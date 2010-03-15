@@ -1,4 +1,4 @@
-{% extends "codespeed/base.html" %}
+{% extends "base.html" %}
 {% block title %}PyPy Speed Center: Timeline{% endblock %}
 {% block script %}
 <!--[if IE]><script language="javascript" type="text/javascript" src="/media/js/jqplot/excanvas.min.js"></script><![endif]-->
@@ -34,9 +34,7 @@
     var xmax = 71200;
     datalength = 0;
     var lastvalues = new Array();
-//     $("input[name='interpreter']:checked").each(function() {
     for (id in data['interpreters']) {
-//       var id = $(this).val();
       series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
       plotdata.push(data['interpreters'][id]);
       lastvalues.push(data['interpreters'][id][0][1]);
@@ -57,6 +55,7 @@
     }
     //determine significant digits
     var digits = 2;
+    // helper to be able to pass an array to Math.min
     Array.min = function( array ){
       return Math.min.apply( Math, array );
     };
@@ -188,10 +187,9 @@
 {% endblock %}
 
 {% block navigation %}
-    <ul>
+    <ul class="inline">
       <li><a href="/overview/">Overview</a></li>
       <li><a href="/timeline/" class="current">Timeline</a></li>
-<!--       <li><a href="/comparison/">Comparison</a></li> -->
     </ul>
 {% endblock %}
 

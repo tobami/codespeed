@@ -1,16 +1,18 @@
 body {
     min-width: 960px;
-    margin: 0; padding: 0;
+    margin: 0;
+    padding: 0;
     background-color: #596A74;
     background-image: url(/media/images/vgradient-s.png);
     background-repeat: repeat-x;
+    font-size: 16px;
 }
-a:link, a:visited { text-decoration: none; }
-a:hover { text-decoration: underline; }
+a:link, a:visited, a:hover { color: blue; text-decoration: none; }
 
-div#containter { width: 98%; margin-left: auto; margin-right: auto; }
+div#containter { width: 98%; margin: 0; margin-left: auto; margin-right: auto; }
 
 div#title {
+    height: 74px;
     position: relative;
     margin-bottom: 0.8em;
     background-color: #F1F1F1;
@@ -22,20 +24,30 @@ div#title {
     border-radius-bottomleft: 12px;
     border-radius-bottomright: 12px;
 }
-div#title img { float: left; padding: 0.2em;}
-div#title h1 { line-height: 72px; margin: 0; font-style: italic; }
-div#wrapper { margin: 0; }
+div#title img { float: left; padding: 0.2em; margin: 0; }
+div#title h1 { float: left; line-height: 72px; margin: 0; font-style: italic; }
 
-div#nav ul {
-    margin: 0; padding: 0; padding-left: 15.3em;
-    font-family: Verdana, sans-serif;
-}
-div#nav li {
+ul.inline { margin: 0; padding: 0; }
+ul.inline li {
     display: inline-block;
-    vertical-align: top;
     list-style: none;
     zoom: 1; /* IE7 (hasLayout)*/
     *display: inline; /* IE */
+}
+
+ul#links { position: absolute; bottom: 0; right: 0; padding: 0.8em; font-size: large; }
+ul#links li { margin-left: 0.8em; }
+ul#links li a:link, ul#links li a:visited {
+    color: #000000;
+}
+
+ul#links li a:hover { text-decoration: underline; }
+
+div#wrapper { margin: 0; }
+
+div#nav ul {
+    padding-left: 15.3em;
+    font-family: Verdana, sans-serif;
 }
 
 div#nav ul li a:link, div#nav ul li a:visited {
@@ -68,11 +80,46 @@ div#workarea {
     -webkit-border-radius: 12px;
 }
 
+div#presentation_wrapper {
+    width: 725px;
+    margin-left: auto; margin-right: auto;
+    text-align: center;
+}
+div#presentation_wrapper p { font-size: large; }
+div#presentation_wrapper p a:hover { text-decoration: underline; }
+div#presentation div {
+    background-image: url(/media/images/vgradient-s.png);
+    background-repeat: repeat-x;
+    background-color: #FFFFFF;
+    color: white;
+    position: relative;
+    float: left;
+    height: 260px;
+    width: 270px;
+    cursor: pointer;
+    text-align: center;
+    margin: 1.6em;
+    padding: 0.8em;
+    border: 5px solid #F1F1F1;
+    border-radius: 20px;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+}
+div#presentation p { text-align: left; font-size: medium; }
+
+div#presentation div:hover {
+    border: 5px solid #FFCE9C;
+}
+
+div#presentation h2 {  }
+div#presentation img { border: 0; position: relative; bottom: 0px;}
+
 div#sidebar {
     width: 13.7em;
     float: left;
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
+    border-radius: 12px;
 }
 
 div#configbar {
@@ -85,7 +132,7 @@ div#configbar {
     -webkit-border-radius: 12px;
 }
 
-div#content {
+div#content, div.about_content {
     margin-left: 14.5em;
     text-align: center;
     padding: 0.8em;
@@ -93,6 +140,8 @@ div#content {
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
 }
+
+div.about_content { text-align: left; }
 
 .sidebox {
     overflow: hidden;

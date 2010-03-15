@@ -1,4 +1,4 @@
-{% extends "codespeed/base.html" %}
+{% extends "base.html" %}
 {% block title %}PyPy Speed Center: Overview{% endblock %}
 {% block script %}
 <script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
@@ -107,10 +107,9 @@
 {% endblock %}
 
 {% block navigation %}
-    <ul>
+    <ul class="inline">
       <li><a href="/overview/" class="current">Overview</a></li>
       <li><a href="/timeline/">Timeline</a></li>
-<!--       <li><a href="/comparison/">Comparison</a></li> -->
     </ul>
 {% endblock %}
 

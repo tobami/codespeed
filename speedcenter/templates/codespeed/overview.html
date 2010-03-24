@@ -6,6 +6,7 @@
   function getConfiguration() {
     var config = new Object();
     config["trend"] = $("#trend option:selected").val();
+    config["baseline"] = $("#baseline option:selected").val();
     config["revision"] = $("#revision option:selected").val();
     config["interpreter"] = $("input[name='interpreter']:checked").val();
     return config;
@@ -64,7 +65,7 @@
       var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq(4)").text()));
       $(this).children("td:eq(5)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]);
       //Link rows to timelines
-      $(this).click(function () { 
+      $(this).click(function () {
         permalinkToTimeline($(this).children("td:eq(0)").text());
       });
     });
@@ -95,6 +96,8 @@
     // Configure defaults
     $("#trend").val({{ defaulttrend }});
     $("#trend").change(refreshContent);
+    $("#baseline").val(1);
+    $("#baseline").change(refreshContent);
     $("#revision").val({{ selectedrevision }});
     $("#revision").change(refreshContent);
     $("input:radio[name=interpreter]").filter('[value={{ defaultinterpreter }}]').attr('checked', true);
@@ -108,7 +111,7 @@
 
 {% block navigation %}
     <ul class="inline">
-      <li><a href="/overview/" class="current">Overview</a></li>
+      <li class="current"><a href="/overview/">Overview</a></li>
       <li><a href="/timeline/">Timeline</a></li>
     </ul>
 {% endblock %}
@@ -119,11 +122,11 @@
   <div class="boxhead"><h2>Interpreter</h2></div>
   <div class="boxbody">
     <ul>
-      <li>
     {% for inter in interpreters|dictsort:"id" %}
-      <input id="interpreter{{ inter.id }}" type="radio" name="interpreter" value="{{ inter.id }}" />
-      <label for="interpreter{{ inter.id }}">{{ inter.name }}</label>
-    </li>
+      <li>
+        <input id="interpreter{{ inter.id }}" type="radio" name="interpreter" value="{{ inter.id }}" />
+        <label for="interpreter{{ inter.id }}">{{ inter.name }}</label>
+      </li>
     {% endfor %}
     </ul>
   </div>
@@ -132,9 +135,14 @@
   <div class="boxhead"><h2>Options</h2></div>
   <div class="boxbody">
   <ul>
-    <li title="Trend since a given number of tested revisions ago. Average of 3 revisions">Trend:
+    <li title="Trend since a given number of tested revisions ago. Average of 3 revisions">Trend:<br/>
       <select id="trend">
       {% for trend in trends %}<option value="{{ trend }}">{{ trend }}</option>{% endfor %}
+      </select>
+    </li>
+    <li title="Select interpreter for comparison">Compare to:<br/>
+      <select id="baseline">
+      {% for base in baseline %}<option value="{{ forloop.counter }}">{{ base.name }} {{ base.revision }}</option>{% endfor %}
       </select>
     </li>
   </ul>

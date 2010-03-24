@@ -19,10 +19,8 @@ div#title {
     color: #000000;
     -moz-border-radius-bottomleft: 12px;
     -moz-border-radius-bottomright: 12px;
-    -webkit-border-radius-bottomleft: 12px;
-    -webkit-border-radius-bottomright: 12px;
-    border-radius-bottomleft: 12px;
-    border-radius-bottomright: 12px;
+    -webkit-border-bottom-left-radius: 12px;
+    -webkit-border-bottom-right-radius: 12px;
 }
 div#title img { float: left; padding: 0.2em; margin: 0; }
 div#title h1 { float: left; line-height: 72px; margin: 0; font-style: italic; }
@@ -37,10 +35,7 @@ ul.inline li {
 
 ul#links { position: absolute; bottom: 0; right: 0; padding: 0.8em; font-size: large; }
 ul#links li { margin-left: 0.8em; }
-ul#links li a:link, ul#links li a:visited {
-    color: #000000;
-}
-
+ul#links li a:link, ul#links li a:visited { color: #000000; }
 ul#links li a:hover { text-decoration: underline; }
 
 div#wrapper { margin: 0; }
@@ -49,29 +44,31 @@ div#nav ul {
     padding-left: 15.3em;
     font-family: Verdana, sans-serif;
 }
-
-div#nav ul li a:link, div#nav ul li a:visited {
+div#nav ul li {
+    background-color: #DADADA;
+    -moz-border-radius-topleft: 20px;
+    -moz-border-radius-topright: 20px;
+   -webkit-border-top-left-radius: 20px;
+    -webkit-border-top-right-radius: 20px;
+}
+div#nav ul li a {
     display: block;
     width: 8.5em;
     text-decoration: none;
     text-align: center;
-    background-color: #DADADA;
     color: #888888;
     padding-top: 0.6em;
     padding-bottom: 0.3em;
-    -moz-border-radius-topleft: 20px;
-    -moz-border-radius-topright: 20px;
-    -webkit-border-radius-topleft: 20px;
-    -webkit-border-radius-topright: 20px;
 }
 
-div#nav ul li a.current {
+div#nav ul li.current {
     background-color: #F1F1F1;
-    color: #000000;
     font-weight: bold;
 }
+div#nav ul li.current a { color: #000000; }
 
-div#nav ul li a:hover { background-color: #F1F1F1; color: #2D2F32; }
+div#nav ul li:hover { background-color: #F1F1F1; }
+div#nav ul li:hover a { color: #2D2F32; }
 
 div#workarea {
     background-color: #F1F1F1;
@@ -101,7 +98,6 @@ div#presentation div {
     margin: 1.6em;
     padding: 0.8em;
     border: 5px solid #F1F1F1;
-    border-radius: 20px;
     -moz-border-radius: 20px;
     -webkit-border-radius: 20px;
 }
@@ -119,7 +115,6 @@ div#sidebar {
     float: left;
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
-    border-radius: 12px;
 }
 
 div#configbar {
@@ -193,7 +188,8 @@ div.about_content { text-align: left; }
 /*.boxbody input[type="text"] {
     margin-left: 0; margin-right: 2.5em; margin-bottom: 0.2em; float: right; width: 2em;
 }*/
-
+/* .boxbody select {float: right;} */
+#options li { margin-bottom: 0.8em; }
 .seriescolor { float: right; margin-top: 3px; height: 12px; width: 12px; }
 
 /* tables */
@@ -309,7 +305,6 @@ div.miniplot {
     width: 23%;
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
-    border-radius: 12px;
 }
 div.miniplot:hover {background-color: #F1F1F1;}
 

@@ -5,15 +5,58 @@ from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpRespo
 from codespeed import settings
 import json
 
-def resultstable(request):
-    result_list = Result.objects.order_by('-date')[:300]
-    return render_to_response('codespeed/results_table.html', locals())
-
-def results(request):
-    return render_to_response('codespeed/results.html')
-
-def compare(request):
-    return render_to_response('codespeed/comparison.html')
+def getbaselineinterpreters():
+    baseline = []
+    if hasattr(settings, 'baselinelist'):
+        try:
+            for entry in settings.baselinelist:
+                interpreter = Interpreter.objects.get(id=entry['interpreter'])
+                rev = Revision.objects.filter(number=entry['revision'])
+                if len(rev) > 1:
+                    for r in rev:
+                        if(r.project in interpreter.name):
+                            rev = r
+                elif len(rev):
+                    rev = rev[0]
+                else:
+                    raise Revision.DoesNotExist
+                baseline.append({
+                    'interpreter': interpreter.id,
+                    'name': interpreter.name,
+                    'revision': rev.number,
+                    'project': rev.project,
+                    'tag': rev.tag
+                })
+        except (Interpreter.DoesNotExist, Revision.DoesNotExist):
+            # TODO: write to server logs
+            pass
+    else:
+        revs = Revision.objects.filter(tag__isnull=False)
+        interpreters = Interpreter.objects.all()
+        for rev in revs:
+            #add interpreters that correspond to each tagged revission.
+            for interpreter in interpreters:
+                if interpreter.name in rev.project:
+                    baseline.append({
+                        'interpreter': interpreter.id,
+                        'name': interpreter.name,
+                        'revision': rev.number,
+                        'project': rev.project,
+                        'tag': rev.tag
+                    })
+    # move default to first place
+    if hasattr(settings, 'defaultbaseline'):
+        try:
+            for base in baseline:
+                if base['interpreter'] == settings.defaultbaseline['interpreter'] and base['revision'] == settings.defaultbaseline['revision']:
+                    baseline.remove(base)
+                    baseline.insert(0, base)
+                    break
+        except KeyError:
+            # TODO: write to server logs
+            #error in settings.defaultbaseline
+            pass            
+    return baseline
 
 def gettimelinedata(request):
     if request.method != 'GET':
@@ -147,17 +190,15 @@ def getoverviewtable(request):
         revision__project=settings.PROJECT_NAME
     ).filter(interpreter=interpreter)
     
-    lastbase = Revision.objects.filter(
-        tag__isnull=False
-    ).filter(
-        project='cpython'
-    ).order_by('-number')[0].number
-    
+    base = int(request.GET["baseline"]) - 1
+    baseline = getbaselineinterpreters()
+    baseinterpreter = Interpreter.objects.get(id=baseline[base]['interpreter'])
+    baserevision = baseline[base]['revision']
     base_list = Result.objects.filter(
-        revision__number=lastbase
+        revision__number=baserevision
     ).filter(
-        revision__project='cpython'
-    ).filter(interpreter=1)
+        revision__project=baseline[base]['project']
+    ).filter(interpreter=baseinterpreter)
     
     table_list = []
     totals = {'change': [], 'trend': [],}
@@ -205,7 +246,7 @@ def getoverviewtable(request):
             'result': result,
             'change': change,
             'trend': trend,
-            'relative': relative
+            'relative': relative,
         })
     
     # Compute Arithmetic averages
@@ -225,7 +266,7 @@ def overview(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
     data = request.GET
-    
+
     # Configuration of default parameters
     defaulthost = 1
     defaultchangethres = 3
@@ -242,6 +283,7 @@ def overview(request):
         selected = Interpreter.objects.filter(id=int(data["interpreter"]))
         if len(selected): defaultinterpreter = selected[0].id
     
+    baseline = getbaselineinterpreters()
     # Information for template
     interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
     lastrevisions = Revision.objects.filter(

@@ -169,9 +169,10 @@ def timeline(request):
     })
 
 def getoverviewtable(request):
-    interpreter = int(request.GET["interpreter"])
-    trendconfig = int(request.GET["trend"])
-    revision = int(request.GET["revision"])
+    data = request.GET
+    interpreter = int(data["interpreter"])
+    trendconfig = int(data["trend"])
+    revision = int(data["revision"])
     lastrevisions = Revision.objects.filter(
         project=settings.PROJECT_NAME
     ).filter(number__lte=revision).order_by('-number')[:trendconfig+1]
@@ -190,15 +191,19 @@ def getoverviewtable(request):
         revision__project=settings.PROJECT_NAME
     ).filter(interpreter=interpreter)
     
-    base = int(request.GET["baseline"]) - 1
-    baseline = getbaselineinterpreters()
-    baseinterpreter = Interpreter.objects.get(id=baseline[base]['interpreter'])
-    baserevision = baseline[base]['revision']
-    base_list = Result.objects.filter(
-        revision__number=baserevision
-    ).filter(
-        revision__project=baseline[base]['project']
-    ).filter(interpreter=baseinterpreter)
+    baselineflag = False
+    if data.has_key("baseline"):
+        if data['baseline'] != "undefined":
+            baselineflag = True
+            base = int(data['baseline']) - 1
+            baseline = getbaselineinterpreters()
+            baseinterpreter = Interpreter.objects.get(id=baseline[base]['interpreter'])
+            baserevision = baseline[base]['revision']
+            base_list = Result.objects.filter(
+                revision__number=baserevision
+            ).filter(
+                revision__project=baseline[base]['project']
+            ).filter(interpreter=baseinterpreter)
     
     table_list = []
     totals = {'change': [], 'trend': [],}
@@ -236,10 +241,11 @@ def getoverviewtable(request):
             trend = "-"
 
         relative = 0
-        c = base_list.filter(benchmark=bench)
-        if c.count():
-            relative =  c[0].value / result
-            #totals['relative'].append(relative)#deactivate average for comparison
+        if baselineflag:
+            c = base_list.filter(benchmark=bench)
+            if c.count():
+                relative =  c[0].value / result
+                #totals['relative'].append(relative)#deactivate average for comparison
         table_list.append({
             'benchmark': bench.name,
             'bench_description': bench.description,
@@ -284,6 +290,11 @@ def overview(request):
         if len(selected): defaultinterpreter = selected[0].id
     
     baseline = getbaselineinterpreters()
+    defaultbaseline = 1
+    if data.has_key("baseline"):
+        defaultbaseline = int(request.GET["baseline"])
+        if len(baseline) < defaultbaseline: defaultbaseline = 1
+    
     # Information for template
     interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
     lastrevisions = Revision.objects.filter(

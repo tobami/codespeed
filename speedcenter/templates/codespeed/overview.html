@@ -102,7 +102,7 @@
     $("#revision").change(refreshContent);
     $("input:radio[name=interpreter]").filter('[value={{ defaultinterpreter }}]').attr('checked', true);
     $("input[name='interpreter']").change(refreshContent);
-    $("input:radio[name=host]").filter('[value={{ defaulthost }}]').attr('checked', true);
+    $("input:radio[name=host]").filter('[value={{ defaultenvironment }}]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
     refreshContent();
   });

@@ -62,6 +62,24 @@ def getbaselineinterpreters():
             pass
     return baseline
 
+def getdefaultenvironment():
+    default = Environment.objects.all()[0]
+    if hasattr(settings, 'defaultenvironment'):
+        try:
+            default = Environment.objects.get(name=settings.defaultenvironment)
+        except Environment.DoesNotExist:
+            pass
+    return default
+
+def getdefaultinterpreter():
+    default = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)[0]
+    if hasattr(settings, 'defaultinterpreter'):
+        try:
+            default = Interpreter.objects.get(id=settings.defaultinterpreter)
+        except Interpreter.DoesNotExist:
+            pass
+    return default
+
 def gettimelinedata(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
@@ -81,21 +99,20 @@ def gettimelinedata(request):
     else:
         benchmarks.append(Benchmark.objects.get(id=data['benchmark']))
     
-    baseline = Interpreter.objects.get(id=1)
-    baselinerev = lastbase = Revision.objects.filter(
-        tag__isnull=False
-    ).filter(
-        project='cpython'
-    ).order_by('-number')[0]
-
+    baseline = getbaselineinterpreters()
+    baselinerev = None
+    if data['baseline'] == "true" and len(baseline):
+        baseline = baseline[0]
+        baselinerev = Revision.objects.get(number=baseline['revision'], project=baseline['project'])
+    
     for bench in benchmarks:
         timeline = {}
         timeline['benchmark'] = bench.name
         timeline['benchmark_id'] = bench.id
         timeline['interpreters'] = {}
-        if data['baseline'] == "true":
+        if data['baseline'] == "true" and len(baseline):
             timeline['baseline'] = Result.objects.get(
-                interpreter=baseline, benchmark=bench, revision=baselinerev
+                interpreter=baseline['interpreter'], benchmark=bench, revision=baselinerev
             ).value
         for interpreter in interpreters:
             resultquery = Result.objects.filter(
@@ -118,21 +135,14 @@ def timeline(request):
     data = request.GET
     
     # Configuration of default parameters
-    baseline = Interpreter.objects.get(id=1)
-    lastbaserev = Revision.objects.filter(
-        tag__isnull=False
-    ).filter(
-        project='cpython'
-    ).order_by('-number')[0]
-    baselinetag = lastbaserev.tag
-    baselinerev = lastbaserev.number
-
+    baseline = getbaselineinterpreters()
+    if len(baseline): baseline = baseline[0]
     defaultbaseline = True
     if data.has_key("baseline"):
         if data["baseline"] == "false":
             defaultbaseline = False
     
-    defaulthost = 1
+    defaultenvironment = getdefaultenvironment().id
     defaultbenchmark = "grid"
     if data.has_key("benchmark"):
         try:
@@ -162,9 +172,8 @@ def timeline(request):
         'defaultinterpreters': defaultinterpreters,
         'defaultbaseline': defaultbaseline,
         'baseline': baseline,
-        'baselinetag': baselinetag,
         'defaultbenchmark': defaultbenchmark,
-        'defaulthost': defaulthost,
+        'defaultenvironment': defaultenvironment,
         'lastrevisions': lastrevisions,
         'defaultlast': defaultlast,
         'interpreters': interpreters,
@@ -286,7 +295,7 @@ def overview(request):
     data = request.GET
 
     # Configuration of default parameters
-    defaulthost = 1
+    defaultenvironment = getdefaultenvironment().id
     defaultchangethres = 3
     defaulttrendthres = 3
     defaultcompthres = 0.2
@@ -296,7 +305,7 @@ def overview(request):
         if data["trend"] in trends:
             defaulttrend = int(request.GET["trend"])
 
-    defaultinterpreter = 2
+    defaultinterpreter = getdefaultinterpreter().id
     if data.has_key("interpreter"):
         selected = Interpreter.objects.filter(id=int(data["interpreter"]))
         if len(selected): defaultinterpreter = selected[0].id

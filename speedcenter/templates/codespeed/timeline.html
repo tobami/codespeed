@@ -174,7 +174,7 @@
     //set default selected benchmark
     $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
     $("input[name='benchmark']").change(refreshContent);
-    $("input:radio[name=host]").filter('[value={{ defaulthost }}]').attr('checked', true);
+    $("input:radio[name=host]").filter('[value={{ defaultenvironment }}]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
     $("#interpreter div.boxbody ul li").each(function() {
       var serieid = $(this).find("input").val()
@@ -206,7 +206,7 @@
     <ul>
       <li>
         <input id="baseline" type="checkbox" name="baseline" value="{{ baseline.id }}" />
-        <label for="baseline">{{ baseline.name }} {{ baselinetag }}</label><div class="seriescolor"></div></li>
+        <label for="baseline">{{ baseline.name }}</label><div class="seriescolor"></div></li>
     </ul>
   </div>
 </div>

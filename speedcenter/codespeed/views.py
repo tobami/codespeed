@@ -22,7 +22,7 @@ def getbaselineinterpreters():
                     raise Revision.DoesNotExist
                 name = interpreter.name + " " + interpreter.coptions
                 if rev.tag: name += " " + rev.tag
-                else: name += " " + rev.number
+                else: name += " " + int(rev.number)
                 baseline.append({
                     'interpreter': interpreter.id,
                     'name': name,
@@ -41,7 +41,7 @@ def getbaselineinterpreters():
                 if interpreter.name in rev.project:
                     name = interpreter.name + " " + interpreter.coptions
                     if rev.tag: name += " " + rev.tag
-                    else: name += " " + rev.number
+                    else: name += " " + int(rev.number)
                     baseline.append({
                         'interpreter': interpreter.id,
                         'name': name,

@@ -22,7 +22,7 @@ def getbaselineinterpreters():
                     raise Revision.DoesNotExist
                 name = interpreter.name + " " + interpreter.coptions
                 if rev.tag: name += " " + rev.tag
-                else: name += " " + int(rev.number)
+                else: name += " " + str(rev.number)
                 baseline.append({
                     'interpreter': interpreter.id,
                     'name': name,
@@ -33,7 +33,7 @@ def getbaselineinterpreters():
             # TODO: write to server logs
             pass
     else:
-        revs = Revision.objects.filter(tag__isnull=False)
+        revs = Revision.objects.exclude(tag="")
         interpreters = Interpreter.objects.all()
         for rev in revs:
             #add interpreters that correspond to each tagged revission.
@@ -41,7 +41,7 @@ def getbaselineinterpreters():
                 if interpreter.name in rev.project:
                     name = interpreter.name + " " + interpreter.coptions
                     if rev.tag: name += " " + rev.tag
-                    else: name += " " + int(rev.number)
+                    else: name += " " + str(rev.number)
                     baseline.append({
                         'interpreter': interpreter.id,
                         'name': name,
@@ -59,7 +59,7 @@ def getbaselineinterpreters():
         except KeyError:
             # TODO: write to server logs
             #error in settings.defaultbaseline
-            pass            
+            pass
     return baseline
 
 def gettimelinedata(request):
@@ -181,20 +181,25 @@ def getoverviewtable(request):
         project=settings.PROJECT_NAME
     ).filter(number__lte=revision).order_by('-number')[:trendconfig+1]
     lastrevision = lastrevisions[0].number
-    changerevision = lastrevisions[1].number    
-    pastrevisions = lastrevisions[trendconfig-2:trendconfig+1]
+
+    change_list = None
+    pastrevisions = None
+    if len(lastrevisions) > 1:
+        changerevision = lastrevisions[1].number
+        change_list = Result.objects.filter(
+            revision__number=changerevision
+        ).filter(
+            revision__project=settings.PROJECT_NAME
+        ).filter(interpreter=interpreter)   
+        pastrevisions = lastrevisions[trendconfig-2:trendconfig+1]
+
     result_list = Result.objects.filter(
         revision__number=lastrevision
     ).filter(
         revision__project=settings.PROJECT_NAME
     ).filter(interpreter=interpreter)
-
-    change_list = Result.objects.filter(
-        revision__number=changerevision
-    ).filter(
-        revision__project=settings.PROJECT_NAME
-    ).filter(interpreter=interpreter)
     
+    # TODO: remove baselineflag
     baselineflag = False
     base_list = None
     if data.has_key("baseline"):
@@ -218,25 +223,27 @@ def getoverviewtable(request):
         result = resultquery.filter(benchmark=bench)[0].value
         
         change = 0
-        c = change_list.filter(benchmark=bench)
-        if c.count():
-            change = (result - c[0].value)*100/c[0].value
-            totals['change'].append(result / c[0].value)
+        if change_list != None:
+            c = change_list.filter(benchmark=bench)
+            if c.count():
+                change = (result - c[0].value)*100/c[0].value
+                totals['change'].append(result / c[0].value)
         
         #calculate past average
         average = 0
         averagecount = 0
-        for rev in pastrevisions:
-            past_rev = Result.objects.filter(
-                revision__number=rev.number
-            ).filter(
-                revision__project=settings.PROJECT_NAME
-            ).filter(
-                interpreter=interpreter
-            ).filter(benchmark=bench)
-            if past_rev.count():
-                average += past_rev[0].value
-                averagecount += 1
+        if pastrevisions != None:
+            for rev in pastrevisions:
+                past_rev = Result.objects.filter(
+                    revision__number=rev.number
+                ).filter(
+                    revision__project=settings.PROJECT_NAME
+                ).filter(
+                    interpreter=interpreter
+                ).filter(benchmark=bench)
+                if past_rev.count():
+                    average += past_rev[0].value
+                    averagecount += 1
         trend = 0
         if average:
             average = average / averagecount
@@ -305,6 +312,9 @@ def overview(request):
     lastrevisions = Revision.objects.filter(
         project=settings.PROJECT_NAME
     ).order_by('-number')[:15]
+    if not len(lastrevisions):
+        response = 'No data found for project "' + settings.PROJECT_NAME + '"'
+        return HttpResponse(response)
     selectedrevision = lastrevisions[0].number
     if data.has_key("revision"):
         if data["revision"] > 0:

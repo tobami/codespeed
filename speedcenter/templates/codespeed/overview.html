@@ -88,8 +88,8 @@
     var h = parseInt($("#content").css("height"));//get height for loading text
     $("#results").fadeOut("fast", function() {
       $("#content").html(getLoadText("Loading...", h));
+      $("#content").load("table/", $.param(getConfiguration()), function(responseText) { updateTable(); });
     });
-    $("#content").load("table/", $.param(getConfiguration()), function(responseText) { updateTable(); });
   }
   
   $(function() {

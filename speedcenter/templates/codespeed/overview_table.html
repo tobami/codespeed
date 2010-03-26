@@ -5,7 +5,7 @@
   </tr>
 </thead>
 <tfoot>
-  <tr><td class="text" title="Arithmetic mean">Average</td><td></td><td>{{ totals.change|floatformat:2 }}%</td><td>{{ totals.trend|floatformat:2 }}%</td><td></td><td></td></tr>
+  <tr><td class="text" title="Arithmetic mean">Average</td><td></td><td>{{ totals.change|floatformat:2 }}%</td><td>{{ totals.trend|floatformat:2 }}%</td>{% if baselineflag %}<td></td><td></td>{% endif %}</tr>
 </tfoot>
 <tbody>
 {% for row in table_list %}  <tr>

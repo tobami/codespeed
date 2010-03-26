@@ -20,12 +20,14 @@ def getbaselineinterpreters():
                     rev = rev[0]
                 else:
                     raise Revision.DoesNotExist
+                name = interpreter.name + " " + interpreter.coptions
+                if rev.tag: name += " " + rev.tag
+                else: name += " " + rev.revision
                 baseline.append({
                     'interpreter': interpreter.id,
-                    'name': interpreter.name,
+                    'name': name,
                     'revision': rev.number,
                     'project': rev.project,
-                    'tag': rev.tag
                 })
         except (Interpreter.DoesNotExist, Revision.DoesNotExist):
             # TODO: write to server logs
@@ -37,12 +39,14 @@ def getbaselineinterpreters():
             #add interpreters that correspond to each tagged revission.
             for interpreter in interpreters:
                 if interpreter.name in rev.project:
+                    name = interpreter.name + " " + interpreter.coptions
+                    if rev.tag: name += " " + rev.tag
+                    else: name += " " + rev.revision
                     baseline.append({
                         'interpreter': interpreter.id,
-                        'name': interpreter.name,
+                        'name': name,
                         'revision': rev.number,
                         'project': rev.project,
-                        'tag': rev.tag
                     })
     # move default to first place
     if hasattr(settings, 'defaultbaseline'):
@@ -192,6 +196,7 @@ def getoverviewtable(request):
     ).filter(interpreter=interpreter)
     
     baselineflag = False
+    base_list = None
     if data.has_key("baseline"):
         if data['baseline'] != "undefined":
             baselineflag = True

@@ -5,9 +5,10 @@ class Revision(models.Model):
     def __unicode__(self):
         return str(self.number)
     number = models.IntegerField()
-    project = models.CharField(max_length=50)
-    tag = models.CharField(max_length=50, blank=True)
-    message = models.CharField(max_length=200, blank=True)
+    project = models.CharField(max_length=20)
+    branch = models.CharField(max_length=20, default='trunk')
+    tag = models.CharField(max_length=20, blank=True)
+    message = models.CharField(max_length=100, blank=True)
     date = models.DateTimeField(blank=True, null=True)
     class Meta:
         unique_together = ("number", "project")
@@ -40,9 +41,10 @@ class Environment(models.Model):
     def __unicode__(self):
         return str(self.name)
     name = models.CharField(unique=True,max_length=50)
-    cpu = models.CharField(max_length=20)
-    memory = models.CharField(max_length=20)
-    os = models.CharField(max_length=20)
+    cpu = models.CharField(max_length=20, blank=True)
+    memory = models.CharField(max_length=20, blank=True)
+    os = models.CharField(max_length=20, blank=True)
+    kernel = models.CharField(max_length=20, blank=True)
 
 
 class Result(models.Model):

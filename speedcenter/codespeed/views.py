@@ -71,13 +71,22 @@ def getdefaultenvironment():
             pass
     return default
 
-def getdefaultinterpreter():
-    default = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)[0]
-    if hasattr(settings, 'defaultinterpreter'):
+def getdefaultinterpreters():
+    default = []
+    if hasattr(settings, 'defaultinterpreters'):
         try:
-            default = Interpreter.objects.get(id=settings.defaultinterpreter)
+            for interpreter in settings.defaultinterpreters:
+                i = Interpreter.objects.get(id=interpreter)
+                default.append(interpreter)
         except Interpreter.DoesNotExist:
-            pass
+            i_list = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
+            for i in i_list:
+                default.append(i.id)
+    else:
+        i_list = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
+        for i in i_list:
+            default.append(i.id)
+        
     return default
 
 def gettimelinedata(request):
@@ -150,14 +159,13 @@ def timeline(request):
         except ValueError:
             defaultbenchmark = get_object_or_404(Benchmark, name=data["benchmark"]).id
     
-    defaultinterpreters = [2, 3]
+    defaultinterpreters = getdefaultinterpreters()
     if data.has_key("interpreters"):
         defaultinterpreters = []
         for i in data["interpreters"].split(","):
             selected = Interpreter.objects.filter(id=int(i))
             if len(selected): defaultinterpreters.append(selected[0].id)
-    if not len(defaultinterpreters): defaultinterpreters = [2, 3]
-
+    
     lastrevisions = [10, 50, 200, 1000]
     defaultlast = 200
     if data.has_key("revisions"):
@@ -305,7 +313,8 @@ def overview(request):
         if data["trend"] in trends:
             defaulttrend = int(request.GET["trend"])
 
-    defaultinterpreter = getdefaultinterpreter().id
+    defaultinterpreter = getdefaultinterpreters()
+    if len(defaultinterpreter): defaultinterpreter = defaultinterpreter[0]
     if data.has_key("interpreter"):
         selected = Interpreter.objects.filter(id=int(data["interpreter"]))
         if len(selected): defaultinterpreter = selected[0].id

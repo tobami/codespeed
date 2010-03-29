@@ -294,6 +294,7 @@ table.tablesorter tbody tr.highlight td {
 }
 
 a#permalink { float: right; font-size: small; }
+a#permalink:hover { text-decoration: underline; }
 
 div#plot { text-align: left; height: 500px; width: 100%; }
 div.miniplot {

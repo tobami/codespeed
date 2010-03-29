@@ -8,4 +8,4 @@ baselinelist = [
 ]
 
 defaultbaseline = {'interpreter': 1, 'revision': 262}
-defaultinterpreter = 2
+defaultinterpreters = [2, 3]

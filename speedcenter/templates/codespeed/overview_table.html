@@ -1,7 +1,7 @@
 <table id="results" class="tablesorter">
 <thead>
   <tr>
-    <th class="w">Benchmark</th><th class="w">Time (s)</th><th class="w">Current change</th><th class="w">Trend ({{ trendconfig }})</th>{% if baselineflag %}<th class="w" title="Compared to {{ baseinterpreter.name }} {{ baserevision }}">Times {{ baseinterpreter.name }}</th><th class="bar" title="Compared to {{ baseinterpreter.name }} in log 2 scale"><div style="float:left;font-size:smaller;">slower</div><div style="float:left;margin-left:48px;">(log<sub>2</sub> scale)</div><div style="float:left;margin-left:60px;font-size:smaller;">faster</div></th>{% endif %}
+    <th class="w">Benchmark</th><th class="w">Time (s)</th><th class="w">Current change</th><th class="w">Trend ({{ trendconfig }})</th>{% if baselineflag %}<th class="w" title="Compared to {{ baseinterpreter.name }} {{ baserevision }}">Times {{ baseinterpreter.shortname }}</th><th class="bar" title="Compared to {{ baseinterpreter.name }} in log 2 scale"><div style="float:left;font-size:smaller;">slower</div><div style="float:left;margin-left:48px;">(log<sub>2</sub> scale)</div><div style="float:left;margin-left:60px;font-size:smaller;">faster</div></th>{% endif %}
   </tr>
 </thead>
 <tfoot>

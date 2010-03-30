@@ -20,12 +20,16 @@ def getbaselineinterpreters():
                     rev = rev[0]
                 else:
                     raise Revision.DoesNotExist
+                shortname = interpreter.name
+                #if interpreter.coptions != "default":
+                    #shortname += " " + interpreter.coptions
                 name = interpreter.name + " " + interpreter.coptions
                 if rev.tag: name += " " + rev.tag
                 else: name += " " + str(rev.number)
                 baseline.append({
                     'interpreter': interpreter.id,
                     'name': name,
+                    'shortname': shortname,
                     'revision': rev.number,
                     'project': rev.project,
                 })
@@ -39,12 +43,16 @@ def getbaselineinterpreters():
             #add interpreters that correspond to each tagged revission.
             for interpreter in interpreters:
                 if interpreter.name in rev.project:
+                    shortname = interpreter.name
+                    #if interpreter.coptions != "default":
+                        #shortname += " " + interpreter.coptions
                     name = interpreter.name + " " + interpreter.coptions
                     if rev.tag: name += " " + rev.tag
                     else: name += " " + str(rev.number)
                     baseline.append({
                         'interpreter': interpreter.id,
                         'name': name,
+                        'shortname': shortname,
                         'revision': rev.number,
                         'project': rev.project,
                     })
@@ -225,19 +233,19 @@ def getoverviewtable(request):
     # TODO: remove baselineflag
     baselineflag = False
     base_list = None
+    baseinterpreter = None
     if data.has_key("baseline"):
         if data['baseline'] != "undefined":
             baselineflag = True
             base = int(data['baseline']) - 1
             baseline = getbaselineinterpreters()
-            baseinterpreter = Interpreter.objects.get(id=baseline[base]['interpreter'])
-            baserevision = baseline[base]['revision']
+            baseinterpreter = baseline[base]
             base_list = Result.objects.filter(
-                revision__number=baserevision
+                revision__number=baseline[base]['revision']
             ).filter(
                 revision__project=baseline[base]['project']
-            ).filter(interpreter=baseinterpreter)
-    
+            ).filter(interpreter=baseline[base]['interpreter'])
+
     table_list = []
     totals = {'change': [], 'trend': [],}
     for bench in Benchmark.objects.all():

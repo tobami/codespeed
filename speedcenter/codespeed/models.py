@@ -24,17 +24,17 @@ class Interpreter(models.Model):
 
 
 class Benchmark(models.Model):
-    TYPES = (
-        ('T', 'Trunk'),
-        ('D', 'Debug'),
-        ('P', 'Python'),
-        ('M', 'Multilanguage'),
+    B_TYPES = (
+        ('C', 'Cross-project'),
+        ('O', 'Own-project'),
     )
     def __unicode__(self):
         return str(self.name)
     name = models.CharField(unique=True, max_length=50)
-    benchmark_type = models.CharField(max_length=1, choices=TYPES, default='T')
+    benchmark_type = models.CharField(max_length=1, choices=B_TYPES, default='C')
     description = models.CharField(max_length=200, blank=True)
+    units = models.CharField(max_length=10, default='seconds')
+    lessisbetter = models.BooleanField(default=True)
 
 
 class Environment(models.Model):
@@ -53,7 +53,10 @@ class Result(models.Model):
         ('M', 'Memory'),
         ('S', 'Score'),
     )
-    value = models.FloatField(blank=True, null=True)
+    value = models.FloatField()
+    std_dev = models.FloatField(blank=True, null=True)
+    val_min = models.FloatField(blank=True, null=True)
+    val_max = models.FloatField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
     result_type = models.CharField(max_length=1, choices=TYPES, default='T')
     revision = models.ForeignKey(Revision)
@@ -62,5 +65,5 @@ class Result(models.Model):
     environment = models.ForeignKey(Environment)
     
     class Meta:
-        unique_together = ("revision", "interpreter", "benchmark", "environment" , "result_type")
+        unique_together = ("revision", "interpreter", "benchmark", "environment")
     

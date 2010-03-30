@@ -63,7 +63,9 @@ def getbaselineinterpreters():
     return baseline
 
 def getdefaultenvironment():
-    default = Environment.objects.all()[0]
+    default = Environment.objects.all()
+    if not len(default): return 0
+    default = default[0]
     if hasattr(settings, 'defaultenvironment'):
         try:
             default = Environment.objects.get(name=settings.defaultenvironment)
@@ -151,7 +153,11 @@ def timeline(request):
         if data["baseline"] == "false":
             defaultbaseline = False
     
-    defaultenvironment = getdefaultenvironment().id
+    defaultenvironment = getdefaultenvironment()
+    if not defaultenvironment:
+        return HttpResponse("You need to configure at least one Environment")
+    defaultenvironment = defaultenvironment.id
+    
     defaultbenchmark = "grid"
     if data.has_key("benchmark"):
         try:
@@ -303,7 +309,11 @@ def overview(request):
     data = request.GET
 
     # Configuration of default parameters
-    defaultenvironment = getdefaultenvironment().id
+    defaultenvironment = getdefaultenvironment()
+    if not defaultenvironment:
+        return HttpResponse("You need to configure at least one Environment")
+    defaultenvironment = defaultenvironment.id
+
     defaultchangethres = 3
     defaulttrendthres = 3
     defaultcompthres = 0.2

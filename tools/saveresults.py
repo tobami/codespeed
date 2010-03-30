@@ -10,9 +10,7 @@ def save(project, revision, results, options, branch, interpreter, int_options, 
     #Parse data
     data = {}
     current_date = datetime.today()
-    if branch != "" and branch != "trunk":
-        interpreter = branch
-        int_options = ""
+    if branch == "": return 1
         
     for b in results:
         bench_name = b[0]
@@ -29,6 +27,7 @@ def save(project, revision, results, options, branch, interpreter, int_options, 
         data = {
             'revision_number': revision,
             'revision_project': project,
+            'revision_branch': branch,
             'interpreter_name': interpreter,
             'interpreter_coptions': int_options,
             'benchmark_name': bench_name,

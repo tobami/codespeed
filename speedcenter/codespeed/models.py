@@ -11,7 +11,8 @@ class Revision(models.Model):
     message = models.CharField(max_length=100, blank=True)
     date = models.DateTimeField(blank=True, null=True)
     class Meta:
-        unique_together = ("number", "project")
+        unique_together = ("number", "project", "branch")
+
 
 class Interpreter(models.Model):
     def __unicode__(self):

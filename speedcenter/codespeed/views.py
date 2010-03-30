@@ -368,6 +368,7 @@ def addresult(request):
     mandatory_data = [
         'revision_number',
         'revision_project',
+        'revision_branch',
         'interpreter_name',
         'interpreter_coptions',
         'benchmark_name',
@@ -392,13 +393,17 @@ def addresult(request):
         if data['lessisbetter'] == True: l = 1
         b.lessisbetter = l
     b.save()
-    rev, created = Revision.objects.get_or_create(number=data["revision_number"], project=data["revision_project"])
+    rev, created = Revision.objects.get_or_create(
+        number=data['revision_number'],
+        project=data['revision_project'],
+        branch=data['revision_branch'],
+    )
     if data.has_key('revision_date'):
         rev.date = data['revision_date']
         rev.save()
-    inter, created = Interpreter.objects.get_or_create(name=data["interpreter_name"], coptions=data["interpreter_coptions"])
+    inter, created = Interpreter.objects.get_or_create(name=data['interpreter_name'], coptions=data['interpreter_coptions'])
     try:
-        e = get_object_or_404(Environment, name=data["environment"])
+        e = get_object_or_404(Environment, name=data['environment'])
     except Http404:
         return HttpResponseNotFound("Environment " + data["environment"] + " not found")
     r, created = Result.objects.get_or_create(

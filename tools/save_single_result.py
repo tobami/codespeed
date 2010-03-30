@@ -7,14 +7,14 @@ SPEEDURL = 'http://localhost:8080/'# This will be pyspeed.pypy.org/
 data = {
     'revision_number': '23238',
     'revision_project': 'pypy',
+    'revision_branch': 'trunk',
     'revision_date': "2009-11-15 18:11:29", # Optional. Make mandatory?
     'interpreter_name': 'pypy-c-jit',
     'interpreter_coptions': 'gc=Hybrid',
     'benchmark_name': 'Richards',
-    'benchmark_type': 'P',# Optional. Default is T for Trunk. (Trunk, Debug, Python, Multilanguage)
+    'benchmark_type': 'C',# Optional. Default is C for Cross-project.
     'environment': "Dual Core Linux",
     'result_value': 400,
-    'result_type': 'M',# Optional. Default is 'T' for Time in milliseconds. (Time, Memory, Score)
     'result_date': datetime.today(),
 }
 

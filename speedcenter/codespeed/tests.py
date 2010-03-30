@@ -15,6 +15,7 @@ class AddResultTest(TestCase):
         self.data = {
                 'revision_number': '23232',
                 'revision_project': 'pypy',
+                'revision_branch': 'trunk',
                 'interpreter_name': 'pypy-c',
                 'interpreter_coptions': 'gc=Böhm',
                 'benchmark_name': 'Richards',
@@ -34,7 +35,7 @@ class AddResultTest(TestCase):
         self.assertEquals(b.benchmark_type, "C")
         self.assertEquals(b.units, "seconds")
         self.assertEquals(b.lessisbetter, True)
-        r = Revision.objects.get(number='23232', project='pypy')
+        r = Revision.objects.get(number='23232', project='pypy', branch="trunk")
         i = Interpreter.objects.get(name='pypy-c', coptions='gc=Böhm')
         self.assertTrue(Result.objects.get(
             value=456,
@@ -50,6 +51,7 @@ class AddResultTest(TestCase):
         Add result data with non-default options
         """
         modified_data = self.data
+        modified_data['revision_branch'] = "experimental"
         modified_data['benchmark_type'] = "O"
         modified_data['units'] = "fps"
         modified_data['lessisbetter'] = False
@@ -64,7 +66,8 @@ class AddResultTest(TestCase):
         self.assertEquals(b.benchmark_type, "O")
         self.assertEquals(b.units, "fps")
         self.assertEquals(b.lessisbetter, False)
-        r = Revision.objects.get(number='23232', project='pypy')
+        r = Revision.objects.get(number='23232', project='pypy', branch='experimental')
+        self.assertEquals(r.branch, "experimental")
         i = Interpreter.objects.get(name='pypy-c', coptions='gc=Böhm')
         
         res = Result.objects.get(

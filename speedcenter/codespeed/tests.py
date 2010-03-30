@@ -22,15 +22,18 @@ class AddResultTest(TestCase):
                 'result_value': 456,
                 'result_date': self.cdate,
         }        
-    def test_add_result(self):
+    def test_add_default_result(self):
         """
-        Add result data
+        Add result data using default options
         """
         response = self.client.post(self.path, self.data)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.content, "Result data saved succesfully")
         e = Environment.objects.get(name='bigdog')        
         b = Benchmark.objects.get(name='Richards')
+        self.assertEquals(b.benchmark_type, "C")
+        self.assertEquals(b.units, "seconds")
+        self.assertEquals(b.lessisbetter, True)
         r = Revision.objects.get(number='23232', project='pypy')
         i = Interpreter.objects.get(name='pypy-c', coptions='gc=Böhm')
         self.assertTrue(Result.objects.get(
@@ -41,6 +44,40 @@ class AddResultTest(TestCase):
             benchmark=b,
             environment=e
         ))
+    
+    def test_add_non_default_result(self):
+        """
+        Add result data with non-default options
+        """
+        modified_data = self.data
+        modified_data['benchmark_type'] = "O"
+        modified_data['units'] = "fps"
+        modified_data['lessisbetter'] = False
+        modified_data['std_dev'] = 1.11111
+        modified_data['max'] = 2
+        modified_data['min'] = 1.0
+        response = self.client.post(self.path, modified_data)
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.content, "Result data saved succesfully")
+        e = Environment.objects.get(name='bigdog')        
+        b = Benchmark.objects.get(name='Richards')
+        self.assertEquals(b.benchmark_type, "O")
+        self.assertEquals(b.units, "fps")
+        self.assertEquals(b.lessisbetter, False)
+        r = Revision.objects.get(number='23232', project='pypy')
+        i = Interpreter.objects.get(name='pypy-c', coptions='gc=Böhm')
+        
+        res = Result.objects.get(
+            value=456,
+            date=self.cdate,
+            revision=r,
+            interpreter=i,
+            benchmark=b,
+            environment=e
+        )
+        self.assertEquals(res.std_dev, 1.11111)
+        self.assertEquals(res.val_max, 2)
+        self.assertEquals(res.val_min, 1)
 
     def test_bad_environment(self):
         """

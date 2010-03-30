@@ -339,7 +339,7 @@ def overview(request):
     interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
     lastrevisions = Revision.objects.filter(
         project=settings.PROJECT_NAME
-    ).order_by('-number')[:15]
+    ).order_by('-number')[:20]
     if not len(lastrevisions):
         response = 'No data found for project "' + settings.PROJECT_NAME + '"'
         return HttpResponse(response)
@@ -377,7 +377,13 @@ def addresult(request):
     b, created = Benchmark.objects.get_or_create(name=data["benchmark_name"])
     if data.has_key('benchmark_type'):
         b.benchmark_type = data['benchmark_type']
-        b.save()
+    if data.has_key('units'):
+        b.units = data['units']
+    if data.has_key('lessisbetter'):
+        l = 0
+        if data['lessisbetter'] == True: l = 1
+        b.lessisbetter = l
+    b.save()
     rev, created = Revision.objects.get_or_create(number=data["revision_number"], project=data["revision_project"])
     if data.has_key('revision_date'):
         rev.date = data['revision_date']
@@ -387,18 +393,17 @@ def addresult(request):
         e = get_object_or_404(Environment, name=data["environment"])
     except Http404:
         return HttpResponseNotFound("Environment " + data["environment"] + " not found")
-    result_type = "T"
-    if data.has_key('result_type'):
-        result_type = data['result_type']
     r, created = Result.objects.get_or_create(
-            result_type=result_type,
+            value = data["result_value"],
             revision=rev,
             interpreter=inter,
             benchmark=b,
             environment=e
     )
-    r.value = data["result_value"]
     r.date = data["result_date"]
+    if data.has_key('std_dev'): r.std_dev = data['std_dev']
+    if data.has_key('min'): r.val_min = data['min']
+    if data.has_key('max'): r.val_max = data['max']
     r.save()
     
     return HttpResponse("Result data saved succesfully")

@@ -48,17 +48,11 @@ class Environment(models.Model):
 
 
 class Result(models.Model):
-    TYPES = (
-        ('T', 'Time'),
-        ('M', 'Memory'),
-        ('S', 'Score'),
-    )
     value = models.FloatField()
     std_dev = models.FloatField(blank=True, null=True)
     val_min = models.FloatField(blank=True, null=True)
     val_max = models.FloatField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
-    result_type = models.CharField(max_length=1, choices=TYPES, default='T')
     revision = models.ForeignKey(Revision)
     interpreter = models.ForeignKey(Interpreter)
     benchmark = models.ForeignKey(Benchmark)

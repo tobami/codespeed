@@ -2,7 +2,7 @@
 import urllib, urllib2
 from datetime import datetime
 
-SPEEDURL = "http://speed.pypy.org/"
+SPEEDURL = 'http://127.0.0.1:8000/'#'http://speed.pypy.org/'
 HOST = "bigdog"
 
 def save(project, revision, results, options, branch, interpreter, int_options, testing=False):
@@ -25,12 +25,12 @@ def save(project, revision, results, options, branch, interpreter, int_options, 
             print("ERROR: result type unknown " + b[1])
             return 1
         data = {
-            'revision_number': revision,
-            'revision_project': project,
-            'revision_branch': branch,
+            'commitid': revision,
+            'project': project,
+            'branch': branch,
             'interpreter_name': interpreter,
             'interpreter_coptions': int_options,
-            'benchmark_name': bench_name,
+            'benchmark': bench_name,
             'environment': HOST,
             'result_value': value,
             'result_date': current_date,
@@ -46,7 +46,7 @@ def send(data):
     f = None
     response = "None"
     info = str(datetime.today()) + ": Saving result for " + data['interpreter_name'] + " revision "
-    info += str(data['revision_number']) + ", benchmark " + data['benchmark_name']
+    info += str(data['commitid']) + ", benchmark " + data['benchmark']
     print(info)
     try:
         f = urllib2.urlopen(SPEEDURL + 'result/add/', params)
@@ -60,4 +60,6 @@ def send(data):
             response = '\n  The server couldn\'t fulfill the request\n'
             response += '  Error code: ' + str(e)
         print("Server (%s) response: %s\n" % (SPEEDURL, response))
-        return 1   
+        return 1
+    print "saved correctly!\n"
+    return 0

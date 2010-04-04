@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import get_object_or_404, render_to_response
-from codespeed.models import Revision, Result, Interpreter, Benchmark, Environment
+from codespeed.models import Project, Revision, Result, Interpreter, Benchmark, Environment
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from codespeed import settings
+from datetime import datetime
+from time import sleep
 import json
 
 def getbaselineinterpreters():
@@ -11,12 +13,10 @@ def getbaselineinterpreters():
         try:
             for entry in settings.baselinelist:
                 interpreter = Interpreter.objects.get(id=entry['interpreter'])
-                rev = Revision.objects.filter(number=entry['revision'])
+                rev = Revision.objects.filter(
+                    commitid=entry['revision'], project=interpreter.project
+                )
                 if len(rev) > 1:
-                    for r in rev:
-                        if(r.project in interpreter.name):
-                            rev = r
-                elif len(rev):
                     rev = rev[0]
                 else:
                     raise Revision.DoesNotExist
@@ -25,12 +25,12 @@ def getbaselineinterpreters():
                     #shortname += " " + interpreter.coptions
                 name = interpreter.name + " " + interpreter.coptions
                 if rev.tag: name += " " + rev.tag
-                else: name += " " + str(rev.number)
+                else: name += " " + str(rev.commitid)
                 baseline.append({
                     'interpreter': interpreter.id,
                     'name': name,
                     'shortname': shortname,
-                    'revision': rev.number,
+                    'revision': rev.commitid,
                     'project': rev.project,
                 })
         except (Interpreter.DoesNotExist, Revision.DoesNotExist):
@@ -40,20 +40,20 @@ def getbaselineinterpreters():
         revs = Revision.objects.exclude(tag="")
         interpreters = Interpreter.objects.all()
         for rev in revs:
-            #add interpreters that correspond to each tagged revission.
+            #add interpreters that correspond to each tagged revision.
             for interpreter in interpreters:
-                if interpreter.name in rev.project:
+                if interpreter.project == rev.project:
                     shortname = interpreter.name
                     #if interpreter.coptions != "default":
                         #shortname += " " + interpreter.coptions
                     name = interpreter.name + " " + interpreter.coptions
                     if rev.tag: name += " " + rev.tag
-                    else: name += " " + str(rev.number)
+                    else: name += " " + str(rev.commitid)
                     baseline.append({
                         'interpreter': interpreter.id,
                         'name': name,
                         'shortname': shortname,
-                        'revision': rev.number,
+                        'revision': rev.commitid,
                         'project': rev.project,
                     })
     # move default to first place
@@ -83,33 +83,36 @@ def getdefaultenvironment():
 
 def getdefaultinterpreters():
     default = []
+    defaultproject = Project.objects.filter(isdefault=True)[0]
     if hasattr(settings, 'defaultinterpreters'):
         try:
             for interpreter in settings.defaultinterpreters:
                 i = Interpreter.objects.get(id=interpreter)
                 default.append(interpreter)
         except Interpreter.DoesNotExist:
-            i_list = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
+            i_list = Interpreter.objects.filter(project=defaultproject)
             for i in i_list:
                 default.append(i.id)
     else:
-        i_list = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
+        i_list = Interpreter.objects.filter(project=defaultproject)
         for i in i_list:
             default.append(i.id)
-        
+    
     return default
 
 def gettimelinedata(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
     data = request.GET
-    
+
+    defaultproject = Project.objects.filter(isdefault=True)[0]
+
     timeline_list = {'error': 'None', 'timelines': []}
     interpreters = data['interpreters'].split(",")
     if interpreters[0] == "":
         timeline_list['error'] = "No interpreters selected"
         return HttpResponse(json.dumps( timeline_list ))
-    
+
     benchmarks = []
     number_of_rev = data['revisions']
     if data['benchmark'] == 'grid':
@@ -121,10 +124,14 @@ def gettimelinedata(request):
     baseline = getbaselineinterpreters()
     baselinerev = None
     if data['baseline'] == "true" and len(baseline):
+        p = Project.objects.get(name=baseline['project'])
         baseline = baseline[0]
-        baselinerev = Revision.objects.get(number=baseline['revision'], project=baseline['project'])
+        baselinerev = Revision.objects.get(
+            commitid=baseline['revision'], project=p
+        )
     
     for bench in benchmarks:
+        append = False
         timeline = {}
         timeline['benchmark'] = bench.name
         timeline['benchmark_id'] = bench.id
@@ -135,17 +142,22 @@ def gettimelinedata(request):
             ).value
         for interpreter in interpreters:
             resultquery = Result.objects.filter(
-                    revision__project=settings.PROJECT_NAME
+                    revision__project=defaultproject
                 ).filter(
                     benchmark=bench
                 ).filter(
                     interpreter=interpreter
-                ).order_by('-revision__number')[:number_of_rev]
+                ).order_by('-revision__commitid')[:number_of_rev]
             results = []
             for res in resultquery:
-                results.append([res.revision.number, res.value])
+                results.append([res.revision.commitid, res.value])
             timeline['interpreters'][interpreter] = results
-        timeline_list['timelines'].append(timeline)
+            if len(results): append = True
+        if append: timeline_list['timelines'].append(timeline)
+    
+    if not len(timeline_list['timelines']):
+        response = 'No data found for project "' + defaultproject.name + '"'
+        timeline_list['error'] = response
     return HttpResponse(json.dumps( timeline_list ))
 
 def timeline(request):
@@ -154,17 +166,24 @@ def timeline(request):
     data = request.GET
     
     # Configuration of default parameters
-    baseline = getbaselineinterpreters()
-    if len(baseline): baseline = baseline[0]
-    defaultbaseline = True
-    if data.has_key("baseline"):
-        if data["baseline"] == "false":
-            defaultbaseline = False
+    defaultproject = Project.objects.filter(isdefault=True)
+    if not len(defaultproject):
+        return HttpResponse("You need to configure at least one Project as default")
+    else: defaultproject = defaultproject[0]
     
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment:
         return HttpResponse("You need to configure at least one Environment")
     defaultenvironment = defaultenvironment.id
+    
+    baseline = getbaselineinterpreters()
+    
+    defaultbaseline = True
+    if data.has_key("baseline"):
+        if data["baseline"] == "false":
+            defaultbaseline = False
+    if len(baseline): baseline = baseline[0]
+    else: defaultbaseline = False
     
     defaultbenchmark = "grid"
     if data.has_key("benchmark"):
@@ -187,7 +206,7 @@ def timeline(request):
             defaultlast = data["revisions"]
     
     # Information for template
-    interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
+    interpreters = Interpreter.objects.filter(project=defaultproject)
     benchmarks = Benchmark.objects.all()
     hostlist = Environment.objects.all()
     return render_to_response('codespeed/timeline.html', {
@@ -205,29 +224,31 @@ def timeline(request):
 
 def getoverviewtable(request):
     data = request.GET
+    
+    defaultproject = Project.objects.filter(isdefault=True)[0]
     interpreter = int(data["interpreter"])
     trendconfig = int(data["trend"])
     revision = int(data["revision"])
     lastrevisions = Revision.objects.filter(
-        project=settings.PROJECT_NAME
-    ).filter(number__lte=revision).order_by('-number')[:trendconfig+1]
-    lastrevision = lastrevisions[0].number
+        project=defaultproject
+    ).filter(commitid__lte=revision).order_by('-commitid')[:trendconfig+1]
+    lastrevision = lastrevisions[0].commitid
 
     change_list = None
     pastrevisions = None
     if len(lastrevisions) > 1:
-        changerevision = lastrevisions[1].number
+        changerevision = lastrevisions[1].commitid
         change_list = Result.objects.filter(
-            revision__number=changerevision
+            revision__commitid=changerevision
         ).filter(
-            revision__project=settings.PROJECT_NAME
+            revision__project=defaultproject
         ).filter(interpreter=interpreter)   
         pastrevisions = lastrevisions[trendconfig-2:trendconfig+1]
 
     result_list = Result.objects.filter(
-        revision__number=lastrevision
+        revision__commitid=lastrevision
     ).filter(
-        revision__project=settings.PROJECT_NAME
+        revision__project=defaultproject
     ).filter(interpreter=interpreter)
     
     # TODO: remove baselineflag
@@ -240,10 +261,11 @@ def getoverviewtable(request):
             base = int(data['baseline']) - 1
             baseline = getbaselineinterpreters()
             baseinterpreter = baseline[base]
+            p = Project.objects.get(name=baseline[base]['project'])
             base_list = Result.objects.filter(
-                revision__number=baseline[base]['revision']
+                revision__commitid=baseline[base]['revision']
             ).filter(
-                revision__project=baseline[base]['project']
+                revision__project=p
             ).filter(interpreter=baseline[base]['interpreter'])
 
     table_list = []
@@ -266,9 +288,9 @@ def getoverviewtable(request):
         if pastrevisions != None:
             for rev in pastrevisions:
                 past_rev = Result.objects.filter(
-                    revision__number=rev.number
+                    revision__commitid=rev.commitid
                 ).filter(
-                    revision__project=settings.PROJECT_NAME
+                    revision__project=defaultproject
                 ).filter(
                     interpreter=interpreter
                 ).filter(benchmark=bench)
@@ -317,6 +339,10 @@ def overview(request):
     data = request.GET
 
     # Configuration of default parameters
+    defaultproject = Project.objects.filter(isdefault=True)
+    if not len(defaultproject):
+        return HttpResponse("You need to configure at least one Project as default")
+    else: defaultproject = defaultproject[0]
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment:
         return HttpResponse("You need to configure at least one Environment")
@@ -344,21 +370,28 @@ def overview(request):
         if len(baseline) < defaultbaseline: defaultbaseline = 1
     
     # Information for template
-    interpreters = Interpreter.objects.filter(name__startswith=settings.PROJECT_NAME)
+    interpreters = Interpreter.objects.filter(project=defaultproject)
     lastrevisions = Revision.objects.filter(
-        project=settings.PROJECT_NAME
-    ).order_by('-number')[:20]
+        project=defaultproject
+    ).order_by('-commitid')[:20]
     if not len(lastrevisions):
-        response = 'No data found for project "' + settings.PROJECT_NAME + '"'
+        response = 'No data found for project "' + defaultproject.name + '"'
         return HttpResponse(response)
-    selectedrevision = lastrevisions[0].number
+    selectedrevision = lastrevisions[0].commitid
     if data.has_key("revision"):
         if data["revision"] > 0:
             # TODO: Create 404 html embeded in the overview
-            selectedrevision = get_object_or_404(Revision, number=data["revision"])
+            selectedrevision = get_object_or_404(Revision, commitid=data["revision"])
     hostlist = Environment.objects.all()
     
     return render_to_response('codespeed/overview.html', locals())
+
+def getcommitdate(project, branch, commitid):
+    # FIXME: if project has defined a repository, read real commitdate
+    if project.rcType == 'N':
+        return None
+    else:
+        return None
 
 def addresult(request):
     if request.method != 'POST':
@@ -366,12 +399,12 @@ def addresult(request):
     data = request.POST
     
     mandatory_data = [
-        'revision_number',
-        'revision_project',
-        'revision_branch',
+        'commitid',
+        'project',
+        'branch',
         'interpreter_name',
         'interpreter_coptions',
-        'benchmark_name',
+        'benchmark',
         'environment',
         'result_value',
         'result_date',
@@ -383,36 +416,40 @@ def addresult(request):
                 return HttpResponseBadRequest('Key "' + key + '" empty in request')
         else: return HttpResponseBadRequest('Key "' + key + '" missing from request')
 
-    b, created = Benchmark.objects.get_or_create(name=data["benchmark_name"])
-    if data.has_key('benchmark_type'):
-        b.benchmark_type = data['benchmark_type']
-    if data.has_key('units'):
-        b.units = data['units']
-    if data.has_key('lessisbetter'):
-        l = 0
-        if data['lessisbetter'] == True: l = 1
-        b.lessisbetter = l
-    b.save()
-    rev, created = Revision.objects.get_or_create(
-        number=data['revision_number'],
-        project=data['revision_project'],
-        branch=data['revision_branch'],
-    )
-    if data.has_key('revision_date'):
-        rev.date = data['revision_date']
-        rev.save()
-    inter, created = Interpreter.objects.get_or_create(name=data['interpreter_name'], coptions=data['interpreter_coptions'])
+    # Check that Environment exists
     try:
         e = get_object_or_404(Environment, name=data['environment'])
     except Http404:
         return HttpResponseNotFound("Environment " + data["environment"] + " not found")
+    
+    p, created = Project.objects.get_or_create(name=data["project"])
+    b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
+    rev, created = Revision.objects.get_or_create(
+        commitid=data['commitid'],
+        project=p,
+        branch=data['branch'],
+    )
+    
+    temp_date = getcommitdate(p, data['branch'], data['commitid'])
+    if temp_date:
+        rev.date = temp_date
+    else:
+        rev.date = data["result_date"]
+    rev.save()
+    
+    inter, created = Interpreter.objects.get_or_create(
+        name=data['interpreter_name'],
+        coptions=data['interpreter_coptions'],
+        project=p
+    )
     r, created = Result.objects.get_or_create(
-            value = data["result_value"],
+            value=data["result_value"],
             revision=rev,
             interpreter=inter,
             benchmark=b,
             environment=e
     )
+    
     r.date = data["result_date"]
     if data.has_key('std_dev'): r.std_dev = data['std_dev']
     if data.has_key('min'): r.val_min = data['min']

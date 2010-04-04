@@ -62,16 +62,21 @@
     var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
     $("#results > tbody > tr").each(function() {
       //Size plot bars
-      var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq(4)").text()));
-      $(this).children("td:eq(5)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]);
+      var found = $(this).children("td:eq(2)").length;
+      if ($(this).children("td:eq(4)").length) {
+        var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq(4)").text()));
+        $(this).children("td:eq(5)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]);
+      }
       //Link rows to timelines
       $(this).click(function () {
         permalinkToTimeline($(this).children("td:eq(0)").text());
       });
     });
     //Configure table as tablesorter
-    $.tablesorter.defaults.sortList = [[4,1]];//sort by default by the 5th column
-    $.tablesorter.defaults.headers = { 5: { sorter: false } };//disable sorting for bar column
+    if ($(this).children("td:eq(4)").length) {
+      $.tablesorter.defaults.sortList = [[4,1]];//sort by default by the 5th column
+      $.tablesorter.defaults.headers = { 5: { sorter: false } };//disable sorting for bar column
+    }
     $("#results").tablesorter({widgets: ['zebra']});
     $("#results tbody td").hover(function() {
       $(this).parents('tr').addClass('highlight');

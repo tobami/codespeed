@@ -2,18 +2,18 @@
 from datetime import datetime
 import urllib, urllib2
 
-SPEEDURL = 'http://localhost:8080/'# This will be pyspeed.pypy.org/
+SPEEDURL = 'http://localhost:8000/'# This will be pyspeed.pypy.org/
 
 data = {
-    'revision_number': '23238',
-    'revision_project': 'pypy',
-    'revision_branch': 'trunk',
+    'commitid': '23238',
+    'project': 'pypy',
+    'branch': 'trunk',
     'revision_date': "2009-11-15 18:11:29", # Optional. Make mandatory?
     'interpreter_name': 'pypy-c-jit',
     'interpreter_coptions': 'gc=Hybrid',
-    'benchmark_name': 'Richards',
+    'benchmark': 'Richards',
     'benchmark_type': 'C',# Optional. Default is C for Cross-project.
-    'environment': "Dual Core Linux",
+    'environment': "bigdog",
     'result_value': 400,
     'result_date': datetime.today(),
 }
@@ -22,7 +22,7 @@ def add(data):
     params = urllib.urlencode(data)
     f = None
     response = "None"
-    print "Interpreter %s, revision %s, benchmark %s" % (data['interpreter_name'], data['revision_number'], data['benchmark_name'])
+    print "Interpreter %s, revision %s, benchmark %s" % (data['interpreter_name'], data['commitid'], data['benchmark'])
     try:
         f = urllib2.urlopen(SPEEDURL + 'result/add/', params)
         response = f.read()
@@ -37,4 +37,4 @@ def add(data):
     print "Server (%s) response: %s\n" % (SPEEDURL, response)
 
 if __name__ == "__main__":
-    add_result(data)
+    add(data)

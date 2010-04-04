@@ -2,7 +2,7 @@
 from django.test import TestCase
 from datetime import datetime
 from django.test.client import Client
-from codespeed.models import Benchmark, Revision, Interpreter, Environment, Result
+from codespeed.models import Project, Benchmark, Revision, Interpreter, Environment, Result
 from django.core.urlresolvers import reverse
 
 class AddResultTest(TestCase):
@@ -13,12 +13,12 @@ class AddResultTest(TestCase):
         self.e.save()
         self.cdate = datetime.today()
         self.data = {
-                'revision_number': '23232',
-                'revision_project': 'pypy',
-                'revision_branch': 'trunk',
+                'commitid': '23232',
+                'project': 'pypy',
+                'branch': 'trunk',
                 'interpreter_name': 'pypy-c',
                 'interpreter_coptions': 'gc=Böhm',
-                'benchmark_name': 'Richards',
+                'benchmark': 'Richards',
                 'environment': 'bigdog',
                 'result_value': 456,
                 'result_date': self.cdate,
@@ -35,23 +35,25 @@ class AddResultTest(TestCase):
         self.assertEquals(b.benchmark_type, "C")
         self.assertEquals(b.units, "seconds")
         self.assertEquals(b.lessisbetter, True)
-        r = Revision.objects.get(number='23232', project='pypy', branch="trunk")
+        p = Project.objects.get(name='pypy')
+        r = Revision.objects.get(commitid='23232', project=p, branch="trunk")
+        self.assertEquals(r.date, self.cdate)
         i = Interpreter.objects.get(name='pypy-c', coptions='gc=Böhm')
-        self.assertTrue(Result.objects.get(
-            value=456,
-            date=self.cdate,
+        res = Result.objects.get(
             revision=r,
             interpreter=i,
             benchmark=b,
             environment=e
-        ))
+        )
+        self.assertTrue(res.value, 456)
+        self.assertTrue(res.date, self.cdate)
     
     def test_add_non_default_result(self):
         """
         Add result data with non-default options
         """
         modified_data = self.data
-        modified_data['revision_branch'] = "experimental"
+        modified_data['branch'] = "experimental"
         modified_data['benchmark_type'] = "O"
         modified_data['units'] = "fps"
         modified_data['lessisbetter'] = False
@@ -61,18 +63,13 @@ class AddResultTest(TestCase):
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.content, "Result data saved succesfully")
-        e = Environment.objects.get(name='bigdog')        
-        b = Benchmark.objects.get(name='Richards')
-        self.assertEquals(b.benchmark_type, "O")
-        self.assertEquals(b.units, "fps")
-        self.assertEquals(b.lessisbetter, False)
-        r = Revision.objects.get(number='23232', project='pypy', branch='experimental')
+        e = Environment.objects.get(name='bigdog')    
+        p = Project.objects.get(name='pypy')
+        r = Revision.objects.get(commitid='23232', project=p, branch='experimental')
         self.assertEquals(r.branch, "experimental")
         i = Interpreter.objects.get(name='pypy-c', coptions='gc=Böhm')
-        
+        b = Benchmark.objects.get(name='Richards')
         res = Result.objects.get(
-            value=456,
-            date=self.cdate,
             revision=r,
             interpreter=i,
             benchmark=b,

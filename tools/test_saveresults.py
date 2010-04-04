@@ -24,16 +24,16 @@ class testSaveresults(unittest.TestCase):
     def testGoodInput(self):
         '''Given correct result data, check that every result being saved has the right parameters'''
         for resultparams in saveresults.save("pypy", 71212, self.fixture, "", "experimental", "pypy-c-jit", "gc=hybrid", True):
-            self.assertEqual(resultparams['revision_project'], "pypy")
-            self.assertEqual(resultparams['revision_number'], 71212)
-            self.assertEqual(resultparams['revision_branch'], "experimental")
+            self.assertEqual(resultparams['project'], "pypy")
+            self.assertEqual(resultparams['commitid'], 71212)
+            self.assertEqual(resultparams['branch'], "experimental")
             self.assertEqual(resultparams['interpreter_name'], "pypy-c-jit")
             self.assertEqual(resultparams['interpreter_coptions'], "gc=hybrid")
             # get dict with correct data for this benchmark
             fixturedata = []
             benchfound = False
             for res in self.fixture:
-                if res[0] == resultparams['benchmark_name']:
+                if res[0] == resultparams['benchmark']:
                     fixturedata = res
                     benchfound = True
                     break

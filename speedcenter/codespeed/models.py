@@ -1,17 +1,38 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 
+class Project(models.Model):
+    RC_TYPES = (
+        ('N', 'none'),
+        ('G', 'git'),
+        ('S', 'svn'),
+    )
+    def __unicode__(self):
+        return str(self.name)
+    name = models.CharField(unique=True, max_length=20)
+    rcType = models.CharField(max_length=1, choices=RC_TYPES, default='N')
+    rcURL = models.URLField(blank=True, null=True)
+    isdefault = models.BooleanField(default=False)
+
+
 class Revision(models.Model):
     def __unicode__(self):
-        return str(self.number)
-    number = models.IntegerField()
-    project = models.CharField(max_length=20)
+        return str(self.commitid)
+    commitid = models.CharField(max_length=40)#git's SHA-1 length is 40
+    project = models.ForeignKey(Project)
     branch = models.CharField(max_length=20, default='trunk')
     tag = models.CharField(max_length=20, blank=True)
-    message = models.CharField(max_length=100, blank=True)
-    date = models.DateTimeField(blank=True, null=True)
+    date = models.DateTimeField(null=True)
     class Meta:
-        unique_together = ("number", "project", "branch")
+        unique_together = ("commitid", "branch", "project")
+
+
+class Commitlog(models.Model):
+    commitid = models.CharField(max_length=40)#git's SHA-1 length is 40
+    author = models.CharField(max_length=20)
+    date = models.DateTimeField()
+    message = models.CharField(max_length=200, blank=True)
+    revision = models.ForeignKey(Revision)
 
 
 class Interpreter(models.Model):
@@ -19,6 +40,7 @@ class Interpreter(models.Model):
         return str(self.name + " " + str(self.coptions))
     name = models.CharField(max_length=50)
     coptions = models.CharField("compile options", max_length=100)
+    project = models.ForeignKey(Project)
     
     class Meta:
         unique_together = ("name", "coptions")
@@ -61,4 +83,3 @@ class Result(models.Model):
     
     class Meta:
         unique_together = ("revision", "interpreter", "benchmark", "environment")
-    

@@ -203,11 +203,12 @@
     <label for="interpreter{{ inter.id }}">{{ inter.name }}</label><div class="seriescolor"></div></li>
     {% endfor %}
     </ul>
+    {% if defaultbaseline %}
     <ul>
       <li>
         <input id="baseline" type="checkbox" name="baseline" value="{{ baseline.interpreter }}" />
         <label for="baseline">{{ baseline.name }}</label><div class="seriescolor"></div></li>
-    </ul>
+    </ul>{% endif %}
   </div>
 </div>
 <div id="benchmark" class="sidebox">

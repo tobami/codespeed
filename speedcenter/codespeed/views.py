@@ -421,7 +421,10 @@ def createlogsfromsvn(newrev, startrev):
 
 def getcommitlogs(newrev, startrev):
     date = None
-    if newrev.project.rcType == 'S' and newrev.project.rcURL != None:
+    if newrev.project.rcType == 'N' or newrev.project.rcURL == "":
+        #Don't create logs
+        pass
+    elif newrev.project.rcType == 'S':
         date = createlogsfromsvn(newrev, startrev)
     return date
 

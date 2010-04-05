@@ -8,7 +8,7 @@
     config["trend"] = $("#trend option:selected").val();
     config["baseline"] = $("#baseline option:selected").val();
     config["revision"] = $("#revision option:selected").val();
-    config["interpreter"] = $("input[name='interpreter']:checked").val();
+    config["executable"] = $("input[name='executable']:checked").val();
     return config;
   }
   
@@ -18,7 +18,7 @@
   
   function permalinkToTimeline(benchmark) {
     var conf = new Object();
-    conf["interpreters"] = $("input[name='interpreter']:checked").val();
+    conf["executables"] = $("input[name='executable']:checked").val();
     conf["benchmark"] = benchmark;
     window.location="/timeline/?" + ued_encode(conf);
   }
@@ -100,8 +100,8 @@
     $("#baseline").change(refreshContent);
     $("#revision").val({{ selectedrevision }});
     $("#revision").change(refreshContent);
-    $("input:radio[name=interpreter]").filter('[value={{ defaultinterpreter }}]').attr('checked', true);
-    $("input[name='interpreter']").change(refreshContent);
+    $("input:radio[name=executable]").filter('[value={{ defaultexecutable }}]').attr('checked', true);
+    $("input[name='executable']").change(refreshContent);
     $("input:radio[name=host]").filter('[value={{ defaultenvironment }}]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
     refreshContent();
@@ -118,14 +118,14 @@
 
 {% block body %}
 <div id="sidebar">
-<div id="interpreter" class="sidebox">
+<div id="executable" class="sidebox">
   <div class="boxhead"><h2>Interpreter</h2></div>
   <div class="boxbody">
     <ul>
-    {% for inter in interpreters|dictsort:"id" %}
+    {% for exec in executables|dictsort:"id" %}
       <li>
-        <input id="interpreter{{ inter.id }}" type="radio" name="interpreter" value="{{ inter.id }}" />
-        <label for="interpreter{{ inter.id }}">{{ inter.name }}</label>
+        <input id="executable{{ exec.id }}" type="radio" name="executable" value="{{ exec.id }}" />
+        <label for="executable{{ exec.id }}">{{ exec.name }}</label>
       </li>
     {% endfor %}
     </ul>
@@ -140,7 +140,7 @@
       {% for trend in trends %}<option value="{{ trend }}">{{ trend }}</option>{% endfor %}
       </select>
     </li>
-    <li title="Select interpreter for comparison">Compare to:<br/>
+    <li title="Select executable for comparison">Compare to:<br/>
       <select id="baseline">
       {% for base in baseline %}<option value="{{ forloop.counter }}">{{ base.name }}</option>{% endfor %}
       </select>

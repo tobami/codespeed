@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import get_object_or_404, render_to_response
-from codespeed.models import Project, Revision, Commitlog, Result, Interpreter, Benchmark, Environment
+from codespeed.models import Project, Revision, Commitlog, Result, Executable, Benchmark, Environment
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from codespeed import settings
 from datetime import datetime
@@ -8,50 +8,50 @@ from time import sleep
 import json, pysvn
 
 
-def getbaselineinterpreters():
+def getbaselineexecutables():
     baseline = []
     if hasattr(settings, 'baselinelist'):
         try:
             for entry in settings.baselinelist:
-                interpreter = Interpreter.objects.get(id=entry['interpreter'])
+                executable = Executable.objects.get(id=entry['executable'])
                 rev = Revision.objects.filter(
-                    commitid=entry['revision'], project=interpreter.project
+                    commitid=entry['revision'], project=executable.project
                 )
                 if len(rev) > 1:
                     rev = rev[0]
                 else:
                     raise Revision.DoesNotExist
-                shortname = interpreter.name
-                #if interpreter.coptions != "default":
-                    #shortname += " " + interpreter.coptions
-                name = interpreter.name + " " + interpreter.coptions
+                shortname = executable.name
+                #if executable.coptions != "default":
+                    #shortname += " " + executable.coptions
+                name = executable.name + " " + executable.coptions
                 if rev.tag: name += " " + rev.tag
                 else: name += " " + str(rev.commitid)
                 baseline.append({
-                    'interpreter': interpreter.id,
+                    'executable': executable.id,
                     'name': name,
                     'shortname': shortname,
                     'revision': rev.commitid,
                     'project': rev.project,
                 })
-        except (Interpreter.DoesNotExist, Revision.DoesNotExist):
+        except (Executable.DoesNotExist, Revision.DoesNotExist):
             # TODO: write to server logs
             pass
     else:
         revs = Revision.objects.exclude(tag="")
-        interpreters = Interpreter.objects.all()
+        executables = Executable.objects.all()
         for rev in revs:
-            #add interpreters that correspond to each tagged revision.
-            for interpreter in interpreters:
-                if interpreter.project == rev.project:
-                    shortname = interpreter.name
-                    #if interpreter.coptions != "default":
-                        #shortname += " " + interpreter.coptions
-                    name = interpreter.name + " " + interpreter.coptions
+            #add executables that correspond to each tagged revision.
+            for executable in executables:
+                if executable.project == rev.project:
+                    shortname = executable.name
+                    #if executable.coptions != "default":
+                        #shortname += " " + executable.coptions
+                    name = executable.name + " " + executable.coptions
                     if rev.tag: name += " " + rev.tag
                     else: name += " " + str(rev.commitid)
                     baseline.append({
-                        'interpreter': interpreter.id,
+                        'executable': executable.id,
                         'name': name,
                         'shortname': shortname,
                         'revision': rev.commitid,
@@ -61,7 +61,7 @@ def getbaselineinterpreters():
     if hasattr(settings, 'defaultbaseline'):
         try:
             for base in baseline:
-                if base['interpreter'] == settings.defaultbaseline['interpreter'] and base['revision'] == settings.defaultbaseline['revision']:
+                if base['executable'] == settings.defaultbaseline['executable'] and base['revision'] == settings.defaultbaseline['revision']:
                     baseline.remove(base)
                     baseline.insert(0, base)
                     break
@@ -82,20 +82,20 @@ def getdefaultenvironment():
             pass
     return default
 
-def getdefaultinterpreters():
+def getdefaultexecutables():
     default = []
     defaultproject = Project.objects.filter(isdefault=True)[0]
-    if hasattr(settings, 'defaultinterpreters'):
+    if hasattr(settings, 'defaultexecutables'):
         try:
-            for interpreter in settings.defaultinterpreters:
-                i = Interpreter.objects.get(id=interpreter)
-                default.append(interpreter)
-        except Interpreter.DoesNotExist:
-            i_list = Interpreter.objects.filter(project=defaultproject)
+            for executable in settings.defaultexecutables:
+                i = Executable.objects.get(id=executable)
+                default.append(executable)
+        except Executable.DoesNotExist:
+            i_list = Executable.objects.filter(project=defaultproject)
             for i in i_list:
                 default.append(i.id)
     else:
-        i_list = Interpreter.objects.filter(project=defaultproject)
+        i_list = Executable.objects.filter(project=defaultproject)
         for i in i_list:
             default.append(i.id)
     
@@ -109,9 +109,9 @@ def gettimelinedata(request):
     defaultproject = Project.objects.filter(isdefault=True)[0]
 
     timeline_list = {'error': 'None', 'timelines': []}
-    interpreters = data['interpreters'].split(",")
-    if interpreters[0] == "":
-        timeline_list['error'] = "No interpreters selected"
+    executables = data['executables'].split(",")
+    if executables[0] == "":
+        timeline_list['error'] = "No executables selected"
         return HttpResponse(json.dumps( timeline_list ))
 
     benchmarks = []
@@ -122,7 +122,7 @@ def gettimelinedata(request):
     else:
         benchmarks.append(Benchmark.objects.get(id=data['benchmark']))
     
-    baseline = getbaselineinterpreters()
+    baseline = getbaselineexecutables()
     baselinerev = None
     if data['baseline'] == "true" and len(baseline):
         p = Project.objects.get(name=baseline['project'])
@@ -136,23 +136,23 @@ def gettimelinedata(request):
         timeline = {}
         timeline['benchmark'] = bench.name
         timeline['benchmark_id'] = bench.id
-        timeline['interpreters'] = {}
+        timeline['executables'] = {}
         if data['baseline'] == "true" and len(baseline):
             timeline['baseline'] = Result.objects.get(
-                interpreter=baseline['interpreter'], benchmark=bench, revision=baselinerev
+                executable=baseline['executable'], benchmark=bench, revision=baselinerev
             ).value
-        for interpreter in interpreters:
+        for executable in executables:
             resultquery = Result.objects.filter(
                     revision__project=defaultproject
                 ).filter(
                     benchmark=bench
                 ).filter(
-                    interpreter=interpreter
+                    executable=executable
                 ).order_by('-revision__commitid')[:number_of_rev]
             results = []
             for res in resultquery:
                 results.append([res.revision.commitid, res.value])
-            timeline['interpreters'][interpreter] = results
+            timeline['executables'][executable] = results
             if len(results): append = True
         if append: timeline_list['timelines'].append(timeline)
     
@@ -177,7 +177,7 @@ def timeline(request):
         return HttpResponse("You need to configure at least one Project as default")
     else: defaultproject = defaultproject[0]
     
-    baseline = getbaselineinterpreters()
+    baseline = getbaselineexecutables()
     
     defaultbaseline = True
     if data.has_key("baseline"):
@@ -193,12 +193,12 @@ def timeline(request):
         except ValueError:
             defaultbenchmark = get_object_or_404(Benchmark, name=data["benchmark"]).id
     
-    defaultinterpreters = getdefaultinterpreters()
-    if data.has_key("interpreters"):
-        defaultinterpreters = []
-        for i in data["interpreters"].split(","):
-            selected = Interpreter.objects.filter(id=int(i))
-            if len(selected): defaultinterpreters.append(selected[0].id)
+    defaultexecutables = getdefaultexecutables()
+    if data.has_key("executables"):
+        defaultexecutables = []
+        for i in data["executables"].split(","):
+            selected = Executable.objects.filter(id=int(i))
+            if len(selected): defaultexecutables.append(selected[0].id)
     
     lastrevisions = [10, 50, 200, 1000]
     defaultlast = 200
@@ -207,18 +207,18 @@ def timeline(request):
             defaultlast = data["revisions"]
     
     # Information for template
-    interpreters = Interpreter.objects.filter(project=defaultproject)
+    executables = Executable.objects.filter(project=defaultproject)
     benchmarks = Benchmark.objects.all()
     hostlist = Environment.objects.all()
     return render_to_response('codespeed/timeline.html', {
-        'defaultinterpreters': defaultinterpreters,
+        'defaultexecutables': defaultexecutables,
         'defaultbaseline': defaultbaseline,
         'baseline': baseline,
         'defaultbenchmark': defaultbenchmark,
         'defaultenvironment': defaultenvironment,
         'lastrevisions': lastrevisions,
         'defaultlast': defaultlast,
-        'interpreters': interpreters,
+        'executables': executables,
         'benchmarks': benchmarks,
         'hostlist': hostlist
     })
@@ -227,7 +227,7 @@ def getoverviewtable(request):
     data = request.GET
     
     defaultproject = Project.objects.filter(isdefault=True)[0]
-    interpreter = int(data["interpreter"])
+    executable = int(data["executable"])
     trendconfig = int(data["trend"])
     temp = data["revision"].split(" ")
     date = temp[0] + " " + temp[1]
@@ -244,31 +244,31 @@ def getoverviewtable(request):
             revision__commitid=changerevision
         ).filter(
             revision__project=defaultproject
-        ).filter(interpreter=interpreter)   
+        ).filter(executable=executable)   
         pastrevisions = lastrevisions[trendconfig-2:trendconfig+1]
 
     result_list = Result.objects.filter(
         revision__commitid=lastrevision
     ).filter(
         revision__project=defaultproject
-    ).filter(interpreter=interpreter)
+    ).filter(executable=executable)
     
     # TODO: remove baselineflag
     baselineflag = False
     base_list = None
-    baseinterpreter = None
+    baseexecutable = None
     if data.has_key("baseline"):
         if data['baseline'] != "undefined":
             baselineflag = True
             base = int(data['baseline']) - 1
-            baseline = getbaselineinterpreters()
-            baseinterpreter = baseline[base]
+            baseline = getbaselineexecutables()
+            baseexecutable = baseline[base]
             p = Project.objects.get(name=baseline[base]['project'])
             base_list = Result.objects.filter(
                 revision__commitid=baseline[base]['revision']
             ).filter(
                 revision__project=p
-            ).filter(interpreter=baseline[base]['interpreter'])
+            ).filter(executable=baseline[base]['executable'])
 
     table_list = []
     totals = {'change': [], 'trend': [],}
@@ -294,7 +294,7 @@ def getoverviewtable(request):
                 ).filter(
                     revision__project=defaultproject
                 ).filter(
-                    interpreter=interpreter
+                    executable=executable
                 ).filter(benchmark=bench)
                 if past_rev.count():
                     average += past_rev[0].value
@@ -360,20 +360,20 @@ def overview(request):
         if data["trend"] in trends:
             defaulttrend = int(request.GET["trend"])
 
-    defaultinterpreter = getdefaultinterpreters()
-    if len(defaultinterpreter): defaultinterpreter = defaultinterpreter[0]
-    if data.has_key("interpreter"):
-        selected = Interpreter.objects.filter(id=int(data["interpreter"]))
-        if len(selected): defaultinterpreter = selected[0].id
+    defaultexecutable = getdefaultexecutables()
+    if len(defaultexecutable): defaultexecutable = defaultexecutable[0]
+    if data.has_key("executable"):
+        selected = Executable.objects.filter(id=int(data["executable"]))
+        if len(selected): defaultexecutable = selected[0].id
     
-    baseline = getbaselineinterpreters()
+    baseline = getbaselineexecutables()
     defaultbaseline = 1
     if data.has_key("baseline"):
         defaultbaseline = int(request.GET["baseline"])
         if len(baseline) < defaultbaseline: defaultbaseline = 1
     
     # Information for template
-    interpreters = Interpreter.objects.filter(project=defaultproject)
+    executables = Executable.objects.filter(project=defaultproject)
     lastrevisions = Revision.objects.filter(
         project=defaultproject
     ).order_by('-date')[:20]
@@ -434,8 +434,8 @@ def addresult(request):
         'commitid',
         'project',
         'branch',
-        'interpreter_name',
-        'interpreter_coptions',
+        'executable_name',
+        'executable_coptions',
         'benchmark',
         'environment',
         'result_value',
@@ -480,15 +480,15 @@ def addresult(request):
             rev.date = temp_date
             rev.save()
     
-    inter, created = Interpreter.objects.get_or_create(
-        name=data['interpreter_name'],
-        coptions=data['interpreter_coptions'],
+    exe, created = Executable.objects.get_or_create(
+        name=data['executable_name'],
+        coptions=data['executable_coptions'],
         project=p
     )
     r, created = Result.objects.get_or_create(
             value=data["result_value"],
             revision=rev,
-            interpreter=inter,
+            executable=exe,
             benchmark=b,
             environment=e
     )

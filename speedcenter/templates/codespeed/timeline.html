@@ -12,11 +12,11 @@
   
   function getConfiguration() {
     var config = new Object();
-    config["interpreters"] = "";
-    $("input[name='interpreter']:checked").each(function() {
-      config["interpreters"] += $(this).val() + ",";
+    config["executables"] = "";
+    $("input[name='executable']:checked").each(function() {
+      config["executables"] += $(this).val() + ",";
     });
-    config["interpreters"] = config["interpreters"].slice(0, -1);
+    config["executables"] = config["executables"].slice(0, -1);
     config["baseline"] = $("#baseline").is(':checked');
     config["benchmark"] = $("input[name='benchmark']:checked").val();
     config["revisions"] = $("#revisions option:selected").val();
@@ -34,14 +34,14 @@
     var xmax = 71200;
     datalength = 0;
     var lastvalues = new Array();
-    for (id in data['interpreters']) {
+    for (id in data['executables']) {
       series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
-      plotdata.push(data['interpreters'][id]);
-      lastvalues.push(data['interpreters'][id][0][1]);
-      if (data['interpreters'][id].length > datalength) {
-        datalength = data['interpreters'][id].length;
-        xmin = data['interpreters'][id][data['interpreters'][id].length-1][0];
-        xmax = data['interpreters'][id][0][0];
+      plotdata.push(data['executables'][id]);
+      lastvalues.push(data['executables'][id][0][1]);
+      if (data['executables'][id].length > datalength) {
+        datalength = data['executables'][id].length;
+        xmin = data['executables'][id][data['executables'][id].length-1][0];
+        xmax = data['executables'][id][0][0];
       }
     }
     if ($("#baseline").is(':checked')) {
@@ -84,13 +84,13 @@
     var xmin = 71100;
     var xmax = 71200;
     datalength = 0;
-    for (id in data['interpreters']) {
+    for (id in data['executables']) {
       series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
-      plotdata.push(data['interpreters'][id]);
-      if (data['interpreters'][id].length > datalength) {
-        datalength = data['interpreters'][id].length;
-        xmin = data['interpreters'][id][data['interpreters'][id].length-1][0];
-        xmax = data['interpreters'][id][0][0];
+      plotdata.push(data['executables'][id]);
+      if (data['executables'][id].length > datalength) {
+        datalength = data['executables'][id].length;
+        xmin = data['executables'][id][data['executables'][id].length-1][0];
+        xmax = data['executables'][id][0][0];
       }
     }
     if ($("#baseline").is(':checked')) {
@@ -164,19 +164,19 @@
     $("#revisions").val({{ defaultlast }});
     $("#revisions").change(refreshContent);
     $("input:checkbox").removeAttr('checked');
-    //set default selected interpreters
+    //set default selected executables
     {% if defaultbaseline %}$("input[name='baseline']").attr('checked', true);{% endif %}
     $("input[name='baseline']").change(refreshContent);
-    {% for defaultinterpreter in defaultinterpreters %}
-    $("input[name='interpreter']").filter('[value={{ defaultinterpreter }}]').attr('checked', true);
+    {% for defaultexecutable in defaultexecutables %}
+    $("input[name='executable']").filter('[value={{ defaultexecutable }}]').attr('checked', true);
     {% endfor %}
-    $("input[name='interpreter']").change(refreshContent);
+    $("input[name='executable']").change(refreshContent);
     //set default selected benchmark
     $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
     $("input[name='benchmark']").change(refreshContent);
     $("input:radio[name=host]").filter('[value={{ defaultenvironment }}]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
-    $("#interpreter div.boxbody ul li").each(function() {
+    $("#executable div.boxbody ul li").each(function() {
       var serieid = $(this).find("input").val()
       $(this).find("div.seriescolor").css("background-color", seriesColors[serieid-1]);
     });
@@ -195,18 +195,18 @@
 
 {% block body %}
 <div id="sidebar">
-<div id="interpreter" class="sidebox">
+<div id="executable" class="sidebox">
   <div class="boxhead"><h2>Interpreter</h2></div>
   <div class="boxbody"><ul>
-    {% for inter in interpreters|dictsort:"id" %}<li>
-    <input id="interpreter{{ inter.id }}" type="checkbox" name="interpreter" value="{{ inter.id }}" />
-    <label for="interpreter{{ inter.id }}">{{ inter.name }}</label><div class="seriescolor"></div></li>
+    {% for exec in executables|dictsort:"id" %}<li>
+    <input id="executable{{ exec.id }}" type="checkbox" name="executable" value="{{ exec.id }}" />
+    <label for="executable{{ exec.id }}">{{ exec.name }}</label><div class="seriescolor"></div></li>
     {% endfor %}
     </ul>
     {% if defaultbaseline %}
     <ul>
       <li>
-        <input id="baseline" type="checkbox" name="baseline" value="{{ baseline.interpreter }}" />
+        <input id="baseline" type="checkbox" name="baseline" value="{{ baseline.executable }}" />
         <label for="baseline">{{ baseline.name }}</label><div class="seriescolor"></div></li>
     </ul>{% endif %}
   </div>

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from codespeed.models import Project, Revision, Commitlog, Interpreter, Benchmark, Result, Environment
+from codespeed.models import Project, Revision, Commitlog, Executable, Benchmark, Result, Environment
 from django.contrib import admin
 
 class ProjectAdmin(admin.ModelAdmin):
@@ -18,10 +18,10 @@ class RevisionAdmin(admin.ModelAdmin):
     
 admin.site.register(Revision, RevisionAdmin)
 
-class InterpreterAdmin(admin.ModelAdmin):
+class ExecutableAdmin(admin.ModelAdmin):
     list_display = ('name', 'coptions', 'id')
 
-admin.site.register(Interpreter, InterpreterAdmin)
+admin.site.register(Executable, ExecutableAdmin)
 
 class BenchmarkAdmin(admin.ModelAdmin):
     list_display = ('name', 'benchmark_type', 'description', 'units', 'lessisbetter')
@@ -34,7 +34,7 @@ class EnvironmentAdmin(admin.ModelAdmin):
 admin.site.register(Environment, EnvironmentAdmin)
 
 class ResultAdmin(admin.ModelAdmin):
-    list_display = ('revision', 'benchmark', 'value', 'interpreter', 'date')
-    list_filter  = ('date', 'interpreter', 'benchmark')
+    list_display = ('revision', 'benchmark', 'value', 'executable', 'date')
+    list_filter  = ('date', 'executable', 'benchmark')
 
 admin.site.register(Result, ResultAdmin)

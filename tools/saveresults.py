@@ -5,7 +5,7 @@ from datetime import datetime
 SPEEDURL = 'http://127.0.0.1:8000/'#'http://speed.pypy.org/'
 HOST = "bigdog"
 
-def save(project, revision, results, options, branch, interpreter, int_options, testing=False):
+def save(project, revision, results, options, branch, executable, int_options, testing=False):
     testparams = []
     #Parse data
     data = {}
@@ -28,8 +28,8 @@ def save(project, revision, results, options, branch, interpreter, int_options, 
             'commitid': revision,
             'project': project,
             'branch': branch,
-            'interpreter_name': interpreter,
-            'interpreter_coptions': int_options,
+            'executable_name': executable,
+            'executable_coptions': int_options,
             'benchmark': bench_name,
             'environment': HOST,
             'result_value': value,
@@ -45,7 +45,7 @@ def send(data):
     params = urllib.urlencode(data)
     f = None
     response = "None"
-    info = str(datetime.today()) + ": Saving result for " + data['interpreter_name'] + " revision "
+    info = str(datetime.today()) + ": Saving result for " + data['executable_name'] + " revision "
     info += str(data['commitid']) + ", benchmark " + data['benchmark']
     print(info)
     try:

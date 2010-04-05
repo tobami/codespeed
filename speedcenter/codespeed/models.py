@@ -17,7 +17,7 @@ class Project(models.Model):
 
 class Revision(models.Model):
     def __unicode__(self):
-        return str(self.date) + " " + self.commitid
+        return str(self.date) + " - " + self.commitid
     commitid = models.CharField(max_length=40)#git's SHA-1 length is 40
     project = models.ForeignKey(Project)
     branch = models.CharField(max_length=20, default='trunk')
@@ -39,7 +39,7 @@ class Commitlog(models.Model):
         unique_together = ("commitid", "revision")
 
 
-class Interpreter(models.Model):
+class Executable(models.Model):
     def __unicode__(self):
         return str(self.name + " " + str(self.coptions))
     name = models.CharField(max_length=50)
@@ -81,9 +81,9 @@ class Result(models.Model):
     val_max = models.FloatField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
     revision = models.ForeignKey(Revision)
-    interpreter = models.ForeignKey(Interpreter)
+    executable = models.ForeignKey(Executable)
     benchmark = models.ForeignKey(Benchmark)
     environment = models.ForeignKey(Environment)
     
     class Meta:
-        unique_together = ("revision", "interpreter", "benchmark", "environment")
+        unique_together = ("revision", "executable", "benchmark", "environment")

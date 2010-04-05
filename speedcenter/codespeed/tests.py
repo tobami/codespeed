@@ -2,7 +2,7 @@
 from django.test import TestCase
 from datetime import datetime
 from django.test.client import Client
-from codespeed.models import Project, Benchmark, Revision, Interpreter, Environment, Result
+from codespeed.models import Project, Benchmark, Revision, Executable, Environment, Result
 from django.core.urlresolvers import reverse
 
 class AddResultTest(TestCase):
@@ -16,8 +16,8 @@ class AddResultTest(TestCase):
                 'commitid': '23232',
                 'project': 'pypy',
                 'branch': 'trunk',
-                'interpreter_name': 'pypy-c',
-                'interpreter_coptions': 'gc=Böhm',
+                'executable_name': 'pypy-c',
+                'executable_coptions': 'gc=Böhm',
                 'benchmark': 'Richards',
                 'environment': 'bigdog',
                 'result_value': 456,
@@ -38,10 +38,10 @@ class AddResultTest(TestCase):
         p = Project.objects.get(name='pypy')
         r = Revision.objects.get(commitid='23232', project=p, branch="trunk")
         self.assertEquals(r.date, self.cdate)
-        i = Interpreter.objects.get(name='pypy-c', coptions='gc=Böhm')
+        i = Executable.objects.get(name='pypy-c', coptions='gc=Böhm')
         res = Result.objects.get(
             revision=r,
-            interpreter=i,
+            executable=i,
             benchmark=b,
             environment=e
         )
@@ -67,11 +67,11 @@ class AddResultTest(TestCase):
         p = Project.objects.get(name='pypy')
         r = Revision.objects.get(commitid='23232', project=p, branch='experimental')
         self.assertEquals(r.branch, "experimental")
-        i = Interpreter.objects.get(name='pypy-c', coptions='gc=Böhm')
+        i = Executable.objects.get(name='pypy-c', coptions='gc=Böhm')
         b = Benchmark.objects.get(name='Richards')
         res = Result.objects.get(
             revision=r,
-            interpreter=i,
+            executable=i,
             benchmark=b,
             environment=e
         )

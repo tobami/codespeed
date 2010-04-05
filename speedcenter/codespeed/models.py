@@ -17,7 +17,7 @@ class Project(models.Model):
 
 class Revision(models.Model):
     def __unicode__(self):
-        return str(self.commitid)
+        return str(self.date) + " " + self.commitid
     commitid = models.CharField(max_length=40)#git's SHA-1 length is 40
     project = models.ForeignKey(Project)
     branch = models.CharField(max_length=20, default='trunk')
@@ -28,11 +28,15 @@ class Revision(models.Model):
 
 
 class Commitlog(models.Model):
+    def __unicode__(self):
+        return str(self.date) + " " + self.commitid
     commitid = models.CharField(max_length=40)#git's SHA-1 length is 40
     author = models.CharField(max_length=20)
-    date = models.DateTimeField()
-    message = models.CharField(max_length=200, blank=True)
+    date = models.DateTimeField(null=True)
+    message = models.TextField(blank=True)
     revision = models.ForeignKey(Revision)
+    class Meta:
+        unique_together = ("commitid", "revision")
 
 
 class Interpreter(models.Model):

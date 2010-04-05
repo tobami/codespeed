@@ -19,11 +19,6 @@
   function permalinkToTimeline(benchmark) {
     var conf = new Object();
     conf["interpreters"] = $("input[name='interpreter']:checked").val();
-    //configure default interpreters checked (2 and 3)
-    //if interpreter is pypy-c or pypy-c-jit add the other one.
-    //If it is none of those keep just that one
-    if (conf["interpreters"] == "2") { conf["interpreters"] += ",3"; }
-    else if (conf["interpreters"] == "3") { conf["interpreters"] += ",2"; }
     conf["benchmark"] = benchmark;
     window.location="/timeline/?" + ued_encode(conf);
   }

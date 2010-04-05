@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import get_object_or_404, render_to_response
-from codespeed.models import Project, Revision, Result, Interpreter, Benchmark, Environment
+from codespeed.models import Project, Revision, Commitlog, Result, Interpreter, Benchmark, Environment
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from codespeed import settings
 from datetime import datetime
 from time import sleep
-import json
+import json, pysvn
+
 
 def getbaselineinterpreters():
     baseline = []
@@ -166,15 +167,15 @@ def timeline(request):
     data = request.GET
     
     # Configuration of default parameters
-    defaultproject = Project.objects.filter(isdefault=True)
-    if not len(defaultproject):
-        return HttpResponse("You need to configure at least one Project as default")
-    else: defaultproject = defaultproject[0]
-    
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment:
         return HttpResponse("You need to configure at least one Environment")
     defaultenvironment = defaultenvironment.id
+    
+    defaultproject = Project.objects.filter(isdefault=True)
+    if not len(defaultproject):
+        return HttpResponse("You need to configure at least one Project as default")
+    else: defaultproject = defaultproject[0]
     
     baseline = getbaselineinterpreters()
     
@@ -228,10 +229,11 @@ def getoverviewtable(request):
     defaultproject = Project.objects.filter(isdefault=True)[0]
     interpreter = int(data["interpreter"])
     trendconfig = int(data["trend"])
-    revision = int(data["revision"])
+    temp = data["revision"].split(" ")
+    date = temp[0] + " " + temp[1]
     lastrevisions = Revision.objects.filter(
         project=defaultproject
-    ).filter(commitid__lte=revision).order_by('-commitid')[:trendconfig+1]
+    ).filter(date__lte=date).order_by('-date')[:trendconfig+1]
     lastrevision = lastrevisions[0].commitid
 
     change_list = None
@@ -339,14 +341,15 @@ def overview(request):
     data = request.GET
 
     # Configuration of default parameters
-    defaultproject = Project.objects.filter(isdefault=True)
-    if not len(defaultproject):
-        return HttpResponse("You need to configure at least one Project as default")
-    else: defaultproject = defaultproject[0]
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment:
         return HttpResponse("You need to configure at least one Environment")
     defaultenvironment = defaultenvironment.id
+    
+    defaultproject = Project.objects.filter(isdefault=True)
+    if not len(defaultproject):
+        return HttpResponse("You need to configure at least one Project as default")
+    else: defaultproject = defaultproject[0]
 
     defaultchangethres = 3
     defaulttrendthres = 3
@@ -373,7 +376,7 @@ def overview(request):
     interpreters = Interpreter.objects.filter(project=defaultproject)
     lastrevisions = Revision.objects.filter(
         project=defaultproject
-    ).order_by('-commitid')[:20]
+    ).order_by('-date')[:20]
     if not len(lastrevisions):
         response = 'No data found for project "' + defaultproject.name + '"'
         return HttpResponse(response)
@@ -386,12 +389,41 @@ def overview(request):
     
     return render_to_response('codespeed/overview.html', locals())
 
-def getcommitdate(project, branch, commitid):
-    # FIXME: if project has defined a repository, read real commitdate
-    if project.rcType == 'N':
-        return None
-    else:
-        return None
+def createlogsfromsvn(newrev, startrev):
+    newdate = None
+    loglimit = 5
+    client = pysvn.Client()
+    log_message = \
+        client.log(
+            newrev.project.rcURL,
+            revision_start=pysvn.Revision(
+                pysvn.opt_revision_kind.number, startrev.commitid
+            ),
+            revision_end=pysvn.Revision(
+                pysvn.opt_revision_kind.number, newrev.commitid
+            )
+        )
+    s = len(log_message) - loglimit
+    log_message = log_message[s:]
+    for log in log_message:
+        c, create = Commitlog.objects.get_or_create(
+            revision=newrev, commitid=log.revision.number
+        )
+        try:
+            c.author = log.author
+        except AttributeError:
+            pass
+        c.date = datetime.fromtimestamp(log.date)
+        c.message = log.message
+        c.save()
+    newdate = datetime.fromtimestamp(log_message[-1].date)
+    return newdate
+
+def getcommitlogs(newrev, startrev):
+    date = None
+    if newrev.project.rcType == 'S' and newrev.project.rcURL != None:
+        date = createlogsfromsvn(newrev, startrev)
+    return date
 
 def addresult(request):
     if request.method != 'POST':
@@ -430,12 +462,23 @@ def addresult(request):
         branch=data['branch'],
     )
     
-    temp_date = getcommitdate(p, data['branch'], data['commitid'])
-    if temp_date:
-        rev.date = temp_date
-    else:
+    if created:
         rev.date = data["result_date"]
-    rev.save()
+        rev.save()
+        
+        startrev = Revision.objects.exclude(
+            commitid=data['commitid']
+        ).filter(
+            project=p
+        ).filter(
+            branch=data['branch']
+        ).order_by('-date')[:1]
+        if not len(startrev): startrev = rev
+        else: startrev = startrev[0]
+        temp_date = getcommitlogs(rev, startrev)
+        if temp_date:
+            rev.date = temp_date
+            rev.save()
     
     inter, created = Interpreter.objects.get_or_create(
         name=data['interpreter_name'],

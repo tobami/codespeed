@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-PROJECT_NAME = "pypy"
 baselinelist = [
     {'interpreter': 1, 'revision': 262},
     {'interpreter': 5, 'revision': 262},

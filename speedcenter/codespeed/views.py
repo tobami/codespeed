@@ -356,21 +356,22 @@ def overview(request):
     defaultcompthres = 0.2
     defaulttrend = 10
     trends = [5, 10, 20, 100]
-    if data.has_key("trend"):
-        if data["trend"] in trends:
-            defaulttrend = int(request.GET["trend"])
+    if data.has_key('trend'):
+        if data['trend'] in trends:
+            defaulttrend = int(request.GET['trend'])
 
     defaultexecutable = getdefaultexecutables()
     if len(defaultexecutable): defaultexecutable = defaultexecutable[0]
     if data.has_key("executable"):
-        selected = Executable.objects.filter(id=int(data["executable"]))
+        selected = Executable.objects.filter(id=int(data['executable']))
         if len(selected): defaultexecutable = selected[0].id
     
     baseline = getbaselineexecutables()
     defaultbaseline = 1
     if data.has_key("baseline"):
-        defaultbaseline = int(request.GET["baseline"])
-        if len(baseline) < defaultbaseline: defaultbaseline = 1
+        if data['baseline'] != "undefined":
+            defaultbaseline = int(request.GET['baseline'])
+            if len(baseline) < defaultbaseline: defaultbaseline = 1
     
     # Information for template
     executables = Executable.objects.filter(project=defaultproject)
@@ -382,9 +383,11 @@ def overview(request):
         return HttpResponse(response)
     selectedrevision = lastrevisions[0].commitid
     if data.has_key("revision"):
-        if data["revision"] > 0:
-            # TODO: Create 404 html embeded in the overview
-            selectedrevision = get_object_or_404(Revision, commitid=data["revision"])
+        # TODO: Create 404 html embeded in the overview
+        commitid = data['revision'].split(" ")[-1]
+        selectedrevision = get_object_or_404(
+            Revision, commitid=commitid, project=defaultproject
+        )
     hostlist = Environment.objects.all()
     
     return render_to_response('codespeed/overview.html', locals())

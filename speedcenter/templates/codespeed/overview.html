@@ -97,15 +97,15 @@
   
   $(function() {
     // Configure defaults
-    $("#trend").val({{ defaulttrend }});
+    $("#trend").val("{{ defaulttrend }}");
     $("#trend").change(refreshContent);
-    $("#baseline").val({{ defaultbaseline }});
+    $("#baseline").val("{{ defaultbaseline }}");
     $("#baseline").change(refreshContent);
-    $("#revision").val({{ selectedrevision }});
+    $("#revision").val("{{ selectedrevision }}");
     $("#revision").change(refreshContent);
-    $("input:radio[name=executable]").filter('[value={{ defaultexecutable }}]').attr('checked', true);
+    $("input:radio[name=executable]").filter('[value="{{ defaultexecutable }}"]').attr('checked', true);
     $("input[name='executable']").change(refreshContent);
-    $("input:radio[name=host]").filter('[value={{ defaultenvironment }}]').attr('checked', true);
+    $("input:radio[name=host]").filter('[value="{{ defaultenvironment }}"]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
     refreshContent();
   });

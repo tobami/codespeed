@@ -215,6 +215,7 @@ table#results thead tr th.bar {
     background-position: left bottom;
     vertical-align: top;
     text-align: center;
+    cursor: default;
 }
 
 table.tablesorter thead tr th {
@@ -271,7 +272,10 @@ table.tablesorter tbody td.bar, table.tablesorter tfoot tr td.bar {
     background-color:transparent;
 }
 
-table.tablesorter tfoot tr td.bar { border: 2px solid #CDCDCD; border-left: 1px solid #CDCDCD;}/*Firefox table border-collapse bug*/
+table.tablesorter tfoot tr td.bar {
+    border: 2px solid #CDCDCD;
+    border-left: 1px solid #CDCDCD;/*Firefox table border-collapse bug*/
+}
     
 table.tablesorter tbody td.bar img {
     vertical-align: middle;
@@ -304,9 +308,9 @@ table.commits tbody tr td {
   vertical-align: top;
 }
 
-/* table.commits strong { color: #555555; } */
-table.commits tbody tr td.date, .author{ font-size: 90%; color: #888888; }
+table.commits tbody tr td.date, div.author{ font-size: 90%; color: #888888; }
 table.commits tbody tr td.date { padding-top: 0.6em;}
+/* div.author{ margin-bottom: 0.3em; } */
 
 a#permalink { float: right; font-size: small; }
 a#permalink:hover { text-decoration: underline; }

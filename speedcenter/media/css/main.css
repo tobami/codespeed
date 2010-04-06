@@ -193,15 +193,18 @@ div.about_content { text-align: left; }
 .seriescolor { float: right; margin-top: 3px; height: 12px; width: 12px; }
 
 /* tables */
-table.tablesorter {
-    width: 100%;
+table {
     font-family:arial;
     font-size: 11pt;
     text-align: left;
-    background-color: #fafafa;
     border-collapse: collapse;
     border-spacing: 0px;
     border: 1px solid #CDCDCD;
+    background-color: #fafafa;
+}
+
+table.tablesorter {
+    width: 100%;
 }
 
 table#results thead tr th { padding-right: 10px; }
@@ -292,6 +295,18 @@ table.tablesorter tbody tr.highlight td {
     background-color: #9DADC6 !important;
     cursor: pointer;
 }
+
+table.commits { width: 100%; margin-top: 2em;}
+table.commits th { background-color: #F1F1F1; }
+table.commits th, td { padding: 0.5em; }
+table.commits tbody tr td {
+  border-bottom: 1px solid #CDCDCD;
+  vertical-align: top;
+}
+
+/* table.commits strong { color: #555555; } */
+table.commits tbody tr td.date, .author{ font-size: 90%; color: #888888; }
+table.commits tbody tr td.date { padding-top: 0.6em;}
 
 a#permalink { float: right; font-size: small; }
 a#permalink:hover { text-decoration: underline; }

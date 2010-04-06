@@ -9,6 +9,7 @@ admin.site.register(Project, ProjectAdmin)
 
 class CommitlogAdmin(admin.ModelAdmin):
     list_display = ('revision', 'commitid', 'author', 'date', 'message')
+    list_filter  = ('revision', 'author')
     
 admin.site.register(Commitlog, CommitlogAdmin)
 

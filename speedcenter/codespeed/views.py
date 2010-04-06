@@ -139,12 +139,12 @@ def gettimelinedata(request):
         timeline['executables'] = {}
         if data['baseline'] == "true" and len(baseline):
             timeline['baseline'] = Result.objects.get(
-                executable=baseline['executable'], benchmark=bench, revision=baselinerev
+                executable=baseline['executable'],
+                benchmark=bench,
+                revision=baselinerev
             ).value
         for executable in executables:
             resultquery = Result.objects.filter(
-                    revision__project=defaultproject
-                ).filter(
                     benchmark=bench
                 ).filter(
                     executable=executable
@@ -223,6 +223,12 @@ def timeline(request):
         'hostlist': hostlist
     })
 
+def displaylogs(request):
+    rev = request.GET['revisionid']
+    # Get commit logs
+    logs = Commitlog.objects.filter(revision__id=rev).order_by("-date")
+    return render_to_response('codespeed/overview_logs.html', { 'logs': logs })
+
 def getoverviewtable(request):
     data = request.GET
     
@@ -234,23 +240,19 @@ def getoverviewtable(request):
     lastrevisions = Revision.objects.filter(
         project=defaultproject
     ).filter(date__lte=date).order_by('-date')[:trendconfig+1]
-    lastrevision = lastrevisions[0].commitid
+    lastrevision = lastrevisions[0]
 
     change_list = None
     pastrevisions = None
     if len(lastrevisions) > 1:
-        changerevision = lastrevisions[1].commitid
+        changerevision = lastrevisions[1]
         change_list = Result.objects.filter(
-            revision__commitid=changerevision
-        ).filter(
-            revision__project=defaultproject
+            revision=changerevision
         ).filter(executable=executable)   
         pastrevisions = lastrevisions[trendconfig-2:trendconfig+1]
 
     result_list = Result.objects.filter(
-        revision__commitid=lastrevision
-    ).filter(
-        revision__project=defaultproject
+        revision=lastrevision
     ).filter(executable=executable)
     
     # TODO: remove baselineflag
@@ -290,9 +292,7 @@ def getoverviewtable(request):
         if pastrevisions != None:
             for rev in pastrevisions:
                 past_rev = Result.objects.filter(
-                    revision__commitid=rev.commitid
-                ).filter(
-                    revision__project=defaultproject
+                    revision=rev
                 ).filter(
                     executable=executable
                 ).filter(benchmark=bench)
@@ -332,7 +332,7 @@ def getoverviewtable(request):
         totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
     if totals['trend'] != "-":
         totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
-
+    
     return render_to_response('codespeed/overview_table.html', locals())
     
 def overview(request):
@@ -391,7 +391,7 @@ def overview(request):
 
 def createlogsfromsvn(newrev, startrev):
     newdate = None
-    loglimit = 5
+    loglimit = 40
     client = pysvn.Client()
     log_message = \
         client.log(

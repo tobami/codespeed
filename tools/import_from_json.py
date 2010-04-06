@@ -6,7 +6,7 @@ from datetime import datetime
 import saveresults
 
 RESULTS_URL = 'http://buildbot.pypy.org/bench_results/'
-START_REV = 73250
+START_REV = 73150
 PROJECT = "pypy"
 INTERP = "pypy-c-jit"
 

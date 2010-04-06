@@ -11,6 +11,7 @@ urlpatterns = patterns('',
 urlpatterns += patterns('codespeed.views',
     (r'^overview/$', 'overview'),
     (r'^overview/table/$', 'getoverviewtable'),
+    (r'^overview/logs/$', 'displaylogs'),
     (r'^timeline/$', 'timeline'),
     (r'^timeline/json/$', 'gettimelinedata'),
 )

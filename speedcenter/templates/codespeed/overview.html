@@ -52,6 +52,9 @@
   }
   
   function updateTable() {
+    var revisionid = $(".commits > tbody").attr("id");
+    $("#" + revisionid).load("logs/", "revisionid=" + revisionid);
+    
     colorTable();
     //process table rows
     var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));

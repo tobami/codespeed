@@ -204,7 +204,7 @@ table.tablesorter {
     border: 1px solid #CDCDCD;
 }
 
-table#results thead tr th { padding-right: 9px; }
+table#results thead tr th { padding-right: 10px; }
 table#results thead tr th.w {  width: 6em; }
 table#results thead tr th.bar {
     background-image: url(/media/images/gridline_units.png);

@@ -15,9 +15,9 @@ def getbaselineexecutables():
             for entry in settings.baselinelist:
                 executable = Executable.objects.get(id=entry['executable'])
                 rev = Revision.objects.filter(
-                    commitid=entry['revision'], project=executable.project
+                    commitid=str(entry['revision']), project=executable.project
                 )
-                if len(rev) > 1:
+                if len(rev) > 0:
                     rev = rev[0]
                 else:
                     raise Revision.DoesNotExist
@@ -26,7 +26,7 @@ def getbaselineexecutables():
                     #shortname += " " + executable.coptions
                 name = executable.name + " " + executable.coptions
                 if rev.tag: name += " " + rev.tag
-                else: name += " " + str(rev.commitid)
+                else: name += " " + rev.commitid
                 baseline.append({
                     'executable': executable.id,
                     'name': name,

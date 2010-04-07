@@ -394,7 +394,7 @@ def overview(request):
 
 def createlogsfromsvn(newrev, startrev):
     newdate = None
-    loglimit = 40
+    loglimit = 30
     client = pysvn.Client()
     log_message = \
         client.log(

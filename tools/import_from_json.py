@@ -6,7 +6,7 @@ from datetime import datetime
 import saveresults
 
 RESULTS_URL = 'http://buildbot.pypy.org/bench_results/'
-START_REV = 73150
+START_REV = 1
 PROJECT = "pypy"
 INTERP = "pypy-c-jit"
 
@@ -48,7 +48,9 @@ for filename in filelist:
     revision = result['revision']
     interpreter = INTERP
     int_options = "gc=hybrid"
-    branch = result['branch']
+    if 'branch' in result:
+        branch = result['branch']
+    else: branch = 'trunk'
     options = ""
     if result.has_key('options'): options = result['options']
     

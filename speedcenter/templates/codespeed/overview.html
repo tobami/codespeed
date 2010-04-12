@@ -53,7 +53,9 @@
   
   function updateTable() {
     var revisionid = $(".commits > tbody").attr("id");
-    $("#" + revisionid).load("logs/", "revisionid=" + revisionid);
+    $("#" + revisionid).html(getLoadText("Loading...", 0));
+    loadoption = "revisionid=" + revisionid.split('__')[1];
+    $("#" + revisionid).load("logs/", loadoption);
     
     colorTable();
     //process table rows

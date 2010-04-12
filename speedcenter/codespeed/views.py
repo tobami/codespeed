@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import get_object_or_404, render_to_response
-from codespeed.models import Project, Revision, Commitlog, Result, Executable, Benchmark, Environment
+from codespeed.models import Project, Revision, Result, Executable, Benchmark, Environment
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from codespeed import settings
 from datetime import datetime
@@ -223,12 +223,6 @@ def timeline(request):
         'hostlist': hostlist
     })
 
-def displaylogs(request):
-    rev = request.GET['revisionid']
-    # Get commit logs
-    logs = Commitlog.objects.filter(revision__id=rev).order_by("-date")
-    return render_to_response('codespeed/overview_logs.html', { 'logs': logs })
-
 def getoverviewtable(request):
     data = request.GET
     
@@ -381,7 +375,7 @@ def overview(request):
     if not len(lastrevisions):
         response = 'No data found for project "' + defaultproject.name + '"'
         return HttpResponse(response)
-    selectedrevision = lastrevisions[0].commitid
+    selectedrevision = lastrevisions[0]
     if data.has_key("revision"):
         # TODO: Create 404 html embeded in the overview
         commitid = data['revision'].split(" ")[-1]
@@ -389,16 +383,24 @@ def overview(request):
             Revision, commitid=commitid, project=defaultproject
         )
     hostlist = Environment.objects.all()
-    
     return render_to_response('codespeed/overview.html', locals())
 
-def createlogsfromsvn(newrev, startrev):
-    newdate = None
-    loglimit = 30
+def displaylogs(request):
+    defaultproject = Project.objects.filter(isdefault=True)[0]
+    rev = Revision.objects.get(id=request.GET['revisionid'])
+    logs = []
+    logs.append(rev)
+    remotelogs = getcommitlogs(rev)
+    if len(remotelogs): logs = remotelogs
+    return render_to_response('codespeed/overview_logs.html', { 'logs': logs })
+
+def getlogsfromsvn(newrev, startrev):
+    logs = []
+    loglimit = 200
     client = pysvn.Client()
     log_message = \
         client.log(
-            newrev.project.rcURL,
+            newrev.project.repository_path,
             revision_start=pysvn.Revision(
                 pysvn.opt_revision_kind.number, startrev.commitid
             ),
@@ -409,27 +411,48 @@ def createlogsfromsvn(newrev, startrev):
     s = len(log_message) - loglimit
     log_message = log_message[s:]
     for log in log_message:
-        c, create = Commitlog.objects.get_or_create(
-            revision=newrev, commitid=log.revision.number
-        )
         try:
-            c.author = log.author
+            author = log.author
         except AttributeError:
-            pass
-        c.date = datetime.fromtimestamp(log.date)
-        c.message = log.message
-        c.save()
-    newdate = datetime.fromtimestamp(log_message[-1].date)
-    return newdate
+            author = ""
+        date = datetime.fromtimestamp(log.date).strftime("%Y-%m-%d %H:%M:%S")
+        message = log.message
+        logs.append({'date': date, 'author': author, 'message': message, 'commitid': log.revision.number})
+    if len(logs) != 1: del(logs[0])
+    logs.reverse()
+    return logs
 
-def getcommitlogs(newrev, startrev):
-    date = None
-    if newrev.project.rcType == 'N' or newrev.project.rcURL == "":
+def getcommitlogs(rev):
+    logs = []
+    defaultproject = Project.objects.filter(isdefault=True)[0]
+    if rev.project.repository_type == 'N' or rev.project.repository_path == "":
         #Don't create logs
-        pass
-    elif newrev.project.rcType == 'S':
-        date = createlogsfromsvn(newrev, startrev)
-    return date
+        return []
+    
+    startrev = Revision.objects.filter(
+        project=defaultproject
+    ).filter(
+        branch='trunk'
+    ).filter(date__lt=rev.date).order_by('-date')[:1]
+    if not len(startrev): startrev = rev
+    else: startrev = startrev[0]
+    
+    if rev.project.repository_type == 'S':
+        logs = getlogsfromsvn(rev, startrev)
+    return logs
+
+def saverevisioninfo(rev):
+    log = None
+    if rev.project.repository_type == 'N' or rev.project.repository_path == "":
+        #Don't create logs
+        return
+    elif rev.project.repository_type == 'S':
+        log = getlogsfromsvn(rev, rev)
+    if len(log):
+        log = log[0]
+        rev.author  = log['author']
+        rev.date    = log['date']
+        rev.message = log['message']
 
 def addresult(request):
     if request.method != 'POST':
@@ -470,21 +493,8 @@ def addresult(request):
     
     if created:
         rev.date = data["result_date"]
-        rev.save()
-        
-        startrev = Revision.objects.exclude(
-            commitid=data['commitid']
-        ).filter(
-            project=p
-        ).filter(
-            branch=data['branch']
-        ).order_by('-date')[:1]
-        if not len(startrev): startrev = rev
-        else: startrev = startrev[0]
-        temp_date = getcommitlogs(rev, startrev)
-        if temp_date:
-            rev.date = temp_date
-            rev.save()
+        saverevisioninfo(rev)
+        rev.save()        
     
     exe, created = Executable.objects.get_or_create(
         name=data['executable_name'],

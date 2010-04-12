@@ -1,17 +1,11 @@
 # -*- coding: utf-8 -*-
-from codespeed.models import Project, Revision, Commitlog, Executable, Benchmark, Result, Environment
+from codespeed.models import Project, Revision, Executable, Benchmark, Result, Environment
 from django.contrib import admin
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'rcType', 'rcURL', 'isdefault')
+    list_display = ('name', 'repository_type', 'repository_path', 'isdefault')
     
 admin.site.register(Project, ProjectAdmin)
-
-class CommitlogAdmin(admin.ModelAdmin):
-    list_display = ('revision', 'commitid', 'author', 'date', 'message')
-    list_filter  = ('revision', 'author')
-    
-admin.site.register(Commitlog, CommitlogAdmin)
 
 class RevisionAdmin(admin.ModelAdmin):
     list_display = ('commitid', 'project', 'branch', 'tag', 'date')

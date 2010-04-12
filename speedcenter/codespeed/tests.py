@@ -11,7 +11,8 @@ class AddResultTest(TestCase):
         self.client = Client()
         self.e = Environment(name='bigdog', cpu='Core 2 Duo 8200')
         self.e.save()
-        self.cdate = datetime.today()
+        temp = datetime.today()
+        self.cdate = datetime(temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
         self.data = {
                 'commitid': '23232',
                 'project': 'pypy',
@@ -46,8 +47,10 @@ class AddResultTest(TestCase):
             environment=e
         )
         self.assertTrue(res.value, 456)
-        self.assertTrue(res.date, self.cdate)
-    
+        resdate = res.date.strftime("%Y%m%dT%H%M%S")
+        selfdate = self.cdate.strftime("%Y%m%dT%H%M%S")
+        self.assertTrue(resdate, selfdate)
+        
     def test_add_non_default_result(self):
         """
         Add result data with non-default options

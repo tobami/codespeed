@@ -1,8 +1,13 @@
 function getLoadText(text, h) {
-    //Create loading text
-    h = h - 32;
-    if(h < 80) { h = 200; }
-    var loadtext = '<div style="text-align:center;"><p style="line-height:' + h + 'px;">' + text + '</p></div>';
+    var loadtext = '<div style="text-align:center;">'
+    var pstyle = "";
+    if (h > 0) {
+        h = h - 32;
+        if(h < 80) { h = 200; }
+        pstyle = ' style="line-height:' + h + 'px;"';
+    }
+    loadtext += '<p' + pstyle + '>'+ text;
+    loadtext += ' <img src="/media/images/ajax-loader.gif" align="bottom"></p></div>';
     return loadtext;
 }
 

@@ -2,7 +2,7 @@
 from django.db import models
 
 class Project(models.Model):
-    RC_TYPES = (
+    REPOSITORY_TYPES = (
         ('N', 'none'),
         ('G', 'git'),
         ('S', 'svn'),
@@ -10,8 +10,8 @@ class Project(models.Model):
     def __unicode__(self):
         return str(self.name)
     name = models.CharField(unique=True, max_length=20)
-    rcType = models.CharField(max_length=1, choices=RC_TYPES, default='N')
-    rcURL = models.URLField(blank=True, null=True)
+    repository_type = models.CharField(max_length=1, choices=REPOSITORY_TYPES, default='N')
+    repository_path = models.CharField(blank=True, null=True, max_length=40)
     isdefault = models.BooleanField(default=False)
 
 
@@ -23,20 +23,11 @@ class Revision(models.Model):
     branch = models.CharField(max_length=20, default='trunk')
     tag = models.CharField(max_length=20, blank=True)
     date = models.DateTimeField(null=True)
+    message = models.TextField(blank=True)
+    author = models.CharField(max_length=20, blank=True)
+    
     class Meta:
         unique_together = ("commitid", "branch", "project")
-
-
-class Commitlog(models.Model):
-    def __unicode__(self):
-        return str(self.date) + " " + self.commitid
-    commitid = models.CharField(max_length=40)#git's SHA-1 length is 40
-    author = models.CharField(max_length=20)
-    date = models.DateTimeField(null=True)
-    message = models.TextField(blank=True)
-    revision = models.ForeignKey(Revision)
-    class Meta:
-        unique_together = ("commitid", "revision")
 
 
 class Executable(models.Model):

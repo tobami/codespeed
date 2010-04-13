@@ -4,6 +4,7 @@ function getLoadText(text, h) {
     if (h > 0) {
         h = h - 32;
         if(h < 80) { h = 200; }
+        else if (h > 400) { h = 400; }
         pstyle = ' style="line-height:' + h + 'px;"';
     }
     loadtext += '<p' + pstyle + '>'+ text;

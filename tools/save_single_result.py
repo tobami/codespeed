@@ -16,6 +16,11 @@ data = {
     'environment': "bigdog",
     'result_value': 400,
     'result_date': datetime.today(),
+    'units' = "fps"# Optional. Default is seconds
+    'lessisbetter' = False# Optional. Default is True
+    'std_dev' = 1.11111# Optional. Default is empty
+    'max' = 2# Optional. Default is empty
+    'min' = 1.0# Optional. Default is empty
 }
 
 def add(data):

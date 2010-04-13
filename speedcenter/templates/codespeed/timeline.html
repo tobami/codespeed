@@ -24,7 +24,7 @@
   }
   
   function permalink() {
-    window.location="?" + ued_encode(getConfiguration());
+    window.location="?" + $.param(getConfiguration());
   }
   
   function renderPlot(data) {
@@ -167,8 +167,8 @@
     //set default selected executables
     {% if defaultbaseline %}$("input[name='baseline']").attr('checked', true);{% endif %}
     $("input[name='baseline']").change(refreshContent);
-    {% for defaultexecutable in defaultexecutables %}
-    $("input[name='executable']").filter('[value={{ defaultexecutable }}]').attr('checked', true);
+    {% for checkedexecutable in checkedexecutables %}
+    $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
     {% endfor %}
     $("input[name='executable']").change(refreshContent);
     //set default selected benchmark

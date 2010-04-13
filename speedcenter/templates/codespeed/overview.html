@@ -17,10 +17,7 @@
   }
   
   function permalinkToTimeline(benchmark) {
-    var conf = new Object();
-    conf["executables"] = $("input[name='executable']:checked").val();
-    conf["benchmark"] = benchmark;
-    window.location="/timeline/?" + ued_encode(conf);
+    window.location="/timeline/?benchmark=" + benchmark;
   }
   
   function isNumeric(textvalue) {
@@ -43,11 +40,11 @@
     var compthres = {{ defaultcompthres }};
     $("#results > :not(thead) > tr").each(function() {
       //Color change column
-      var change = $(this).children("td:eq(2)").text().slice(0, -1);
-      $(this).children("td:eq(2)").addClass(getColorcode(-change, changethres, -changethres));
+      var change = $(this).children("td:eq(3)").text().slice(0, -1);
+      $(this).children("td:eq(3)").addClass(getColorcode(-change, changethres, -changethres));
       //Color trend column
-      var trend = $(this).children("td:eq(3)").text().slice(0, -1);
-      $(this).children("td:eq(3)").addClass(getColorcode(-trend, trendthres, -trendthres));
+      var trend = $(this).children("td:eq(4)").text().slice(0, -1);
+      $(this).children("td:eq(4)").addClass(getColorcode(-trend, trendthres, -trendthres));
     });
   }
   
@@ -59,13 +56,12 @@
     
     colorTable();
     //process table rows
-    var tdwidth = parseInt($("#results thead tr").find("th:eq(5)").css("width"));
+    var tdwidth = parseInt($("#results thead tr").find("th:eq(6)").css("width"));
     $("#results > tbody > tr").each(function() {
       //Size plot bars
-      var found = $(this).children("td:eq(2)").length;
-      if ($(this).children("td:eq(4)").length) {
-        var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq(4)").text()));
-        $(this).children("td:eq(5)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]);
+      if ($(this).children("td:eq(5)").length) {
+        var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq(5)").text()));
+        $(this).children("td:eq(6)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]);
       }
       //Link rows to timelines
       $(this).click(function () {
@@ -73,9 +69,9 @@
       });
     });
     //Configure table as tablesorter
-    if ($(this).children("td:eq(4)").length) {
-      $.tablesorter.defaults.sortList = [[4,1]];//sort by default by the 5th column
-      $.tablesorter.defaults.headers = { 5: { sorter: false } };//disable sorting for bar column
+    if ($("#results > tbody > tr").first().length) {
+      $.tablesorter.defaults.sortList = [[5,1]];//sort by default by the 5th column
+      $.tablesorter.defaults.headers = { 6: { sorter: false } };//disable sorting for bar column
     }
     $("#results").tablesorter({widgets: ['zebra']});
     $("#results tbody td").hover(function() {

@@ -35,6 +35,8 @@ def save(project, revision, results, options, branch, executable, int_options, t
             'result_value': value,
             'result_date': current_date,
         }
+        if res_type == "ComparisonResult":
+            data['std_dev'] = results['std_changed']
         if testing: testparams.append(data)
         else: send(data)
     if testing: return testparams

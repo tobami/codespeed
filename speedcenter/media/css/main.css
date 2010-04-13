@@ -208,7 +208,7 @@ table.tablesorter {
 }
 
 table#results thead tr th { padding-right: 10px; }
-table#results thead tr th.w {  width: 6em; }
+table#results thead tr th.w {  width: 5em; }
 table#results thead tr th.bar {
     background-image: url(/media/images/gridline_units.png);
     background-repeat: no-repeat;
@@ -233,14 +233,14 @@ table.tablesorter thead tr .header {
 table.tablesorter tfoot tr td {
     border: 2px solid #CDCDCD;
     border-right: 1px solid #CDCDCD;
-    padding: 4px;
+    padding: 4px 5px 3px 5px;
     vertical-align: top;
     text-align: right;
 }
 table.tablesorter tfoot tr td.text { text-align: left; }
 table.tablesorter tbody td {
     color: #3D3D3D;
-    padding: 4px;
+    padding: 4px 5px 3px 5px;
     background-color: #FFF;
     border: 1px solid #CDCDCD;
     vertical-align: top;

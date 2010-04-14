@@ -190,10 +190,10 @@ div.about_content { text-align: left; }
 }*/
 /* .boxbody select {float: right;} */
 #options li { margin-bottom: 0.8em; }
-.seriescolor { float: right; margin-top: 3px; height: 12px; width: 12px; }
+.seriescolor { float: right; margin-top: 2px; height: 13px; width: 14px; }
 
 /* tables */
-table {
+table.tablesorter, table.commits {
     font-family:arial;
     font-size: 11pt;
     text-align: left;
@@ -301,8 +301,8 @@ table.tablesorter tbody tr.highlight td {
 }
 
 table.commits { width: 100%; margin-top: 2em;}
+table.commits th, table.commits td { padding: 0.5em; }
 table.commits th { background-color: #F1F1F1; }
-table.commits th, td { padding: 0.5em; }
 table.commits tbody tr td {
   border-bottom: 1px solid #CDCDCD;
   vertical-align: top;

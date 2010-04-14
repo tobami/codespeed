@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+################################################################################
+# This script imports PyPy's result data from json files located on the server #
+################################################################################
 import simplejson, urllib2
 import sys
 from xml.dom.minidom import parse

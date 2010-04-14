@@ -8,7 +8,8 @@
 <script type="text/javascript" src="/media/js/jqplot/jqplot.highlighter.min.js"></script>
 
 <script type="text/javascript">
-  var seriesColors = ["#d8b83f", "#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#ff5800", "#0085cc"];
+  var baselineColor = "#d8b83f";
+  var seriesColors = ["#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#ff5800", "#0085cc"];
   
   function getConfiguration() {
     var config = new Object();
@@ -35,6 +36,8 @@
     datalength = 0;
     var lastvalues = new Array();
     for (id in data['executables']) {
+      var colorid = id;
+      while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
       series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
       plotdata.push(data['executables'][id]);
       lastvalues.push(data['executables'][id][0][1]);
@@ -47,7 +50,7 @@
     if ($("#baseline").is(':checked')) {
       var id = $("#baseline").val();
       series.push({
-        "label": $("label[for*='baseline']").html(), "color": seriesColors[id-1],
+        "label": $("label[for*='baseline']").html(), "color": baselineColor,
         showMarker: false, 
         lineWidth: 1.5
       });
@@ -177,9 +180,10 @@
     $("input:radio[name=host]").filter('[value={{ defaultenvironment }}]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
     $("#executable div.boxbody ul li").each(function() {
-      var serieid = $(this).find("input").val()
+      var serieid = $(this).find("input").val();
       $(this).find("div.seriescolor").css("background-color", seriesColors[serieid-1]);
     });
+    $("#baseline").next().next().css("background-color", baselineColor);
     
     refreshContent();
   });
@@ -197,11 +201,12 @@
 <div id="sidebar">
 <div id="executable" class="sidebox">
   <div class="boxhead"><h2>Interpreter</h2></div>
-  <div class="boxbody"><ul>
-    {% for exec in executables|dictsort:"id" %}<li>
-    <input id="executable{{ exec.id }}" type="checkbox" name="executable" value="{{ exec.id }}" />
-    <label for="executable{{ exec.id }}">{{ exec.name }}</label><div class="seriescolor"></div></li>
-    {% endfor %}
+  <div class="boxbody">
+    <ul>{% for exec in executables|dictsort:"id" %}
+      <li>
+        <input id="executable{{ exec.id }}" type="checkbox" name="executable" value="{{ exec.id }}" />
+        <label for="executable{{ exec.id }}">{{ exec.name }}</label><div class="seriescolor"></div>
+      </li>{% endfor %}
     </ul>
     {% if defaultbaseline %}
     <ul>

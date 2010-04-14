@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+#######################################################
+# This script saves result data                       #
+# It expects the format of unladen swallow's perf.py  #
+#######################################################
 import urllib, urllib2
 from datetime import datetime
 

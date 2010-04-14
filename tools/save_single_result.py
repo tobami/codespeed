@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+####################################################
+# Sample script that shows how to save result data #
+####################################################
 from datetime import datetime
 import urllib, urllib2
 

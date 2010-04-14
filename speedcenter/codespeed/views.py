@@ -410,7 +410,7 @@ def getlogsfromsvn(newrev, startrev):
         client.log(
             newrev.project.repository_path,
             revision_start=pysvn.Revision(
-                pysvn.opt_revision_kind.number, startrev.commitid
+                pysvn.opt_revision_kind.number, int(startrev.commitid) + 1
             ),
             revision_end=pysvn.Revision(
                 pysvn.opt_revision_kind.number, newrev.commitid
@@ -426,8 +426,7 @@ def getlogsfromsvn(newrev, startrev):
         date = datetime.fromtimestamp(log.date).strftime("%Y-%m-%d %H:%M:%S")
         message = log.message
         logs.append({'date': date, 'author': author, 'message': message, 'commitid': log.revision.number})
-    if len(logs) != 1: del(logs[0])
-    logs.reverse()
+    if len(logs): logs.reverse()
     return logs
 
 def getcommitlogs(rev):

@@ -405,19 +405,29 @@ def displaylogs(request):
 def getlogsfromsvn(newrev, startrev):
     logs = []
     loglimit = 200
+    if startrev == newrev:
+        start = startrev.commitid
+        path = newrev.project.repository_path
+    else:
+        start = int(startrev.commitid) + 1
+        path = newrev.project.repository_path + newrev.branch
+    
     client = pysvn.Client()
     log_message = \
         client.log(
-            newrev.project.repository_path,
+            path,
             revision_start=pysvn.Revision(
-                pysvn.opt_revision_kind.number, int(startrev.commitid) + 1
+                    pysvn.opt_revision_kind.number, start
             ),
             revision_end=pysvn.Revision(
                 pysvn.opt_revision_kind.number, newrev.commitid
             )
         )
-    s = len(log_message) - loglimit
-    log_message = log_message[s:]
+    log_message.reverse()
+    s = len(log_message)
+    while s > loglimit:
+        log_message = log_message[:s]
+        s = len(log_message) - 1
     for log in log_message:
         try:
             author = log.author
@@ -426,7 +436,6 @@ def getlogsfromsvn(newrev, startrev):
         date = datetime.fromtimestamp(log.date).strftime("%Y-%m-%d %H:%M:%S")
         message = log.message
         logs.append({'date': date, 'author': author, 'message': message, 'commitid': log.revision.number})
-    if len(logs): logs.reverse()
     return logs
 
 def getcommitlogs(rev):
@@ -460,6 +469,8 @@ def saverevisioninfo(rev):
         rev.author  = log['author']
         rev.date    = log['date']
         rev.message = log['message']
+    else:
+        rev.date = datetime.now()
 
 def addresult(request):
     if request.method != 'POST':

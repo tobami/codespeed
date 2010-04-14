@@ -302,13 +302,13 @@ table.tablesorter tbody tr.highlight td {
 
 table.commits { width: 100%; margin-top: 2em;}
 table.commits th, table.commits td { padding: 0.5em; }
-table.commits th { background-color: #F1F1F1; }
+table.commits th { background-color: #F1F1F1; font-weight: normal; }
 table.commits tbody tr td {
   border-bottom: 1px solid #CDCDCD;
   vertical-align: top;
 }
 
-table.commits tbody tr td.date, div.author{ font-size: 90%; color: #888888; }
+table.commits tbody tr td.date, div.author, span.note { font-size: 92%; color: #666666; }
 table.commits tbody tr td.date { padding-top: 0.6em;}
 /* div.author{ margin-bottom: 0.3em; } */
 

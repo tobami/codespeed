@@ -58,7 +58,7 @@ def getbaselineexecutables():
                         'project': rev.project,
                     })
     # move default to first place
-    if hasattr(settings, 'defaultbaseline'):
+    if hasattr(settings, 'defaultbaseline') and settings.defaultbaseline != None:
         try:
             for base in baseline:
                 if base['executable'] == settings.defaultbaseline['executable'] and base['revision'] == str(settings.defaultbaseline['revision']):
@@ -85,7 +85,7 @@ def getdefaultenvironment():
 def getdefaultexecutable():
     default = None
     defaultproject = Project.objects.filter(isdefault=True)[0]
-    if hasattr(settings, 'defaultexecutable'):
+    if hasattr(settings, 'defaultexecutable') and settings.defaultexecutable != None:
         try:
             default = Executable.objects.get(id=settings.defaultexecutable)
         except Executable.DoesNotExist:
@@ -131,24 +131,33 @@ def gettimelinedata(request):
         timeline['benchmark'] = bench.name
         timeline['benchmark_id'] = bench.id
         timeline['executables'] = {}
-        if data['baseline'] == "true" and baseline != None:
-            timeline['baseline'] = Result.objects.get(
-                executable__id=baseline['executable'],
-                benchmark=bench,
-                revision=baselinerev,
-                environment=defaultenvironment
-            ).value
+        results = []
         for executable in executables:
             resultquery = Result.objects.filter(
                     benchmark=bench
                 ).filter(
                     executable=executable
-                ).order_by('-revision__commitid')[:number_of_rev]
+                ).order_by('-revision__date')[:number_of_rev]
             results = []
             for res in resultquery:
-                results.append([res.revision.commitid, res.value])
+                results.append(
+                    [str(res.revision.date), res.value, res.revision.commitid, res.std_dev]
+                )
             timeline['executables'][executable] = results
             if len(results): append = True
+        if data['baseline'] == "true" and baseline != None and append:
+            baselinevalue = Result.objects.get(
+                executable__id=baseline['executable'],
+                benchmark=bench,
+                revision=baselinerev,
+                environment=defaultenvironment
+            ).value
+            end = results[0][0]
+            start = results[len(results)-1][0]
+            timeline['baseline'] = [
+                [str(start), baselinevalue],
+                [str(end), baselinevalue]
+            ]
         if append: timeline_list['timelines'].append(timeline)
     
     if not len(timeline_list['timelines']):

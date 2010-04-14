@@ -6,6 +6,7 @@
 <script type="text/javascript" src="/media/js/jqplot/jquery.jqplot.min.js"></script>
 <script type="text/javascript" src="/media/js/jqplot/jqplot.cursor.min.js"></script>
 <script type="text/javascript" src="/media/js/jqplot/jqplot.highlighter.min.js"></script>
+<script type="text/javascript" src="/media/js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
 
 <script type="text/javascript">
   var baselineColor = "#d8b83f";
@@ -31,30 +32,21 @@
   function renderPlot(data) {
     var plotdata = new Array();
     var series = new Array();
-    var xmin = 71100;
-    var xmax = 71200;
-    datalength = 0;
-    var lastvalues = new Array();
+    var lastvalues = new Array();//hopefully the smallest values for determining significant digits.
     for (id in data['executables']) {
       var colorid = id;
       while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
       series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
       plotdata.push(data['executables'][id]);
       lastvalues.push(data['executables'][id][0][1]);
-      if (data['executables'][id].length > datalength) {
-        datalength = data['executables'][id].length;
-        xmin = data['executables'][id][data['executables'][id].length-1][0];
-        xmax = data['executables'][id][0][0];
-      }
     }
     if ($("#baseline").is(':checked')) {
-      var id = $("#baseline").val();
       series.push({
         "label": $("label[for*='baseline']").html(), "color": baselineColor,
         showMarker: false, 
         lineWidth: 1.5
       });
-      plotdata.push([[xmin, data["baseline"]], [xmax, data["baseline"]]]);
+      plotdata.push(data["baseline"]);
     }
     //determine significant digits
     var digits = 2;
@@ -67,16 +59,25 @@
       value *= 10;
       digits++;
     }
-    
+    //Render plot
     $("#plotgrid").html('<div id="plot"></div>');
     plot = $.jqplot('plot',  plotdata, {
       series: series,
       axes:{
         yaxis:{label: '(s)', min: 0, autoscale:true, tickOptions:{formatString:'%.' + digits + 'f'}},
-        xaxis:{label: 'Revision', pad: 1.01, autoscale:true, tickOptions:{formatString:'%d'}}
+        xaxis:{
+          renderer:$.jqplot.DateAxisRenderer,
+          label: 'Revision date',
+          pad: 1.01, autoscale:true,
+//           tickOptions:{formatString:'%d'}
+        }
       },
       legend: {show: true, location: 'nw'},
-      highlighter: {sizeAdjust: 7.5},
+      highlighter: {
+        tooltipLocation: 'nw',
+        yvalues: 3,
+        formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>commitid:</td><td>%s</td></tr > <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr > </table>'
+      },
       cursor:{zoom:true, showTooltip:false, clickReset:true}
     });
   }
@@ -84,37 +85,31 @@
   function renderMiniplot(plotid, benchname,  data) {
     var plotdata = new Array();
     var series = new Array();
-    var xmin = 71100;
-    var xmax = 71200;
-    datalength = 0;
     for (id in data['executables']) {
       series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
       plotdata.push(data['executables'][id]);
-      if (data['executables'][id].length > datalength) {
-        datalength = data['executables'][id].length;
-        xmin = data['executables'][id][data['executables'][id].length-1][0];
-        xmax = data['executables'][id][0][0];
-      }
     }
     if ($("#baseline").is(':checked')) {
-      var id = $("#baseline").val();
       series.push({
-        "label": $("label[for*='baseline']").html(), "color": seriesColors[id-1],
+        "label": $("label[for*='baseline']").html(), "color": baselineColor,
         showMarker: false, 
         lineWidth: 1.5
       });
-      plotdata.push([[xmin, data["baseline"]], [xmax, data["baseline"]]]);
+      plotdata.push(data["baseline"]);
     }
     plot = $.jqplot(plotid, plotdata, {
       title: {text: benchname, fontSize: '1.1em'},
-      seriesDefaults: {lineWidth:2, markerOptions:{style:'circle', size:6}},
+      seriesDefaults: {lineWidth: 2, markerOptions:{style:'circle', size: 6}},
       series: series,
       axes: {
         yaxis: {
           min: 0, autoscale:true, showTicks: false, tickOptions:{formatString:'%.3f seconds'}
         },
         xaxis: {
-          pad: 1.01, autoscale:true, showTicks: false, tickOptions:{formatString:'revision %d'}
+          renderer:$.jqplot.DateAxisRenderer,
+          pad: 1.01,
+          autoscale:true,
+          showTicks: false,
         }
       },
       highlighter: {show:false},

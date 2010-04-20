@@ -5,7 +5,7 @@ from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpRespo
 from codespeed import settings
 from datetime import datetime
 from time import sleep
-import json, pysvn
+import json
 
 
 def getbaselineexecutables():
@@ -389,6 +389,7 @@ def displaylogs(request):
     return render_to_response('codespeed/overview_logs.html', { 'logs': logs })
 
 def getlogsfromsvn(newrev, startrev):
+    import pysvn
     logs = []
     loglimit = 200
     if startrev == newrev:
@@ -466,7 +467,6 @@ def addresult(request):
     mandatory_data = [
         'commitid',
         'project',
-        'branch',
         'executable_name',
         'executable_coptions',
         'benchmark',
@@ -489,10 +489,13 @@ def addresult(request):
     
     p, created = Project.objects.get_or_create(name=data["project"])
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
+    
+    branch = 'trunk'
+    if data.has_key('branch') and data['branch'] != "": branch = data['branch']
     rev, created = Revision.objects.get_or_create(
         commitid=data['commitid'],
         project=p,
-        branch=data['branch'],
+        branch=branch,
     )
     
     if created:

@@ -10,7 +10,7 @@ import json, pysvn
 
 def getbaselineexecutables():
     baseline = []
-    if hasattr(settings, 'baselinelist'):
+    if hasattr(settings, 'baselinelist') and settings.baselinelist != None:
         try:
             for entry in settings.baselinelist:
                 executable = Executable.objects.get(id=entry['executable'])
@@ -21,42 +21,33 @@ def getbaselineexecutables():
                     rev = rev[0]
                 else:
                     raise Revision.DoesNotExist
-                shortname = executable.name
-                #if executable.coptions != "default":
-                    #shortname += " " + executable.coptions
-                name = executable.name + " " + executable.coptions
+                name = executable.name
+                if executable.coptions != "default": name += " " + executable.coptions
                 if rev.tag: name += " " + rev.tag
                 else: name += " " + rev.commitid
                 baseline.append({
-                    'executable': executable.id,
+                    'executable': executable,
+                    'revision': rev,
                     'name': name,
-                    'shortname': shortname,
-                    'revision': rev.commitid,
-                    'project': rev.project,
                 })
         except (Executable.DoesNotExist, Revision.DoesNotExist):
             # TODO: write to server logs
             pass
     else:
         revs = Revision.objects.exclude(tag="")
-        executables = Executable.objects.all()
         for rev in revs:
             #add executables that correspond to each tagged revision.
+            executables = Executable.objects.filter(project=rev.project)
             for executable in executables:
-                if executable.project == rev.project:
-                    shortname = executable.name
-                    #if executable.coptions != "default":
-                        #shortname += " " + executable.coptions
-                    name = executable.name + " " + executable.coptions
-                    if rev.tag: name += " " + rev.tag
-                    else: name += " " + str(rev.commitid)
-                    baseline.append({
-                        'executable': executable.id,
-                        'name': name,
-                        'shortname': shortname,
-                        'revision': rev.commitid,
-                        'project': rev.project,
-                    })
+                name = executable.name
+                if executable.coptions != "default": name += " " + executable.coptions
+                if rev.tag: name += " " + rev.tag
+                else: name += " " + rev.commitid
+                baseline.append({
+                    'executable': executable,
+                    'revision': rev,
+                    'name': name,
+                })
     # move default to first place
     if hasattr(settings, 'defaultbaseline') and settings.defaultbaseline != None:
         try:
@@ -120,10 +111,7 @@ def gettimelinedata(request):
     else: baseline = None
     baselinerev = None
     if data['baseline'] == "true":
-        p = Project.objects.get(name=baseline['project'])
-        baselinerev = Revision.objects.get(
-            commitid=baseline['revision'], project=p
-        )
+        baselinerev = baseline['revision']
     defaultenvironment = getdefaultenvironment()
     for bench in benchmarks:
         append = False
@@ -141,13 +129,13 @@ def gettimelinedata(request):
             results = []
             for res in resultquery:
                 results.append(
-                    [str(res.revision.date), res.value, res.revision.commitid, res.std_dev]
+                    [str(res.revision.date), res.value, res.std_dev, res.revision.commitid]
                 )
             timeline['executables'][executable] = results
             if len(results): append = True
         if data['baseline'] == "true" and baseline != None and append:
             baselinevalue = Result.objects.get(
-                executable__id=baseline['executable'],
+                executable=baseline['executable'],
                 benchmark=bench,
                 revision=baselinerev,
                 environment=defaultenvironment
@@ -265,11 +253,9 @@ def getoverviewtable(request):
             base = int(data['baseline']) - 1
             baseline = getbaselineexecutables()
             baseexecutable = baseline[base]
-            p = Project.objects.get(name=baseline[base]['project'])
+            #p = Project.objects.get(name=baseline[base]['e'])
             base_list = Result.objects.filter(
-                revision__commitid=baseline[base]['revision']
-            ).filter(
-                revision__project=p
+                revision=baseline[base]['revision']
             ).filter(executable=baseline[base]['executable'])
 
     table_list = []

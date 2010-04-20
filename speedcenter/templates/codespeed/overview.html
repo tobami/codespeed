@@ -48,12 +48,7 @@
     });
   }
   
-  function updateTable() {
-    var revisionid = $(".commits > tbody").attr("id");
-    $("#" + revisionid).html(getLoadText("Loading...", 0));
-    loadoption = "revisionid=" + revisionid.split('__')[1];
-    $("#" + revisionid).load("logs/", loadoption);
-    
+  function updateTable() {    
     colorTable();
     //process table rows
     var tdwidth = parseInt($("#results thead tr").find("th:eq(6)").css("width"));

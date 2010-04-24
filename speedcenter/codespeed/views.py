@@ -137,18 +137,22 @@ def gettimelinedata(request):
             timeline['executables'][executable] = results
             if len(results): append = True
         if data['baseline'] == "true" and baseline != None and append:
-            baselinevalue = Result.objects.get(
-                executable=baseline['executable'],
-                benchmark=bench,
-                revision=baselinerev,
-                environment=defaultenvironment
-            ).value
-            end = results[0][0]
-            start = results[len(results)-1][0]
-            timeline['baseline'] = [
-                [str(start), baselinevalue],
-                [str(end), baselinevalue]
-            ]
+            try:
+                baselinevalue = Result.objects.get(
+                    executable=baseline['executable'],
+                    benchmark=bench,
+                    revision=baselinerev,
+                    environment=defaultenvironment
+                ).value
+            except Result.DoesNotExist:
+                timeline['baseline'] = "None"
+            else:
+                end = results[0][0]
+                start = results[len(results)-1][0]
+                timeline['baseline'] = [
+                    [str(start), baselinevalue],
+                    [str(end), baselinevalue]
+                ]
         if append: timeline_list['timelines'].append(timeline)
     
     if not len(timeline_list['timelines']):

@@ -85,7 +85,7 @@ div#presentation_wrapper {
 div#presentation_wrapper p { font-size: large; }
 div#presentation_wrapper p a:hover { text-decoration: underline; }
 div#presentation div {
-    background-image: url(/media/images/vgradient-s.png);
+    background-image: url(/media/images/vgradient.png);
     background-repeat: repeat-x;
     background-color: #FFFFFF;
     color: white;

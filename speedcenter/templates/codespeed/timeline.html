@@ -40,7 +40,7 @@
       plotdata.push(data['executables'][id]);
       lastvalues.push(data['executables'][id][0][1]);
     }
-    if ($("#baseline").is(':checked')) {
+    if ($("#baseline").is(':checked') && data["baseline"] != "None") {
       series.push({
         "label": $("label[for*='baseline']").html(), "color": baselineColor,
         showMarker: false, 
@@ -89,7 +89,7 @@
       series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
       plotdata.push(data['executables'][id]);
     }
-    if ($("#baseline").is(':checked')) {
+    if ($("#baseline").is(':checked') && data["baseline"] != "None") {
       series.push({
         "label": $("label[for*='baseline']").html(), "color": baselineColor,
         showMarker: false, 

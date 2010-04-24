@@ -5,15 +5,15 @@
 from datetime import datetime
 import urllib, urllib2
 
-SPEEDURL = 'http://localhost:8000/'# This will be pyspeed.pypy.org/
+SPEEDURL = 'http://localhost:8000/'
 
 data = {
     'commitid': '23238',
     'project': 'pypy',
     'branch': 'trunk',
-    'revision_date': "2009-11-15 18:11:29", # Optional. Make mandatory?
-    'interpreter_name': 'pypy-c-jit',
-    'interpreter_coptions': 'gc=Hybrid',
+    'revision_date': "2009-11-15 18:11:29", # Optional
+    'executable_name': 'pypy-c-jit',
+    'executable_coptions': 'gc=Hybrid',
     'benchmark': 'Richards',
     'benchmark_type': 'C',# Optional. Default is C for Cross-project.
     'environment': "bigdog",

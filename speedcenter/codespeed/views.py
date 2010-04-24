@@ -22,7 +22,8 @@ def getbaselineexecutables():
                 else:
                     raise Revision.DoesNotExist
                 name = executable.name
-                if executable.coptions != "default": name += " " + executable.coptions
+                if executable.coptions != "default" or executable.coptions != "none":
+                    name += " " + executable.coptions
                 if rev.tag: name += " " + rev.tag
                 else: name += " " + rev.commitid
                 baseline.append({
@@ -128,8 +129,10 @@ def gettimelinedata(request):
                 ).order_by('-revision__date')[:number_of_rev]
             results = []
             for res in resultquery:
+                std_dev = ""
+                if res.std_dev != None: std_dev = res.std_dev
                 results.append(
-                    [str(res.revision.date), res.value, res.std_dev, res.revision.commitid]
+                    [str(res.revision.date), res.value, std_dev, res.revision.commitid]
                 )
             timeline['executables'][executable] = results
             if len(results): append = True
@@ -253,7 +256,6 @@ def getoverviewtable(request):
             base = int(data['baseline']) - 1
             baseline = getbaselineexecutables()
             baseexecutable = baseline[base]
-            #p = Project.objects.get(name=baseline[base]['e'])
             base_list = Result.objects.filter(
                 revision=baseline[base]['revision']
             ).filter(executable=baseline[base]['executable'])
@@ -394,15 +396,13 @@ def getlogsfromsvn(newrev, startrev):
     loglimit = 200
     if startrev == newrev:
         start = startrev.commitid
-        path = newrev.project.repository_path
     else:
         start = int(startrev.commitid) + 1
-        path = newrev.project.repository_path + newrev.branch
     
     client = pysvn.Client()
     log_message = \
         client.log(
-            path,
+            newrev.project.repository_path,
             revision_start=pysvn.Revision(
                     pysvn.opt_revision_kind.number, start
             ),

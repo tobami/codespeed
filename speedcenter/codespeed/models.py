@@ -11,7 +11,7 @@ class Project(models.Model):
         return str(self.name)
     name = models.CharField(unique=True, max_length=20)
     repository_type = models.CharField(max_length=1, choices=REPOSITORY_TYPES, default='N')
-    repository_path = models.CharField(blank=True, null=True, max_length=40)
+    repository_path = models.CharField(blank=True, null=True, max_length=100)
     isdefault = models.BooleanField(default=False)
 
 

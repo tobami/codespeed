@@ -16,7 +16,6 @@ class AddResultTest(TestCase):
         self.data = {
                 'commitid': '23232',
                 'project': 'pypy',
-                'branch': 'trunk',
                 'executable_name': 'pypy-c',
                 'executable_coptions': 'gc=Böhm',
                 'benchmark': 'Richards',

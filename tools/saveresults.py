@@ -6,7 +6,7 @@
 import urllib, urllib2
 from datetime import datetime
 
-SPEEDURL = 'http://127.0.0.1:8000/'#'http://speed.pypy.org/'
+SPEEDURL = 'http://127.0.0.1:8000/'
 HOST = "bigdog"
 
 def save(project, revision, results, options, branch, executable, int_options, testing=False):
@@ -14,7 +14,7 @@ def save(project, revision, results, options, branch, executable, int_options, t
     #Parse data
     data = {}
     current_date = datetime.today()
-    if branch == "": return 1
+    if branch == "": branch = 'trunk'
         
     for b in results:
         bench_name = b[0]

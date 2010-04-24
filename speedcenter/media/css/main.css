@@ -12,7 +12,7 @@ a:link, a:visited, a:hover { color: blue; text-decoration: none; }
 div#containter { width: 98%; margin: 0; margin-left: auto; margin-right: auto; }
 
 div#title {
-    height: 74px;
+    height: 60px;
     position: relative;
     margin-bottom: 0.8em;
     background-color: #F1F1F1;
@@ -23,7 +23,7 @@ div#title {
     -webkit-border-bottom-right-radius: 12px;
 }
 div#title img { float: left; padding: 0.2em; margin: 0; }
-div#title h1 { float: left; line-height: 72px; margin: 0; font-style: italic; }
+div#title h2 { float: left; margin: 0 0 0 0.4em; font-style: italic; line-height: 60px; }
 
 ul.inline { margin: 0; padding: 0; }
 ul.inline li {
@@ -33,7 +33,7 @@ ul.inline li {
     *display: inline; /* IE */
 }
 
-ul#links { position: absolute; bottom: 0; right: 0; padding: 0.8em; font-size: large; }
+ul#links { position: absolute; bottom: 0; right: 0; padding: 0.7em; padding-bottom: 0.5em; font-size: large; }
 ul#links li { margin-left: 0.8em; }
 ul#links li a:link, ul#links li a:visited { color: #000000; }
 ul#links li a:hover { text-decoration: underline; }
@@ -57,8 +57,8 @@ div#nav ul li a {
     text-decoration: none;
     text-align: center;
     color: #888888;
-    padding-top: 0.6em;
-    padding-bottom: 0.3em;
+    padding-top: 0.5em;
+    padding-bottom: 0.25em;
 }
 
 div#nav ul li.current {

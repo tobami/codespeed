@@ -118,7 +118,7 @@ def gettimelinedata(request):
         lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'
         timeline['lessisbetter'] = lessisbetter
         timeline['executables'] = {}
-        results = []
+        
         for executable in executables:
             resultquery = Result.objects.filter(
                     benchmark=bench
@@ -146,7 +146,11 @@ def gettimelinedata(request):
             except Result.DoesNotExist:
                 timeline['baseline'] = "None"
             else:
-                #use results from last executable to determine start and end revisions
+                # determine start and end revision (x axis) from longest data series
+                results = []
+                for exe in timeline['executables']:
+                    if len(timeline['executables'][exe]) > len(results):
+                        results = timeline['executables'][exe]
                 end = results[0][0]
                 start = results[len(results)-1][0]
                 timeline['baseline'] = [

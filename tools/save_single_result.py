@@ -11,26 +11,27 @@ data = {
     'commitid': '23238',
     'project': 'pypy',
     'branch': 'trunk',
-    'revision_date': "2009-11-15 18:11:29", # Optional
+    'revision_date': "2009-11-15 18:11:29", # Optional. Default is taken
+                                            # either from VCS integration or from current date
     'executable_name': 'pypy-c-jit',
-    'executable_coptions': 'gc=Hybrid',
+    'executable_coptions': 'gc=Hybrid', # Optional default is blank
     'benchmark': 'Richards',
-    'benchmark_type': 'C',# Optional. Default is C for Cross-project.
+    'benchmark_type': 'C', # Optional. Default is C for Cross-project.
     'environment': "bigdog",
     'result_value': 400,
     'result_date': datetime.today(),
-    'units' = "fps"# Optional. Default is seconds
-    'lessisbetter' = False# Optional. Default is True
-    'std_dev' = 1.11111# Optional. Default is empty
-    'max' = 2# Optional. Default is empty
-    'min' = 1.0# Optional. Default is empty
+    'units': "fps", # Optional. Default is seconds
+    'lessisbetter': False, # Optional. Default is True
+    'std_dev': 1.11111, # Optional. Default is blank
+    'max': 2, # Optional. Default is blank
+    'min': 1.0, # Optional. Default is blank
 }
 
 def add(data):
     params = urllib.urlencode(data)
     f = None
     response = "None"
-    print "Interpreter %s, revision %s, benchmark %s" % (data['interpreter_name'], data['commitid'], data['benchmark'])
+    print "Executable %s, revision %s, benchmark %s" % (data['executable_name'], data['commitid'], data['benchmark'])
     try:
         f = urllib2.urlopen(SPEEDURL + 'result/add/', params)
         response = f.read()

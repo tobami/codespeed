@@ -17,7 +17,6 @@ class AddResultTest(TestCase):
                 'commitid': '23232',
                 'project': 'pypy',
                 'executable_name': 'pypy-c',
-                'executable_coptions': 'gc=Böhm',
                 'benchmark': 'Richards',
                 'environment': 'bigdog',
                 'result_value': 456,
@@ -38,7 +37,7 @@ class AddResultTest(TestCase):
         p = Project.objects.get(name='pypy')
         r = Revision.objects.get(commitid='23232', project=p, branch="trunk")
         self.assertEquals(r.date, self.cdate)
-        i = Executable.objects.get(name='pypy-c', coptions='gc=Böhm')
+        i = Executable.objects.get(name='pypy-c', coptions='')
         res = Result.objects.get(
             revision=r,
             executable=i,
@@ -55,6 +54,7 @@ class AddResultTest(TestCase):
         Add result data with non-default options
         """
         modified_data = self.data
+        modified_data['executable_coptions'] = 'gc=Böhm'
         modified_data['branch'] = "experimental"
         modified_data['benchmark_type'] = "O"
         modified_data['units'] = "fps"

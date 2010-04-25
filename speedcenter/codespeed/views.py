@@ -179,21 +179,19 @@ def timeline(request):
     baseline = getbaselineexecutables()
     
     defaultbaseline = True
-    if data.has_key('baseline'):
-        if data['baseline'] == "false":
-            defaultbaseline = False
+    if 'baseline' in data and data['baseline'] == "false":
+        defaultbaseline = False
     if len(baseline): baseline = baseline[0]
     else: defaultbaseline = False
     
     defaultbenchmark = "grid"
-    if data.has_key('benchmark'):
-        if data['benchmark'] != defaultbenchmark:
-            try:
-                defaultbenchmark = int(data['benchmark'])
-            except ValueError:
-                defaultbenchmark = get_object_or_404(Benchmark, name=data['benchmark']).id
+    if 'benchmark' in data and data['benchmark'] != defaultbenchmark:
+        try:
+            defaultbenchmark = int(data['benchmark'])
+        except ValueError:
+            defaultbenchmark = get_object_or_404(Benchmark, name=data['benchmark']).id
     
-    if data.has_key('executables'):
+    if 'executables' in data:
         checkedexecutables = []
         for i in data['executables'].split(","):
             selected = Executable.objects.filter(id=int(i))
@@ -203,9 +201,8 @@ def timeline(request):
     
     lastrevisions = [10, 50, 200, 1000]
     defaultlast = 200
-    if data.has_key('revisions'):
-        if int(data['revisions']) in lastrevisions:
-            defaultlast = data['revisions']
+    if 'revisions' in data and int(data['revisions']) in lastrevisions:
+        defaultlast = data['revisions']
     
     # Information for template
     executables = Executable.objects.filter(project=defaultproject)
@@ -254,15 +251,14 @@ def getoverviewtable(request):
     baselineflag = False
     base_list = None
     baseexecutable = None
-    if data.has_key("baseline"):
-        if data['baseline'] != "undefined":
-            baselineflag = True
-            base = int(data['baseline']) - 1
-            baseline = getbaselineexecutables()
-            baseexecutable = baseline[base]
-            base_list = Result.objects.filter(
-                revision=baseline[base]['revision']
-            ).filter(executable=baseline[base]['executable'])
+    if "baseline" in data and data['baseline'] != "undefined":
+        baselineflag = True
+        base = int(data['baseline']) - 1
+        baseline = getbaselineexecutables()
+        baseexecutable = baseline[base]
+        base_list = Result.objects.filter(
+            revision=baseline[base]['revision']
+        ).filter(executable=baseline[base]['executable'])
 
     table_list = []
     totals = {'change': [], 'trend': [],}
@@ -351,21 +347,19 @@ def overview(request):
     defaultcompthres = 0.2
     defaulttrend = 10
     trends = [5, 10, 20, 100]
-    if data.has_key('trend'):
-        if data['trend'] in trends:
-            defaulttrend = int(request.GET['trend'])
+    if 'trend' in data and data['trend'] in trends:
+        defaulttrend = int(request.GET['trend'])
 
     defaultexecutable = getdefaultexecutable().id
-    if data.has_key("executable"):
+    if "executable" in data:
         selected = Executable.objects.filter(id=int(data['executable']))
         if len(selected): defaultexecutable = selected[0].id
     
     baseline = getbaselineexecutables()
     defaultbaseline = 1
-    if data.has_key("baseline"):
-        if data['baseline'] != "undefined":
-            defaultbaseline = int(request.GET['baseline'])
-            if len(baseline) < defaultbaseline: defaultbaseline = 1
+    if "baseline" in data and data['baseline'] != "undefined":
+        defaultbaseline = int(request.GET['baseline'])
+        if len(baseline) < defaultbaseline: defaultbaseline = 1
     
     # Information for template
     executables = Executable.objects.filter(project=defaultproject)
@@ -376,7 +370,7 @@ def overview(request):
         response = 'No data found for project "' + defaultproject.name + '"'
         return HttpResponse(response)
     selectedrevision = lastrevisions[0]
-    if data.has_key("revision"):
+    if "revision" in data:
         # TODO: Create 404 html embeded in the overview
         commitid = data['revision'].split(" ")[-1]
         selectedrevision = get_object_or_404(
@@ -472,7 +466,6 @@ def addresult(request):
         'commitid',
         'project',
         'executable_name',
-        'executable_coptions',
         'benchmark',
         'environment',
         'result_value',
@@ -480,10 +473,10 @@ def addresult(request):
     ]
     
     for key in mandatory_data:
-        if data.has_key(key):
-            if data[key] == "":
-                return HttpResponseBadRequest('Key "' + key + '" empty in request')
-        else: return HttpResponseBadRequest('Key "' + key + '" missing from request')
+        if not key in data:
+            return HttpResponseBadRequest('Key "' + key + '" missing from request')
+        elif key in data and data[key] == "":
+            return HttpResponseBadRequest('Key "' + key + '" empty in request')
 
     # Check that Environment exists
     try:
@@ -495,32 +488,34 @@ def addresult(request):
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
     
     branch = 'trunk'
-    if data.has_key('branch') and data['branch'] != "": branch = data['branch']
+    if 'branch' in data and data['branch'] != "": branch = data['branch']
     rev, created = Revision.objects.get_or_create(
         commitid=data['commitid'],
         project=p,
         branch=branch,
     )
-    
     if created:
         rev.date = data["result_date"]
         saverevisioninfo(rev)
         rev.save()        
     
+    coptions = ""
+    if 'executable_coptions' in data: coptions = data['executable_coptions']
     exe, created = Executable.objects.get_or_create(
         name=data['executable_name'],
-        coptions=data['executable_coptions'],
+        coptions=coptions,
         project=p
     )
+    
     try:
         r = Result.objects.get(revision=rev,executable=exe,benchmark=b,environment=e)
     except Result.DoesNotExist:
         r = Result(revision=rev,executable=exe,benchmark=b,environment=e)
     r.value = data["result_value"]    
     r.date = data["result_date"]
-    if data.has_key('std_dev'): r.std_dev = data['std_dev']
-    if data.has_key('min'): r.val_min = data['min']
-    if data.has_key('max'): r.val_max = data['max']
+    if 'std_dev' in data: r.std_dev = data['std_dev']
+    if 'min' in data: r.val_min = data['min']
+    if 'max' in data: r.val_max = data['max']
     r.save()
     
     return HttpResponse("Result data saved succesfully")

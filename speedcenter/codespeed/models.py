@@ -9,7 +9,7 @@ class Project(models.Model):
     )
     def __unicode__(self):
         return str(self.name)
-    name = models.CharField(unique=True, max_length=20)
+    name = models.CharField(unique=True, max_length=30)
     repository_type = models.CharField(max_length=1, choices=REPOSITORY_TYPES, default='N')
     repository_path = models.CharField(blank=True, null=True, max_length=100)
     isdefault = models.BooleanField(default=False)
@@ -18,13 +18,13 @@ class Project(models.Model):
 class Revision(models.Model):
     def __unicode__(self):
         return str(self.date) + " - " + self.commitid
-    commitid = models.CharField(max_length=40)#git's SHA-1 length is 40
+    commitid = models.CharField(max_length=42)#git and mercurial's SHA-1 length is 40
     project = models.ForeignKey(Project)
-    branch = models.CharField(max_length=20, default='trunk')
-    tag = models.CharField(max_length=20, blank=True)
+    branch = models.CharField(max_length=25, default='trunk')
+    tag = models.CharField(max_length=25, blank=True)
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
-    author = models.CharField(max_length=20, blank=True)
+    author = models.CharField(max_length=25, blank=True)
     
     class Meta:
         unique_together = ("commitid", "branch", "project")
@@ -33,8 +33,8 @@ class Revision(models.Model):
 class Executable(models.Model):
     def __unicode__(self):
         return str(self.name + " " + str(self.coptions))
-    name = models.CharField(max_length=50)
-    coptions = models.CharField("compile options", max_length=100)
+    name = models.CharField(max_length=25)
+    coptions = models.CharField("compile options", max_length=25, blank=True)
     project = models.ForeignKey(Project)
     
     class Meta:
@@ -48,7 +48,7 @@ class Benchmark(models.Model):
     )
     def __unicode__(self):
         return str(self.name)
-    name = models.CharField(unique=True, max_length=50)
+    name = models.CharField(unique=True, max_length=30)
     benchmark_type = models.CharField(max_length=1, choices=B_TYPES, default='C')
     description = models.CharField(max_length=200, blank=True)
     units = models.CharField(max_length=10, default='seconds')

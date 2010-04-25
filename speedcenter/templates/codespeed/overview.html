@@ -9,6 +9,7 @@
     config["baseline"] = $("#baseline option:selected").val();
     config["revision"] = $("#revision option:selected").val();
     config["executable"] = $("input[name='executable']:checked").val();
+    config["host"] = $("input[name='host']:checked").val();
     return config;
   }
   
@@ -98,7 +99,7 @@
     $("#revision").change(refreshContent);
     $("input:radio[name=executable]").filter('[value="{{ defaultexecutable }}"]').attr('checked', true);
     $("input[name='executable']").change(refreshContent);
-    $("input:radio[name=host]").filter('[value="{{ defaultenvironment }}"]').attr('checked', true);
+    $("input:radio[name=host]").filter('[value="{{ defaultenvironment.name }}"]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
     refreshContent();
   });
@@ -150,8 +151,8 @@
     <ul>
     {% for host in hostlist %}
       <li title="{{ host.os }}, {{ host.cpu }}">
-        <input id="host{{ host.id }}" type="radio" name="host" value="{{ host.id }}" />
-        <label for="host{{ host.id }}">{{ host }}</label>
+        <input id="host{{ host.name }}" type="radio" name="host" value="{{ host.name }}" />
+        <label for="host{{ host.name }}">{{ host }}</label>
       </li>
     {% endfor %}
     </ul>

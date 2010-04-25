@@ -9,7 +9,7 @@
 </tfoot>
 <tbody>
 {% for row in table_list %}  <tr>
-        <td class="text" title="{{ row.bench_description }}">{{ row.benchmark }}</td><td>{{ row.result|floatformat:4 }}</td><td>{{ row.std_dev|floatformat:4 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td><td{% if not baselineflag %} style="visibility:hidden;"{% endif %}>{{ row.relative|floatformat:2 }}</td><td class="bar"{% if not baselineflag %} style="visibility:hidden;"{% endif %}><span>-</span></td>
+        <td class="text" title="{{ row.bench_description }}">{{ row.benchmark }}</td><td>{{ row.result|floatformat:4 }}</td><td>{{ row.std_dev|floatformat:4 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td><td{% if not base_list %} style="visibility:hidden;"{% endif %}>{{ row.relative|floatformat:2 }}</td><td class="bar"{% if not base_list %} style="visibility:hidden;"{% endif %}><span>-</span></td>
   </tr>{% endfor %}
 </tbody>
 </table>{% ifnotequal defaultproject.repository_type 'N' %}

@@ -23,6 +23,7 @@
     config["executables"] = config["executables"].slice(0, -1);
     config["baseline"] = $("#baseline").is(':checked');
     config["benchmark"] = $("input[name='benchmark']:checked").val();
+    config["host"] = $("input[name='host']:checked").val();
     config["revisions"] = $("#revisions option:selected").val();
     return config;
   }
@@ -180,7 +181,7 @@
     //set default selected benchmark
     $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
     $("input[name='benchmark']").change(refreshContent);
-    $("input:radio[name=host]").filter('[value={{ defaultenvironment }}]').attr('checked', true);
+    $("input:radio[name=host]").filter('[value={{ defaultenvironment.name }}]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
     $("#executable div.boxbody ul li").each(function() {
       var serieid = $(this).find("input").val();
@@ -244,8 +245,8 @@
     <ul>
     {% for host in hostlist %}
       <li title="{{ host.os }}, {{ host.cpu }}">
-        <input id="host{{ host.id }}" type="radio" name="host" value="{{ host.id }}" />
-        <label for="host{{ host.id }}">{{ host }}</label>
+        <input id="host{{ host.name }}" type="radio" name="host" value="{{ host.name }}" />
+        <label for="host{{ host.name }}">{{ host }}</label>
       </li>
     {% endfor %}
     </ul>

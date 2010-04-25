@@ -95,6 +95,7 @@ def gettimelinedata(request):
         timeline_list['error'] = "No executables selected"
         return HttpResponse(json.dumps( timeline_list ))
 
+    environment = Environment.objects.get(name=data['host'])
     benchmarks = []
     number_of_rev = data['revisions']
     if data['benchmark'] == 'grid':
@@ -109,7 +110,6 @@ def gettimelinedata(request):
     baselinerev = None
     if data['baseline'] == "true":
         baselinerev = baseline['revision']
-    defaultenvironment = getdefaultenvironment()
     for bench in benchmarks:
         append = False
         timeline = {}
@@ -122,6 +122,8 @@ def gettimelinedata(request):
         for executable in executables:
             resultquery = Result.objects.filter(
                     benchmark=bench
+                ).filter(
+                    environment=environment
                 ).filter(
                     executable=executable
                 ).order_by('-revision__date')[:number_of_rev]
@@ -141,7 +143,7 @@ def gettimelinedata(request):
                     executable=baseline['executable'],
                     benchmark=bench,
                     revision=baselinerev,
-                    environment=defaultenvironment
+                    environment=environment
                 ).value
             except Result.DoesNotExist:
                 timeline['baseline'] = "None"
@@ -172,7 +174,11 @@ def timeline(request):
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment:
         return HttpResponse("You need to configure at least one Environment")
-    defaultenvironment = defaultenvironment.id
+    if 'host' in data:
+        try:
+            defaultenvironment = Environment.objects.get(name=data['host'])
+        except Environment.DoesNotExist:
+            pass
     
     defaultproject = Project.objects.filter(isdefault=True)
     if not len(defaultproject):
@@ -224,13 +230,16 @@ def timeline(request):
 def getoverviewtable(request):
     data = request.GET
     
-    executable = Executable.objects.get(id=int(data["executable"]))
-    trendconfig = int(data["trend"])
-    temp = data["revision"].split(" ")
+    executable = Executable.objects.get(id=int(data['executable']))
+    environment = Environment.objects.get(name=data['host'])
+    trendconfig = int(data['trend'])
+    temp = data['revision'].split(" ")
     date = temp[0] + " " + temp[1]
     lastrevisions = Revision.objects.filter(
-        project=executable
-    ).filter(date__lte=date).order_by('-date')[:trendconfig+1]
+        project=executable.project
+    ).filter(
+        date__lte=date
+    ).order_by('-date')[:trendconfig+1]
     lastrevision = lastrevisions[0]
 
     change_list = None
@@ -239,25 +248,34 @@ def getoverviewtable(request):
         changerevision = lastrevisions[1]
         change_list = Result.objects.filter(
             revision=changerevision
-        ).filter(executable=executable)   
+        ).filter(
+            environment=environment
+        ).filter(
+            executable=executable
+        )
         pastrevisions = lastrevisions[trendconfig-2:trendconfig+1]
 
     result_list = Result.objects.filter(
         revision=lastrevision
-    ).filter(executable=executable)
+    ).filter(
+        environment=environment
+    ).filter(
+        executable=executable
+    )
     
-    # TODO: remove baselineflag
-    baselineflag = False
     base_list = None
     baseexecutable = None
     if "baseline" in data and data['baseline'] != "undefined":
-        baselineflag = True
         base = int(data['baseline']) - 1
         baseline = getbaselineexecutables()
         baseexecutable = baseline[base]
         base_list = Result.objects.filter(
             revision=baseline[base]['revision']
-        ).filter(executable=baseline[base]['executable'])
+        ).filter(
+            environment=environment
+        ).filter(
+            executable=baseline[base]['executable']
+        )
 
     table_list = []
     totals = {'change': [], 'trend': [],}
@@ -269,7 +287,7 @@ def getoverviewtable(request):
         result = result.value
         
         change = 0
-        if change_list != None:
+        if len(change_list):
             c = change_list.filter(benchmark=bench)
             if c.count():
                 change = (result - c[0].value)*100/c[0].value
@@ -278,10 +296,12 @@ def getoverviewtable(request):
         #calculate past average
         average = 0
         averagecount = 0
-        if pastrevisions != None:
+        if len(pastrevisions):
             for rev in pastrevisions:
                 past_rev = Result.objects.filter(
                     revision=rev
+                ).filter(
+                    environment=environment
                 ).filter(
                     executable=executable
                 ).filter(benchmark=bench)
@@ -297,7 +317,7 @@ def getoverviewtable(request):
             trend = "-"
 
         relative = 0
-        if baselineflag:
+        if len(base_list):
             c = base_list.filter(benchmark=bench)
             if c.count():
                 relative =  c[0].value / result
@@ -312,6 +332,8 @@ def getoverviewtable(request):
             'relative': relative,
         })
     
+    if not len(table_list):
+        return HttpResponse('<table id="results" class="tablesorter" style="height: 232px;"></table><p>No results for this options</p>')
     # Compute Arithmetic averages
     for key in totals.keys():
         if len(totals[key]):
@@ -333,7 +355,11 @@ def overview(request):
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment:
         return HttpResponse("You need to configure at least one Environment")
-    defaultenvironment = defaultenvironment.id
+    if 'host' in data:
+        try:
+            defaultenvironment = Environment.objects.get(name=data['host'])
+        except Environment.DoesNotExist:
+            pass
     
     defaultproject = Project.objects.filter(isdefault=True)
     if not len(defaultproject):
@@ -350,8 +376,10 @@ def overview(request):
 
     defaultexecutable = getdefaultexecutable().id
     if "executable" in data:
-        selected = Executable.objects.filter(id=int(data['executable']))
-        if len(selected): defaultexecutable = selected[0].id
+        try:
+            defaultexecutable = Executable.objects.get(id=int(data['executable'])).id
+        except Executable.DoesNotExist:
+            pass
     
     baseline = getbaselineexecutables()
     defaultbaseline = 1

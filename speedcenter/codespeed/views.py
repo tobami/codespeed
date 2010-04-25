@@ -76,23 +76,19 @@ def getdefaultenvironment():
 
 def getdefaultexecutable():
     default = None
-    defaultproject = Project.objects.filter(isdefault=True)[0]
     if hasattr(settings, 'defaultexecutable') and settings.defaultexecutable != None:
         try:
             default = Executable.objects.get(id=settings.defaultexecutable)
         except Executable.DoesNotExist:
             pass
-    if default == None: default = Executable.objects.filter(project=defaultproject)[0]
+    if default == None: default = Executable.objects.filter(project__isdefault=True)[0]
     
     return default
 
 def gettimelinedata(request):
-    if request.method != 'GET':
-        return HttpResponseNotAllowed('GET')
+    if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
-
-    defaultproject = Project.objects.filter(isdefault=True)[0]
-
+    
     timeline_list = {'error': 'None', 'timelines': []}
     executables = data['executables'].split(",")
     if executables[0] == "":
@@ -105,7 +101,7 @@ def gettimelinedata(request):
         benchmarks = Benchmark.objects.all().order_by('name')
         number_of_rev = 15
     else:
-        benchmarks.append(Benchmark.objects.get(id=data['benchmark']))
+        benchmarks.append(Benchmark.objects.get(name=data['benchmark']))
     
     baseline = getbaselineexecutables()
     if len(baseline): baseline = baseline[0]
@@ -118,7 +114,9 @@ def gettimelinedata(request):
         append = False
         timeline = {}
         timeline['benchmark'] = bench.name
-        timeline['benchmark_id'] = bench.id
+        timeline['units'] = bench.units
+        lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'
+        timeline['lessisbetter'] = lessisbetter
         timeline['executables'] = {}
         results = []
         for executable in executables:
@@ -127,6 +125,7 @@ def gettimelinedata(request):
                 ).filter(
                     executable=executable
                 ).order_by('-revision__date')[:number_of_rev]
+            if not len(resultquery): continue
             results = []
             for res in resultquery:
                 std_dev = ""
@@ -135,7 +134,7 @@ def gettimelinedata(request):
                     [str(res.revision.date), res.value, std_dev, res.revision.commitid]
                 )
             timeline['executables'][executable] = results
-            if len(results): append = True
+            append = True
         if data['baseline'] == "true" and baseline != None and append:
             try:
                 baselinevalue = Result.objects.get(
@@ -147,6 +146,7 @@ def gettimelinedata(request):
             except Result.DoesNotExist:
                 timeline['baseline'] = "None"
             else:
+                #use results from last executable to determine start and end revisions
                 end = results[0][0]
                 start = results[len(results)-1][0]
                 timeline['baseline'] = [
@@ -156,13 +156,12 @@ def gettimelinedata(request):
         if append: timeline_list['timelines'].append(timeline)
     
     if not len(timeline_list['timelines']):
-        response = 'No data found for project "' + defaultproject.name + '"'
+        response = 'No data found for the selected options'
         timeline_list['error'] = response
     return HttpResponse(json.dumps( timeline_list ))
 
 def timeline(request):
-    if request.method != 'GET':
-        return HttpResponseNotAllowed('GET')
+    if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
     
     # Configuration of default parameters
@@ -186,10 +185,7 @@ def timeline(request):
     
     defaultbenchmark = "grid"
     if 'benchmark' in data and data['benchmark'] != defaultbenchmark:
-        try:
-            defaultbenchmark = int(data['benchmark'])
-        except ValueError:
-            defaultbenchmark = get_object_or_404(Benchmark, name=data['benchmark']).id
+        defaultbenchmark = get_object_or_404(Benchmark, name=data['benchmark'])
     
     if 'executables' in data:
         checkedexecutables = []
@@ -197,7 +193,7 @@ def timeline(request):
             selected = Executable.objects.filter(id=int(i))
             if len(selected): checkedexecutables.append(selected[0])
     else:
-        checkedexecutables = Executable.objects.filter(project=defaultproject)
+        checkedexecutables = Executable.objects.filter(project__isdefault=True)
     
     lastrevisions = [10, 50, 200, 1000]
     defaultlast = 200
@@ -205,7 +201,7 @@ def timeline(request):
         defaultlast = data['revisions']
     
     # Information for template
-    executables = Executable.objects.filter(project=defaultproject)
+    executables = Executable.objects.filter(project__isdefault=True)
     benchmarks = Benchmark.objects.all()
     hostlist = Environment.objects.all()
     return render_to_response('codespeed/timeline.html', {
@@ -224,13 +220,12 @@ def timeline(request):
 def getoverviewtable(request):
     data = request.GET
     
-    defaultproject = Project.objects.filter(isdefault=True)[0]
-    executable = int(data["executable"])
+    executable = Executable.objects.get(id=int(data["executable"]))
     trendconfig = int(data["trend"])
     temp = data["revision"].split(" ")
     date = temp[0] + " " + temp[1]
     lastrevisions = Revision.objects.filter(
-        project=defaultproject
+        project=executable
     ).filter(date__lte=date).order_by('-date')[:trendconfig+1]
     lastrevision = lastrevisions[0]
 
@@ -327,8 +322,7 @@ def getoverviewtable(request):
     return render_to_response('codespeed/overview_table.html', locals())
     
 def overview(request):
-    if request.method != 'GET':
-        return HttpResponseNotAllowed('GET')
+    if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
 
     # Configuration of default parameters
@@ -380,7 +374,6 @@ def overview(request):
     return render_to_response('codespeed/overview.html', locals())
 
 def displaylogs(request):
-    defaultproject = Project.objects.filter(isdefault=True)[0]
     rev = Revision.objects.get(id=request.GET['revisionid'])
     logs = []
     logs.append(rev)
@@ -425,15 +418,12 @@ def getlogsfromsvn(newrev, startrev):
 
 def getcommitlogs(rev):
     logs = []
-    defaultproject = Project.objects.filter(isdefault=True)[0]
     if rev.project.repository_type == 'N' or rev.project.repository_path == "":
         #Don't create logs
         return []
     
     startrev = Revision.objects.filter(
-        project=defaultproject
-    ).filter(
-        branch='trunk'
+        project=rev.project
     ).filter(date__lt=rev.date).order_by('-date')[:1]
     if not len(startrev): startrev = rev
     else: startrev = startrev[0]

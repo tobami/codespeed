@@ -7,6 +7,8 @@
 <script type="text/javascript" src="/media/js/jqplot/jqplot.cursor.min.js"></script>
 <script type="text/javascript" src="/media/js/jqplot/jqplot.highlighter.min.js"></script>
 <script type="text/javascript" src="/media/js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
+<script type="text/javascript" src="/media/js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="/media/js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
 
 <script type="text/javascript">
   var baselineColor = "#d8b83f";
@@ -64,12 +66,17 @@
     plot = $.jqplot('plot',  plotdata, {
       series: series,
       axes:{
-        yaxis:{label: '(s)', min: 0, autoscale:true, tickOptions:{formatString:'%.' + digits + 'f'}},
+        yaxis:{
+          label: data['units'] + data['lessisbetter'],
+          labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+          min: 0, autoscale:true,
+          tickOptions:{formatString:'%.' + digits + 'f'}
+        },
         xaxis:{
           renderer:$.jqplot.DateAxisRenderer,
           label: 'Revision date',
+          labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
           pad: 1.01, autoscale:true,
-//           tickOptions:{formatString:'%d'}
         }
       },
       legend: {show: true, location: 'nw'},
@@ -82,7 +89,7 @@
     });
   }
   
-  function renderMiniplot(plotid, benchname,  data) {
+  function renderMiniplot(plotid, data) {
     var plotdata = new Array();
     var series = new Array();
     for (id in data['executables']) {
@@ -98,12 +105,12 @@
       plotdata.push(data["baseline"]);
     }
     plot = $.jqplot(plotid, plotdata, {
-      title: {text: benchname, fontSize: '1.1em'},
+      title: {text: data['benchmark'], fontSize: '1.1em'},
       seriesDefaults: {lineWidth: 2, markerOptions:{style:'circle', size: 6}},
       series: series,
       axes: {
         yaxis: {
-          min: 0, autoscale:true, showTicks: false, tickOptions:{formatString:'%.3f seconds'}
+          min: 0, autoscale:true, showTicks: false
         },
         xaxis: {
           renderer:$.jqplot.DateAxisRenderer,
@@ -135,13 +142,14 @@
       //Render Grid of plots
       $("#revisions").attr("disabled",true);
       for (bench in data["timelines"]) {
-        plotid = "plot" + data["timelines"][bench]["benchmark_id"];
+        plotid = "plot_" + data["timelines"][bench]["benchmark"];
         $("#plotgrid").append('<div id="' + plotid + '" class="miniplot"></div>');
         $("#" + plotid).click(function() {
-          $("input:radio[name='benchmark']").filter('[value=' + $(this).attr("id").slice(4) + ']').attr('checked', true);
+          var benchname = $(this).attr("id").slice(5);
+          $("input:radio[name='benchmark']").filter('[value=' + benchname + ']').attr('checked', true);
           refreshContent();
         });
-        renderMiniplot(plotid, data["timelines"][bench]["benchmark"], data["timelines"][bench]);
+        renderMiniplot(plotid, data["timelines"][bench]);
       }
     }
   }
@@ -223,8 +231,8 @@
   <ul>
     {% for bench in benchmarks|dictsort:"name" %}
     <li{% ifnotequal bench.description "" %} title="{{ bench.description }}"{% endifnotequal %}>
-      <input id="benchmark{{ bench.id }}" type="radio" name="benchmark" value="{{ bench.id }}" />
-      <label for="benchmark{{ bench.id }}">{{ bench }}</label>
+      <input id="benchmark_{{ bench.name }}" type="radio" name="benchmark" value="{{ bench.name }}" />
+      <label for="benchmark_{{ bench.name }}">{{ bench }}</label>
     </li>
     {% endfor %}
   </ul>

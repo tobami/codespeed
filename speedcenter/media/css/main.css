@@ -284,12 +284,13 @@ table.tablesorter tbody td.bar img {
 }
 
 table.tablesorter tbody span, table.tablesorter tfoot span {
-  display: block; 
+  display: block;
+  opacity: 0;
   height: 1.45em;
   margin-top: 0.2em;
-  background: #5AA1D3; 
-  text-indent: -9999px; 
-  overflow: hidden; 
+  background: #5AA1D3;
+  text-indent: -9999px;
+  overflow: hidden;
 }
 
 table.tablesorter tbody tr td.status-red, .status-red  { background-color: #FF5640; }

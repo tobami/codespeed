@@ -32,7 +32,7 @@ class Revision(models.Model):
 
 class Executable(models.Model):
     def __unicode__(self):
-        return str(self.name + " " + str(self.coptions))
+        return str(self.name + " " + self.coptions)
     name = models.CharField(max_length=25)
     coptions = models.CharField("compile options", max_length=25, blank=True)
     project = models.ForeignKey(Project)

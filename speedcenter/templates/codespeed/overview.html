@@ -3,6 +3,12 @@
 {% block script %}
 <script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript">
+  var projectmatrix = eval({{ projectmatrix|safe }});
+  var revisionboxes = new Object();
+  {% for project, revlist in revisionboxes.items %}{{ value }}
+  revisionboxes['{{ project }}'] = '{% for rev in revlist %}<option value="{{ rev }}">{{ rev }}</option>{% endfor %}';{% endfor %}
+  var currentproject = "{{ defaultexecutable.project }}";
+  
   function getConfiguration() {
     var config = new Object();
     config["trend"] = $("#trend option:selected").val();
@@ -57,7 +63,8 @@
       //Size plot bars
       if ($(this).children("td:eq(5)").length) {
         var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq(5)").text()));
-        $(this).children("td:eq(6)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]);
+        $(this).children("td:eq(6)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]).fadeTo("fast", 0.8);
+        
       }
       //Link rows to timelines
       $(this).click(function () {
@@ -89,16 +96,25 @@
     });
   }
   
+  function changerevisions() {
+    var executable = $("input[name='executable']:checked").val();
+    if (projectmatrix[executable] != currentproject) {
+        $("#revision").html(revisionboxes[projectmatrix[executable]]);
+    }
+    refreshContent();
+  }
+  
   $(function() {
     // Configure defaults
     $("#trend").val("{{ defaulttrend }}");
     $("#trend").change(refreshContent);
     $("#baseline").val("{{ defaultbaseline }}");
     $("#baseline").change(refreshContent);
+    $("#revision").html(revisionboxes['{{ defaultexecutable.project.name }}']);
     $("#revision").val("{{ selectedrevision }}");
     $("#revision").change(refreshContent);
-    $("input:radio[name=executable]").filter('[value="{{ defaultexecutable }}"]').attr('checked', true);
-    $("input[name='executable']").change(refreshContent);
+    $("input:radio[name=executable]").filter('[value="{{ defaultexecutable.id }}"]').attr('checked', true);
+    $("input[name='executable']").change(changerevisions);
     $("input:radio[name=host]").filter('[value="{{ defaultenvironment.name }}"]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
     refreshContent();
@@ -122,7 +138,7 @@
     {% for exec in executables|dictsort:"id" %}
       <li>
         <input id="executable{{ exec.id }}" type="radio" name="executable" value="{{ exec.id }}" />
-        <label for="executable{{ exec.id }}">{{ exec.name }}</label>
+        <label for="executable{{ exec.id }}">{{ exec }}</label>
       </li>
     {% endfor %}
     </ul>
@@ -162,9 +178,8 @@
 </div>
 
 <div id="configbar">Results for revision
-  <select id="revision">{% for rev in lastrevisions %}
-    <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
-  </select><a id="permalink" href="javascript:permalink();">Permalink</a>
+  <select id="revision"></select>
+  <a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content">
 <table id="results" class="tablesorter" style="height: 232px;"></table>

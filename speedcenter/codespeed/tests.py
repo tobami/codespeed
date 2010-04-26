@@ -4,6 +4,7 @@ from datetime import datetime
 from django.test.client import Client
 from codespeed.models import Project, Benchmark, Revision, Executable, Environment, Result
 from django.core.urlresolvers import reverse
+import copy
 
 class AddResultTest(TestCase):
     def setUp(self):
@@ -53,7 +54,7 @@ class AddResultTest(TestCase):
         """
         Add result data with non-default options
         """
-        modified_data = self.data
+        modified_data = copy.deepcopy(self.data)
         modified_data['executable_coptions'] = 'gc=Böhm'
         modified_data['branch'] = "experimental"
         modified_data['benchmark_type'] = "O"

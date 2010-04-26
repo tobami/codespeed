@@ -6,7 +6,7 @@ from codespeed import settings
 from datetime import datetime
 from time import sleep
 import json
-
+from itertools import chain
 
 def getbaselineexecutables():
     baseline = []
@@ -40,10 +40,7 @@ def getbaselineexecutables():
             #add executables that correspond to each tagged revision.
             executables = Executable.objects.filter(project=rev.project)
             for executable in executables:
-                name = executable.name
-                if executable.coptions != "default": name += " " + executable.coptions
-                if rev.tag: name += " " + rev.tag
-                else: name += " " + rev.commitid
+                name = str(executable) + " " + rev.tag
                 baseline.append({
                     'executable': executable,
                     'revision': rev,
@@ -81,7 +78,9 @@ def getdefaultexecutable():
             default = Executable.objects.get(id=settings.defaultexecutable)
         except Executable.DoesNotExist:
             pass
-    if default == None: default = Executable.objects.filter(project__isdefault=True)[0]
+    if default == None:
+        execquery = Executable.objects.filter(project__isdefault=True)
+        if len(execquery): default = execquery[0]
     
     return default
 
@@ -242,8 +241,8 @@ def getoverviewtable(request):
     ).order_by('-date')[:trendconfig+1]
     lastrevision = lastrevisions[0]
 
-    change_list = None
-    pastrevisions = None
+    change_list = []
+    pastrevisions = []
     if len(lastrevisions) > 1:
         changerevision = lastrevisions[1]
         change_list = Result.objects.filter(
@@ -361,11 +360,6 @@ def overview(request):
         except Environment.DoesNotExist:
             pass
     
-    defaultproject = Project.objects.filter(isdefault=True)
-    if not len(defaultproject):
-        return HttpResponse("You need to configure at least one Project as default")
-    else: defaultproject = defaultproject[0]
-
     defaultchangethres = 3
     defaulttrendthres = 3
     defaultcompthres = 0.2
@@ -374,10 +368,13 @@ def overview(request):
     if 'trend' in data and data['trend'] in trends:
         defaulttrend = int(request.GET['trend'])
 
-    defaultexecutable = getdefaultexecutable().id
+    defaultexecutable = getdefaultexecutable()
+    if not defaultexecutable:
+        return HttpResponse("You need to configure at least one Project as default")
+    
     if "executable" in data:
         try:
-            defaultexecutable = Executable.objects.get(id=int(data['executable'])).id
+            defaultexecutable = Executable.objects.get(id=int(data['executable']))
         except Executable.DoesNotExist:
             pass
     
@@ -388,21 +385,43 @@ def overview(request):
         if len(baseline) < defaultbaseline: defaultbaseline = 1
     
     # Information for template
-    executables = Executable.objects.filter(project=defaultproject)
+    executables = Executable.objects.filter(project__isdefault=True)
+    revlimit = 20
     lastrevisions = Revision.objects.filter(
-        project=defaultproject
-    ).order_by('-date')[:20]
+        project=defaultexecutable.project
+    ).order_by('-date')[:revlimit]
     if not len(lastrevisions):
-        response = 'No data found for project "' + defaultproject.name + '"'
+        response = 'No data found for project "' + defaultexecutable.project + '"'
         return HttpResponse(response)
     selectedrevision = lastrevisions[0]
     if "revision" in data:
-        # TODO: Create 404 html embeded in the overview
         commitid = data['revision'].split(" ")[-1]
-        selectedrevision = get_object_or_404(
-            Revision, commitid=commitid, project=defaultproject
-        )
+        try:
+            selectedrevision = Revision.objects.get(
+                commitid=commitid, project=defaultexecutable.project
+            )
+            if not selectedrevision in lastrevisions:
+                lastrevisions = list(chain(lastrevisions))
+                lastrevisions.append(selectedrevision)
+        except Revision.DoesNotExist:
+            selectedrevision = lastrevisions[0]
+            
     hostlist = Environment.objects.all()
+    projectmatrix = {}
+    for e in executables: projectmatrix[e.id] = e.project.name
+    projectmatrix = json.dumps(projectmatrix)
+    projectlist = []
+    for p in Project.objects.filter(
+            isdefault=True
+        ).exclude(
+            id=defaultexecutable.project.id
+        ):
+        projectlist.append(p)
+    revisionboxes = { defaultexecutable.project.name: lastrevisions }
+    for p in projectlist:
+        revisionboxes[p.name] = Revision.objects.filter(
+            project=p
+        ).order_by('-date')[:revlimit]
     return render_to_response('codespeed/overview.html', locals())
 
 def displaylogs(request):

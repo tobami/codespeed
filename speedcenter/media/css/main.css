@@ -126,6 +126,12 @@ div#configbar {
     -moz-border-radius: 12px;
     -webkit-border-radius: 12px;
 }
+div#configbar span {
+    padding: 2px;
+    padding-bottom: 3px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+}
 
 div#content, div.about_content {
     margin-left: 14.5em;

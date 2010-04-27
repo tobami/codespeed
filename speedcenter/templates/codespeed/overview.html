@@ -2,6 +2,7 @@
 {% block title %}: Overview{% endblock %}
 {% block script %}
 <script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
 <script type="text/javascript">
   var projectmatrix = eval({{ projectmatrix|safe }});
   var revisionboxes = new Object();
@@ -81,8 +82,15 @@
   function changerevisions() {
     var executable = $("input[name='executable']:checked").val();
     if (projectmatrix[executable] != currentproject) {
-        $("#revision").html(revisionboxes[projectmatrix[executable]]);
-        currentproject = projectmatrix[executable];
+      $("#revision").html(revisionboxes[projectmatrix[executable]]);
+      currentproject = projectmatrix[executable];
+      
+      var bgc = $("#revision").parent().parent().css("backgroundColor");
+      $("#revision").parent()
+        .animate({ backgroundColor: "#9DADC6" }, 200, function() {
+          // Animation complete.
+          $(this).animate({ backgroundColor: bgc }, 1500);
+        });
     }
     refreshContent();
   }
@@ -161,7 +169,7 @@
 </div>
 
 <div id="configbar">Results for revision
-  <select id="revision"></select>
+  <span><select id="revision"></select></span>
   <a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content">

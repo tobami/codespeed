@@ -6,7 +6,7 @@
   var projectmatrix = eval({{ projectmatrix|safe }});
   var revisionboxes = new Object();
   {% for project, revlist in revisionboxes.items %}{{ value }}
-  revisionboxes['{{ project }}'] = '{% for rev in revlist %}<option value="{{ rev }}">{{ rev }}</option>{% endfor %}';{% endfor %}
+  revisionboxes['{{ project }}'] = '{% for rev in revlist %}<option value="{{ rev.commitid }}">{{ rev }}</option>{% endfor %}';{% endfor %}
   var currentproject = "{{ defaultexecutable.project }}";
   
   function getConfiguration() {
@@ -19,28 +19,10 @@
     return config;
   }
   
-  function permalink() {
-    window.location="?" + $.param(getConfiguration());
-  }
-  
   function permalinkToTimeline(benchmark) {
     window.location="/timeline/?benchmark=" + benchmark;
   }
-  
-  function isNumeric(textvalue) {
-    if (textvalue.match(/^\d+$/) == null)
-        return false;
-    else
-        return true;
-  }
 
-  function getColorcode(change, theigh, tlow) {
-    var colorcode = "status-yellow";
-    if(change < tlow) { colorcode = "status-red"; }
-    else if(change > theigh) { colorcode = "status-green"; }
-    return colorcode;
-  }
-  
   function colorTable() {
     var changethres = {{ defaultchangethres }};
     var trendthres = {{ defaulttrendthres }};
@@ -100,6 +82,7 @@
     var executable = $("input[name='executable']:checked").val();
     if (projectmatrix[executable] != currentproject) {
         $("#revision").html(revisionboxes[projectmatrix[executable]]);
+        currentproject = projectmatrix[executable];
     }
     refreshContent();
   }
@@ -111,7 +94,7 @@
     $("#baseline").val("{{ defaultbaseline }}");
     $("#baseline").change(refreshContent);
     $("#revision").html(revisionboxes['{{ defaultexecutable.project.name }}']);
-    $("#revision").val("{{ selectedrevision }}");
+    $("#revision").val("{{ selectedrevision.commitid }}");
     $("#revision").change(refreshContent);
     $("input:radio[name=executable]").filter('[value="{{ defaultexecutable.id }}"]').attr('checked', true);
     $("input[name='executable']").change(changerevisions);
@@ -132,7 +115,7 @@
 {% block body %}
 <div id="sidebar">
 <div id="executable" class="sidebox">
-  <div class="boxhead"><h2>Interpreter</h2></div>
+  <div class="boxhead"><h2>Executable</h2></div>
   <div class="boxbody">
     <ul>
     {% for exec in executables|dictsort:"id" %}

@@ -1,3 +1,8 @@
+
+function permalink() {
+  window.location="?" + $.param(getConfiguration());
+}
+
 function getLoadText(text, h) {
     var loadtext = '<div style="text-align:center;">'
     var pstyle = "";
@@ -32,4 +37,12 @@ function transToLogBars(gridlength, maxwidth, value) {
   res["margin"] = cmargin + "px";
   res["width"] = cwidth + "px";
   return res;
+}
+
+//colors number based on a threshold
+function getColorcode(change, theigh, tlow) {
+  var colorcode = "status-yellow";
+  if(change < tlow) { colorcode = "status-red"; }
+  else if(change > theigh) { colorcode = "status-green"; }
+  return colorcode;
 }

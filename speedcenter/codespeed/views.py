@@ -232,8 +232,10 @@ def getoverviewtable(request):
     executable = Executable.objects.get(id=int(data['executable']))
     environment = Environment.objects.get(name=data['host'])
     trendconfig = int(data['trend'])
-    temp = data['revision'].split(" ")
-    date = temp[0] + " " + temp[1]
+    selectedrev = Revision.objects.get(
+        commitid=data['revision'], project=executable.project
+    )
+    date = selectedrev.date
     lastrevisions = Revision.objects.filter(
         project=executable.project
     ).filter(
@@ -395,7 +397,7 @@ def overview(request):
         return HttpResponse(response)
     selectedrevision = lastrevisions[0]
     if "revision" in data:
-        commitid = data['revision'].split(" ")[-1]
+        commitid = data['revision']
         try:
             selectedrevision = Revision.objects.get(
                 commitid=commitid, project=defaultexecutable.project

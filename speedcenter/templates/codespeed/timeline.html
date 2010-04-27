@@ -28,10 +28,6 @@
     return config;
   }
   
-  function permalink() {
-    window.location="?" + $.param(getConfiguration());
-  }
-  
   function renderPlot(data) {
     var plotdata = new Array();
     var series = new Array();
@@ -204,7 +200,7 @@
 {% block body %}
 <div id="sidebar">
 <div id="executable" class="sidebox">
-  <div class="boxhead"><h2>Interpreter</h2></div>
+  <div class="boxhead"><h2>Executable</h2></div>
   <div class="boxbody">
     <ul>{% for exec in executables|dictsort:"id" %}
       <li>

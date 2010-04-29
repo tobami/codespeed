@@ -85,6 +85,7 @@
       $("#revision").html(revisionboxes[projectmatrix[executable]]);
       currentproject = projectmatrix[executable];
       
+      //Give visual cue that the select box has changed
       var bgc = $("#revision").parent().parent().css("backgroundColor");
       $("#revision").parent()
         .animate({ backgroundColor: "#9DADC6" }, 200, function() {

@@ -3,7 +3,7 @@ from codespeed.models import Project, Revision, Executable, Benchmark, Result, E
 from django.contrib import admin
 
 class ProjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'repository_type', 'repository_path', 'isdefault')
+    list_display = ('name', 'repo_type', 'repo_path', 'track')
     
 admin.site.register(Project, ProjectAdmin)
 

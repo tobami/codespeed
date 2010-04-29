@@ -79,7 +79,7 @@ def getdefaultexecutable():
         except Executable.DoesNotExist:
             pass
     if default == None:
-        execquery = Executable.objects.filter(project__isdefault=True)
+        execquery = Executable.objects.filter(project__track=True)
         if len(execquery): default = execquery[0]
     
     return default
@@ -179,7 +179,7 @@ def timeline(request):
         except Environment.DoesNotExist:
             pass
     
-    defaultproject = Project.objects.filter(isdefault=True)
+    defaultproject = Project.objects.filter(track=True)
     if not len(defaultproject):
         return HttpResponse("You need to configure at least one Project as default")
     else: defaultproject = defaultproject[0]
@@ -202,7 +202,7 @@ def timeline(request):
             selected = Executable.objects.filter(id=int(i))
             if len(selected): checkedexecutables.append(selected[0])
     else:
-        checkedexecutables = Executable.objects.filter(project__isdefault=True)
+        checkedexecutables = Executable.objects.filter(project__track=True)
     
     lastrevisions = [10, 50, 200, 1000]
     defaultlast = 200
@@ -210,7 +210,7 @@ def timeline(request):
         defaultlast = data['revisions']
     
     # Information for template
-    executables = Executable.objects.filter(project__isdefault=True)
+    executables = Executable.objects.filter(project__track=True)
     benchmarks = Benchmark.objects.all()
     hostlist = Environment.objects.all()
     return render_to_response('codespeed/timeline.html', {
@@ -387,7 +387,7 @@ def overview(request):
         if len(baseline) < defaultbaseline: defaultbaseline = 1
     
     # Information for template
-    executables = Executable.objects.filter(project__isdefault=True)
+    executables = Executable.objects.filter(project__track=True)
     revlimit = 20
     lastrevisions = Revision.objects.filter(
         project=defaultexecutable.project
@@ -414,7 +414,7 @@ def overview(request):
     projectmatrix = json.dumps(projectmatrix)
     projectlist = []
     for p in Project.objects.filter(
-            isdefault=True
+            track=True
         ).exclude(
             id=defaultexecutable.project.id
         ):
@@ -446,7 +446,7 @@ def getlogsfromsvn(newrev, startrev):
     client = pysvn.Client()
     log_message = \
         client.log(
-            newrev.project.repository_path,
+            newrev.project.repo_path,
             revision_start=pysvn.Revision(
                     pysvn.opt_revision_kind.number, start
             ),
@@ -471,7 +471,7 @@ def getlogsfromsvn(newrev, startrev):
 
 def getcommitlogs(rev):
     logs = []
-    if rev.project.repository_type == 'N' or rev.project.repository_path == "":
+    if rev.project.repo_type == 'N' or rev.project.repo_path == "":
         #Don't create logs
         return []
     
@@ -481,16 +481,16 @@ def getcommitlogs(rev):
     if not len(startrev): startrev = rev
     else: startrev = startrev[0]
     
-    if rev.project.repository_type == 'S':
+    if rev.project.repo_type == 'S':
         logs = getlogsfromsvn(rev, startrev)
     return logs
 
 def saverevisioninfo(rev):
     log = None
-    if rev.project.repository_type == 'N' or rev.project.repository_path == "":
+    if rev.project.repo_type == 'N' or rev.project.repo_path == "":
         #Don't create logs
         return
-    elif rev.project.repository_type == 'S':
+    elif rev.project.repo_type == 'S':
         log = getlogsfromsvn(rev, rev)
     if len(log):
         log = log[0]

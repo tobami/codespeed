@@ -12,11 +12,11 @@
         <td class="text" title="{{ row.bench_description }}">{{ row.benchmark }}</td><td>{{ row.result|floatformat:4 }}</td><td>{{ row.std_dev|floatformat:4 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td><td{% if not base_list %} style="visibility:hidden;"{% endif %}>{{ row.relative|floatformat:2 }}</td><td class="bar"{% if not base_list %} style="visibility:hidden;"{% endif %}><span></span></td>
   </tr>{% endfor %}
 </tbody>
-</table>{% ifnotequal defaultproject.repository_type 'N' %}
+</table>{% ifnotequal defaultproject.repo_type 'N' %}
 <table class="commits">
 <thead>
   <tr>
-    <th colspan="2"><strong>Commit logs</strong> for {{ lastrevision.branch }} <span class="note">at {{ lastrevision.project.repository_path }}</span></th>
+    <th colspan="2"><strong>Commit logs</strong> for {{ lastrevision.branch }} <span class="note">at {{ lastrevision.project.repo_path }}</span></th>
   </tr>
 </thead>
 <tbody id="commitid__{{ lastrevision.id }}">

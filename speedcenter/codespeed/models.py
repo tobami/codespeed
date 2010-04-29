@@ -2,7 +2,7 @@
 from django.db import models
 
 class Project(models.Model):
-    REPOSITORY_TYPES = (
+    REPO_TYPES = (
         ('N', 'none'),
         ('G', 'git'),
         ('S', 'svn'),
@@ -10,9 +10,11 @@ class Project(models.Model):
     def __unicode__(self):
         return str(self.name)
     name = models.CharField(unique=True, max_length=30)
-    repository_type = models.CharField(max_length=1, choices=REPOSITORY_TYPES, default='N')
-    repository_path = models.CharField(blank=True, null=True, max_length=100)
-    isdefault = models.BooleanField(default=False)
+    repo_type = models.CharField("Repository type", max_length=1, choices=REPO_TYPES, default='N')
+    repo_path = models.CharField("Repository path", blank=True, max_length=100)
+    repo_user = models.CharField("Repository username", blank=True, max_length=100)
+    repo_pass = models.CharField("Repository password", blank=True, max_length=100)
+    track = models.BooleanField("Track changes?", default=False)
 
 
 class Revision(models.Model):

@@ -348,7 +348,6 @@ def getoverviewtable(request):
     # Only show units column if a benchmark has units other than seconds
     showunits = False
     if len(Benchmark.objects.exclude(units='seconds')): showunits = True
-    print baseexecutable
     
     return render_to_response('codespeed/overview_table.html', locals())
     
@@ -368,9 +367,8 @@ def overview(request):
     
     defaultchangethres = 3
     defaulttrendthres = 3
-    defaultcompthres = 0.2
     defaulttrend = 10
-    trends = [5, 10, 20, 100]
+    trends = [5, 10, 20, 50, 100]
     if 'trend' in data and data['trend'] in trends:
         defaulttrend = int(request.GET['trend'])
 

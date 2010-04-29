@@ -24,24 +24,27 @@
     window.location="/timeline/?benchmark=" + benchmark;
   }
 
-  function colorTable() {
+  function colorTable(length, index) {
     var changethres = {{ defaultchangethres }};
     var trendthres = {{ defaulttrendthres }};
-    var compthres = {{ defaultcompthres }};
     $("#results > :not(thead) > tr").each(function() {
       //Color change column
-      var change = $(this).children("td:eq(3)").text().slice(0, -1);
-      $(this).children("td:eq(3)").addClass(getColorcode(-change, changethres, -changethres));
+      var change = $(this).children("td:eq("+index+")").text().slice(0, -1);
+      if (length == 6) {
+        var lessisbetter = $(this).children("td:eq(2)").find("label").text();
+        if (lessisbetter == 0) { change = -change; }
+      }
+      $(this).children("td:eq("+index+")").addClass(getColorcode(-change, changethres, -changethres));
       //Color trend column
-      var trend = $(this).children("td:eq(4)").text().slice(0, -1);
-      $(this).children("td:eq(4)").addClass(getColorcode(-trend, trendthres, -trendthres));
+      var trend = $(this).children("td:eq("+(index+1)+")").text().slice(0, -1);
+      $(this).children("td:eq("+(index+1)+")").addClass(getColorcode(-trend, trendthres, -trendthres));
     });
   }
   
-  function updateTable() {    
-    colorTable();
-    //process table rows
+  function updateTable() {
     var nexttolast = $("#results thead tr th:last").index() - 1;
+    colorTable(nexttolast, nexttolast-2);
+    //process table rows
     var tdwidth = parseInt($("#results thead tr th:last").css("width"));
     $("#results > tbody > tr").each(function() {
       //Size plot bars

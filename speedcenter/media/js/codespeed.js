@@ -3,7 +3,7 @@ function permalink() {
   window.location="?" + $.param(getConfiguration());
 }
 
-function getLoadText(text, h) {
+function getLoadText(text, h, showloader) {
     var loadtext = '<div style="text-align:center;">'
     var pstyle = "";
     if (h > 0) {
@@ -13,7 +13,10 @@ function getLoadText(text, h) {
         pstyle = ' style="line-height:' + h + 'px;"';
     }
     loadtext += '<p' + pstyle + '>'+ text;
-    loadtext += ' <img src="/media/images/ajax-loader.gif" align="bottom"></p></div>';
+    if (showloader==true) {
+      loadtext += ' <img src="/media/images/ajax-loader.gif" align="bottom">';
+    }
+    loadtext += '</p></div>';
     return loadtext;
 }
 

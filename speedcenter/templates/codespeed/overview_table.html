@@ -26,7 +26,7 @@ seconds{% endif %}</th>{% if showunits %}<th class="w">units</th>{% endif %}<th 
 </table>
 <script type="text/javascript">
   var revisionid = $(".commits > tbody").attr("id");
-  $("#" + revisionid).html(getLoadText("Loading...", 0));
+  $("#" + revisionid).html(getLoadText("Loading...", 0, true));
   loadoption = "revisionid=" + revisionid.split('__')[1];
   $("#" + revisionid).load("logs/", loadoption);
 </script>

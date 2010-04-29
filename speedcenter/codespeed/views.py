@@ -324,8 +324,7 @@ def getoverviewtable(request):
                 relative =  c[0].value / result
                 #totals['relative'].append(relative)#deactivate average for comparison
         table_list.append({
-            'benchmark': bench.name,
-            'bench_description': bench.description,
+            'benchmark': bench,
             'result': result,
             'std_dev': std_dev,
             'change': change,
@@ -345,6 +344,11 @@ def getoverviewtable(request):
         totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
     if totals['trend'] != "-":
         totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
+    
+    # Only show units column if a benchmark has units other than seconds
+    showunits = False
+    if len(Benchmark.objects.exclude(units='seconds')): showunits = True
+    print baseexecutable
     
     return render_to_response('codespeed/overview_table.html', locals())
     

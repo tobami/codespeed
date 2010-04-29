@@ -41,12 +41,13 @@
   function updateTable() {    
     colorTable();
     //process table rows
-    var tdwidth = parseInt($("#results thead tr").find("th:eq(6)").css("width"));
+    var nexttolast = $("#results thead tr th:last").index() - 1;
+    var tdwidth = parseInt($("#results thead tr th:last").css("width"));
     $("#results > tbody > tr").each(function() {
       //Size plot bars
-      if ($(this).children("td:eq(5)").length) {
-        var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq(5)").text()));
-        $(this).children("td:eq(6)").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]).fadeTo("fast", 0.8);
+      if ($(this).children("td:eq("+nexttolast+")").length) {
+        var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq("+nexttolast+")").text()));
+        $(this).children("td:last").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]).fadeTo("fast", 0.8);
         
       }
       //Link rows to timelines
@@ -56,8 +57,9 @@
     });
     //Configure table as tablesorter
     if ($("#results > tbody > tr").first().length) {
-      $.tablesorter.defaults.sortList = [[5,1]];//sort by default by the 5th column
-      $.tablesorter.defaults.headers = { 6: { sorter: false } };//disable sorting for bar column
+      $.tablesorter.defaults.sortList = [[nexttolast,1]];//sort by default by the compasison column
+      var last = nexttolast + 1;
+      $.tablesorter.defaults.headers = { last: { sorter: false } };//disable sorting for bar column (last one)
     }
     $("#results").tablesorter({widgets: ['zebra']});
     $("#results tbody td").hover(function() {

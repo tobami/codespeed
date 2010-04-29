@@ -1,15 +1,16 @@
 <table id="results" class="tablesorter">
 <thead>
   <tr>
-    <th class="w">Benchmark</th><th class="w">Time (s)</th><th class="w">std dev</th><th class="w">Current change</th><th class="w" title="Trend for the last {{ trendconfig }} revisions"">Trend</th><th class="w" title="Compared to {{ baseexecutable.name }} {{ baserevision }}">Times {{ baseexecutable.shortname }}</th><th class="bar" title="Compared to {{ baseexecutable.name }} in log 2 scale"><div style="float:left;font-size:smaller;">slower</div><div style="float:left;margin-left:48px;">(log<sub>2</sub> scale)</div><div style="float:left;margin-left:60px;font-size:smaller;">faster</div></th>
+    <th class="w">Benchmark</th><th class="w">{% if showunits %}Result{% else %}
+seconds{% endif %}</th>{% if showunits %}<th class="w">units</th>{% endif %}<th class="w">std dev</th><th class="w">Current change</th><th class="w" title="Trend for the last {{ trendconfig }} revisions"">Trend</th><th class="w" title="Compared to {{ baseexecutable.name }} {{ baserevision }}">Times {{ baseexecutable.executable.name }}</th><th class="bar" title="Compared to {{ baseexecutable.name }} in log 2 scale"><div style="float:left;font-size:smaller;">slower</div><div style="float:left;margin-left:48px;">(log<sub>2</sub> scale)</div><div style="float:left;margin-left:60px;font-size:smaller;">faster</div></th>
   </tr>
 </thead>
 <tfoot>
-  <tr><td class="text" title="Arithmetic mean">Average</td><td></td><td></td><td>{{ totals.change|floatformat:2 }}%</td><td>{{ totals.trend|floatformat:2 }}%</td><td></td><td{% if not baselineflag %} style="visibility:hidden;"{% endif %}></td></tr>
+  <tr><td class="text" title="Arithmetic mean">Average</td><td></td><td></td><td></td><td>{{ totals.change|floatformat:2 }}%</td><td>{{ totals.trend|floatformat:2 }}%</td><td></td><td{% if not baselineflag %} style="visibility:hidden;"{% endif %}></td></tr>
 </tfoot>
 <tbody>
 {% for row in table_list %}  <tr>
-        <td class="text" title="{{ row.bench_description }}">{{ row.benchmark }}</td><td>{{ row.result|floatformat:4 }}</td><td>{{ row.std_dev|floatformat:4 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td><td{% if not base_list %} style="visibility:hidden;"{% endif %}>{{ row.relative|floatformat:2 }}</td><td class="bar"{% if not base_list %} style="visibility:hidden;"{% endif %}><span></span></td>
+        <td class="text" title="{{ row.bench_description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:4 }}</td>{% if showunits %}<td>{{ row.benchmark.units }}</td>{% endif %}<td>{{ row.std_dev|floatformat:4 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td><td{% if not base_list %} style="visibility:hidden;"{% endif %}>{{ row.relative|floatformat:2 }}</td><td class="bar"{% if not base_list %} style="visibility:hidden;"{% endif %}><span></span></td>
   </tr>{% endfor %}
 </tbody>
 </table>{% ifnotequal defaultproject.repo_type 'N' %}

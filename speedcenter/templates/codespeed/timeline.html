@@ -13,6 +13,7 @@
 <script type="text/javascript">
   var baselineColor = "#d8b83f";
   var seriesColors = ["#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#ff5800", "#0085cc"];
+  var seriesindex = new Array();
   
   function getConfiguration() {
     var config = new Object();
@@ -28,14 +29,28 @@
     return config;
   }
   
+  function permalinkToOverview(commitid, executableid) {
+    window.location="/overview/?revision=" + commitid + "&" + "executable=" + executableid;
+  }
+  
+  function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
+    if (neighbor) {
+      var commitid = neighbor.data[3];
+      var executableid = seriesindex[neighbor.seriesIndex];
+      permalinkToOverview(commitid, executableid);
+    }
+  }
+      
   function renderPlot(data) {
     var plotdata = new Array();
     var series = new Array();
     var lastvalues = new Array();//hopefully the smallest values for determining significant digits.
+    seriesindex = new Array();
     for (id in data['executables']) {
       var colorid = id;
       while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
       series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
+      seriesindex.push(id);
       plotdata.push(data['executables'][id]);
       lastvalues.push(data['executables'][id][0][1]);
     }
@@ -59,6 +74,7 @@
       digits++;
     }
     //Render plot
+    $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
     $("#plotgrid").html('<div id="plot"></div>');
     plot = $.jqplot('plot',  plotdata, {
       series: series,
@@ -204,8 +220,8 @@
   <div class="boxbody">
     <ul>{% for exec in executables|dictsort:"id" %}
       <li>
-        <input id="executable{{ exec.id }}" type="checkbox" name="executable" value="{{ exec.id }}" />
-        <label for="executable{{ exec.id }}">{{ exec.name }}</label><div class="seriescolor"></div>
+        <input id="executable{{ exec.name }}" type="checkbox" name="executable" value="{{ exec.id }}" />
+        <label for="executable{{ exec.id }}">{{ exec }}</label><div class="seriescolor"></div>
       </li>{% endfor %}
     </ul>
     {% if defaultbaseline %}

@@ -206,7 +206,9 @@ def timeline(request):
     
     lastrevisions = [10, 50, 200, 1000]
     defaultlast = 200
-    if 'revisions' in data and int(data['revisions']) in lastrevisions:
+    if 'revisions' in data:
+        if int(data['revisions']) not in lastrevisions:
+            lastrevisions.append(data['revisions'])
         defaultlast = data['revisions']
     
     # Information for template

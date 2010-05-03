@@ -445,9 +445,15 @@ def getlogsfromsvn(newrev, startrev):
     if startrev == newrev:
         start = startrev.commitid
     else:
+        #don't show info corresponding to previously tested revision
         start = int(startrev.commitid) + 1
     
+    def get_login(realm, username, may_save):
+        return True, newrev.project.repo_user, newrev.project.repo_pass, False
+    
     client = pysvn.Client()
+    if newrev.project.repo_user != "":
+        client.callback_get_login = get_login
     log_message = \
         client.log(
             newrev.project.repo_path,

@@ -34,6 +34,7 @@
   }
   
   function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
+    if($("input[name='benchmark']:checked").val() == "grid") { return false; }
     if (neighbor) {
       var commitid = neighbor.data[3];
       var executableid = seriesindex[neighbor.seriesIndex];
@@ -74,7 +75,6 @@
       digits++;
     }
     //Render plot
-    $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
     $("#plotgrid").html('<div id="plot"></div>');
     plot = $.jqplot('plot',  plotdata, {
       series: series,
@@ -200,6 +200,8 @@
       $(this).find("div.seriescolor").css("background-color", seriesColors[serieid-1]);
     });
     $("#baseline").next().next().css("background-color", baselineColor);
+    
+    $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
     
     refreshContent();
   });

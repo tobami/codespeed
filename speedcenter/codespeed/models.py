@@ -11,7 +11,7 @@ class Project(models.Model):
         return str(self.name)
     name = models.CharField(unique=True, max_length=30)
     repo_type = models.CharField("Repository type", max_length=1, choices=REPO_TYPES, default='N')
-    repo_path = models.CharField("Repository path", blank=True, max_length=100)
+    repo_path = models.CharField("Repository path", blank=True, max_length=200)
     repo_user = models.CharField("Repository username", blank=True, max_length=100)
     repo_pass = models.CharField("Repository password", blank=True, max_length=100)
     track = models.BooleanField("Track changes?", default=False)

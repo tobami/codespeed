@@ -4,20 +4,20 @@ function permalink() {
 }
 
 function getLoadText(text, h, showloader) {
-    var loadtext = '<div style="text-align:center;">'
-    var pstyle = "";
-    if (h > 0) {
-        h = h - 32;
-        if(h < 80) { h = 200; }
-        else if (h > 400) { h = 400; }
-        pstyle = ' style="line-height:' + h + 'px;"';
-    }
-    loadtext += '<p' + pstyle + '>'+ text;
-    if (showloader==true) {
-      loadtext += ' <img src="/media/images/ajax-loader.gif" align="bottom">';
-    }
-    loadtext += '</p></div>';
-    return loadtext;
+  var loadtext = '<div style="text-align:center;">'
+  var pstyle = "";
+  if (h > 0) {
+      h = h - 32;
+      if(h < 80) { h = 200; }
+      else if (h > 400) { h = 400; }
+      pstyle = ' style="line-height:' + h + 'px;"';
+  }
+  loadtext += '<p' + pstyle + '>'+ text;
+  if (showloader==true) {
+    loadtext += ' <img src="/media/images/ajax-loader.gif" align="bottom">';
+  }
+  loadtext += '</p></div>';
+  return loadtext;
 }
 
 function transToLogBars(gridlength, maxwidth, value) {

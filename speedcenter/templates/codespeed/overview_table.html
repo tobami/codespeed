@@ -6,7 +6,7 @@ seconds{% endif %}</th>{% if showunits %}<th class="w">units</th>{% endif %}<th 
   </tr>
 </thead>
 <tfoot>
-  <tr><td class="text" title="Arithmetic mean">Average</td><td></td><td></td><td></td><td>{{ totals.change|floatformat:2 }}%</td><td>{{ totals.trend|floatformat:2 }}%</td><td></td><td{% if not baselineflag %} style="visibility:hidden;"{% endif %}></td></tr>
+  <tr><td class="text" title="Arithmetic mean">Average</td><td></td>{% if showunits %}<td></td>{% endif %}<td></td><td>{{ totals.change|floatformat:2 }}%</td><td>{{ totals.trend|floatformat:2 }}%</td><td></td><td{% if not baselineflag %} style="visibility:hidden;"{% endif %}></td></tr>
 </tfoot>
 <tbody>
 {% for row in table_list %}  <tr>

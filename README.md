@@ -12,12 +12,10 @@ If you need SVN integration, pysvn is also requiered:
 # Installation
 * Download a release and unpack it `wget http://github.com/tobami/codespeed/tarball/0.5`
 * For simplicity, you can use the default sqlite configuration, which will save the data to a database named `speedcenter/data.db`.  
-Create the DB by changing to the `speedcenter/` directory and typing:
-    python manage.py syncdb
+Create the DB by changing to the `speedcenter/` directory and typing `python manage.py syncdb`.  
 Create an admin user in the process.
 
-* For testing purposes, you can now start the development server:
-    python manage.py runserver 8000
+* For testing purposes, you can now start the development server `python manage.py runserver 8000`.  
 The codespeed installation can now be accessed by navigating to `http://localhost:8000/`.
 
 **Note**: for production, you should configure a real server like Apache, lighttpd, etc... (refer to the Django docs: `http://docs.djangoproject.com/en/dev/howto/deployment/`). You should also modify `speedcenter/settings.py` and set `DEBUG = False`.
@@ -36,12 +34,14 @@ Data is saved POSTing to `http://localhost:8000/result/add/`.
     
 You can use the script `tools/save_single_result.py` as a guide.
 
+When trying to save data and the given executable, benchmark, project, or revision do not yet exist, they will be automatically created, together with the actual result entry. The only model which won't be created automatically is the environment. It must always exist or the data won't be saved (that is the reason it is described as a necessary step in the previous "Codespeed configuration" section).
+
 # Further customization
 
 ## Looks
 The logo and title can be changed for every speedcenter.
 
-* In `templates/base.html`, subtitute "My Speed Center" by any name.
+* In `templates/base.html`, subtitute "My Speed Center" by your prefered name.
 * The logo is defined in `<img src="/media/images/logo.png" height="48" alt="logo"/>`.  
 Either substitute the file `speedcenter/media/images/logo.png" by your own logo, of change the tag to whatever you see fit.  
 The layout will stay exactly the same for any image with a height of 48px (any width will do).

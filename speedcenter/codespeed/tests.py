@@ -4,7 +4,7 @@ from datetime import datetime
 from django.test.client import Client
 from codespeed.models import Project, Benchmark, Revision, Executable, Environment, Result
 from django.core.urlresolvers import reverse
-import copy
+import copy, json
 
 class AddResultTest(TestCase):
     def setUp(self):
@@ -116,3 +116,28 @@ class AddResultTest(TestCase):
             self.assertEquals(response.status_code, 400)
             self.assertEquals(response.content, 'Key "' + key + '" missing from request')
             self.data[key] = backup
+
+class Timeline(TestCase):
+    fixtures = ["multi_project_host.json"]
+    
+    def setUp(self):
+        self.client = Client()
+    
+    def test_gettimelinedata(self):
+        """Test that gettimelinedata returns correct timeline data
+        """
+        path = reverse('codespeed.views.gettimelinedata')
+        data = {
+            "executables": "1,2,6",
+            "baseline": "true",
+            "benchmark": "ai",
+            "host": "bigdog",
+            "revisions": 16
+        }
+        response = self.client.get(path, data)
+        responsedata = json.loads(response.content)
+        self.assertEquals(responsedata['error'], "None", "there should be no errors")
+        self.assertEquals(len(responsedata['timelines']), 1, "there should be 1 benchmark")
+        self.assertEquals(len(responsedata['timelines'][0]['executables']), 2, "there should be 2 timelines")
+        self.assertEquals(len(responsedata['timelines'][0]['executables']['1']), 16, "There are 16 datapoints")
+        self.assertEquals(responsedata['timelines'][0]['executables']['1'][4], ['2010-04-14 19:55:18', 0.433843383789, 0.0099517018942000008, '73755'], "Wrong data")

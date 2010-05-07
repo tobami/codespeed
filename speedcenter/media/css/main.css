@@ -177,7 +177,7 @@ div.about_content { text-align: left; }
     -webkit-border-radius-bottomleft: 12px;
     -webkit-border-radius-bottomright: 12px;
     margin: 0;
-    padding: 0.5em 0.8em 0.8em;
+    padding: 0.5em 0.5em 0.5em;
 /*     padding: 5px 30px 31px; */
 }
 .boxbody ul {
@@ -185,12 +185,12 @@ div.about_content { text-align: left; }
   margin: 0;
   padding: 0.2em;
 }
+.boxbody ul li { padding-left: 0.3em; }
 .boxbody ul li ul { margin: 0; padding: 0; }
 .boxbody ul li ul h4 { margin: 0 0 0.4em; padding: 0; font-size: 1em; font-weight: normal;}
 .boxbody ul li ul li { margin-left: 1em; }
-.boxbody input[type="radio"] { margin-left: 0; }
-.boxbody input[type="checkbox"] { margin-left: 0; }
-.boxbody label { vertical-align: top; }
+.boxbody input { margin-left: 0; vertical-align: top; }
+/* .boxbody label { vertical-align: top; } */
 /*.boxbody input[type="text"] {
     margin-left: 0; margin-right: 2.5em; margin-bottom: 0.2em; float: right; width: 2em;
 }*/

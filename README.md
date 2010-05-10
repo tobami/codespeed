@@ -29,6 +29,8 @@ and create an environment.
 and create a project.
 Check the field "Track changes" and, in case you want version control integration, configure the relevant fields.
 
+**Note**: Only executables associated to projects with a checked "track changes" field will be shown in the Overview and Timeline views.
+
 # Saving data
 Data is saved POSTing to `http://localhost:8000/result/add/`.
     

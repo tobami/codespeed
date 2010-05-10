@@ -1,0 +1,63 @@
+CHANGELOG
+
+0.5
+
+The focus of this release was polishing, making everything work seamlessly and cementing the DB design. The DB Schema should remain stable from now on. Last but not least, the installation and configuration process of codespeed was greatly simplified and is now documented.
+
+I believe codespeed is now ready for general use.
+Thanks go to Joe and to Oriol Rius for their feedback, which made this posible.
+Changelog
+
+    * DB Modifications:
+          o Project Model got repo fields renamed and 2 new repo fields added
+          o Changed Project field “isdefault” to “track”
+          o Some fields got their char length adjusted
+    * Documentation: Added README with installation and configuration instructions
+    * SVN integration: get logs from repos that need user/password
+    * Defaults: default settings.py DB is now sqlite3
+    * Overview
+          o Show units column when different than seconds and colorcode based on lessisbetter
+          o Allow selection of any revision via URL
+    * Timeline:
+          o Completed timeline – overview integration: clicking on a data point redirects to overview for that revision and executable
+          o Allow viewing arbitrary number of revisions (via URL)
+    * Style: smaller logo, and some other style touches
+    * Templates: only define speedcenter name in base.html
+    * Multiple Hosts (Environments): it now just works
+    * Multiple Projects: more than one project can know be default (tracked)
+
+0.4
+
+    * DB Redesign (http://github.com/tobami/codespeed/blob/master/documentation/backend.png)
+          o New Project model
+          o Benchmark model now has units and associated lessisbetter field
+          o Revision model: make usable with git and other DCVS by having a commitid charfield instead of version number. Add branch field.
+          o Interpreter model changed to Executable. It is now associated to a Project.
+          o Result model now has std deviation, max, and min optional fields. Result_type removed (in Benchmark model now).
+    * Revision control integration
+          o Integration for svn implemented, others like git are possible
+    * Added Home and About pages
+    * Overview
+          o Revisions labels now include date (you can’t memorize commitid in git)
+          o Allow selecting of executable and revision to compare to.
+          o Add std dev column
+          o Show all commit logs between the selected revision and the (tested) one preceding it.
+
+0.3
+
+    * Plot Grid: a new default view for Timeline, showing all benchmarks at the same time
+          o Thanks go to nsf (no.smile.face) for helping with the implementation
+          o Added colored boxes to the interpreter list
+    * Decoupled the codespeed app from the Django project
+          o Changed pyspeed to speedcenter (better generic project name for a benchmarking site)
+          o Moved app specific settings to codespeed/settings.py
+          o Moved templates to its subdirectory
+    * Several bug fixes
+
+0.2
+
+    * First working version for speed.pypy.org
+    * Backend
+    * Views
+          o Overview
+          o Timeline

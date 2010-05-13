@@ -17,10 +17,10 @@ div#title {
     margin-bottom: 0.8em;
     background-color: #F1F1F1;
     color: #000000;
-    -moz-border-radius-bottomleft: 12px;
-    -moz-border-radius-bottomright: 12px;
-    -webkit-border-bottom-left-radius: 12px;
-    -webkit-border-bottom-right-radius: 12px;
+    -moz-border-radius-bottomleft: 10px;
+    -moz-border-radius-bottomright: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+    -webkit-border-bottom-right-radius: 10px;
 }
 div#title img { float: left; padding: 0.2em; margin: 0; }
 div#title h2 { float: left; margin: 0 0 0 0.4em; font-style: italic; margin-top: 0.55em; }
@@ -46,10 +46,10 @@ div#nav ul {
 }
 div#nav ul li {
     background-color: #DADADA;
-    -moz-border-radius-topleft: 20px;
-    -moz-border-radius-topright: 20px;
-   -webkit-border-top-left-radius: 20px;
-    -webkit-border-top-right-radius: 20px;
+    -moz-border-radius-topleft: 16px;
+    -moz-border-radius-topright: 16px;
+    -webkit-border-top-left-radius: 16px;
+    -webkit-border-top-right-radius: 16px;
 }
 div#nav ul li a {
     display: block;
@@ -57,7 +57,7 @@ div#nav ul li a {
     text-decoration: none;
     text-align: center;
     color: #888888;
-    padding-top: 0.5em;
+    padding-top: 0.4em;
     padding-bottom: 0.25em;
 }
 
@@ -73,8 +73,8 @@ div#nav ul li:hover a { color: #2D2F32; }
 div#workarea {
     background-color: #F1F1F1;
     padding: 0.8em;
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
 }
 
 div#presentation_wrapper {
@@ -113,8 +113,8 @@ div#presentation img { border: 0; position: relative; bottom: 0px;}
 div#sidebar {
     width: 13.7em;
     float: left;
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
 }
 
 div#configbar {
@@ -123,8 +123,8 @@ div#configbar {
     background-color: #FFFFFF;
     margin-bottom: 0.8em;
     padding: 0.8em;
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
 }
 div#configbar span {
     padding: 2px;
@@ -138,8 +138,8 @@ div#content, div.about_content {
     text-align: center;
     padding: 0.8em;
     background-color: #FFFFFF;
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
 }
 
 div.about_content { text-align: left; }
@@ -154,8 +154,8 @@ div.about_content { text-align: left; }
 .boxhead {
 /*     background: url(sbhead-r.gif) no-repeat top right; */
     background-color: #9DADC6;
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
     margin: 0;
     padding: 0;
     text-align: left;
@@ -172,10 +172,10 @@ div.about_content { text-align: left; }
 .boxbody {
 /*     background: url(sbbody-l.gif) no-repeat bottom left; */
 /*     background-color: #F1F1F1; */
-    -moz-border-radius-bottomleft: 12px;
-    -moz-border-radius-bottomright: 12px;
-    -webkit-border-radius-bottomleft: 12px;
-    -webkit-border-radius-bottomright: 12px;
+    -moz-border-radius-bottomleft: 10px;
+    -moz-border-radius-bottomright: 10px;
+    -webkit-border-radius-bottomleft: 10px;
+    -webkit-border-radius-bottomright: 10px;
     margin: 0;
     padding: 0.5em 0.5em 0.5em;
 /*     padding: 5px 30px 31px; */
@@ -322,11 +322,11 @@ div.miniplot {
     float: left;
     height: 130px;
     width: 23%;
-    -moz-border-radius: 12px;
-    -webkit-border-radius: 12px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
 }
 div.miniplot:hover {background-color: #F1F1F1;}
-.jqplot-highlighter-tooltip { -moz-border-radius: 12px; -webkit-border-radius: 12px; }
+.jqplot-highlighter-tooltip { -moz-border-radius: 10px; -webkit-border-radius: 10px; }
 
 /* new clearfix */
 .clearfix:after {

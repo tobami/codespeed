@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% block title %}: Overview{% endblock %}
 {% block script %}
-<script type="text/javascript" src="/media/js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="../media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
 <script type="text/javascript">
   var projectmatrix = eval({{ projectmatrix|safe }});
   var revisionboxes = new Object();
-  {% for project, revlist in revisionboxes.items %}{{ value }}
+  {% for project, revlist in revisionboxes.items %}
   revisionboxes['{{ project }}'] = '{% for rev in revlist %}<option value="{{ rev.commitid }}">{{ rev }}</option>{% endfor %}';{% endfor %}
   var currentproject = "{{ defaultexecutable.project }}";
   
@@ -21,7 +21,7 @@
   }
   
   function permalinkToTimeline(benchmark) {
-    window.location="/timeline/?benchmark=" + benchmark;
+    window.location="../timeline/?benchmark=" + benchmark;
   }
 
   function colorTable(length, index) {
@@ -85,6 +85,8 @@
   }
   
   function changerevisions() {
+    // This function repopulates the revision selectbox everytime a new
+    // executable is selected that corresponds to a different project.
     var executable = $("input[name='executable']:checked").val();
     if (projectmatrix[executable] != currentproject) {
       $("#revision").html(revisionboxes[projectmatrix[executable]]);
@@ -107,6 +109,7 @@
     $("#trend").change(refreshContent);
     $("#baseline").val("{{ defaultbaseline }}");
     $("#baseline").change(refreshContent);
+    //repopulate revision select box if the project has changed
     $("#revision").html(revisionboxes['{{ defaultexecutable.project.name }}']);
     $("#revision").val("{{ selectedrevision.commitid }}");
     $("#revision").change(refreshContent);
@@ -121,8 +124,9 @@
 
 {% block navigation %}
     <ul class="inline">
-      <li class="current"><a href="/overview/">Overview</a></li>
-      <li><a href="/timeline/">Timeline</a></li>
+      <li class="current"><a href="../overview/">Overview</a></li>
+      <li><a href="../timeline/">Timeline</a></li>
+      <li><a href="../comparison/">Comparison</a></li>
     </ul>
 {% endblock %}
 

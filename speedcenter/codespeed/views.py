@@ -84,6 +84,57 @@ def getdefaultexecutable():
     
     return default
 
+def comparison(request):
+    if request.method != 'GET': return HttpResponseNotAllowed('GET')
+    data = request.GET
+    
+    # Configuration of default parameters
+    defaultenvironment = getdefaultenvironment()
+    if not defaultenvironment:
+        return HttpResponse("You need to configure at least one Environment")
+    if 'host' in data:
+        try:
+            defaultenvironment = Environment.objects.get(name=data['host'])
+        except Environment.DoesNotExist:
+            pass
+    
+    if not len(Project.objects.all()):
+        return HttpResponse("You need to configure at least one Project as default")
+    
+    defaultbenchmark = Benchmark.objects.all()[0]
+    if 'benchmark' in data:
+        defaultbenchmark = get_object_or_404(Benchmark, name=data['benchmark'])
+    
+    executables = Executable.objects.all()
+    if 'executables' in data:
+        checkedexecutables = []
+        for i in data['executables'].split(","):
+            selected = Executable.objects.filter(id=int(i))
+            if len(selected): checkedexecutables.append(selected[0])
+    else:
+        checkedexecutables = executables
+    
+    lastrevisions = [10, 50, 200, 1000]
+    defaultlast = 200
+    if 'revisions' in data:
+        if int(data['revisions']) not in lastrevisions:
+            lastrevisions.append(data['revisions'])
+        defaultlast = data['revisions']
+    
+    # Information for template
+    benchmarks = Benchmark.objects.all()
+    hostlist = Environment.objects.all()
+    return render_to_response('codespeed/comparison.html', {
+        'checkedexecutables': checkedexecutables,
+        'defaultbenchmark': defaultbenchmark,
+        'defaultenvironment': defaultenvironment,
+        'lastrevisions': lastrevisions,
+        'defaultlast': defaultlast,
+        'executables': executables,
+        'benchmarks': benchmarks,
+        'hostlist': hostlist
+    })
+
 def gettimelinedata(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
@@ -351,7 +402,16 @@ def getoverviewtable(request):
     showunits = False
     if len(Benchmark.objects.exclude(units='seconds')): showunits = True
     
-    return render_to_response('codespeed/overview_table.html', locals())
+    return render_to_response('codespeed/overview_table.html', {
+        'table_list': table_list,
+        'baseexecutable': baseexecutable,
+        'trendconfig': trendconfig,
+        'showunits': showunits,
+        'showcomparison': base_list,
+        'executable': executable,
+        'lastrevision': lastrevision,
+        'totals': totals
+    })
     
 def overview(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')

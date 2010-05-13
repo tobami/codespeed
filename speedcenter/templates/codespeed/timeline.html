@@ -2,13 +2,13 @@
 {% block title %}: Timeline{% endblock %}
 {% block script %}
 <!--[if IE]><script language="javascript" type="text/javascript" src="/media/js/jqplot/excanvas.min.js"></script><![endif]-->
-<link rel="stylesheet" type="text/css" href="/media/js/jqplot/jquery.jqplot.min.css" />
-<script type="text/javascript" src="/media/js/jqplot/jquery.jqplot.min.js"></script>
-<script type="text/javascript" src="/media/js/jqplot/jqplot.cursor.min.js"></script>
-<script type="text/javascript" src="/media/js/jqplot/jqplot.highlighter.min.js"></script>
-<script type="text/javascript" src="/media/js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
-<script type="text/javascript" src="/media/js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
-<script type="text/javascript" src="/media/js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<link rel="stylesheet" type="text/css" href="../media/js/jqplot/jquery.jqplot.min.css" />
+<script type="text/javascript" src="../media/js/jqplot/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="../media/js/jqplot/jqplot.cursor.min.js"></script>
+<script type="text/javascript" src="../media/js/jqplot/jqplot.highlighter.min.js"></script>
+<script type="text/javascript" src="../media/js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
+<script type="text/javascript" src="../media/js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="../media/js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
 
 <script type="text/javascript">
   var baselineColor = "#d8b83f";
@@ -30,7 +30,7 @@
   }
   
   function permalinkToOverview(commitid, executableid) {
-    window.location="/overview/?revision=" + commitid + "&" + "executable=" + executableid;
+    window.location="../overview/?revision=" + commitid + "&" + "executable=" + executableid;
   }
   
   function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
@@ -87,7 +87,7 @@
         },
         xaxis:{
           renderer:$.jqplot.DateAxisRenderer,
-          label: 'Revision date',
+          label: 'Commit date',
           labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
           pad: 1.01, autoscale:true,
         }
@@ -169,10 +169,10 @@
   
   function refreshContent() {
     var h = parseInt($("#content").css("height"));//get height for loading text
-      $("#plotgrid").fadeOut("fast", function() {
-        $("#plotgrid").html(getLoadText("Loading...", h, true)).show();
-        $.getJSON("json/", getConfiguration(), render);
-      });
+    $("#plotgrid").fadeOut("fast", function() {
+      $("#plotgrid").html(getLoadText("Loading...", h, true)).show();
+      $.getJSON("json/", getConfiguration(), render);
+    });
   }
   
   $(function() {
@@ -210,8 +210,9 @@
 
 {% block navigation %}
     <ul class="inline">
-      <li><a href="/overview/">Overview</a></li>
-      <li class="current"><a href="/timeline/">Timeline</a></li>
+      <li><a href="../overview/">Overview</a></li>
+      <li class="current"><a href="../timeline/">Timeline</a></li>
+      <li><a href="../comparison/">Comparison</a></li>
     </ul>
 {% endblock %}
 
@@ -222,7 +223,7 @@
   <div class="boxbody">
     <ul>{% for exec in executables|dictsort:"id" %}
       <li>
-        <input id="executable{{ exec.name }}" type="checkbox" name="executable" value="{{ exec.id }}" />
+        <input id="executable{{ exec.id }}" type="checkbox" name="executable" value="{{ exec.id }}" />
         <label for="executable{{ exec.id }}">{{ exec }}</label><div class="seriescolor"></div>
       </li>{% endfor %}
     </ul>

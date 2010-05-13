@@ -1,10 +1,133 @@
 {% extends "base.html" %}
+{% block title %}: Comparison{% endblock %}
+{% block script %}
+<!--[if IE]><script language="javascript" type="text/javascript" src="/media/js/jqplot/excanvas.min.js"></script><![endif]-->
+<link rel="stylesheet" type="text/css" href="../media/js/jqplot/jquery.jqplot.min.css" />
+<script type="text/javascript" src="../media/js/jqplot/jquery.jqplot.min.js"></script>
+
+<script type="text/javascript">
+  function getConfiguration() {
+    var config = new Object();
+    config["executables"] = "";
+    $("input[name='executable']:checked").each(function() {
+      config["executables"] += $(this).val() + ",";
+    });
+    config["executables"] = config["executables"].slice(0, -1);
+//     config["baseline"] = $("#baseline").is(':checked');
+    
+    config["benchmark"] = "";
+    $("input[name='benchmark']:checked").each(function() {
+      config["benchmark"] += $(this).val() + ",";
+    });
+    config["benchmark"] = config["benchmark"].slice(0, -1);
+    
+    config["host"] = $("input[name='host']:checked").val();
+    config["revisions"] = $("#revisions option:selected").val();
+    return config;
+  }      
+
+  function refreshContent() {
+    var h = parseInt($("#content").css("height"));//get height for loading text
+    $("#plot").fadeOut("fast", function() {
+      $("#plot").html(getLoadText("Loading...", h, false)).show();
+    });
+  }
+  
+  $(function() {
+    $.ajaxSetup ({  
+      cache: false  
+    });
+    //set default amount of revisions shown
+    $("#revisions").val({{ defaultlast }});
+    $("#revisions").change(refreshContent);
+    $("input:checkbox").removeAttr('checked');
+    //set default selected executables
+    {% if defaultbaseline %}$("input[name='baseline']").attr('checked', true);{% endif %}
+    $("input[name='baseline']").change(refreshContent);
+    {% for checkedexecutable in checkedexecutables %}
+    $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
+    {% endfor %}
+    $("input[name='executable']").change(refreshContent);
+    //set default selected benchmark
+    $("input:checkbox[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
+    $("input[name='benchmark']").change(refreshContent);
+    $("input:radio[name=host]").filter('[value={{ defaultenvironment.name }}]').attr('checked', true);
+    $("input[name='host']").change(refreshContent);
+//     $("#executable div.boxbody ul li").each(function() {
+//       var serieid = $(this).find("input").val();
+//       $(this).find("div.seriescolor").css("background-color", seriesColors[serieid-1]);
+//     });
+//     $("#baseline").next().next().css("background-color", baselineColor);
+    
+//     $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
+    
+    refreshContent();
+  });
+</script>
+{% endblock %}
+
 {% block navigation %}
-<!--   <div id="tabs"> -->
-    <ul>
+    <ul class="inline">
       <li><a href="/overview/">Overview</a></li>
       <li><a href="/timeline/">Timeline</a></li>
-      <li><a href="/comparison/" class="current">Comparison</a></li>
+      <li class="current"><a href="/comparison/">Comparison</a></li>
     </ul>
-<!--   </div> -->
+{% endblock %}
+
+{% block body %}
+<div id="sidebar">
+<div id="executable" class="sidebox">
+  <div class="boxhead"><h2>Executable</h2></div>
+  <div class="boxbody">
+    <ul>{% for exec in executables|dictsort:"id" %}
+      <li>
+        <input id="executable{{ exec.id }}" type="checkbox" name="executable" value="{{ exec.id }}" />
+        <label for="executable{{ exec.id }}">{{ exec }}</label><div class="seriescolor"></div>
+      </li>{% endfor %}
+    </ul>
+    {% if defaultbaseline %}
+    <ul>
+      <li>
+        <input id="baseline" type="checkbox" name="baseline" value="{{ baseline.executable }}" />
+        <label for="baseline">{{ baseline.name }}</label><div class="seriescolor"></div>
+      </li>
+    </ul>{% endif %}
+  </div>
+</div>
+<div id="benchmark" class="sidebox">
+  <div class="boxhead"><h2>Benchmark</h2></div>
+  <div class="boxbody">
+  <ul>
+    {% for bench in benchmarks|dictsort:"name" %}
+    <li{% ifnotequal bench.description "" %} title="{{ bench.description }}"{% endifnotequal %}>
+      <input id="benchmark_{{ bench.name }}" type="checkbox" name="benchmark" value="{{ bench.name }}" />
+      <label for="benchmark_{{ bench.name }}">{{ bench }}</label>
+    </li>
+    {% endfor %}
+  </ul>
+  </div>
+</div>
+<div class="sidebox">
+  <div class="boxhead"><h2>Host</h2></div>
+  <div class="boxbody">
+    <ul>
+    {% for host in hostlist %}
+      <li title="{{ host.os }}, {{ host.cpu }}">
+        <input id="host{{ host.name }}" type="radio" name="host" value="{{ host.name }}" />
+        <label for="host{{ host.name }}">{{ host }}</label>
+      </li>
+    {% endfor %}
+    </ul>
+  </div>
+</div>
+</div>
+
+<div id="configbar">Results for last
+  <select id="revisions" title="Last {{ defaultlast }} revisions tested">{% for rev in lastrevisions %}
+    <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
+  </select> revisions<a id="permalink" href="javascript:permalink();">Permalink</a>
+</div>
+<div id="content" class="clearfix">
+<div id="plot"></div>
+</div>
 {% endblock %}

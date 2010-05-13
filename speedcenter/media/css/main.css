@@ -334,6 +334,7 @@ div.miniplot {
     -webkit-border-radius: 12px;
 }
 div.miniplot:hover {background-color: #F1F1F1;}
+.jqplot-highlighter-tooltip { -moz-border-radius: 12px; -webkit-border-radius: 12px; }
 
 /* new clearfix */
 .clearfix:after {

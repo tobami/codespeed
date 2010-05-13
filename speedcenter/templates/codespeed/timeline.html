@@ -221,7 +221,7 @@
 <div id="executable" class="sidebox">
   <div class="boxhead"><h2>Executable</h2></div>
   <div class="boxbody">
-    <ul>{% for exec in executables|dictsort:"id" %}
+    <ul class="clearfix">{% for exec in executables|dictsort:"id" %}
       <li>
         <input id="executable{{ exec.id }}" type="checkbox" name="executable" value="{{ exec.id }}" />
         <label for="executable{{ exec.id }}">{{ exec }}</label><div class="seriescolor"></div>
@@ -229,7 +229,7 @@
     </ul>
     {% if defaultbaseline %}
     <ul>
-      <li>
+      <li>Baseline:<br/>
         <input id="baseline" type="checkbox" name="baseline" value="{{ baseline.executable }}" />
         <label for="baseline">{{ baseline.name }}</label><div class="seriescolor"></div>
       </li>

@@ -61,12 +61,8 @@ div#nav ul li a {
     padding-bottom: 0.25em;
 }
 
-div#nav ul li.current {
-    background-color: #F1F1F1;
-    font-weight: bold;
-}
+div#nav ul li.current { background-color: #F1F1F1; font-weight: bold; }
 div#nav ul li.current a { color: #000000; }
-
 div#nav ul li:hover { background-color: #F1F1F1; }
 div#nav ul li:hover a { color: #2D2F32; }
 

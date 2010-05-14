@@ -443,11 +443,15 @@ def overview(request):
             defaultexecutable = Executable.objects.get(id=int(data['executable']))
         except Executable.DoesNotExist:
             pass
-    
+        except ValueError:
+            pass
     baseline = getbaselineexecutables()
     defaultbaseline = 1
-    if "baseline" in data and data['baseline'] != "undefined":
-        defaultbaseline = int(request.GET['baseline'])
+    if "baseline" in data:
+        try:
+            defaultbaseline = int(request.GET['baseline'])
+        except ValueError:
+            pass
         if len(baseline) < defaultbaseline: defaultbaseline = 1
     
     # Information for template

@@ -12,7 +12,7 @@ RESULTS_URLS = {
     'pypy-c-jit': 'http://buildbot.pypy.org/bench_results/',
     'pypy-c':  'http://buildbot.pypy.org/bench_results_nojit/',
 }
-START_REV = 74420
+START_REV = 74510
 PROJECT = "pypy"
 
 for INTERP in RESULTS_URLS:
@@ -52,13 +52,11 @@ for INTERP in RESULTS_URLS:
         revision = result['revision']
         interpreter = INTERP
         int_options = "gc=hybrid"
-        if 'branch' in result:
-            branch = result['branch']
-        else: branch = 'trunk'
         options = ""
         if result.has_key('options'): options = result['options']
         
-        saveresults.save(proj, revision, result['results'], options, branch, interpreter, int_options)
+        host = 'tannit'
+        saveresults.save(proj, revision, result['results'], options, interpreter, int_options, host)
         if filename == filelist[len(filelist)-1]:
-            savecpython.save('cpython', '262', result['results'], options, '2.6', 'cpython', 'default')
+            savecpython.save('cpython', '262', result['results'], options, 'cpython', '', host)
 print "\nOK"

@@ -8,13 +8,11 @@ from datetime import datetime
 
 SPEEDURL = 'http://127.0.0.1:8000/'
 
-def save(project, revision, results, options, branch, executable, int_options, testing=False):
+def save(project, revision, results, options, executable, int_options, host, testing=False):
     testparams = []
     #Parse data
     data = {}
     current_date = datetime.today()
-    HOST = "bigdog"
-    if revision >= 74510: HOST = "tannit"
     for b in results:
         bench_name = b[0]
         res_type = b[1]
@@ -33,7 +31,7 @@ def save(project, revision, results, options, branch, executable, int_options, t
             'executable_name': executable,
             'executable_coptions': int_options,
             'benchmark': bench_name,
-            'environment': HOST,
+            'environment': host,
             'result_value': value,
         }
         if res_type == "ComparisonResult":

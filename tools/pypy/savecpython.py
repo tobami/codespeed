@@ -3,14 +3,12 @@ import urllib, urllib2
 from datetime import datetime
 
 SPEEDURL = 'http://127.0.0.1:8000/'#'http://speed.pypy.org/'
-HOST = "bigdog"
 
-def save(project, revision, results, options, branch, executable, int_options, testing=False):
+def save(project, revision, results, options, executable, int_options, host, testing=False):
     testparams = []
     #Parse data
     data = {}
     current_date = datetime.today()
-    if branch == "": return 1
         
     for b in results:
         bench_name = b[0]
@@ -27,11 +25,10 @@ def save(project, revision, results, options, branch, executable, int_options, t
         data = {
             'commitid': revision,
             'project': project,
-            'branch': branch,
             'executable_name': executable,
             'executable_coptions': int_options,
             'benchmark': bench_name,
-            'environment': HOST,
+            'environment': host,
             'result_value': value,
             'result_date': current_date,
         }

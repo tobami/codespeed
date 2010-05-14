@@ -8,8 +8,8 @@ class ProjectAdmin(admin.ModelAdmin):
 admin.site.register(Project, ProjectAdmin)
 
 class RevisionAdmin(admin.ModelAdmin):
-    list_display = ('commitid', 'project', 'branch', 'tag', 'date')
-    list_filter  = ('project', 'branch', 'tag', 'date')
+    list_display = ('commitid', 'project', 'tag', 'date')
+    list_filter  = ('project', 'tag', 'date')
     
 admin.site.register(Revision, RevisionAdmin)
 
@@ -29,7 +29,7 @@ class EnvironmentAdmin(admin.ModelAdmin):
 admin.site.register(Environment, EnvironmentAdmin)
 
 class ResultAdmin(admin.ModelAdmin):
-    list_display = ('revision', 'benchmark', 'value', 'executable', 'date')
+    list_display = ('revision', 'benchmark', 'executable', 'environment', 'value', 'date')
     list_filter  = ('date', 'executable', 'benchmark')
 
 admin.site.register(Result, ResultAdmin)

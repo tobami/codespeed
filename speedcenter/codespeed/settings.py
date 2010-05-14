@@ -13,3 +13,4 @@ baselinelist = None # Which executables + revisions should be listed as comparis
                     #             {'executable': 4, 'revision': 262},
                     #             {'executable': 2, 'revision': 56565},
                     #]
+defaultenvironment = None #Name of the environment which should be selected as default

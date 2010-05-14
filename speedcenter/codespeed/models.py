@@ -22,14 +22,13 @@ class Revision(models.Model):
         return str(self.date) + " - " + self.commitid
     commitid = models.CharField(max_length=42)#git and mercurial's SHA-1 length is 40
     project = models.ForeignKey(Project)
-    branch = models.CharField(max_length=25, default='trunk')
     tag = models.CharField(max_length=25, blank=True)
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
     author = models.CharField(max_length=25, blank=True)
     
     class Meta:
-        unique_together = ("commitid", "branch", "project")
+        unique_together = ("commitid", "project")
 
 
 class Executable(models.Model):

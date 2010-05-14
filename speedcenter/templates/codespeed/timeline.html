@@ -147,7 +147,7 @@
     } else if (data["timelines"].length == 0) {
       h = parseInt($("#content").css("height"));//get height for error message
       $("#plotgrid").html(getLoadText("No data available", h, false));
-    } else if (data["timelines"].length == 1) {
+    } else if ($("input[name='benchmark']:checked").val() != "grid") {
       //render single plot when only one benchmark selected
       renderPlot(data["timelines"][0]);
       return 1;

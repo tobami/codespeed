@@ -582,7 +582,6 @@ def addresult(request):
         'benchmark',
         'environment',
         'result_value',
-        'result_date',
     ]
     
     for key in mandatory_data:
@@ -600,12 +599,9 @@ def addresult(request):
     p, created = Project.objects.get_or_create(name=data["project"])
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
     
-    branch = 'trunk'
-    if 'branch' in data and data['branch'] != "": branch = data['branch']
     rev, created = Revision.objects.get_or_create(
         commitid=data['commitid'],
         project=p,
-        branch=branch,
     )
     if created:
         rev.date = data["result_date"]
@@ -625,7 +621,8 @@ def addresult(request):
     except Result.DoesNotExist:
         r = Result(revision=rev,executable=exe,benchmark=b,environment=e)
     r.value = data["result_value"]    
-    r.date = data["result_date"]
+    if 'result_date' in data: r.date = data["result_date"]
+    else: r.date = rev.date
     if 'std_dev' in data: r.std_dev = data['std_dev']
     if 'min' in data: r.val_min = data['min']
     if 'max' in data: r.val_max = data['max']

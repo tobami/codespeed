@@ -604,9 +604,10 @@ def addresult(request):
         project=p,
     )
     if created:
-        rev.date = data["result_date"]
-        saverevisioninfo(rev)
-        rev.save()        
+        rev.date = datetime.now()
+        if 'result_date' in data: rev.date = data["result_date"]
+        else: saverevisioninfo(rev)
+        rev.save()
     
     coptions = ""
     if 'executable_coptions' in data: coptions = data['executable_coptions']

@@ -143,7 +143,7 @@ div.about_content { text-align: left; }
 .sidebox {
     overflow: hidden;
     margin: 0;
-    margin-bottom: 2.2em;
+    margin-bottom: 1em;
 /*     background: url(sbbody-r.gif) no-repeat bottom right; */
     font-size: 90%;
 }
@@ -180,6 +180,7 @@ div.about_content { text-align: left; }
   list-style: none;
   margin: 0;
   padding: 0.2em;
+  margin-bottom: 0.5em;
 }
 .boxbody ul li { padding-left: 0.3em; }
 .boxbody input { margin-left: 0; vertical-align: top; }

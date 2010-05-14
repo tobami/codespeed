@@ -21,7 +21,6 @@ class AddResultTest(TestCase):
                 'benchmark': 'Richards',
                 'environment': 'bigdog',
                 'result_value': 456,
-                'result_date': self.cdate,
         }        
     def test_add_default_result(self):
         """
@@ -36,8 +35,7 @@ class AddResultTest(TestCase):
         self.assertEquals(b.units, "seconds")
         self.assertEquals(b.lessisbetter, True)
         p = Project.objects.get(name='pypy')
-        r = Revision.objects.get(commitid='23232', project=p, branch="trunk")
-        self.assertEquals(r.date, self.cdate)
+        r = Revision.objects.get(commitid='23232', project=p)
         i = Executable.objects.get(name='pypy-c', coptions='')
         res = Result.objects.get(
             revision=r,
@@ -56,10 +54,10 @@ class AddResultTest(TestCase):
         """
         modified_data = copy.deepcopy(self.data)
         modified_data['executable_coptions'] = 'gc=Böhm'
-        modified_data['branch'] = "experimental"
         modified_data['benchmark_type'] = "O"
         modified_data['units'] = "fps"
         modified_data['lessisbetter'] = False
+        modified_data['result_date'] = self.cdate
         modified_data['std_dev'] = 1.11111
         modified_data['max'] = 2
         modified_data['min'] = 1.0
@@ -68,8 +66,8 @@ class AddResultTest(TestCase):
         self.assertEquals(response.content, "Result data saved succesfully")
         e = Environment.objects.get(name='bigdog')    
         p = Project.objects.get(name='pypy')
-        r = Revision.objects.get(commitid='23232', project=p, branch='experimental')
-        self.assertEquals(r.branch, "experimental")
+        r = Revision.objects.get(commitid='23232', project=p)
+        self.assertEquals(r.date, self.cdate)
         i = Executable.objects.get(name='pypy-c', coptions='gc=Böhm')
         b = Benchmark.objects.get(name='Richards')
         res = Result.objects.get(

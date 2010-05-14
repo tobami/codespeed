@@ -5,12 +5,11 @@
 from datetime import datetime
 import urllib, urllib2
 
-SPEEDURL = 'http://localhost:8000/'
+CODESPEED_URL = 'http://localhost:8000/'
 
 data = {
     'commitid': '23238',
     'project': 'pypy',
-    'branch': 'trunk',
     'revision_date': "2009-11-15 18:11:29", # Optional. Default is taken
                                             # either from VCS integration or from current date
     'executable_name': 'pypy-c-jit',
@@ -19,7 +18,7 @@ data = {
     'benchmark_type': 'C', # Optional. Default is C for Cross-project.
     'environment': "bigdog",
     'result_value': 400,
-    'result_date': datetime.today(),
+    'result_date': datetime.today(), # Optional
     'units': "fps", # Optional. Default is seconds
     'lessisbetter': False, # Optional. Default is True
     'std_dev': 1.11111, # Optional. Default is blank
@@ -33,7 +32,7 @@ def add(data):
     response = "None"
     print "Executable %s, revision %s, benchmark %s" % (data['executable_name'], data['commitid'], data['benchmark'])
     try:
-        f = urllib2.urlopen(SPEEDURL + 'result/add/', params)
+        f = urllib2.urlopen(CODESPEED_URL + 'result/add/', params)
         response = f.read()
         f.close()
     except urllib2.URLError, e:
@@ -43,7 +42,7 @@ def add(data):
         elif hasattr(e, 'code'):
             response = '\n  The server couldn\'t fulfill the request\n'
             response += '  Error code: ' + str(e)
-    print "Server (%s) response: %s\n" % (SPEEDURL, response)
+    print "Server (%s) response: %s\n" % (CODESPEED_URL, response)
 
 if __name__ == "__main__":
     add(data)

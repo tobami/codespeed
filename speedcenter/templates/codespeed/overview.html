@@ -20,8 +20,8 @@
     return config;
   }
   
-  function permalinkToTimeline(benchmark) {
-    window.location="../timeline/?benchmark=" + benchmark;
+  function permalinkToTimeline(benchmark, environment) {
+    window.location="../timeline/?benchmark=" + benchmark + "&host=" + environment;
   }
 
   function colorTable(length, index) {
@@ -55,7 +55,8 @@
       }
       //Link rows to timelines
       $(this).click(function () {
-        permalinkToTimeline($(this).children("td:eq(0)").text());
+        var environment = $("input[name='host']:checked").val();
+        permalinkToTimeline($(this).children("td:eq(0)").text(), environment);
       });
     });
     //Configure table as tablesorter

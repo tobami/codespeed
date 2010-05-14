@@ -371,7 +371,7 @@ def getoverviewtable(request):
             trend = "-"
 
         relative = 0
-        if len(base_list):
+        if base_list:
             c = base_list.filter(benchmark=bench)
             if c.count():
                 relative =  c[0].value / result
@@ -386,7 +386,7 @@ def getoverviewtable(request):
         })
     
     if not len(table_list):
-        return HttpResponse('<table id="results" class="tablesorter" style="height: 232px;"></table><p>No results for this options</p>')
+        return HttpResponse('<table id="results" class="tablesorter" style="height: 232px;"></table><p>No results for this parameters</p>')
     # Compute Arithmetic averages
     for key in totals.keys():
         if len(totals[key]):
@@ -457,7 +457,7 @@ def overview(request):
         project=defaultexecutable.project
     ).order_by('-date')[:revlimit]
     if not len(lastrevisions):
-        response = 'No data found for project "' + defaultexecutable.project + '"'
+        response = 'No data found for project "' + str(defaultexecutable.project) + '"'
         return HttpResponse(response)
     selectedrevision = lastrevisions[0]
     if "revision" in data:
@@ -604,9 +604,13 @@ def addresult(request):
         project=p,
     )
     if created:
-        rev.date = datetime.now()
         if 'result_date' in data: rev.date = data["result_date"]
-        else: saverevisioninfo(rev)
+        else:
+            try:
+                saverevisioninfo(rev)
+            except:
+                pass
+        if not rev.date: rev.date = datetime.now()
         rev.save()
     
     coptions = ""

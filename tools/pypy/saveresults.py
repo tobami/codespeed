@@ -7,15 +7,14 @@ import urllib, urllib2
 from datetime import datetime
 
 SPEEDURL = 'http://127.0.0.1:8000/'
-HOST = "bigdog"
 
 def save(project, revision, results, options, branch, executable, int_options, testing=False):
     testparams = []
     #Parse data
     data = {}
     current_date = datetime.today()
-    if branch == "": branch = 'trunk'
-        
+    HOST = "bigdog"
+    if revision >= 74510: HOST = "tannit"
     for b in results:
         bench_name = b[0]
         res_type = b[1]
@@ -31,13 +30,11 @@ def save(project, revision, results, options, branch, executable, int_options, t
         data = {
             'commitid': revision,
             'project': project,
-            'branch': branch,
             'executable_name': executable,
             'executable_coptions': int_options,
             'benchmark': bench_name,
             'environment': HOST,
             'result_value': value,
-            'result_date': current_date,
         }
         if res_type == "ComparisonResult":
             data['std_dev'] = results['std_changed']

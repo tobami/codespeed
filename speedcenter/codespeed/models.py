@@ -67,6 +67,8 @@ class Environment(models.Model):
 
 
 class Result(models.Model):
+    def __unicode__(self):
+        return str(self.benchmark.name) + " " + str(self.value)
     value = models.FloatField()
     std_dev = models.FloatField(blank=True, null=True)
     val_min = models.FloatField(blank=True, null=True)

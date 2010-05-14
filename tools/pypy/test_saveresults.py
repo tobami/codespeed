@@ -26,7 +26,6 @@ class testSaveresults(unittest.TestCase):
         for resultparams in saveresults.save("pypy", 71212, self.fixture, "", "experimental", "pypy-c-jit", "gc=hybrid", True):
             self.assertEqual(resultparams['project'], "pypy")
             self.assertEqual(resultparams['commitid'], 71212)
-            self.assertEqual(resultparams['branch'], "experimental")
             self.assertEqual(resultparams['executable_name'], "pypy-c-jit")
             self.assertEqual(resultparams['executable_coptions'], "gc=hybrid")
             # get dict with correct data for this benchmark

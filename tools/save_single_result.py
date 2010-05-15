@@ -7,13 +7,16 @@ import urllib, urllib2
 
 CODESPEED_URL = 'http://localhost:8000/'
 
+temp = datetime.today()
+currentdate = datetime(temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
+
 data = {
-    'commitid': '23238',
+    'commitid': '1',
     'project': 'pypy',
-    'revision_date': "2009-11-15 18:11:29", # Optional. Default is taken
+    'revision_date': "2010-05-16 18:11:29", # Optional. Default is taken
                                             # either from VCS integration or from current date
     'executable_name': 'pypy-c-jit',
-    'executable_coptions': 'gc=Hybrid', # Optional default is blank
+    'executable_coptions': 'gc=hybrid', # Optional default is blank
     'benchmark': 'Richards',
     'benchmark_type': 'C', # Optional. Default is C for Cross-project.
     'environment': "bigdog",

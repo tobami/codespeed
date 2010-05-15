@@ -608,13 +608,16 @@ def addresult(request):
         project=p,
     )
     if created:
-        if 'result_date' in data: rev.date = data["result_date"]
+        if 'revision_date' in data: rev.date = data["revision_date"]
         else:
             try:
                 saverevisioninfo(rev)
             except:
                 pass
-        if not rev.date: rev.date = datetime.now()
+        if not rev.date:
+            temp = datetime.today()
+            rev.date = datetime(temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
+
         rev.save()
     
     coptions = ""

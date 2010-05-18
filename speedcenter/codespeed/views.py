@@ -101,35 +101,41 @@ def comparison(request):
     if not len(Project.objects.all()):
         return HttpResponse("You need to configure at least one Project as default")
     
-    defaultbenchmark = Benchmark.objects.all()[0]
-    if 'benchmark' in data:
-        defaultbenchmark = get_object_or_404(Benchmark, name=data['benchmark'])
+    benchmarks = Benchmark.objects.all()
+    if 'ben' in data:
+        checkedbenchmarks = []
+        for i in data['ben'].split(","):
+            try:
+                checkedbenchmarks.append(Benchmark.objects.get(id=int(i)))
+            except Benchmark.DoesNotExist:
+                pass
+    else:
+        checkedbenchmarks = benchmarks
     
     executables = Executable.objects.all()
-    if 'executables' in data:
+    if 'exe' in data:
         checkedexecutables = []
-        for i in data['executables'].split(","):
-            selected = Executable.objects.filter(id=int(i))
-            if len(selected): checkedexecutables.append(selected[0])
+        for i in data['exe'].split(","):
+            try:
+                checkedexecutables.append(Executable.objects.get(id=int(i)))
+            except Executable.DoesNotExist:
+                pass
     else:
         checkedexecutables = executables
     
-    lastrevisions = [10, 50, 200, 1000]
-    defaultlast = 200
-    if 'revisions' in data:
-        if int(data['revisions']) not in lastrevisions:
-            lastrevisions.append(data['revisions'])
-        defaultlast = data['revisions']
+    #lastrevisions = [10, 50, 200, 1000]
+    #defaultlast = 200
+    #if 'revisions' in data:
+        #if int(data['revisions']) not in lastrevisions:
+            #lastrevisions.append(data['revisions'])
+        #defaultlast = data['revisions']
     
     # Information for template
-    benchmarks = Benchmark.objects.all()
     hostlist = Environment.objects.all()
     return render_to_response('codespeed/comparison.html', {
         'checkedexecutables': checkedexecutables,
-        'defaultbenchmark': defaultbenchmark,
+        'checkedbenchmarks': checkedbenchmarks,
         'defaultenvironment': defaultenvironment,
-        'lastrevisions': lastrevisions,
-        'defaultlast': defaultlast,
         'executables': executables,
         'benchmarks': benchmarks,
         'hostlist': hostlist

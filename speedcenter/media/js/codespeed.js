@@ -3,6 +3,15 @@ function permalink() {
   window.location="?" + $.param(getConfiguration());
 }
 
+function readCheckbox(el) {
+  config = "";
+  $(el).each(function() {
+    config += $(this).val() + ",";
+  });
+  config = config.slice(0, -1);
+  return config;
+}
+
 function getLoadText(text, h, showloader) {
   var loadtext = '<div style="text-align:center;">'
   var pstyle = "";

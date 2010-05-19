@@ -8,19 +8,10 @@
 <script type="text/javascript">
   function getConfiguration() {
     var config = new Object();
-    config["exe"] = "";
-    $("input[name='executable']:checked").each(function() {
-      config["exe"] += $(this).val() + ",";
-    });
-    config["exe"] = config["exe"].slice(0, -1);
+    config["exe"] = readCheckbox("input[name='executable']:checked");
+    config["ben"] = readCheckbox("input[name='benchmarks']:checked");
+    config["env"] = readCheckbox("input[name='hosts']:checked");
     
-    config["ben"] = "";
-    $("input[name='benchmarks']:checked").each(function() {
-      config["ben"] += $(this).val() + ",";
-    });
-    config["ben"] = config["ben"].slice(0, -1);
-    
-    config["host"] = $("input[name='host']:checked").val();
     return config;
   }      
 
@@ -35,31 +26,43 @@
     $.ajaxSetup ({  
       cache: false  
     });
+    
     //set default amount of revisions shown
     $("#revisions").val({{ defaultlast }});
     $("#revisions").change(refreshContent);
+    //reset all checkboxes
     $("input:checkbox").removeAttr('checked');
+    
     //set default selected executables
     {% for checkedexecutable in checkedexecutables %}
     $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
     {% endfor %}
     $("input[name='executable']").change(refreshContent);
-    //set default selected benchmark
+    //set default selected benchmarks
     {% for checkedbenchmark in checkedbenchmarks %}
     $("input:checkbox[name='benchmarks']").filter('[value={{ checkedbenchmark.id }}]').attr('checked', true);
-    $("input[name='benchmarks']").change(refreshContent);
     {% endfor %}
+    $("input[name='benchmarks']").change(refreshContent);
+    //set default selected environments
+    {% for checkedhost in checkedhosts %}
+    $("input:checkbox[name='hosts']").filter('[value={{ checkedhost.id }}]').attr('checked', true);
+    {% endfor %}
+    $("input[name='hosts']").change(refreshContent);
     
-    $("input:radio[name=host]").filter('[value={{ defaultenvironment.name }}]').attr('checked', true);
-    $("input[name='host']").change(refreshContent);
-//     $("#executable div.boxbody ul li").each(function() {
-//       var serieid = $(this).find("input").val();
-//       $(this).find("div.seriescolor").css("background-color", seriesColors[serieid-1]);
-//     });
-//     $("#baseline").next().next().css("background-color", baselineColor);
+    // Check all and none links
+    $('.checkall').click(function() {
+      $(this).parent().children("li").children("input").each(function() {
+        $(this).attr('checked', true);
+      });
+      return false;
+    });
     
-//     $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
-    
+    $('.uncheckall').click(function() {
+      $(this).parent().children("li").children("input").each(function() {
+        $(this).attr('checked', false);
+      });
+      return false;
+    });
     refreshContent();
   });
 </script>
@@ -96,7 +99,7 @@
 <div id="benchmark" class="sidebox">
   <div class="boxhead"><h2>Benchmark</h2></div>
   <div class="boxbody">
-  <ul>
+  <ul><a href="#" class="checkall">All</a>, <a href="#" class="uncheckall">None</a>
     {% for bench in benchmarks|dictsort:"name" %}
     <li{% ifnotequal bench.description "" %} title="{{ bench.description }}"{% endifnotequal %}>
       <input id="benchmark_{{ bench.name }}" type="checkbox" name="benchmarks" value="{{ bench.id }}" />
@@ -110,9 +113,9 @@
   <div class="boxhead"><h2>Host</h2></div>
   <div class="boxbody">
     <ul>
-    {% for host in hostlist %}
+    {% for host in hosts %}
       <li title="{{ host.os }}, {{ host.cpu }}">
-        <input id="host{{ host.name }}" type="radio" name="host" value="{{ host.name }}" />
+        <input id="host{{ host.name }}" type="checkbox" name="hosts" value="{{ host.id }}" />
         <label for="host{{ host.name }}">{{ host }}</label>
       </li>
     {% endfor %}
@@ -121,10 +124,10 @@
 </div>
 </div>
 
-<div id="configbar">Results for last
-  <select id="revisions" title="Last {{ defaultlast }} revisions tested">{% for rev in lastrevisions %}
+<div id="configbar">Display
+  <select id="revisions" title="">{% for rev in lastrevisions %}
     <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
-  </select> revisions<a id="permalink" href="javascript:permalink();">Permalink</a>
+  </select> chart<a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content" class="clearfix">
 <div id="plot"></div>

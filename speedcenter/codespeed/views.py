@@ -101,44 +101,51 @@ def comparison(request):
     if not len(Project.objects.all()):
         return HttpResponse("You need to configure at least one Project as default")
     
-    benchmarks = Benchmark.objects.all()
-    if 'ben' in data:
-        checkedbenchmarks = []
-        for i in data['ben'].split(","):
-            try:
-                checkedbenchmarks.append(Benchmark.objects.get(id=int(i)))
-            except Benchmark.DoesNotExist:
-                pass
-    else:
-        checkedbenchmarks = benchmarks
-    
     executables = Executable.objects.all()
+    checkedexecutables = []
     if 'exe' in data:
-        checkedexecutables = []
         for i in data['exe'].split(","):
+            if not i: continue
             try:
                 checkedexecutables.append(Executable.objects.get(id=int(i)))
             except Executable.DoesNotExist:
                 pass
-    else:
+    if not checkedexecutables:
         checkedexecutables = executables
     
-    #lastrevisions = [10, 50, 200, 1000]
-    #defaultlast = 200
-    #if 'revisions' in data:
-        #if int(data['revisions']) not in lastrevisions:
-            #lastrevisions.append(data['revisions'])
-        #defaultlast = data['revisions']
+    benchmarks = Benchmark.objects.all()
+    checkedbenchmarks = []
+    if 'ben' in data:
+        checkedbenchmarks = []
+        for i in data['ben'].split(","):
+            if not i: continue
+            try:
+                checkedbenchmarks.append(Benchmark.objects.get(id=int(i)))
+            except Benchmark.DoesNotExist:
+                pass
+    if not checkedbenchmarks:
+        checkedbenchmarks = benchmarks
     
-    # Information for template
-    hostlist = Environment.objects.all()
+    hosts = Environment.objects.all()
+    checkedhosts = []
+    if 'env' in data:
+        for i in data['env'].split(","):
+            if not i: continue
+            try:
+                checkedhosts.append(Environment.objects.get(id=int(i)))
+            except Environment.DoesNotExist:
+                pass
+    if not checkedhosts:
+        checkedhosts = hosts
+    
     return render_to_response('codespeed/comparison.html', {
         'checkedexecutables': checkedexecutables,
         'checkedbenchmarks': checkedbenchmarks,
+        'checkedhosts': checkedhosts,
         'defaultenvironment': defaultenvironment,
         'executables': executables,
         'benchmarks': benchmarks,
-        'hostlist': hostlist
+        'hosts': hosts
     })
 
 def gettimelinedata(request):
@@ -253,12 +260,13 @@ def timeline(request):
     if 'benchmark' in data and data['benchmark'] != defaultbenchmark:
         defaultbenchmark = get_object_or_404(Benchmark, name=data['benchmark'])
     
+    checkedexecutables = []
     if 'executables' in data:
-        checkedexecutables = []
         for i in data['executables'].split(","):
+            if not i: continue
             selected = Executable.objects.filter(id=int(i))
             if len(selected): checkedexecutables.append(selected[0])
-    else:
+    if not checkedexecutables:
         checkedexecutables = Executable.objects.filter(project__track=True)
     
     lastrevisions = [10, 50, 200, 1000]

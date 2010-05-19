@@ -17,11 +17,8 @@
   
   function getConfiguration() {
     var config = new Object();
-    config["executables"] = "";
-    $("input[name='executable']:checked").each(function() {
-      config["executables"] += $(this).val() + ",";
-    });
-    config["executables"] = config["executables"].slice(0, -1);
+    
+    config["executables"] = readCheckbox("input[name='executable']:checked");
     config["baseline"] = $("#baseline").is(':checked');
     config["benchmark"] = $("input[name='benchmark']:checked").val();
     config["host"] = $("input[name='host']:checked").val();
@@ -97,9 +94,9 @@
       highlighter: {
         tooltipLocation: 'nw',
         yvalues: 3,
-        formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr> </table>'
+        formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
       },
-      cursor:{zoom:true, showTooltip:false, clickReset:true}
+      cursor:{show:false, zoom:true, showTooltip:false, clickReset:true}
     });
   }
   
@@ -194,7 +191,7 @@
     //set default selected benchmark
     $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
     $("input[name='benchmark']").change(refreshContent);
-    $("input:radio[name=host]").filter('[value={{ defaultenvironment.name }}]').attr('checked', true);
+    $("input:radio[name='host']").filter('[value={{ defaultenvironment.name }}]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
     $("#executable div.boxbody ul li").each(function() {
       var serieid = $(this).find("input").val();

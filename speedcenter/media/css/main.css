@@ -186,6 +186,8 @@ div.about_content { text-align: left; }
 .boxbody input { margin-left: 0; vertical-align: top; }
 #options li { margin-bottom: 0.8em; }
 .seriescolor { float: right; margin-top: 2px; height: 13px; width: 14px; }
+a.checkall, a.uncheckall { font-size: normal; color: #AAAAAA; }
+a.checkall { margin-left: 0.4em; }
 
 /* tables */
 table.tablesorter, table.commits {

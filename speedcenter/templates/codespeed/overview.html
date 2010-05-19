@@ -116,7 +116,7 @@
     $("#revision").change(refreshContent);
     $("input:radio[name=executable]").filter('[value="{{ defaultexecutable.id }}"]').attr('checked', true);
     $("input[name='executable']").change(changerevisions);
-    $("input:radio[name=host]").filter('[value="{{ defaultenvironment.name }}"]').attr('checked', true);
+    $("input:radio[name='host']").filter('[value="{{ defaultenvironment.name }}"]').attr('checked', true);
     $("input[name='host']").change(refreshContent);
     refreshContent();
   });

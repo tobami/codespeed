@@ -101,17 +101,47 @@ def comparison(request):
     if not len(Project.objects.all()):
         return HttpResponse("You need to configure at least one Project as default")
     
-    executables = Executable.objects.all()
+    executables = []
+    executablekeys = []
+    # add all tagged revs for any project
+    revisions = Revision.objects.exclude(tag="")
+    for rev in revisions:
+        for exe in Executable.objects.filter(project=rev.project):
+            name = str(exe) + " " + rev.tag
+            key = str(exe.id) + "+" + str(rev.id)
+            executablekeys.append(key)
+            executables.append({
+                'key': key,
+                'executable': exe,
+                'revision': rev,
+                'name': name,
+            })
+    
+    # add latest revs of tracked projects
+    projects = Project.objects.filter(track=True)
+    for proj in projects:
+        rev = Revision.objects.filter(project=proj).latest('date')
+        if rev not in revisions:
+            for exe in Executable.objects.filter(project=rev.project):
+                name = str(exe) + " latest"
+                key = str(exe.id) + "+" + str(rev.id)
+                executablekeys.append(key)
+                executables.append({
+                    'key': key,
+                    'executable': exe,
+                    'revision': rev,
+                    'name': name,
+                })
+    
     checkedexecutables = []
+    k = executablekeys
     if 'exe' in data:
         for i in data['exe'].split(","):
             if not i: continue
-            try:
-                checkedexecutables.append(Executable.objects.get(id=int(i)))
-            except Executable.DoesNotExist:
-                pass
+            if i in k:
+                checkedexecutables.append(i)
     if not checkedexecutables:
-        checkedexecutables = executables
+        checkedexecutables = k
     
     benchmarks = Benchmark.objects.all()
     checkedbenchmarks = []
@@ -138,6 +168,11 @@ def comparison(request):
     if not checkedhosts:
         checkedhosts = hosts
     
+    charts = ['bars', 'stacked bars']
+    selectedchart = charts[0]
+    if 'chart' in data and data['chart'] in charts:
+        selectedchart = data['chart']
+    
     return render_to_response('codespeed/comparison.html', {
         'checkedexecutables': checkedexecutables,
         'checkedbenchmarks': checkedbenchmarks,
@@ -145,7 +180,9 @@ def comparison(request):
         'defaultenvironment': defaultenvironment,
         'executables': executables,
         'benchmarks': benchmarks,
-        'hosts': hosts
+        'hosts': hosts,
+        'charts': charts,
+        'selectedchart': selectedchart
     })
 
 def gettimelinedata(request):
@@ -334,15 +371,15 @@ def getoverviewtable(request):
     base_list = None
     baseexecutable = None
     if "baseline" in data and data['baseline'] != "undefined":
-        base = int(data['baseline']) - 1
-        baseline = getbaselineexecutables()
-        baseexecutable = baseline[base]
+        tulp = data['baseline'].split("+")
+        exe = Executable.objects.get(id=tulp[0])
+        rev = Revision.objects.get(id=tulp[1])
         base_list = Result.objects.filter(
-            revision=baseline[base]['revision']
+            revision=rev
         ).filter(
             environment=environment
         ).filter(
-            executable=baseline[base]['executable']
+            executable=exe
         )
 
     table_list = []
@@ -460,13 +497,15 @@ def overview(request):
         except ValueError:
             pass
     baseline = getbaselineexecutables()
-    defaultbaseline = 1
-    if "baseline" in data:
+    defaultbaseline = None
+    if len(baseline):
+        defaultbaseline = str(baseline[0]['executable'].id) + "+"
+        defaultbaseline += str(baseline[0]['revision'].id)
+    if "baseline" in data and data['baseline'] != "undefined":
         try:
-            defaultbaseline = int(request.GET['baseline'])
+            defaultbaseline = request.GET['baseline']
         except ValueError:
             pass
-        if len(baseline) < defaultbaseline: defaultbaseline = 1
     
     # Information for template
     executables = Executable.objects.filter(project__track=True)

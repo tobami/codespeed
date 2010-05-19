@@ -157,7 +157,7 @@
     </li>
     <li title="Select executable for comparison">Compare to:<br/>
       <select id="baseline">
-      {% for base in baseline %}<option value="{{ forloop.counter }}">{{ base.name }}</option>{% endfor %}
+      {% for base in baseline %}<option value="{{ base.executable.id }}+{{ base.revision.id }}">{{ base.name }}</option>{% endfor %}
       </select>
     </li>
   </ul>

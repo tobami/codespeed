@@ -11,7 +11,7 @@
     config["exe"] = readCheckbox("input[name='executable']:checked");
     config["ben"] = readCheckbox("input[name='benchmarks']:checked");
     config["env"] = readCheckbox("input[name='hosts']:checked");
-    
+    config["chart"] = $("#chart_type option:selected").val();
     return config;
   }      
 
@@ -27,15 +27,15 @@
       cache: false  
     });
     
-    //set default amount of revisions shown
-    $("#revisions").val({{ defaultlast }});
-    $("#revisions").change(refreshContent);
+    //set default chart type
+    $("#chart_type").val("{{ selectedchart }}");
+    $("#chart_type").change(refreshContent);
     //reset all checkboxes
     $("input:checkbox").removeAttr('checked');
     
     //set default selected executables
     {% for checkedexecutable in checkedexecutables %}
-    $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
+    $("input[name='executable']").filter('[value={{ checkedexecutable }}]').attr('checked', true);
     {% endfor %}
     $("input[name='executable']").change(refreshContent);
     //set default selected benchmarks
@@ -81,10 +81,10 @@
 <div id="executable" class="sidebox">
   <div class="boxhead"><h2>Executable</h2></div>
   <div class="boxbody">
-    <ul>{% for exec in executables|dictsort:"id" %}
-      <li>
-        <input id="executable{{ exec.id }}" type="checkbox" name="executable" value="{{ exec.id }}" />
-        <label for="executable{{ exec.id }}">{{ exec }}</label><div class="seriescolor"></div>
+    <ul>{% for exe in executables %}
+      <li title="{{ exe.revision }}">
+        <input id="executable{{ exe.key }}" type="checkbox" name="executable" value="{{ exe.key }}" />
+        <label for="executable{{ exe.key }}">{{ exe.name }}</label><div class="seriescolor"></div>
       </li>{% endfor %}
     </ul>
     {% if defaultbaseline %}
@@ -124,10 +124,10 @@
 </div>
 </div>
 
-<div id="configbar">Display
-  <select id="revisions" title="">{% for rev in lastrevisions %}
-    <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
-  </select> chart<a id="permalink" href="javascript:permalink();">Permalink</a>
+<div id="configbar">Choose chart type:
+  <select id="chart_type" title="">{% for chart in charts %}
+    <option value="{{ chart }}">{{ chart }}</option>{% endfor %}
+  </select><a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content" class="clearfix">
 <div id="plot"></div>

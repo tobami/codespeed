@@ -124,7 +124,7 @@ def comparison(request):
         if rev not in revisions:
             for exe in Executable.objects.filter(project=rev.project):
                 name = str(exe) + " latest"
-                key = str(exe.id) + "+" + str(rev.id)
+                key = str(exe.id) + "+L"
                 executablekeys.append(key)
                 executables.append({
                     'key': key,

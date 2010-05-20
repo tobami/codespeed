@@ -19,7 +19,7 @@ class Project(models.Model):
 
 class Revision(models.Model):
     def __unicode__(self):
-        return str(self.date) + " - " + self.commitid
+        return self.date.strftime("%Y-%m-%d %H:%M") + " - " + self.commitid
     commitid = models.CharField(max_length=42)#git and mercurial's SHA-1 length is 40
     project = models.ForeignKey(Project)
     tag = models.CharField(max_length=25, blank=True)

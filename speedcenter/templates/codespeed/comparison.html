@@ -4,8 +4,12 @@
 <!--[if IE]><script language="javascript" type="text/javascript" src="/media/js/jqplot/excanvas.min.js"></script><![endif]-->
 <link rel="stylesheet" type="text/css" href="../media/js/jqplot/jquery.jqplot.min.css" />
 <script type="text/javascript" src="../media/js/jqplot/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="../media/js/jqplot/jqplot.barRenderer.min.js"></script>
+<script type="text/javascript" src="../media/js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
 
 <script type="text/javascript">
+  var compdata = new Object();
+  
   function getConfiguration() {
     var config = new Object();
     config["exe"] = readCheckbox("input[name='executables']:checked");
@@ -16,10 +20,90 @@
   }      
 
   function refreshContent() {
-    var h = parseInt($("#content").css("height"));//get height for loading text
+    var conf = getConfiguration();
+    
+    var plotdata = [];
+    var exes = conf['exe'].split(",");
+    var enviros = conf['env'].split(",");
+    var benchmarks  = conf['ben'].split(",");
+    h = parseInt($("#content").css("height"));//get height for error message
+    if (exes[0] == "") {
+      $("#plot").html(getLoadText("No executables selected", h, false));
+      return false;
+    } else if (benchmarks[0] == "") {
+      $("#plot").html(getLoadText("No benchmarks selected", h, false));
+      return false;
+    } else if (enviros[0] == "") {
+      $("#plot").html(getLoadText("No environments selected", h, false));
+      return false;
+    }
+    var ticks = new Array();
+    for (var b in benchmarks) {
+      ticks.push($("label[for='benchmark_" + benchmarks[b] + "']").text());
+    }
+    for (var i in exes) {
+      for (var j in enviros) {
+        var customdata = [];
+        var bcounter = 0;
+        for (var b in benchmarks) {
+          bcounter++;
+          if (conf['chart'].indexOf("horizontal") == -1) {
+            customdata.push(compdata[exes[i]][enviros[j]][benchmarks[b]]);
+          } else {
+            customdata.push([compdata[exes[i]][enviros[j]][benchmarks[b]], bcounter]);
+          }
+        }
+        plotdata.push(customdata);
+      }
+    }
+
+    var plotoptions = new Object();
+    if (conf['chart'].indexOf("horizontal") == -1) {
+      plotoptions = {
+        seriesDefaults: {
+          renderer:$.jqplot.BarRenderer,
+          rendererOptions:{barDirection: "vertical", barPadding: 5, barMargin: 10}
+        },
+        axes: {
+          xaxis:{
+            renderer:$.jqplot.CategoryAxisRenderer,
+            ticks: ticks
+          },
+          yaxis:{min:0}
+        }
+      }
+    } else {
+      plotoptions = {
+        seriesDefaults: {
+          renderer:$.jqplot.BarRenderer,
+          rendererOptions:{barDirection: "horizontal", barPadding: 5, barMargin: 10}
+        },
+        axes: {
+          xaxis:{min:0}, 
+          yaxis:{
+            renderer:$.jqplot.CategoryAxisRenderer,
+            ticks: ticks
+          }
+        }
+      }
+    }
+    plotoptions.legend = {show: true, location: 'ne'};
+
     $("#plot").fadeOut("fast", function() {
-      $("#plot").html(getLoadText("Loading...", h, false)).show();
+      $("#plot").html("").show();
+      plot = $.jqplot('plot', plotdata, plotoptions);
     });
+  }
+  
+  function savedata(data) {
+    if (data['error'] != "None") {
+      h = parseInt($("#content").css("height"));//get height for error message
+      $("#plot").html(getLoadText(data["error"], h, false));
+      return 1;
+    }
+    delete data['error'];
+    compdata = data;
+    refreshContent();
   }
   
   $(function() {
@@ -45,8 +129,7 @@
     
     //set default selected environments
     {% for checkedenv in checkedenviros %}
-    $("input:checkbox[name='environments']").filter('[value={{ checkedenv.id }}]').attr('checked', true);
-    {% endfor %}
+    $("input:checkbox[name='environments']").filter('[value={{ checkedenv.id }}]').attr('checked', true);{% endfor %}
     $("input[name='environments']").change(refreshContent);
     
     // Check all and none links
@@ -54,6 +137,7 @@
       $(this).parent().children("li").children("input").each(function() {
         $(this).attr('checked', true);
       });
+      refreshContent();
       return false;
     });
     
@@ -61,13 +145,17 @@
       $(this).parent().children("li").children("input").each(function() {
         $(this).attr('checked', false);
       });
+      refreshContent();
       return false;
     });
-    refreshContent();
+    
+    // Get comparison data
+    var h = parseInt($("#content").css("height"));//get height for loading text
+    $("#plot").html(getLoadText("Loading...", h, true));
+    $.getJSON("json/", savedata);
   });
 </script>
 {% endblock %}
-
 {% block navigation %}
     <ul class="inline">
       <li><a href="/overview/">Overview</a></li>
@@ -75,25 +163,18 @@
       <li class="current"><a href="/comparison/">Comparison</a></li>
     </ul>
 {% endblock %}
-
 {% block body %}
 <div id="sidebar">
 <div id="executable" class="sidebox">
   <div class="boxhead"><h2>Executables</h2></div>
   <div class="boxbody">
-    <ul>{% for exe in executables %}
+    <ul><a href="#" class="checkall">All</a>, <a href="#" class="uncheckall">None</a>
+    {% for exe in executables %}
       <li title="{{ exe.revision }}">
-        <input id="executable{{ exe.key }}" type="checkbox" name="executables" value="{{ exe.key }}" />
-        <label for="executable{{ exe.key }}">{{ exe.name }}</label><div class="seriescolor"></div>
+        <input id="executable_{{ exe.key }}" type="checkbox" name="executables" value="{{ exe.key }}" />
+        <label for="executable_{{ exe.key }}">{{ exe.name }}</label><div class="seriescolor"></div>
       </li>{% endfor %}
     </ul>
-    {% if defaultbaseline %}
-    <ul>
-      <li>
-        <input id="baseline" type="checkbox" name="baseline" value="{{ baseline.executable }}" />
-        <label for="baseline">{{ baseline.name }}</label><div class="seriescolor"></div>
-      </li>
-    </ul>{% endif %}
   </div>
 </div>
 <div id="benchmark" class="sidebox">
@@ -102,23 +183,20 @@
   <ul><a href="#" class="checkall">All</a>, <a href="#" class="uncheckall">None</a>
     {% for bench in benchmarks|dictsort:"name" %}
     <li{% ifnotequal bench.description "" %} title="{{ bench.description }}"{% endifnotequal %}>
-      <input id="benchmark_{{ bench.name }}" type="checkbox" name="benchmarks" value="{{ bench.id }}" />
-      <label for="benchmark_{{ bench.name }}">{{ bench }}</label>
-    </li>
-    {% endfor %}
+      <input id="benchmark_{{ bench.id }}" type="checkbox" name="benchmarks" value="{{ bench.id }}" />
+      <label for="benchmark_{{ bench.id }}">{{ bench }}</label>
+    </li>{% endfor %}
   </ul>
   </div>
 </div>
 <div class="sidebox">
   <div class="boxhead"><h2>Environments</h2></div>
   <div class="boxbody">
-    <ul>
-    {% for env in enviros %}
+    <ul>{% for env in enviros %}
       <li title="{{ env.os }}, {{ env.cpu }}">
-        <input id="env{{ env.name }}" type="checkbox" name="environments" value="{{ env.id }}" />
-        <label for="env{{ env.name }}">{{ env }}</label>
-      </li>
-    {% endfor %}
+        <input id="env_{{ env.name }}" type="checkbox" name="environments" value="{{ env.id }}" />
+        <label for="env_{{ env.name }}">{{ env }}</label>
+      </li>{% endfor %}
     </ul>
   </div>
 </div>

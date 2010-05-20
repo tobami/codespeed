@@ -19,7 +19,7 @@
     var config = new Object();
     
     config["exe"] = readCheckbox("input[name='executable']:checked");
-    config["base"] = $("#baseline").is(':checked');
+    config["base"] = $("#baseline option:selected").val();
     config["ben"] = $("input[name='benchmark']:checked").val();
     config["host"] = $("input[name='host']:checked").val();
     config["revs"] = $("#revisions option:selected").val();
@@ -53,9 +53,9 @@
       plotdata.push(data['executables'][id]);
       lastvalues.push(data['executables'][id][0][1]);
     }
-    if ($("#baseline").is(':checked') && data["baseline"] != "None") {
+    if (data["baseline"] != "None") {
       series.push({
-        "label": $("label[for*='baseline']").html(), "color": baselineColor,
+        "label": $("#baseline option:selected").html(), "color": baselineColor,
         showMarker: false, 
         lineWidth: 1.5
       });
@@ -107,9 +107,9 @@
       series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
       plotdata.push(data['executables'][id]);
     }
-    if ($("#baseline").is(':checked') && data["baseline"] != "None") {
+    if (data["baseline"] != "None") {
       series.push({
-        "label": $("label[for*='baseline']").html(), "color": baselineColor,
+        "color": baselineColor,
         showMarker: false, 
         lineWidth: 1.5
       });
@@ -182,8 +182,8 @@
     $("#revisions").change(refreshContent);
     $("input:checkbox").removeAttr('checked');
     //set default selected executables
-    {% if defaultbaseline %}$("input[name='baseline']").attr('checked', true);{% endif %}
-    $("input[name='baseline']").change(refreshContent);
+    $("#baseline").val("{{ defaultbaseline }}");
+    $("#baseline").change(refreshContent);
     {% for checkedexecutable in checkedexecutables %}
     $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
     {% endfor %}
@@ -197,7 +197,7 @@
       var serieid = $(this).find("input").val();
       $(this).find("div.seriescolor").css("background-color", seriesColors[serieid-1]);
     });
-    $("#baseline").next().next().css("background-color", baselineColor);
+    $("#baseline").next().css("background-color", baselineColor);
     
     $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
     
@@ -225,13 +225,13 @@
         <label for="executable{{ exec.id }}">{{ exec }}</label><div class="seriescolor"></div>
       </li>{% endfor %}
     </ul>
-    {% if defaultbaseline %}
     <ul>
-      <li>Baseline:<br/>
-        <input id="baseline" type="checkbox" name="baseline" value="{{ baseline.executable }}" />
-        <label for="baseline">{{ baseline.name }}</label><div class="seriescolor"></div>
+      <li title="Select baseline">Baseline:<br/>
+        <select id="baseline">
+        {% for base in baseline %}<option value="{{ base.executable.id }}+{{ base.revision.id }}">{{ base.name }}</option>{% endfor %}
+        </select><div class="seriescolor"></div>
       </li>
-    </ul>{% endif %}
+    </ul>
   </div>
 </div>
 <div id="benchmark" class="sidebox">

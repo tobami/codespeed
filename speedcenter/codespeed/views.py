@@ -9,7 +9,7 @@ import json
 from itertools import chain
 
 def getbaselineexecutables():
-    baseline = []
+    baseline = [{'name': "none"}]
     if hasattr(settings, 'baselinelist') and settings.baselinelist != None:
         try:
             for entry in settings.baselinelist:
@@ -52,7 +52,7 @@ def getbaselineexecutables():
             for base in baseline:
                 if base['executable'] == settings.defaultbaseline['executable'] and base['revision'] == str(settings.defaultbaseline['revision']):
                     baseline.remove(base)
-                    baseline.insert(0, base)
+                    baseline.insert(1, base)
                     break
         except KeyError:
             # TODO: write to server logs
@@ -204,12 +204,12 @@ def gettimelinedata(request):
     else:
         benchmarks.append(Benchmark.objects.get(name=data['ben']))
     
-    baseline = getbaselineexecutables()
-    if len(baseline): baseline = baseline[0]
-    else: baseline = None
     baselinerev = None
-    if data['base'] == "true":
-        baselinerev = baseline['revision']
+    baselineexe = None
+    if data['base'] != "+" and data['base'] != 'undefined':
+        exeid, revid = data['base'].split("+")
+        baselinerev = Revision.objects.get(id=revid)
+        baselineexe = Executable.objects.get(id=exeid)
     for bench in benchmarks:
         append = False
         timeline = {}
@@ -218,6 +218,7 @@ def gettimelinedata(request):
         lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'
         timeline['lessisbetter'] = lessisbetter
         timeline['executables'] = {}
+        timeline['baseline'] = "None"
         
         for executable in executables:
             resultquery = Result.objects.filter(
@@ -237,10 +238,10 @@ def gettimelinedata(request):
                 )
             timeline['executables'][executable] = results
             append = True
-        if data['base'] == "true" and baseline != None and append:
+        if baselinerev != None and append:
             try:
                 baselinevalue = Result.objects.get(
-                    executable=baseline['executable'],
+                    executable=baselineexe,
                     benchmark=bench,
                     revision=baselinerev,
                     environment=environment
@@ -284,15 +285,7 @@ def timeline(request):
     if not len(defaultproject):
         return HttpResponse("You need to configure at least one Project as default")
     else: defaultproject = defaultproject[0]
-    
-    baseline = getbaselineexecutables()
-    
-    defaultbaseline = True
-    if 'base' in data and data['base'] == "false":
-        defaultbaseline = False
-    if len(baseline): baseline = baseline[0]
-    else: defaultbaseline = False
-    
+        
     defaultbenchmark = "grid"
     if 'ben' in data and data['ben'] != defaultbenchmark:
         defaultbenchmark = get_object_or_404(Benchmark, name=data['ben'])
@@ -301,10 +294,23 @@ def timeline(request):
     if 'exe' in data:
         for i in data['exe'].split(","):
             if not i: continue
-            selected = Executable.objects.filter(id=int(i))
-            if len(selected): checkedexecutables.append(selected[0])
+            try:
+                checkedexecutables.append(Executable.objects.get(id=int(i)))
+            except Executable.DoesNotExist:
+                pass
     if not checkedexecutables:
         checkedexecutables = Executable.objects.filter(project__track=True)
+    
+    baseline = getbaselineexecutables()
+    defaultbaseline = None
+    if len(baseline) > 1:
+        defaultbaseline = str(baseline[1]['executable'].id) + "+"
+        defaultbaseline += str(baseline[1]['revision'].id)
+    if "base" in data and data['base'] != "undefined":
+        try:
+            defaultbaseline = data['base']
+        except ValueError:
+            pass
     
     lastrevisions = [10, 50, 200, 1000]
     defaultlast = 200
@@ -369,11 +375,12 @@ def getoverviewtable(request):
     )
     
     base_list = None
-    baseexecutable = None
-    if "baseline" in data and data['baseline'] != "undefined":
-        tulp = data['baseline'].split("+")
-        exe = Executable.objects.get(id=tulp[0])
-        rev = Revision.objects.get(id=tulp[1])
+    baseline = None
+    if data['base'] != "undefined" and data['base'] != "+":
+        exeid, revid = data['base'].split("+")
+        exe = Executable.objects.get(id=exeid)
+        rev = Revision.objects.get(id=revid)
+        baseline = {'name': str(exe) + rev.tag, 'executable': exe.name}
         base_list = Result.objects.filter(
             revision=rev
         ).filter(
@@ -455,7 +462,7 @@ def getoverviewtable(request):
     
     return render_to_response('codespeed/overview_table.html', {
         'table_list': table_list,
-        'baseexecutable': baseexecutable,
+        'baseline': baseline,
         'trendconfig': trendconfig,
         'showunits': showunits,
         'showcomparison': base_list,
@@ -496,14 +503,15 @@ def overview(request):
             pass
         except ValueError:
             pass
+    
     baseline = getbaselineexecutables()
-    defaultbaseline = None
-    if len(baseline):
-        defaultbaseline = str(baseline[0]['executable'].id) + "+"
-        defaultbaseline += str(baseline[0]['revision'].id)
+    defaultbaseline = "+"
+    if len(baseline) > 1:
+        defaultbaseline = str(baseline[1]['executable'].id) + "+"
+        defaultbaseline += str(baseline[1]['revision'].id)
     if "base" in data and data['base'] != "undefined":
         try:
-            defaultbaseline = request.GET['base']
+            defaultbaseline = data['base']
         except ValueError:
             pass
     

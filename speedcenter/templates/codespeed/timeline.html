@@ -18,16 +18,16 @@
   function getConfiguration() {
     var config = new Object();
     
-    config["executables"] = readCheckbox("input[name='executable']:checked");
-    config["baseline"] = $("#baseline").is(':checked');
-    config["benchmark"] = $("input[name='benchmark']:checked").val();
+    config["exe"] = readCheckbox("input[name='executable']:checked");
+    config["base"] = $("#baseline").is(':checked');
+    config["ben"] = $("input[name='benchmark']:checked").val();
     config["host"] = $("input[name='host']:checked").val();
-    config["revisions"] = $("#revisions option:selected").val();
+    config["revs"] = $("#revisions option:selected").val();
     return config;
   }
   
   function permalinkToOverview(commitid, executableid, environment) {
-    window.location="../overview/?revision=" + commitid + "&" + "executable=" + executableid + "&host=" + environment;
+    window.location="../overview/?rev=" + commitid + "&" + "exe=" + executableid + "&host=" + environment;
   }
   
   function myClickHandler(ev, gridpos, datapos, neighbor, plot) {

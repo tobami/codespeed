@@ -190,25 +190,25 @@ def gettimelinedata(request):
     data = request.GET
     
     timeline_list = {'error': 'None', 'timelines': []}
-    executables = data['executables'].split(",")
+    executables = data['exe'].split(",")
     if executables[0] == "":
         timeline_list['error'] = "No executables selected"
         return HttpResponse(json.dumps( timeline_list ))
 
     environment = Environment.objects.get(name=data['host'])
     benchmarks = []
-    number_of_rev = data['revisions']
-    if data['benchmark'] == 'grid':
+    number_of_rev = data['revs']
+    if data['ben'] == 'grid':
         benchmarks = Benchmark.objects.all().order_by('name')
         number_of_rev = 15
     else:
-        benchmarks.append(Benchmark.objects.get(name=data['benchmark']))
+        benchmarks.append(Benchmark.objects.get(name=data['ben']))
     
     baseline = getbaselineexecutables()
     if len(baseline): baseline = baseline[0]
     else: baseline = None
     baselinerev = None
-    if data['baseline'] == "true":
+    if data['base'] == "true":
         baselinerev = baseline['revision']
     for bench in benchmarks:
         append = False
@@ -237,7 +237,7 @@ def gettimelinedata(request):
                 )
             timeline['executables'][executable] = results
             append = True
-        if data['baseline'] == "true" and baseline != None and append:
+        if data['base'] == "true" and baseline != None and append:
             try:
                 baselinevalue = Result.objects.get(
                     executable=baseline['executable'],
@@ -288,18 +288,18 @@ def timeline(request):
     baseline = getbaselineexecutables()
     
     defaultbaseline = True
-    if 'baseline' in data and data['baseline'] == "false":
+    if 'base' in data and data['base'] == "false":
         defaultbaseline = False
     if len(baseline): baseline = baseline[0]
     else: defaultbaseline = False
     
     defaultbenchmark = "grid"
-    if 'benchmark' in data and data['benchmark'] != defaultbenchmark:
-        defaultbenchmark = get_object_or_404(Benchmark, name=data['benchmark'])
+    if 'ben' in data and data['ben'] != defaultbenchmark:
+        defaultbenchmark = get_object_or_404(Benchmark, name=data['ben'])
     
     checkedexecutables = []
-    if 'executables' in data:
-        for i in data['executables'].split(","):
+    if 'exe' in data:
+        for i in data['exe'].split(","):
             if not i: continue
             selected = Executable.objects.filter(id=int(i))
             if len(selected): checkedexecutables.append(selected[0])
@@ -308,10 +308,10 @@ def timeline(request):
     
     lastrevisions = [10, 50, 200, 1000]
     defaultlast = 200
-    if 'revisions' in data:
-        if int(data['revisions']) not in lastrevisions:
-            lastrevisions.append(data['revisions'])
-        defaultlast = data['revisions']
+    if 'revs' in data:
+        if int(data['revs']) not in lastrevisions:
+            lastrevisions.append(data['revs'])
+        defaultlast = data['revs']
     
     # Information for template
     executables = Executable.objects.filter(project__track=True)
@@ -333,11 +333,11 @@ def timeline(request):
 def getoverviewtable(request):
     data = request.GET
     
-    executable = Executable.objects.get(id=int(data['executable']))
+    executable = Executable.objects.get(id=int(data['exe']))
     environment = Environment.objects.get(name=data['host'])
-    trendconfig = int(data['trend'])
+    trendconfig = int(data['tre'])
     selectedrev = Revision.objects.get(
-        commitid=data['revision'], project=executable.project
+        commitid=data['rev'], project=executable.project
     )
     date = selectedrev.date
     lastrevisions = Revision.objects.filter(
@@ -482,16 +482,16 @@ def overview(request):
     defaulttrendthres = 3
     defaulttrend = 10
     trends = [5, 10, 20, 50, 100]
-    if 'trend' in data and data['trend'] in trends:
-        defaulttrend = int(request.GET['trend'])
+    if 'tre' in data and int(data['tre']) in trends:
+        defaulttrend = int(data['tre'])
 
     defaultexecutable = getdefaultexecutable()
     if not defaultexecutable:
         return HttpResponse("You need to configure at least one Project as default")
     
-    if "executable" in data:
+    if "exe" in data:
         try:
-            defaultexecutable = Executable.objects.get(id=int(data['executable']))
+            defaultexecutable = Executable.objects.get(id=int(data['exe']))
         except Executable.DoesNotExist:
             pass
         except ValueError:
@@ -501,9 +501,9 @@ def overview(request):
     if len(baseline):
         defaultbaseline = str(baseline[0]['executable'].id) + "+"
         defaultbaseline += str(baseline[0]['revision'].id)
-    if "baseline" in data and data['baseline'] != "undefined":
+    if "base" in data and data['base'] != "undefined":
         try:
-            defaultbaseline = request.GET['baseline']
+            defaultbaseline = request.GET['base']
         except ValueError:
             pass
     
@@ -517,8 +517,8 @@ def overview(request):
         response = 'No data found for project "' + str(defaultexecutable.project) + '"'
         return HttpResponse(response)
     selectedrevision = lastrevisions[0]
-    if "revision" in data:
-        commitid = data['revision']
+    if "rev" in data:
+        commitid = data['rev']
         try:
             selectedrevision = Revision.objects.get(
                 commitid=commitid, project=defaultexecutable.project

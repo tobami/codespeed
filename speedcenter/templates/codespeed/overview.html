@@ -12,16 +12,16 @@
   
   function getConfiguration() {
     var config = new Object();
-    config["trend"] = $("#trend option:selected").val();
-    config["baseline"] = $("#baseline option:selected").val();
-    config["revision"] = $("#revision option:selected").val();
-    config["executable"] = $("input[name='executable']:checked").val();
+    config["tre"] = $("#trend option:selected").val();
+    config["base"] = $("#baseline option:selected").val();
+    config["rev"] = $("#revision option:selected").val();
+    config["exe"] = $("input[name='executable']:checked").val();
     config["host"] = $("input[name='host']:checked").val();
     return config;
   }
   
   function permalinkToTimeline(benchmark, environment) {
-    window.location="../timeline/?benchmark=" + benchmark + "&host=" + environment;
+    window.location="../timeline/?ben=" + benchmark + "&host=" + environment;
   }
 
   function colorTable(length, index) {

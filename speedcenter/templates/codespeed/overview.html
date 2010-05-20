@@ -16,12 +16,12 @@
     config["base"] = $("#baseline option:selected").val();
     config["rev"] = $("#revision option:selected").val();
     config["exe"] = $("input[name='executable']:checked").val();
-    config["host"] = $("input[name='host']:checked").val();
+    config["env"] = $("input[name='environment']:checked").val();
     return config;
   }
   
   function permalinkToTimeline(benchmark, environment) {
-    window.location="../timeline/?ben=" + benchmark + "&host=" + environment;
+    window.location="../timeline/?ben=" + benchmark + "&env=" + environment;
   }
 
   function colorTable(length, index) {
@@ -55,7 +55,7 @@
       }
       //Link rows to timelines
       $(this).click(function () {
-        var environment = $("input[name='host']:checked").val();
+        var environment = $("input[name='environment']:checked").val();
         permalinkToTimeline($(this).children("td:eq(0)").text(), environment);
       });
     });
@@ -116,8 +116,8 @@
     $("#revision").change(refreshContent);
     $("input:radio[name=executable]").filter('[value="{{ defaultexecutable.id }}"]').attr('checked', true);
     $("input[name='executable']").change(changerevisions);
-    $("input:radio[name='host']").filter('[value="{{ defaultenvironment.name }}"]').attr('checked', true);
-    $("input[name='host']").change(refreshContent);
+    $("input:radio[name='environment']").filter('[value="{{ defaultenvironment.name }}"]').attr('checked', true);
+    $("input[name='environment']").change(refreshContent);
     refreshContent();
   });
 </script>
@@ -164,13 +164,13 @@
   </div>
 </div>
 <div class="sidebox">
-  <div class="boxhead"><h2>Host</h2></div>
+  <div class="boxhead"><h2>Environment</h2></div>
   <div class="boxbody">
     <ul>
-    {% for host in hostlist %}
-      <li title="{{ host.os }}, {{ host.cpu }}">
-        <input id="host{{ host.name }}" type="radio" name="host" value="{{ host.name }}" />
-        <label for="host{{ host.name }}">{{ host }}</label>
+    {% for env in environments %}
+      <li title="{{ env.os }}, {{ env.cpu }}">
+        <input id="env{{ env.name }}" type="radio" name="environment" value="{{ env.name }}" />
+        <label for="env{{ env.name }}">{{ env }}</label>
       </li>
     {% endfor %}
     </ul>

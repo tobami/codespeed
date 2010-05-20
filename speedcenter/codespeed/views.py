@@ -92,9 +92,9 @@ def comparison(request):
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment:
         return HttpResponse("You need to configure at least one Environment")
-    if 'host' in data:
+    if 'env' in data:
         try:
-            defaultenvironment = Environment.objects.get(name=data['host'])
+            defaultenvironment = Environment.objects.get(name=data['env'])
         except Environment.DoesNotExist:
             pass
     
@@ -156,17 +156,17 @@ def comparison(request):
     if not checkedbenchmarks:
         checkedbenchmarks = benchmarks
     
-    hosts = Environment.objects.all()
-    checkedhosts = []
+    enviros = Environment.objects.all()
+    checkedenviros = []
     if 'env' in data:
         for i in data['env'].split(","):
             if not i: continue
             try:
-                checkedhosts.append(Environment.objects.get(id=int(i)))
+                checkedenviros.append(Environment.objects.get(id=int(i)))
             except Environment.DoesNotExist:
                 pass
-    if not checkedhosts:
-        checkedhosts = hosts
+    if not checkedenviros:
+        checkedenviros = enviros
     
     charts = ['bars', 'stacked bars']
     selectedchart = charts[0]
@@ -176,11 +176,11 @@ def comparison(request):
     return render_to_response('codespeed/comparison.html', {
         'checkedexecutables': checkedexecutables,
         'checkedbenchmarks': checkedbenchmarks,
-        'checkedhosts': checkedhosts,
+        'checkedenviros': checkedenviros,
         'defaultenvironment': defaultenvironment,
         'executables': executables,
         'benchmarks': benchmarks,
-        'hosts': hosts,
+        'enviros': enviros,
         'charts': charts,
         'selectedchart': selectedchart
     })
@@ -195,7 +195,7 @@ def gettimelinedata(request):
         timeline_list['error'] = "No executables selected"
         return HttpResponse(json.dumps( timeline_list ))
 
-    environment = Environment.objects.get(name=data['host'])
+    environment = Environment.objects.get(name=data['env'])
     benchmarks = []
     number_of_rev = data['revs']
     if data['ben'] == 'grid':
@@ -275,9 +275,9 @@ def timeline(request):
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment:
         return HttpResponse("You need to configure at least one Environment")
-    if 'host' in data:
+    if 'env' in data:
         try:
-            defaultenvironment = Environment.objects.get(name=data['host'])
+            defaultenvironment = Environment.objects.get(name=data['env'])
         except Environment.DoesNotExist:
             pass
     
@@ -322,7 +322,7 @@ def timeline(request):
     # Information for template
     executables = Executable.objects.filter(project__track=True)
     benchmarks = Benchmark.objects.all()
-    hostlist = Environment.objects.all()
+    environments = Environment.objects.all()
     return render_to_response('codespeed/timeline.html', {
         'checkedexecutables': checkedexecutables,
         'defaultbaseline': defaultbaseline,
@@ -333,14 +333,14 @@ def timeline(request):
         'defaultlast': defaultlast,
         'executables': executables,
         'benchmarks': benchmarks,
-        'hostlist': hostlist
+        'environments': environments
     })
 
 def getoverviewtable(request):
     data = request.GET
     
     executable = Executable.objects.get(id=int(data['exe']))
-    environment = Environment.objects.get(name=data['host'])
+    environment = Environment.objects.get(name=data['env'])
     trendconfig = int(data['tre'])
     selectedrev = Revision.objects.get(
         commitid=data['rev'], project=executable.project
@@ -476,15 +476,6 @@ def overview(request):
     data = request.GET
 
     # Configuration of default parameters
-    defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment:
-        return HttpResponse("You need to configure at least one Environment")
-    if 'host' in data:
-        try:
-            defaultenvironment = Environment.objects.get(name=data['host'])
-        except Environment.DoesNotExist:
-            pass
-    
     defaultchangethres = 3
     defaulttrendthres = 3
     defaulttrend = 10
@@ -536,8 +527,17 @@ def overview(request):
                 lastrevisions.append(selectedrevision)
         except Revision.DoesNotExist:
             selectedrevision = lastrevisions[0]
-            
-    hostlist = Environment.objects.all()
+    
+    defaultenvironment = getdefaultenvironment()
+    if not defaultenvironment:
+        return HttpResponse("You need to configure at least one Environment")
+    if 'env' in data:
+        try:
+            defaultenvironment = Environment.objects.get(name=data['env'])
+        except Environment.DoesNotExist:
+            pass
+    environments = Environment.objects.all()
+    
     projectmatrix = {}
     for e in executables: projectmatrix[e.id] = e.project.name
     projectmatrix = json.dumps(projectmatrix)

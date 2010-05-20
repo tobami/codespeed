@@ -8,9 +8,9 @@
 <script type="text/javascript">
   function getConfiguration() {
     var config = new Object();
-    config["exe"] = readCheckbox("input[name='executable']:checked");
+    config["exe"] = readCheckbox("input[name='executables']:checked");
     config["ben"] = readCheckbox("input[name='benchmarks']:checked");
-    config["env"] = readCheckbox("input[name='hosts']:checked");
+    config["env"] = readCheckbox("input[name='environments']:checked");
     config["chart"] = $("#chart_type option:selected").val();
     return config;
   }      
@@ -35,19 +35,19 @@
     
     //set default selected executables
     {% for checkedexecutable in checkedexecutables %}
-    $("input[name='executable']").filter('[value={{ checkedexecutable }}]').attr('checked', true);
-    {% endfor %}
-    $("input[name='executable']").change(refreshContent);
+    $("input[name='executables']").filter('[value={{ checkedexecutable }}]').attr('checked', true);{% endfor %}
+    $("input[name='executables']").change(refreshContent);
+    
     //set default selected benchmarks
     {% for checkedbenchmark in checkedbenchmarks %}
-    $("input:checkbox[name='benchmarks']").filter('[value={{ checkedbenchmark.id }}]').attr('checked', true);
-    {% endfor %}
+    $("input:checkbox[name='benchmarks']").filter('[value={{ checkedbenchmark.id }}]').attr('checked', true);{% endfor %}
     $("input[name='benchmarks']").change(refreshContent);
+    
     //set default selected environments
-    {% for checkedhost in checkedhosts %}
-    $("input:checkbox[name='hosts']").filter('[value={{ checkedhost.id }}]').attr('checked', true);
+    {% for checkedenv in checkedenviros %}
+    $("input:checkbox[name='environments']").filter('[value={{ checkedenv.id }}]').attr('checked', true);
     {% endfor %}
-    $("input[name='hosts']").change(refreshContent);
+    $("input[name='environments']").change(refreshContent);
     
     // Check all and none links
     $('.checkall').click(function() {
@@ -79,11 +79,11 @@
 {% block body %}
 <div id="sidebar">
 <div id="executable" class="sidebox">
-  <div class="boxhead"><h2>Executable</h2></div>
+  <div class="boxhead"><h2>Executables</h2></div>
   <div class="boxbody">
     <ul>{% for exe in executables %}
       <li title="{{ exe.revision }}">
-        <input id="executable{{ exe.key }}" type="checkbox" name="executable" value="{{ exe.key }}" />
+        <input id="executable{{ exe.key }}" type="checkbox" name="executables" value="{{ exe.key }}" />
         <label for="executable{{ exe.key }}">{{ exe.name }}</label><div class="seriescolor"></div>
       </li>{% endfor %}
     </ul>
@@ -97,7 +97,7 @@
   </div>
 </div>
 <div id="benchmark" class="sidebox">
-  <div class="boxhead"><h2>Benchmark</h2></div>
+  <div class="boxhead"><h2>Benchmarks</h2></div>
   <div class="boxbody">
   <ul><a href="#" class="checkall">All</a>, <a href="#" class="uncheckall">None</a>
     {% for bench in benchmarks|dictsort:"name" %}
@@ -110,13 +110,13 @@
   </div>
 </div>
 <div class="sidebox">
-  <div class="boxhead"><h2>Host</h2></div>
+  <div class="boxhead"><h2>Environments</h2></div>
   <div class="boxbody">
     <ul>
-    {% for host in hosts %}
-      <li title="{{ host.os }}, {{ host.cpu }}">
-        <input id="host{{ host.name }}" type="checkbox" name="hosts" value="{{ host.id }}" />
-        <label for="host{{ host.name }}">{{ host }}</label>
+    {% for env in enviros %}
+      <li title="{{ env.os }}, {{ env.cpu }}">
+        <input id="env{{ env.name }}" type="checkbox" name="environments" value="{{ env.id }}" />
+        <label for="env{{ env.name }}">{{ env }}</label>
       </li>
     {% endfor %}
     </ul>

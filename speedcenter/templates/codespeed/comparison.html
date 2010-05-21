@@ -41,8 +41,12 @@
     for (var b in benchmarks) {
       ticks.push($("label[for='benchmark_" + benchmarks[b] + "']").text());
     }
+    var series = [];
     for (var i in exes) {
       for (var j in enviros) {
+        var exe = $("label[for='exe_" + exes[i] + "']").text();
+        var env = $("label[for='env_" + enviros[j] + "']").text();
+        series.push({'label': exe + " @ " + env});
         var customdata = [];
         var bcounter = 0;
         for (var b in benchmarks) {
@@ -88,7 +92,7 @@
       }
     }
     plotoptions.legend = {show: true, location: 'ne'};
-
+    plotoptions.series = series;
     $("#plot").fadeOut("fast", function() {
       $("#plot").html("").show();
       plot = $.jqplot('plot', plotdata, plotoptions);
@@ -171,8 +175,8 @@
     <ul><a href="#" class="checkall">All</a>, <a href="#" class="uncheckall">None</a>
     {% for exe in executables %}
       <li title="{{ exe.revision }}">
-        <input id="executable_{{ exe.key }}" type="checkbox" name="executables" value="{{ exe.key }}" />
-        <label for="executable_{{ exe.key }}">{{ exe.name }}</label><div class="seriescolor"></div>
+        <input id="exe_{{ exe.key }}" type="checkbox" name="executables" value="{{ exe.key }}" />
+        <label for="exe_{{ exe.key }}">{{ exe.name }}</label><div class="seriescolor"></div>
       </li>{% endfor %}
     </ul>
   </div>
@@ -194,8 +198,8 @@
   <div class="boxbody">
     <ul>{% for env in enviros %}
       <li title="{{ env.os }}, {{ env.cpu }}">
-        <input id="env_{{ env.name }}" type="checkbox" name="environments" value="{{ env.id }}" />
-        <label for="env_{{ env.name }}">{{ env }}</label>
+        <input id="env_{{ env.id }}" type="checkbox" name="environments" value="{{ env.id }}" />
+        <label for="env_{{ env.id }}">{{ env }}</label>
       </li>{% endfor %}
     </ul>
   </div>

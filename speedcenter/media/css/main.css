@@ -326,6 +326,8 @@ div.miniplot {
 }
 div.miniplot:hover {background-color: #F1F1F1;}
 .jqplot-highlighter-tooltip { -moz-border-radius: 10px; -webkit-border-radius: 10px; }
+div#cplot { text-align: left; height: 400px; width: 100%; }
+
 
 /* new clearfix */
 .clearfix:after {

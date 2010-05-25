@@ -6,10 +6,12 @@
 <script type="text/javascript" src="../media/js/jqplot/jquery.jqplot.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.barRenderer.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
+<script type="text/javascript" src="../media/js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="../media/js/jqplot/jqplot.canvasAxisTickRenderer.min.js"></script>
 
 <script type="text/javascript">
   var compdata = new Object();
-  
+  var plotheight = 10;  
   function getConfiguration() {
     var config = new Object();
     config["exe"] = readCheckbox("input[name='executables']:checked");
@@ -28,13 +30,13 @@
     var benchmarks  = conf['ben'].split(",");
     h = parseInt($("#content").css("height"));//get height for error message
     if (exes[0] == "") {
-      $("#plot").html(getLoadText("No executables selected", h, false));
+      $("#cplot").html(getLoadText("No executables selected", h, false));
       return false;
     } else if (benchmarks[0] == "") {
-      $("#plot").html(getLoadText("No benchmarks selected", h, false));
+      $("#cplot").html(getLoadText("No benchmarks selected", h, false));
       return false;
     } else if (enviros[0] == "") {
-      $("#plot").html(getLoadText("No environments selected", h, false));
+      $("#cplot").html(getLoadText("No environments selected", h, false));
       return false;
     }
     var ticks = new Array();
@@ -42,36 +44,42 @@
       ticks.push($("label[for='benchmark_" + benchmarks[b] + "']").text());
     }
     var series = [];
+    var barcounter = 0;
     for (var i in exes) {
       for (var j in enviros) {
         var exe = $("label[for='exe_" + exes[i] + "']").text();
         var env = $("label[for='env_" + enviros[j] + "']").text();
         series.push({'label': exe + " @ " + env});
         var customdata = [];
-        var bcounter = 0;
+        var benchcounter = 0;
         for (var b in benchmarks) {
-          bcounter++;
+          benchcounter++;
+          barcounter++;
           if (conf['chart'].indexOf("horizontal") == -1) {
             customdata.push(compdata[exes[i]][enviros[j]][benchmarks[b]]);
           } else {
-            customdata.push([compdata[exes[i]][enviros[j]][benchmarks[b]], bcounter]);
+            customdata.push([compdata[exes[i]][enviros[j]][benchmarks[b]], benchcounter]);
           }
         }
         plotdata.push(customdata);
       }
     }
-
+    
     var plotoptions = new Object();
     if (conf['chart'].indexOf("horizontal") == -1) {
       plotoptions = {
         seriesDefaults: {
           renderer:$.jqplot.BarRenderer,
-          rendererOptions:{barDirection: "vertical", barPadding: 5, barMargin: 10}
+          rendererOptions:{barDirection: "vertical", barPadding: 6, barMargin: 15}
+        },
+        axesDefaults: {
+          tickRenderer: $.jqplot.CanvasAxisTickRenderer
         },
         axes: {
           xaxis:{
             renderer:$.jqplot.CategoryAxisRenderer,
-            ticks: ticks
+            ticks: ticks,
+            tickOptions: {angle: 0}
           },
           yaxis:{min:0}
         }
@@ -80,7 +88,11 @@
       plotoptions = {
         seriesDefaults: {
           renderer:$.jqplot.BarRenderer,
-          rendererOptions:{barDirection: "horizontal", barPadding: 5, barMargin: 10}
+          rendererOptions:{barDirection: "horizontal", barPadding: 8, barMargin: 15}
+        },
+        axesDefaults: {
+          tickRenderer: $.jqplot.CanvasAxisTickRenderer,
+          tickOptions: {angle: 0}
         },
         axes: {
           xaxis:{min:0}, 
@@ -93,16 +105,47 @@
     }
     plotoptions.legend = {show: true, location: 'ne'};
     plotoptions.series = series;
-    $("#plot").fadeOut("fast", function() {
-      $("#plot").html("").show();
-      plot = $.jqplot('plot', plotdata, plotoptions);
+    
+    // Determine plot width and height and its optimal style
+    // Depends on screen width and number of bars being displayed
+    var w = barcounter * (plotoptions.seriesDefaults.rendererOptions.barPadding*2 + 20) + benchcounter * plotoptions.seriesDefaults.rendererOptions.barMargin * 2;
+    var h = plotheight;
+    if (conf['chart'].indexOf("horizontal") == -1) {
+      w += 60;
+      var plotwidth = $("#content").width();
+      if (w > plotwidth + 180) {
+        plotoptions.seriesDefaults.rendererOptions.barPadding = 4;
+        plotoptions.seriesDefaults.rendererOptions.barMargin = 10;
+        plotoptions.seriesDefaults.shadow = false;
+      }
+      if (w > plotwidth + 80) {
+        plotoptions.axes.xaxis.tickOptions.angle = -30;
+      }
+      if (w > plotwidth) { w = plotwidth; }
+    } else {
+      if (w > 820) {
+        w = w/2 ;
+        plotoptions.seriesDefaults.rendererOptions.barPadding = 4;
+        plotoptions.seriesDefaults.rendererOptions.barMargin = 10;
+        plotoptions.seriesDefaults.shadow = false;
+      }
+      h = w;
+      w = "100%";
+    }
+    
+    // Render plot
+    $("#cplot").fadeOut("fast", function() {
+      $("#cplot").html("").show();
+      $("#cplot").css('width', w);
+      $("#cplot").css('height', h);
+      plot = $.jqplot('cplot', plotdata, plotoptions);
     });
   }
   
   function savedata(data) {
     if (data['error'] != "None") {
       h = parseInt($("#content").css("height"));//get height for error message
-      $("#plot").html(getLoadText(data["error"], h, false));
+      $("#cplot").html(getLoadText(data["error"], h, false));
       return 1;
     }
     delete data['error'];
@@ -153,9 +196,10 @@
       return false;
     });
     
+    plotheight = $("#cplot").height();
     // Get comparison data
     var h = parseInt($("#content").css("height"));//get height for loading text
-    $("#plot").html(getLoadText("Loading...", h, true));
+    $("#cplot").html(getLoadText("Loading...", h, true));
     $.getJSON("json/", savedata);
   });
 </script>
@@ -212,6 +256,6 @@
   </select><a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content" class="clearfix">
-<div id="plot"></div>
+<div id="cplot"></div>
 </div>
 {% endblock %}

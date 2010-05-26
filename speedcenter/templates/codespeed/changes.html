@@ -146,6 +146,19 @@
     </ul>
   </div>
 </div>
+<div class="sidebox">
+  <div class="boxhead"><h2>Environment</h2></div>
+  <div class="boxbody">
+    <ul>
+    {% for env in environments %}
+      <li title="{{ env.os }}, {{ env.cpu }}">
+        <input id="env{{ env.name }}" type="radio" name="environment" value="{{ env.name }}" />
+        <label for="env{{ env.name }}">{{ env }}</label>
+      </li>
+    {% endfor %}
+    </ul>
+  </div>
+</div>
 <div id="options" class="sidebox">
   <div class="boxhead"><h2>Options</h2></div>
   <div class="boxbody">
@@ -161,19 +174,6 @@
       </select>
     </li>
   </ul>
-  </div>
-</div>
-<div class="sidebox">
-  <div class="boxhead"><h2>Environment</h2></div>
-  <div class="boxbody">
-    <ul>
-    {% for env in environments %}
-      <li title="{{ env.os }}, {{ env.cpu }}">
-        <input id="env{{ env.name }}" type="radio" name="environment" value="{{ env.name }}" />
-        <label for="env{{ env.name }}">{{ env }}</label>
-      </li>
-    {% endfor %}
-    </ul>
   </div>
 </div>
 

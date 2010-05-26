@@ -8,25 +8,24 @@ import urllib, urllib2
 CODESPEED_URL = 'http://localhost:8000/'
 
 temp = datetime.today()
-currentdate = datetime(temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
 
 data = {
     'commitid': '1',
     'project': 'pypy',
-    'revision_date': "2010-05-16 18:11:29", # Optional. Default is taken
+    'revision_date': '', # Optional. Default is taken
                                             # either from VCS integration or from current date
     'executable_name': 'pypy-c-jit',
-    'executable_coptions': 'gc=hybrid', # Optional default is blank
-    'benchmark': 'Richards',
+    'executable_coptions': '', # Optional default is blank
+    'benchmark': 'richards_mem',
     'benchmark_type': 'C', # Optional. Default is C for Cross-project.
     'environment': "bigdog",
-    'result_value': 400,
+    'result_value': 4000,
     'result_date': datetime.today(), # Optional
-    'units': "fps", # Optional. Default is seconds
+    'units': "MB", # Optional. Default is seconds
     'lessisbetter': False, # Optional. Default is True
     'std_dev': 1.11111, # Optional. Default is blank
-    'max': 2, # Optional. Default is blank
-    'min': 1.0, # Optional. Default is blank
+    'max': 4001.6, # Optional. Default is blank
+    'min': 3995.1, # Optional. Default is blank
 }
 
 def add(data):

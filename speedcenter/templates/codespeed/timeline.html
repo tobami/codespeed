@@ -27,7 +27,7 @@
   }
   
   function permalinkToOverview(commitid, executableid, environment) {
-    window.location="../overview/?rev=" + commitid + "&" + "exe=" + executableid + "&env=" + environment;
+    window.location="../changes/?rev=" + commitid + "&" + "exe=" + executableid + "&env=" + environment;
   }
   
   function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
@@ -208,7 +208,7 @@
 
 {% block navigation %}
     <ul class="inline">
-      <li><a href="../overview/">Overview</a></li>
+      <li><a href="../changes/">Changes</a></li>
       <li class="current"><a href="../timeline/">Timeline</a></li>
       <li><a href="../comparison/">Comparison</a></li>
     </ul>

@@ -4,7 +4,7 @@
 {% block script %}
 <script type="text/javascript">
   $(function() {
-    $("#overview").click(function () { window.location="/overview/"; });
+    $("#changes").click(function () { window.location="/changes/"; });
     $("#timeline").click(function () { window.location="/timeline/"; });
   });
 </script>
@@ -13,10 +13,10 @@
 <div id="presentation_wrapper">
 <p><a href="about/">This site</a> monitors <a href="http://www.pypy.org">PyPy</a>'s performance</p>
 <div id="presentation" class="clearfix">
-    <div id="overview">
-      <h2>Overview</h2>
-      <p>Track performance changes in the latest trunk revisions</p>
-      <img src="/media/images/overview.png" height="130" width="250" alt="Overview"/>
+    <div id="changes">
+      <h2>Changes</h2>
+      <p>Track performance changes in the latest revisions</p>
+      <img src="/media/images/changes.png" height="130" width="250" alt="Changes"/>
     </div>
     <div id="timeline">
       <h2>Timeline</h2>

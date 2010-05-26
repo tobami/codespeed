@@ -366,7 +366,7 @@ def timeline(request):
         'environments': environments
     })
 
-def getoverviewtable(request):
+def getchangestable(request):
     data = request.GET
     
     executable = Executable.objects.get(id=int(data['exe']))
@@ -490,7 +490,7 @@ def getoverviewtable(request):
     showunits = False
     if len(Benchmark.objects.exclude(units='seconds')): showunits = True
     
-    return render_to_response('codespeed/overview_table.html', {
+    return render_to_response('codespeed/changes_table.html', {
         'table_list': table_list,
         'baseline': baseline,
         'trendconfig': trendconfig,
@@ -501,7 +501,7 @@ def getoverviewtable(request):
         'totals': totals
     })
     
-def overview(request):
+def changes(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
 
@@ -583,7 +583,7 @@ def overview(request):
         revisionboxes[p.name] = Revision.objects.filter(
             project=p
         ).order_by('-date')[:revlimit]
-    return render_to_response('codespeed/overview.html', locals())
+    return render_to_response('codespeed/changes.html', locals())
 
 def displaylogs(request):
     rev = Revision.objects.get(id=request.GET['revisionid'])
@@ -591,7 +591,7 @@ def displaylogs(request):
     logs.append(rev)
     remotelogs = getcommitlogs(rev)
     if len(remotelogs): logs = remotelogs
-    return render_to_response('codespeed/overview_logs.html', { 'logs': logs })
+    return render_to_response('codespeed/changes_logs.html', { 'logs': logs })
 
 def getlogsfromsvn(newrev, startrev):
     import pysvn

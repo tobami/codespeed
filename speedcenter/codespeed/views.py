@@ -105,7 +105,7 @@ def getcomparisonexes():
     projects = Project.objects.filter(track=True)
     for proj in projects:
         rev = Revision.objects.filter(project=proj).latest('date')
-        if rev not in revisions:
+        if rev.tag == "":
             for exe in Executable.objects.filter(project=rev.project):
                 name = str(exe) + " latest"
                 key = str(exe.id) + "+L"
@@ -173,7 +173,14 @@ def comparison(request):
     if not checkedexecutables:
         checkedexecutables = exekeys
     
-    benchmarks = Benchmark.objects.all()
+    units = Benchmark.objects.values('units').distinct()
+    units = [unit['units'] for unit in units]
+    benchmarks = {}
+    bench_units = {}
+    for unit in units:
+        benchmarks[unit] = Benchmark.objects.filter(units=unit)
+        lessisbetter = benchmarks[unit][0].lessisbetter and ' (less is better)' or ' (more is better)'
+        bench_units[unit] = [[b.id for b in benchmarks[unit]], lessisbetter]
     checkedbenchmarks = []
     if 'ben' in data:
         checkedbenchmarks = []
@@ -184,7 +191,7 @@ def comparison(request):
             except Benchmark.DoesNotExist:
                 pass
     if not checkedbenchmarks:
-        checkedbenchmarks = benchmarks
+        checkedbenchmarks = Benchmark.objects.all()
     
     enviros = Environment.objects.all()
     checkedenviros = []
@@ -210,6 +217,7 @@ def comparison(request):
         'defaultenvironment': defaultenvironment,
         'executables': executables,
         'benchmarks': benchmarks,
+        'bench_units': json.dumps(bench_units),
         'enviros': enviros,
         'charts': charts,
         'selectedchart': selectedchart

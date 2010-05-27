@@ -243,9 +243,8 @@
       <label for="benchmarkgrid">Display all in a grid</label>
     </li>
   </ul>
-  <ul>
-    {% for bench in benchmarks|dictsort:"name" %}
-    <li{% ifnotequal bench.description "" %} title="{{ bench.description }}"{% endifnotequal %}>
+  <ul>{% for bench in benchmarks|dictsort:"name" %}
+    <li title="{{ bench.description }}">
       <input id="benchmark_{{ bench.name }}" type="radio" name="benchmark" value="{{ bench.name }}" />
       <label for="benchmark_{{ bench.name }}">{{ bench }}</label>
     </li>

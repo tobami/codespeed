@@ -205,10 +205,21 @@ def comparison(request):
     if not checkedenviros:
         checkedenviros = enviros
     
-    charts = ['vertical bars', 'horizontal bars']
+    charts = ['normal bars', 'stacked bars', 'relative bars']
     selectedchart = charts[0]
     if 'chart' in data and data['chart'] in charts:
         selectedchart = data['chart']
+    
+    selectedbaseline = getbaselineexecutables()
+    if 'bas' in data:
+        selectedbaseline = data['bas']
+    elif len(selectedbaseline) > 1:
+        selectedbaseline = str(selectedbaseline[1]['executable'].id) + "+" + str(selectedbaseline[1]['revision'].id)
+    else:
+        selectedbaseline = executables[0]['key']
+    
+    selecteddirection = False
+    if 'hor' in data and data['hor'] == "true": selecteddirection = True
     
     return render_to_response('codespeed/comparison.html', {
         'checkedexecutables': checkedexecutables,
@@ -220,7 +231,9 @@ def comparison(request):
         'bench_units': json.dumps(bench_units),
         'enviros': enviros,
         'charts': charts,
-        'selectedchart': selectedchart
+        'selectedbaseline': selectedbaseline,
+        'selectedchart': selectedchart,
+        'selecteddirection': selecteddirection
     })
 
 def gettimelinedata(request):

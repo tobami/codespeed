@@ -13,8 +13,8 @@
 <script type="text/javascript">
   var compdata = new Object();
   var bench_units = eval({{ bench_units|safe }});
+  var plotheight = 10;
   
-  var plotheight = 10;  
   function getConfiguration() {
     var config = new Object();
     config["exe"] = readCheckbox("input[name='executables']:checked");
@@ -24,8 +24,8 @@
     config["bas"] = $("#baseline option:selected").val();
     config["chart"] = $("#chart_type option:selected").val();
     return config;
-  }      
-
+  }
+  
   function refreshContent() {
     var conf = getConfiguration();
     var exes = conf['exe'].split(",");
@@ -55,184 +55,11 @@
           }
         }
         if (benchmarks.length == 0) { continue; }
-        var axislabel = unit + bench_units[unit][1];
-        var title = "";
-        if (conf["bas"] != "none") { title = "Relative " + unit; }
-        else { title = "Absolute " + unit; }
         
         var plotid = "plot" + plotcounter;
-        plotcounter++;
         $("#plotwrapper").append('<div id="' + plotid + '" class="compplot"></div>');
-        
-        var plotdata = new Array();
-        var ticks = new Array();
-        var series = new Array();
-        var barcounter = 0;
-        for (var b in benchmarks) {
-          var benchlabel = $("label[for='benchmark_" + benchmarks[b] + "']").text();
-          if (conf['chart'] == "stacked bars") {
-            series.push({'label': benchlabel});
-            var customdata = new Array();
-            var benchcounter = 0;
-            var barcounter = 0;
-            for (var i in exes) {
-              for (var j in enviros) {
-                barcounter++;
-                benchcounter++;
-                var exe = $("label[for='exe_" + exes[i] + "']").text();
-                var env = $("label[for='env_" + enviros[j] + "']").text();
-                var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
-                if (conf["bas"] != "none") {
-                  axislabel = "Relative to " + $("label[for='exe_" + conf['bas'] + "']").text() + bench_units[unit][1];
-                  var baseline = compdata[conf['bas']][enviros[j]][benchmarks[b]]
-                  if ( baseline == 0 ) { val = 0; }
-                  else { val = val / baseline; }
-                }
-                if (!conf["hor"]) {
-                  customdata.push(val);
-                } else {
-                  customdata.push([val, benchcounter]);
-                }
-              }
-            }
-            plotdata.push(customdata);
-          } else {
-            // for non-stacked charts
-            ticks.push(benchlabel);
-          }
-        }
-        
-        for (var i in exes) {
-          for (var j in enviros) {
-            var exe = $("label[for='exe_" + exes[i] + "']").text();
-            var env = $("label[for='env_" + enviros[j] + "']").text();
-            if (conf['chart'] == "stacked bars") {
-              ticks.push(exe + " @ " + env);
-            } else {
-              series.push({'label': exe + " @ " + env});
-            }
-            var customdata = new Array();
-            var benchcounter = 0;
-            
-            for (var b in benchmarks) {
-              benchcounter++;
-              barcounter++;
-              var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
-              if (conf["bas"] != "none") {
-                axislabel = "Relative to " + $("label[for='exe_" + conf['bas'] + "']").text() + bench_units[unit][1];
-                var baseline = compdata[conf['bas']][enviros[j]][benchmarks[b]]
-                if ( baseline == 0 ) { val = 0; }
-                else { val = val / baseline; }
-              }
-              
-              if (!conf["hor"]) {
-                customdata.push(val);
-              } else {
-                customdata.push([val, benchcounter]);
-              }
-            }
-            if (conf['chart'] != "stacked bars") { plotdata.push(customdata); }
-          }
-        }
-    
-        var plotoptions = new Object();
-        if (!conf["hor"]) {
-          plotoptions = {
-            title: title,
-            seriesDefaults: {
-              renderer:$.jqplot.BarRenderer,
-              rendererOptions:{barDirection: "vertical", barPadding: 6, barMargin: 15}
-            },
-            axesDefaults: {
-              tickRenderer: $.jqplot.CanvasAxisTickRenderer
-            },
-            axes: {
-              xaxis:{
-                renderer:$.jqplot.CategoryAxisRenderer,
-                ticks: ticks,
-                tickOptions: {angle: 0}
-              },
-              yaxis:{
-                min:0,
-                autoscale:true,
-                label: axislabel,
-                labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-              }
-            }
-          }
-        } else {
-          plotoptions = {
-            seriesDefaults: {
-              renderer:$.jqplot.BarRenderer,
-              rendererOptions:{barDirection: "horizontal", barPadding: 8, barMargin: 15}
-            },
-            axesDefaults: {
-              tickRenderer: $.jqplot.CanvasAxisTickRenderer,
-              tickOptions: {angle: 0}
-            },
-            axes: {
-              xaxis:{
-                min:0,
-                autoscale:true,
-                label: axislabel,
-                labelRenderer: $.jqplot.CanvasAxisLabelRenderer
-              },
-                yaxis:{
-                renderer:$.jqplot.CategoryAxisRenderer,
-                ticks: ticks
-              }
-            }
-          }
-        }
-    
-        plotoptions.legend = {show: true, location: 'ne'};
-        plotoptions.series = series;
-        console.debug(conf['chart']);
-        if (conf['chart'] == "stacked bars") {
-          plotoptions.stackSeries = true;
-        }
-        
-        // Determine plot width and height and its optimal style
-        // Depends on screen width and number of bars being displayed
-        var w = barcounter * (plotoptions.seriesDefaults.rendererOptions.barPadding*2 + 20) + benchcounter * plotoptions.seriesDefaults.rendererOptions.barMargin * 2;
-        var h = plotheight;
-        if (!conf["hor"]) {
-          w += 60;
-          var plotwidth = $("#plotwrapper").width();
-          if (w > plotwidth + 180) {
-            plotoptions.seriesDefaults.rendererOptions.barPadding = 4;
-            plotoptions.seriesDefaults.rendererOptions.barMargin = 10;
-            plotoptions.seriesDefaults.shadow = false;
-          }
-          if (w > plotwidth + 80) {
-            plotoptions.axes.xaxis.tickOptions.angle = -30;
-          }
-          if (w > plotwidth) {
-            w = plotwidth;
-          } else if (w < 300) {
-            w = 300;
-            plotoptions.seriesDefaults.rendererOptions.barPadding = 14;
-            plotoptions.seriesDefaults.rendererOptions.barMargin = 25;
-          }
-        } else {
-          if (w > 820) {
-            w = w/2;
-            plotoptions.seriesDefaults.rendererOptions.barPadding = 4;
-            plotoptions.seriesDefaults.rendererOptions.barMargin = 10;
-            plotoptions.seriesDefaults.shadow = false;
-          } else if (w < 300) {
-            w = 300;
-            plotoptions.seriesDefaults.rendererOptions.barPadding = 14;
-            plotoptions.seriesDefaults.rendererOptions.barMargin = 25;
-          }
-          h = w;
-          w = "100%";
-        }
-        
-        // Render plot
-        $("#" + plotid).css('width', w);
-        $("#" + plotid).css('height', h);
-        plot = $.jqplot(plotid, plotdata, plotoptions);
+        plotcounter++;
+        renderComparisonPlot(plotid, benchmarks, exes, enviros, conf['bas'], conf['chart'], conf['hor']);
       }
     });
   }

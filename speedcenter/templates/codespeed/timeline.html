@@ -63,18 +63,15 @@
     }
     //determine significant digits
     var digits = 2;
-    // helper to be able to pass an array to Math.min
-    Array.min = function( array ){
-      return Math.min.apply( Math, array );
-    };
-    var value = Array.min(lastvalues);
+    var value = Math.min.apply( Math, lastvalues );
     while( value < 1 ) {
       value *= 10;
       digits++;
     }
-    //Render plot
+    
     $("#plotgrid").html('<div id="plot"></div>');
-    plot = $.jqplot('plot',  plotdata, {
+    var plotoptions = 
+    {
       series: series,
       axes:{
         yaxis:{
@@ -97,7 +94,24 @@
         formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
       },
       cursor:{show:false, zoom:true, showTooltip:false, clickReset:true}
-    });
+    }
+    if (series.length > 4) {
+        // Move legend outside plot area to unclutter
+        var labels = new Array();
+        for (l in series) {
+            labels.push(series[l]['label'].length)
+        }
+        
+        var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
+        plotoptions.legend.location = 'ne';
+        plotoptions.legend.xoffset = -offset;
+        $("#plot").css("margin-right", offset + 10);
+        var w = $("#plot").width();
+        $("#plot").css('width', w - offset);
+    }
+    
+    //Render plot
+    plot = $.jqplot('plot',  plotdata, plotoptions);
   }
   
   function renderMiniplot(plotid, data) {

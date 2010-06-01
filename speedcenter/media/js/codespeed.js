@@ -250,6 +250,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     plotoptions.legend = {show: true, location: 'ne'};
     plotoptions.series = series;
     if (!horizontal && series.length > 5) {
+        // Move legend outside plot area to unclutter
         var labels = new Array();
         for (l in series) {
             labels.push(series[l]['label'].length)

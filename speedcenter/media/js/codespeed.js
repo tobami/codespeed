@@ -79,7 +79,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     var series = new Array();
     var barcounter = 0;
     
-    if (chart == "normal bars") {
+    if (chart == "normal bars" || chart == "relative bars") {
         // Add tick labels
         for (var b in benchmarks) {
             var benchlabel = $("label[for='benchmark_" + benchmarks[b] + "']").text();
@@ -90,6 +90,11 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
           for (var j in enviros) {
             var exe = $("label[for='exe_" + exes[i] + "']").text();
             var env = $("label[for='env_" + enviros[j] + "']").text();
+            if (chart == "relative bars") {
+                if (exe == $("label[for='exe_" + baseline + "']").text()) {
+                    continue;
+                }
+            }
             series.push({'label': exe + " @ " + env});
             var customdata = new Array();
             var benchcounter = 0;
@@ -103,6 +108,14 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                 var baseval = compdata[baseline][enviros[j]][benchmarks[b]]
                 if ( baseval == 0 ) { val = 0; }
                 else { val = val / baseval; }
+                if (chart == "relative bars") {
+                    axislabel = "Relative to " + $("label[for='exe_" + baseline + "']").text();
+                    if (val > 1) {
+                        val = -val;
+                    } else if (val != 0) {
+                        val = 1/val;
+                    }
+                }
               }
               
               if (!horizontal) {
@@ -150,7 +163,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                 }
             }
             plotdata.push(customdata);
-        }        
+        }  
     } else {
         // no valid chart type
         return false;
@@ -217,7 +230,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                 },
                 yaxis:{
                     min:0,
-                    autoscale:true,//no effect due to min = 0
+                    autoscale:true,//no effect for some plots due to min = 0
                     label: axislabel,
                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer
                 }
@@ -245,6 +258,11 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         if (chart == "stacked bars") {
             plotoptions.axes.xaxis.tickOptions.angle = -30;
             plotoptions.seriesDefaults.rendererOptions.barMargin += 5;
+        } else if (chart == "relative bars") {
+            plotoptions.seriesDefaults.fill = true;
+            plotoptions.seriesDefaults.fillToZero = true;
+            plotoptions.axes.yaxis.min = null;
+            plotoptions.axes.yaxis.tickOptions = {formatString:'%dx'};
         }
     }
     plotoptions.legend = {show: true, location: 'ne'};

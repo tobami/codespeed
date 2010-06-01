@@ -42,6 +42,9 @@
     } else if (enviros[0] == "") {
       $("#plotwrapper").html(getLoadText("No environments selected", h, false));
       return false;
+    } else if (conf['chart'] == "relative bars" &&  conf['bas'] == "none") {
+      $("#plotwrapper").html(getLoadText("For relative bar charts, you must select a baseline to normalize to.", h, false));
+      return false;
     }
     
     $("#plotwrapper").fadeOut("fast", function() {

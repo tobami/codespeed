@@ -249,6 +249,17 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     }
     plotoptions.legend = {show: true, location: 'ne'};
     plotoptions.series = series;
+    if (!horizontal && series.length > 5) {
+        var labels = new Array();
+        for (l in series) {
+            labels.push(series[l]['label'].length)
+        }
+        
+        var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
+        plotoptions.legend.xoffset = -offset;
+        $("#" + plotid).css("margin-right", offset + 10);
+        if (w + offset > plotwidth) { w = plotwidth - offset -20; }
+    }
     if (chart == "stacked bars") {
         plotoptions.stackSeries = true;
     }

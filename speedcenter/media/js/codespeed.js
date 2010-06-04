@@ -63,17 +63,20 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     var axislabel = "";
     var title = "";
     if (baseline == "none") {
-        title = "Absolute ";
-        if (chart == "stacked bars") { title += "cummulative "; }
+        if (chart == "stacked bars") { title = "Cummulative "; }
         title += unit;
         axislabel = unit + bench_units[unit][1];
     } else {
-        title = "Relative ";
-        if (chart == "stacked bars") { title += "cummulative "; }
-        title += unit;
-        axislabel = "Relative to " + $("label[for='exe_" + baseline + "']").text() + bench_units[unit][1];
+        if (chart == "stacked bars") {
+            title = "Cummulative " + unit + " normalized to " + $("label[for='exe_" + baseline + "']").text();
+        } else if (chart == "relative bars") {
+            title = "Compared to " + $("label[for='exe_" + baseline + "']").text() + " (" + unit + ")";
+        } else {
+            title = unit + " normalized to " + $("label[for='exe_" + baseline + "']").text();
+        }
+        axislabel = "Relative " + unit + bench_units[unit][1];
     }
-        
+    
     var plotdata = new Array();
     var ticks = new Array();
     var series = new Array();
@@ -104,12 +107,12 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
               barcounter++;
               var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
               if (baseline != "none") {
-                axislabel = "Relative to " + $("label[for='exe_" + baseline + "']").text() + bench_units[unit][1];
+                axislabel = "Relative " + unit + bench_units[unit][1];
                 var baseval = compdata[baseline][enviros[j]][benchmarks[b]]
                 if ( baseval == 0 ) { val = 0; }
                 else { val = val / baseval; }
                 if (chart == "relative bars") {
-                    axislabel = "Relative to " + $("label[for='exe_" + baseline + "']").text();
+                    axislabel = "< worse - better >";
                     if (val > 1) {
                         val = -val;
                     } else if (val != 0) {
@@ -200,11 +203,17 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                 }
             }
         }
+        
+        if (chart == "relative bars") {
+            plotoptions.axes.xaxis.min = null;
+            plotoptions.axes.xaxis.tickOptions = {formatString:'%dx'};
+        }
+        
         h = barcounter * (plotoptions.seriesDefaults.rendererOptions.barPadding*2 + barWidth) + benchcounter * plotoptions.seriesDefaults.rendererOptions.barMargin * 2;
         if (w > 820) {
             h = h/2;
             plotoptions.seriesDefaults.rendererOptions.barPadding = 4;
-            plotoptions.seriesDefaults.rendererOptions.barMargin = 10;
+            plotoptions.seriesDefaults.rendererOptions.barMargin = 8;
             plotoptions.seriesDefaults.shadow = false;
         } else if (h < 300) {
             h = 300;
@@ -242,7 +251,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         var plotwidth = $("#plotwrapper").width();
         if (w > plotwidth + 180) {
             plotoptions.seriesDefaults.rendererOptions.barPadding = 4;
-            plotoptions.seriesDefaults.rendererOptions.barMargin = 10;
+            plotoptions.seriesDefaults.rendererOptions.barMargin = 8;
             plotoptions.seriesDefaults.shadow = false;
         }
         if (w > plotwidth + 80) {
@@ -259,8 +268,6 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
             plotoptions.axes.xaxis.tickOptions.angle = -30;
             plotoptions.seriesDefaults.rendererOptions.barMargin += 5;
         } else if (chart == "relative bars") {
-            plotoptions.seriesDefaults.fill = true;
-            plotoptions.seriesDefaults.fillToZero = true;
             plotoptions.axes.yaxis.min = null;
             plotoptions.axes.yaxis.tickOptions = {formatString:'%dx'};
         }
@@ -281,6 +288,10 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     }
     if (chart == "stacked bars") {
         plotoptions.stackSeries = true;
+    } else if (chart == "relative bars") {
+        plotoptions.seriesDefaults.fill = true;
+        plotoptions.seriesDefaults.fillToZero = true;
+        plotoptions.seriesDefaults.useNegativeColors = false;
     }
     /* End set plot style */
         

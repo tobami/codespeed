@@ -26,7 +26,7 @@
     return config;
   }
   
-  function permalinkToOverview(commitid, executableid, environment) {
+  function permalinkToChanges(commitid, executableid, environment) {
     window.location="../changes/?rev=" + commitid + "&" + "exe=" + executableid + "&env=" + environment;
   }
   
@@ -36,7 +36,7 @@
       var commitid = neighbor.data[3];
       var executableid = seriesindex[neighbor.seriesIndex];
       var environment = $("input[name='environments']:checked").val();
-      permalinkToOverview(commitid, executableid, environment);
+      permalinkToChanges(commitid, executableid, environment);
     }
   }
       

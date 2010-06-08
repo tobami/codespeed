@@ -8,9 +8,4 @@ defaultbaseline = None # Which executable + revision should be default as a base
                        # Given as the id of the executable + commitid of the revision
                        # Example: defaultbaseline = {'executable': 4, 'revision': 262}
                        
-baselinelist = None # Which executables + revisions should be listed as comparison options
-                    # Example:defaultbaseline = [
-                    #             {'executable': 4, 'revision': 262},
-                    #             {'executable': 2, 'revision': 56565},
-                    #]
 defaultenvironment = None #Name of the environment which should be selected as default

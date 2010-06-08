@@ -10,42 +10,16 @@ from itertools import chain
 
 def getbaselineexecutables():
     baseline = [{'name': "none"}]
-    if hasattr(settings, 'baselinelist') and settings.baselinelist != None:
-        try:
-            for entry in settings.baselinelist:
-                executable = Executable.objects.get(id=entry['executable'])
-                rev = Revision.objects.filter(
-                    commitid=str(entry['revision']), project=executable.project
-                )
-                if len(rev) > 0:
-                    rev = rev[0]
-                else:
-                    raise Revision.DoesNotExist
-                name = executable.name
-                if executable.coptions != "default" or executable.coptions != "none":
-                    name += " " + executable.coptions
-                if rev.tag: name += " " + rev.tag
-                else: name += " " + rev.commitid
-                baseline.append({
-                    'executable': executable,
-                    'revision': rev,
-                    'name': name,
-                })
-        except (Executable.DoesNotExist, Revision.DoesNotExist):
-            # TODO: write to server logs
-            pass
-    else:
-        revs = Revision.objects.exclude(tag="")
-        for rev in revs:
-            #add executables that correspond to each tagged revision.
-            executables = Executable.objects.filter(project=rev.project)
-            for executable in executables:
-                name = str(executable) + " " + rev.tag
-                baseline.append({
-                    'executable': executable,
-                    'revision': rev,
-                    'name': name,
-                })
+    revs = Revision.objects.exclude(tag="")
+    for rev in revs:
+        #add executables that correspond to each tagged revision.
+        for exe in Executable.objects.filter(project=rev.project):
+            name = str(exe) + " " + rev.tag
+            baseline.append({
+                'executable': exe,
+                'revision': rev,
+                'name': name,
+            })
     # move default to first place
     if hasattr(settings, 'defaultbaseline') and settings.defaultbaseline != None:
         try:
@@ -173,12 +147,13 @@ def comparison(request):
     if not checkedexecutables:
         checkedexecutables = exekeys
     
-    units = Benchmark.objects.values('units').distinct()
+    units = Benchmark.objects.filter(benchmark_type="C").values('units').distinct()
     units = [unit['units'] for unit in units]
     benchmarks = {}
     bench_units = {}
     for unit in units:
-        benchmarks[unit] = Benchmark.objects.filter(units=unit)
+        # Only include benchmarks marked as cross-project
+        benchmarks[unit] = Benchmark.objects.filter(benchmark_type="C").filter(units=unit)
         lessisbetter = benchmarks[unit][0].lessisbetter and ' (less is better)' or ' (more is better)'
         bench_units[unit] = [[b.id for b in benchmarks[unit]], lessisbetter]
     checkedbenchmarks = []
@@ -191,7 +166,8 @@ def comparison(request):
             except Benchmark.DoesNotExist:
                 pass
     if not checkedbenchmarks:
-        checkedbenchmarks = Benchmark.objects.all()
+        # Only include benchmarks marked as cross-project
+        checkedbenchmarks = Benchmark.objects.filter(benchmark_type="C")
     
     enviros = Environment.objects.all()
     checkedenviros = []

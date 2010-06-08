@@ -265,8 +265,9 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
             plotoptions.seriesDefaults.rendererOptions.barMargin = 25;
         }
         if (chart == "stacked bars") {
-            plotoptions.axes.xaxis.tickOptions.angle = -30;
+            plotoptions.axes.xaxis.tickOptions.angle = -60;
             plotoptions.seriesDefaults.rendererOptions.barMargin += 5;
+            $("#" + plotid).css("margin-left", "25px");
         } else if (chart == "relative bars") {
             plotoptions.axes.yaxis.min = null;
             plotoptions.axes.yaxis.tickOptions = {formatString:'%dx'};

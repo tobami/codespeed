@@ -9,13 +9,18 @@ import json
 from itertools import chain
 
 def getbaselineexecutables():
-    baseline = [{'name': "none"}]
+    baseline = [{'key': "none", 'name': "none"}]
     revs = Revision.objects.exclude(tag="")
+    maxlen = 22
     for rev in revs:
         #add executables that correspond to each tagged revision.
         for exe in Executable.objects.filter(project=rev.project):
-            name = str(exe) + " " + rev.tag
+            exestring = str(exe)
+            if len(exestring) > maxlen: exestring = str(exe)[0:maxlen] + "..."
+            name = exestring + " " + rev.tag
+            key = str(exe.id) + "+" + str(rev.id)
             baseline.append({
+                'key': key,
                 'executable': exe,
                 'revision': rev,
                 'name': name,
@@ -61,19 +66,12 @@ def getdefaultexecutable():
 def getcomparisonexes():
     executables = []
     executablekeys = []
+    maxlen = 20
     # add all tagged revs for any project
-    revisions = Revision.objects.exclude(tag="")
-    for rev in revisions:
-        for exe in Executable.objects.filter(project=rev.project):
-            name = str(exe) + " " + rev.tag
-            key = str(exe.id) + "+" + str(rev.id)
-            executablekeys.append(key)
-            executables.append({
-                'key': key,
-                'executable': exe,
-                'revision': rev,
-                'name': name,
-            })
+    for exe in getbaselineexecutables():
+        if exe['key'] == "none": continue
+        executablekeys.append(exe['key'])
+        executables.append(exe)
     
     # add latest revs of tracked projects
     projects = Project.objects.filter(track=True)
@@ -81,7 +79,9 @@ def getcomparisonexes():
         rev = Revision.objects.filter(project=proj).latest('date')
         if rev.tag == "":
             for exe in Executable.objects.filter(project=rev.project):
-                name = str(exe) + " latest"
+                exestring = str(exe)
+                if len(exestring) > maxlen: exestring = str(exe)[0:maxlen] + "..."
+                name = exestring + " latest"
                 key = str(exe.id) + "+L"
                 executablekeys.append(key)
                 executables.append({

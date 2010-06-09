@@ -242,7 +242,7 @@
     <ul>
       <li title="Select baseline">Baseline:<br/>
         <select id="baseline">
-        {% for base in baseline %}<option value="{{ base.executable.id }}+{{ base.revision.id }}">{{ base.name }}</option>{% endfor %}
+        {% for base in baseline %}<option value="{{ base.key }}">{{ base.name }}</option>{% endfor %}
         </select><div class="seriescolor"></div>
       </li>
     </ul>

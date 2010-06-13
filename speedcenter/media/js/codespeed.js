@@ -175,6 +175,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     // Set plot options and size depending on:
     // - Bar orientation (horizontal/vertical)
     // - Screen width and number of bars being displayed
+    var plotwidth = $("#plotwrapper").width();
     var barWidth = 20;
     var w = 0;
     var h = 0;
@@ -207,10 +208,13 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         if (chart == "relative bars") {
             plotoptions.axes.xaxis.min = null;
             plotoptions.axes.xaxis.tickOptions = {formatString:'%dx'};
+        } else if (chart =="stacked bars") {
+//             plotoptions.axes.xaxis.min = null;
+            // Not good when there is a 0 bar. It even shows negative bars when all bars are 0
         }
         
         h = barcounter * (plotoptions.seriesDefaults.rendererOptions.barPadding*2 + barWidth) + benchcounter * plotoptions.seriesDefaults.rendererOptions.barMargin * 2;
-        if (w > 820) {
+        if (h > 820) {
             h = h/2;
             plotoptions.seriesDefaults.rendererOptions.barPadding = 4;
             plotoptions.seriesDefaults.rendererOptions.barMargin = 8;
@@ -220,7 +224,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
             plotoptions.seriesDefaults.rendererOptions.barPadding = 14;
             plotoptions.seriesDefaults.rendererOptions.barMargin = 25;
         }
-        w = "100%";
+        w = plotwidth;
     } else {
         plotoptions = {
             title: title,
@@ -248,7 +252,6 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         
         w = barcounter * (plotoptions.seriesDefaults.rendererOptions.barPadding*2 + barWidth) + benchcounter * plotoptions.seriesDefaults.rendererOptions.barMargin * 2 + 60;
         h = plotheight;
-        var plotwidth = $("#plotwrapper").width();
         if (w > plotwidth + 180) {
             plotoptions.seriesDefaults.rendererOptions.barPadding = 4;
             plotoptions.seriesDefaults.rendererOptions.barMargin = 8;
@@ -275,7 +278,13 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     }
     plotoptions.legend = {show: true, location: 'ne'};
     plotoptions.series = series;
-    if (!horizontal && (series.length > 4 || ticks.length == 1)) {
+    
+    // determine conditions for rendering the legend outside the plot area
+    var offplot = true;
+    if (!horizontal && (series.length > 4 || ticks.length == 1)) {}
+    else if (horizontal && series.length > 2*ticks.length) {}
+    else { offplot = false; }
+    if (offplot) {
         // Move legend outside plot area to unclutter
         var labels = new Array();
         for (l in series) {
@@ -287,6 +296,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         $("#" + plotid).css("margin-right", offset + 10);
         if (w + offset > plotwidth) { w = plotwidth - offset -20; }
     }
+    
     if (chart == "stacked bars") {
         plotoptions.stackSeries = true;
     } else if (chart == "relative bars") {
@@ -299,5 +309,6 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     // Render plot
     $("#" + plotid).css('width', w);
     $("#" + plotid).css('height', h);
+    console.debug($("#" + plotid + " > div.jqplot-table-legend").css('height'));
     plot = $.jqplot(plotid, plotdata, plotoptions);
 }

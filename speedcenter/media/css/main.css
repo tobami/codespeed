@@ -331,7 +331,13 @@ div.miniplot {
 }
 div.miniplot:hover {background-color: #F1F1F1;}
 .jqplot-highlighter-tooltip { -moz-border-radius: 10px; -webkit-border-radius: 10px; }
-div.compplot { text-align: left; height: 450px; float: left; margin-right: 0.8em; margin-bottom: 0.8em; }
+div.compplot {
+    text-align: left;
+    height: 450px;
+    float: left;
+    margin-right: 0.8em;
+    margin-bottom: 2em;
+}
 
 /* new clearfix */
 .clearfix:after {

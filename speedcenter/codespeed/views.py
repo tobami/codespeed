@@ -233,7 +233,7 @@ def gettimelinedata(request):
     
     baselinerev = None
     baselineexe = None
-    if data['base'] != "+" and data['base'] != 'undefined':
+    if data['base'] != "none" and data['base'] != 'undefined':
         exeid, revid = data['base'].split("+")
         baselinerev = Revision.objects.get(id=revid)
         baselineexe = Executable.objects.get(id=exeid)

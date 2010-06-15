@@ -83,6 +83,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     var barcounter = 0;
     
     if (chart == "normal bars" || chart == "relative bars") {
+        if (horizontal) { benchmarks.reverse(); }
         // Add tick labels
         for (var b in benchmarks) {
             var benchlabel = $("label[for='benchmark_" + benchmarks[b] + "']").text();
@@ -132,6 +133,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         }
         
     } else if (chart == "stacked bars") {
+        if (horizontal) { exes.reverse(); }
         // Add tick labels
         for (var i in exes) {
           for (var j in enviros) {

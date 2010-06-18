@@ -13,9 +13,8 @@ data = {
     'commitid': '1',
     'project': 'pypy',
     'revision_date': '', # Optional. Default is taken
-                                            # either from VCS integration or from current date
-    'executable_name': 'pypy-c-jit',
-    'executable_coptions': '', # Optional default is blank
+                         # either from VCS integration or from current date
+    'executable': 'pypy-c-jit',
     'benchmark': 'richards_mem',
     'environment': "bigdog",
     'result_value': 4000,

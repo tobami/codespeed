@@ -56,7 +56,7 @@ for INTERP in RESULTS_URLS:
         if result.has_key('options'): options = result['options']
         
         host = 'tannit'
-        saveresults.save(proj, revision, result['results'], options, interpreter, int_options, host)
+        saveresults.save(proj, revision, result['results'], options, interpreter, host)
         #if filename == filelist[len(filelist)-1]:
-            #savecpython.save('cpython', '262', result['results'], options, 'cpython', '', host)
+            #savecpython.save('cpython', '262', result['results'], options, 'cpython', host)
 print "\nOK"

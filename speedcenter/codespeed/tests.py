@@ -36,7 +36,7 @@ class AddResultTest(TestCase):
         self.assertEquals(b.lessisbetter, True)
         p = Project.objects.get(name='pypy')
         r = Revision.objects.get(commitid='23232', project=p)
-        i = Executable.objects.get(name='pypy-c', coptions='')
+        i = Executable.objects.get(name='pypy-c')
         res = Result.objects.get(
             revision=r,
             executable=i,
@@ -53,7 +53,6 @@ class AddResultTest(TestCase):
         Add result data with non-default options
         """
         modified_data = copy.deepcopy(self.data)
-        modified_data['executable_coptions'] = 'gc=Böhm'
         modified_data['benchmark_type'] = "O"
         modified_data['units'] = "fps"
         modified_data['lessisbetter'] = False
@@ -68,7 +67,7 @@ class AddResultTest(TestCase):
         p = Project.objects.get(name='pypy')
         r = Revision.objects.get(commitid='23232', project=p)
         self.assertEquals(r.date, self.cdate)
-        i = Executable.objects.get(name='pypy-c', coptions='gc=Böhm')
+        i = Executable.objects.get(name='pypy-c')
         b = Benchmark.objects.get(name='Richards')
         res = Result.objects.get(
             revision=r,
@@ -126,11 +125,11 @@ class Timeline(TestCase):
         """
         path = reverse('codespeed.views.gettimelinedata')
         data = {
-            "executables": "1,2,6",
-            "baseline": "true",
-            "benchmark": "ai",
-            "host": "bigdog",
-            "revisions": 16
+            "exe": "1,2,6",
+            "bas": "true",
+            "ben": "ai",
+            "env": "tannit",
+            "rev": 16
         }
         response = self.client.get(path, data)
         responsedata = json.loads(response.content)

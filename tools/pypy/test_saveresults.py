@@ -23,11 +23,10 @@ class testSaveresults(unittest.TestCase):
     
     def testGoodInput(self):
         '''Given correct result data, check that every result being saved has the right parameters'''
-        for resultparams in saveresults.save("pypy", 71212, self.fixture, "", "pypy-c-jit", "gc=hybrid", "tannit", True):
+        for resultparams in saveresults.save("pypy", 71212, self.fixture, "", "pypy-c-jit", "tannit", True):
             self.assertEqual(resultparams['project'], "pypy")
             self.assertEqual(resultparams['commitid'], 71212)
-            self.assertEqual(resultparams['executable_name'], "pypy-c-jit")
-            self.assertEqual(resultparams['executable_coptions'], "gc=hybrid")
+            self.assertEqual(resultparams['executable'], "pypy-c-jit")
             # get dict with correct data for this benchmark
             fixturedata = []
             benchfound = False

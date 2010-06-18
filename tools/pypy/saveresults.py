@@ -9,7 +9,7 @@ from datetime import datetime
 SPEEDURL = 'http://127.0.0.1:8000/'
 #SPEEDURL = 'http://speed.pypy.org/'
 
-def save(project, revision, results, options, executable, exe_coptions, environment, testing=False):
+def save(project, revision, results, options, executable, environment, testing=False):
     testparams = []
     #Parse data
     data = {}
@@ -29,8 +29,7 @@ def save(project, revision, results, options, executable, exe_coptions, environm
         data = {
             'commitid': revision,
             'project': project,
-            'executable_name': executable,
-            'executable_coptions': exe_coptions,
+            'executable': executable,
             'benchmark': bench_name,
             'environment': environment,
             'result_value': value,
@@ -47,9 +46,9 @@ def send(data):
     params = urllib.urlencode(data)
     f = None
     response = "None"
-    info = str(datetime.today()) + ": Saving result for " + data['executable_name']
-    info += " " + data['executable_coptions'] + " revision "
-    info += str(data['commitid']) + ", benchmark " + data['benchmark']
+    info = str(datetime.today()) + ": Saving result for " + data['executable']
+    info += " revision " + info + " " + str(data['commitid']) + ", benchmark "
+    info += data['benchmark']
     print(info)
     try:
         f = urllib2.urlopen(SPEEDURL + 'result/add/', params)

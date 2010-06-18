@@ -54,7 +54,7 @@ def getdefaultexecutable():
     default = None
     if hasattr(settings, 'defaultexecutable') and settings.defaultexecutable != None:
         try:
-            default = Executable.objects.get(id=settings.defaultexecutable)
+            default = Executable.objects.get(name=settings.defaultexecutable)
         except Executable.DoesNotExist:
             pass
     if default == None:
@@ -673,7 +673,7 @@ def addresult(request):
     mandatory_data = [
         'commitid',
         'project',
-        'executable_name',
+        'executable',
         'benchmark',
         'environment',
         'result_value',
@@ -711,11 +711,8 @@ def addresult(request):
 
         rev.save()
     
-    coptions = ""
-    if 'executable_coptions' in data: coptions = data['executable_coptions']
     exe, created = Executable.objects.get_or_create(
-        name=data['executable_name'],
-        coptions=coptions,
+        name=data['executable'],
         project=p
     )
     

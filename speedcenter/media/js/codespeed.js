@@ -210,7 +210,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         
         if (chart == "relative bars") {
             plotoptions.axes.xaxis.min = null;
-            plotoptions.axes.xaxis.tickOptions = {formatString:'%dx'};
+            plotoptions.axes.xaxis.tickOptions = {formatString:'%.1fx'};
         } else if (chart =="stacked bars") {
 //             plotoptions.axes.xaxis.min = null;
             // Not good when there is a 0 bar. It even shows negative bars when all bars are 0
@@ -261,12 +261,13 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         
         w = barcounter * (plotoptions.seriesDefaults.rendererOptions.barPadding*2 + barWidth) + benchcounter * plotoptions.seriesDefaults.rendererOptions.barMargin * 2 + 60;
         h = plotheight;
+        // Check if calculated width is greater than actually available width
         if (w > plotwidth + 180) {
             plotoptions.seriesDefaults.rendererOptions.barPadding = 4;
             plotoptions.seriesDefaults.rendererOptions.barMargin = 8;
             plotoptions.seriesDefaults.shadow = false;
         }
-        if (w > plotwidth + 80) {
+        if (w > plotwidth + 75) {
             plotoptions.axes.xaxis.tickOptions.angle = -30;
         }
         if (w > plotwidth) {
@@ -282,7 +283,9 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
             $("#" + plotid).css("margin-left", "25px");
         } else if (chart == "relative bars") {
             plotoptions.axes.yaxis.min = null;
-            plotoptions.axes.yaxis.tickOptions = {formatString:'%dx'};
+//             plotoptions.axes.yaxis.autoscale = false; //It triggers a bug sometimes
+            plotoptions.axes.yaxis.tickOptions = {formatString:'%.1fx'};
+            plotoptions.axes.xaxis.tickOptions.angle = -30;
         }
     }
     

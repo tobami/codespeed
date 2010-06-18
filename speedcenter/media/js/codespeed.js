@@ -65,7 +65,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     if (baseline == "none") {
         if (chart == "stacked bars") { title = "Cummulative "; }
         title += unit;
-        axislabel = unit + bench_units[unit][1];
+        axislabel = bench_units[unit][2] + bench_units[unit][1];
     } else {
         if (chart == "stacked bars") {
             title = "Cummulative " + unit + " normalized to " + $("label[for='exe_" + baseline + "']").text();
@@ -74,7 +74,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         } else {
             title = unit + " normalized to " + $("label[for='exe_" + baseline + "']").text();
         }
-        axislabel = "Relative " + unit + bench_units[unit][1];
+        axislabel = "Relative " + bench_units[unit][2] + bench_units[unit][1];
     }
     
     var plotdata = new Array();
@@ -108,7 +108,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
               barcounter++;
               var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
               if (baseline != "none") {
-                axislabel = "Relative " + unit + bench_units[unit][1];
+                axislabel = "Relative " + bench_units[unit][2] + bench_units[unit][1];
                 var baseval = compdata[baseline][enviros[j]][benchmarks[b]]
                 if ( baseval == 0 ) { val = 0; }
                 else { val = val / baseval; }

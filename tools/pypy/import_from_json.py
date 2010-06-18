@@ -12,7 +12,7 @@ RESULTS_URLS = {
     'pypy-c-jit': 'http://buildbot.pypy.org/bench_results/',
     'pypy-c':  'http://buildbot.pypy.org/bench_results_nojit/',
 }
-START_REV = 74700
+START_REV = 75400
 PROJECT = "pypy"
 
 for INTERP in RESULTS_URLS:

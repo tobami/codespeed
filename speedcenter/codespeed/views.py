@@ -134,6 +134,18 @@ def comparison(request):
         except Environment.DoesNotExist:
             pass
     
+    enviros = Environment.objects.all()
+    checkedenviros = []
+    if 'env' in data:
+        for i in data['env'].split(","):
+            if not i: continue
+            try:
+                checkedenviros.append(Environment.objects.get(id=int(i)))
+            except Environment.DoesNotExist:
+                pass
+    if not checkedenviros:
+        checkedenviros = enviros
+    
     if not len(Project.objects.all()):
         return HttpResponse("You need to configure at least one Project as default")
     
@@ -147,15 +159,18 @@ def comparison(request):
     if not checkedexecutables:
         checkedexecutables = exekeys
     
-    units = Benchmark.objects.filter(benchmark_type="C").values('units').distinct()
-    units = [unit['units'] for unit in units]
+    units_titles = Benchmark.objects.filter(
+        benchmark_type="C"
+    ).values('units_title').distinct()
+    units_titles = [unit['units_title'] for unit in units_titles]
     benchmarks = {}
     bench_units = {}
-    for unit in units:
+    for unit in units_titles:
         # Only include benchmarks marked as cross-project
-        benchmarks[unit] = Benchmark.objects.filter(benchmark_type="C").filter(units=unit)
+        benchmarks[unit] = Benchmark.objects.filter(benchmark_type="C").filter(units_title=unit)
+        units = benchmarks[unit][0].units
         lessisbetter = benchmarks[unit][0].lessisbetter and ' (less is better)' or ' (more is better)'
-        bench_units[unit] = [[b.id for b in benchmarks[unit]], lessisbetter]
+        bench_units[unit] = [[b.id for b in benchmarks[unit]], lessisbetter, units]
     checkedbenchmarks = []
     if 'ben' in data:
         checkedbenchmarks = []
@@ -168,18 +183,6 @@ def comparison(request):
     if not checkedbenchmarks:
         # Only include benchmarks marked as cross-project
         checkedbenchmarks = Benchmark.objects.filter(benchmark_type="C")
-    
-    enviros = Environment.objects.all()
-    checkedenviros = []
-    if 'env' in data:
-        for i in data['env'].split(","):
-            if not i: continue
-            try:
-                checkedenviros.append(Environment.objects.get(id=int(i)))
-            except Environment.DoesNotExist:
-                pass
-    if not checkedenviros:
-        checkedenviros = enviros
     
     charts = ['normal bars', 'stacked bars', 'relative bars']
     selectedchart = charts[0]
@@ -509,7 +512,17 @@ def changes(request):
     trends = [5, 10, 20, 50, 100]
     if 'tre' in data and int(data['tre']) in trends:
         defaulttrend = int(data['tre'])
-
+    
+    defaultenvironment = getdefaultenvironment()
+    if not defaultenvironment:
+        return HttpResponse("You need to configure at least one Environment")
+    if 'env' in data:
+        try:
+            defaultenvironment = Environment.objects.get(name=data['env'])
+        except Environment.DoesNotExist:
+            pass
+    environments = Environment.objects.all()
+    
     defaultexecutable = getdefaultexecutable()
     if not defaultexecutable:
         return HttpResponse("You need to configure at least one Project as default")
@@ -554,16 +567,6 @@ def changes(request):
                 lastrevisions.append(selectedrevision)
         except Revision.DoesNotExist:
             selectedrevision = lastrevisions[0]
-    
-    defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment:
-        return HttpResponse("You need to configure at least one Environment")
-    if 'env' in data:
-        try:
-            defaultenvironment = Environment.objects.get(name=data['env'])
-        except Environment.DoesNotExist:
-            pass
-    environments = Environment.objects.all()
     
     projectmatrix = {}
     for e in executables: projectmatrix[e.id] = e.project.name

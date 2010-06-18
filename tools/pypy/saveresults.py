@@ -6,8 +6,8 @@
 import urllib, urllib2
 from datetime import datetime
 
-#SPEEDURL = 'http://127.0.0.1:8000/'
-SPEEDURL = 'http://speed.pypy.org/'
+SPEEDURL = 'http://127.0.0.1:8000/'
+#SPEEDURL = 'http://speed.pypy.org/'
 
 def save(project, revision, results, options, executable, exe_coptions, environment, testing=False):
     testparams = []

@@ -17,12 +17,9 @@ data = {
     'executable_name': 'pypy-c-jit',
     'executable_coptions': '', # Optional default is blank
     'benchmark': 'richards_mem',
-    'benchmark_type': 'C', # Optional. Default is C for Cross-project.
     'environment': "bigdog",
     'result_value': 4000,
     'result_date': datetime.today(), # Optional
-    'units': "MB", # Optional. Default is seconds
-    'lessisbetter': False, # Optional. Default is True
     'std_dev': 1.11111, # Optional. Default is blank
     'max': 4001.6, # Optional. Default is blank
     'min': 3995.1, # Optional. Default is blank

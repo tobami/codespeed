@@ -33,7 +33,8 @@
     var enviros = conf['env'].split(",");
     
     h = parseInt($("#plotwrapper").css("height"));//get height for error message
-    if (exes[0] == "") {
+    console.debug(exes[0] + " bas: " + conf['bas']);
+    if (exes[0] == "" || (exes.length == 1 && exes[0] == conf['bas'])) {
       $("#plotwrapper").html(getLoadText("No executables selected", h, false));
       return false;
     } else if (bens[0] == "") {

@@ -46,9 +46,12 @@
     var lastvalues = new Array();//hopefully the smallest values for determining significant digits.
     seriesindex = new Array();
     for (id in data['executables']) {
-      var colorid = id;
+      var colorid = $("#executable > div.boxbody").find("input[value='"+id+"']").attr('id').slice(10);
       while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
-      series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
+      series.push({
+        "label": $("label[for*='executable" + colorid + "']").html(),
+        "color": seriesColors[colorid-1]
+      });
       seriesindex.push(id);
       plotdata.push(data['executables'][id]);
       lastvalues.push(data['executables'][id][0][1]);
@@ -119,7 +122,12 @@
     var plotdata = new Array();
     var series = new Array();
     for (id in data['executables']) {
-      series.push({"label": $("label[for*='" + id + "']").html(), "color": seriesColors[id-1]});
+      var colorid = $("#executable > div.boxbody").find("input[value='"+id+"']").attr('id').slice(10);
+      while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
+      series.push({
+        "label": $("label[for*='executable" + colorid + "']").html(),
+        "color": seriesColors[colorid-1]
+      });
       plotdata.push(data['executables'][id]);
     }
     if (data["baseline"] != "None") {
@@ -208,9 +216,9 @@
     $("input[name='benchmark']").change(refreshContent);
     $("input:radio[name='environments']").filter('[value={{ defaultenvironment.name }}]').attr('checked', true);
     $("input[name='environments']").change(refreshContent);
-    $("#executable div.boxbody ul li").each(function() {
-      var serieid = $(this).find("input").val();
-      $(this).find("div.seriescolor").css("background-color", seriesColors[serieid-1]);
+    $("#executable div.boxbody > ul > li > input").each(function() {
+      var colorid = $(this).attr("id").slice(10);
+      $(this).parent().find("div.seriescolor").css("background-color", seriesColors[colorid-1]);
     });
     $("#baseline").next().css("background-color", baselineColor);
     
@@ -235,9 +243,9 @@
   <div class="boxhead"><h2>Executables</h2></div>
   <div class="boxbody">
     <ul class="clearfix">{% for exec in executables|dictsort:"id" %}
-      <li>
-        <input id="executable{{ exec.id }}" type="checkbox" name="executable" value="{{ exec.id }}" />
-        <label for="executable{{ exec.id }}">{{ exec }}</label><div class="seriescolor"></div>
+      <li><!-- the input id != value. It is used for exeutable color order       -->
+        <input id="executable{{ forloop.counter }}" type="checkbox" name="executable" value="{{ exec.id }}" />
+        <label for="executable{{ forloop.counter }}">{{ exec }}</label><div class="seriescolor"></div>
       </li>{% endfor %}
     </ul>
     <ul>

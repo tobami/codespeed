@@ -281,6 +281,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
             plotoptions.axes.xaxis.tickOptions.angle = -60;
             plotoptions.seriesDefaults.rendererOptions.barMargin += 5;
             $("#" + plotid).css("margin-left", "25px");
+            h += 60;
         } else if (chart == "relative bars") {
             plotoptions.axes.yaxis.min = null;
 //             plotoptions.axes.yaxis.autoscale = false; //It triggers a bug sometimes

@@ -9,7 +9,7 @@ import json
 from itertools import chain
 
 def getbaselineexecutables():
-    baseline = [{'key': "none", 'name': "none"}]
+    baseline = [{'key': "none", 'name': "none", 'executable': "none", 'revision': "none"}]
     revs = Revision.objects.exclude(tag="")
     maxlen = 22
     for rev in revs:
@@ -29,7 +29,10 @@ def getbaselineexecutables():
     if hasattr(settings, 'defaultbaseline') and settings.defaultbaseline != None:
         try:
             for base in baseline:
-                if base['executable'] == settings.defaultbaseline['executable'] and base['revision'] == str(settings.defaultbaseline['revision']):
+                if base['key'] == "none": continue
+                exename = settings.defaultbaseline['executable']
+                commitid = settings.defaultbaseline['revision']
+                if base['executable'].name == exename and base['revision'].commitid == commitid:
                     baseline.remove(base)
                     baseline.insert(1, base)
                     break

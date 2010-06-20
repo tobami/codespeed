@@ -244,7 +244,7 @@
   <div class="boxhead"><h2>Executables</h2></div>
   <div class="boxbody">
     <ul class="clearfix">{% for exec in executables|dictsort:"id" %}
-      <li><!-- the input id != value. It is used for exeutable color order       -->
+      <li title="{{ exec.description }}"><!-- the input id != value. It is used for exeutable color order       -->
         <input id="executable{{ forloop.counter }}" type="checkbox" name="executable" value="{{ exec.id }}" />
         <label for="executable{{ forloop.counter }}">{{ exec }}</label><div class="seriescolor"></div>
       </li>{% endfor %}

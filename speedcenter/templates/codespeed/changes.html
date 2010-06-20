@@ -138,7 +138,7 @@
   <div class="boxbody">
     <ul>
     {% for exec in executables|dictsort:"id" %}
-      <li>
+      <li title="{{ exec.description }}">
         <input id="executable{{ exec.id }}" type="radio" name="executable" value="{{ exec.id }}" />
         <label for="executable{{ exec.id }}">{{ exec }}</label>
       </li>

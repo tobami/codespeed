@@ -28,7 +28,7 @@ class Revision(models.Model):
     author = models.CharField(max_length=25, blank=True)
 
     def __unicode__(self):
-        return self.date.strftime("%Y-%m-%d %H:%M") + " - " + self.commitid
+        return self.date.strftime("%h %d, %H:%M") + " - " + self.commitid + " " + self.tag
     
     class Meta:
         unique_together = ("commitid", "project")

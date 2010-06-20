@@ -88,7 +88,8 @@
           renderer:$.jqplot.DateAxisRenderer,
           label: 'Commit date',
           labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-          pad: 1.01, autoscale:true,
+          tickOptions:{formatString:'%b %d'},
+          pad: 1.01, autoscale:true
         }
       },
       legend: {show: true, location: 'nw'},

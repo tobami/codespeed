@@ -19,7 +19,7 @@ class ExecutableAdmin(admin.ModelAdmin):
 admin.site.register(Executable, ExecutableAdmin)
 
 class BenchmarkAdmin(admin.ModelAdmin):
-    list_display = ('name', 'benchmark_type', 'description', 'units', 'lessisbetter')
+    list_display = ('name', 'benchmark_type', 'description', 'units_title', 'units', 'lessisbetter')
 
 admin.site.register(Benchmark, BenchmarkAdmin)
 

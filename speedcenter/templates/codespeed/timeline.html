@@ -221,7 +221,7 @@
       var colorid = $(this).attr("id").slice(10);
       $(this).parent().find("div.seriescolor").css("background-color", seriesColors[colorid-1]);
     });
-    $("#baseline").next().css("background-color", baselineColor);
+    $("#baselinecolor").css("background-color", baselineColor);
     
     $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
     
@@ -250,10 +250,10 @@
       </li>{% endfor %}
     </ul>
     <ul>
-      <li title="Select baseline">Baseline:<br/>
+      <li title="Select baseline">Baseline:<div id="baselinecolor" class="seriescolor"></div><br/>
         <select id="baseline">
         {% for base in baseline %}<option value="{{ base.key }}">{{ base.name }}</option>{% endfor %}
-        </select><div class="seriescolor"></div>
+        </select>
       </li>
     </ul>
   </div>

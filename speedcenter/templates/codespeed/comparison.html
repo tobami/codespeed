@@ -151,7 +151,7 @@
   <div class="boxbody">
     <ul><a href="#" class="checkall">All</a>, <a href="#" class="uncheckall">None</a>
     {% for exe in executables %}
-      <li title="{{ exe.executable }} {{ exe.revision }}">
+      <li title="{{ exe.executable }} - {{ exe.revision }}">
         <input id="exe_{{ exe.key }}" type="checkbox" name="executables" value="{{ exe.key }}" />
         <label for="exe_{{ exe.key }}">{{ exe.name }}</label><div class="seriescolor"></div>
       </li>{% endfor %}

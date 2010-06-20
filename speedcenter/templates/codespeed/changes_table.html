@@ -14,6 +14,44 @@ seconds{% endif %}</th>{% if showunits %}<th class="w">units</th>{% endif %}<th 
   </tr>{% endfor %}
 </tbody>
 </table>
+
+<table class="info">
+<thead>
+  <tr>
+    <th colspan="2">Revision</th>
+  </tr>
+</thead>
+<tbody>
+<tr><td>Date</td><td>{{ rev.date }}</td></tr>
+<tr><td>Commit</td><td>{{ rev.commitid }}</td></tr>
+</tbody>
+</table>
+
+<table class="info">
+<thead>
+  <tr>
+    <th colspan="2">Executable</th>
+  </tr>
+</thead>
+<tbody>
+<tr><td>Name</td><td>{{ exe }}</td></tr>
+<tr><td>Description</td><td>{{ exe.description }}</td></tr>
+</tbody>
+</table>
+
+<table class="info">
+<thead>
+  <tr>
+    <th colspan="2">Environment</th>
+  </tr>
+</thead>
+<tbody>
+<tr><td>Name</td><td>{{ env.name }}</td></tr>
+<tr><td>CPU</td><td>{{ env.cpu }}</td></tr>
+<tr><td>Memory</td><td>{{ env.memory }}</td></tr>
+</tbody>
+</table>
+
 {% ifnotequal executable.project.repo_type 'N' %}
 <table class="commits">
 <thead>

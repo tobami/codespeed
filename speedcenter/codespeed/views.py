@@ -318,10 +318,6 @@ def timeline(request):
     if not len(defaultproject):
         return HttpResponse("You need to configure at least one Project as default")
     else: defaultproject = defaultproject[0]
-        
-    defaultbenchmark = "grid"
-    if 'ben' in data and data['ben'] != defaultbenchmark:
-        defaultbenchmark = get_object_or_404(Benchmark, name=data['ben'])
     
     checkedexecutables = []
     if 'exe' in data:
@@ -333,6 +329,9 @@ def timeline(request):
                 pass
     if not checkedexecutables:
         checkedexecutables = Executable.objects.filter(project__track=True)
+    
+    if not len(checkedexecutables):
+        return HttpResponse("There needs to be at least one executable")
     
     baseline = getbaselineexecutables()
     defaultbaseline = None
@@ -351,6 +350,10 @@ def timeline(request):
         if int(data['revs']) not in lastrevisions:
             lastrevisions.append(data['revs'])
         defaultlast = data['revs']
+    
+    defaultbenchmark = "grid"
+    if 'ben' in data and data['ben'] != defaultbenchmark:
+        defaultbenchmark = get_object_or_404(Benchmark, name=data['ben'])
     
     # Information for template
     executables = Executable.objects.filter(project__track=True)
@@ -479,7 +482,10 @@ def getchangestable(request):
         'showunits': showunits,
         'executable': executable,
         'lastrevision': lastrevision,
-        'totals': totals
+        'totals': totals,
+        'rev': selectedrev,
+        'exe': executable,
+        'env': environment,
     })
     
 def changes(request):
@@ -504,9 +510,14 @@ def changes(request):
             pass
     environments = Environment.objects.all()
     
+    defaultproject = Project.objects.filter(track=True)
+    if not len(defaultproject):
+        return HttpResponse("You need to configure at least one Project as default")
+    else: defaultproject = defaultproject[0]
+    
     defaultexecutable = getdefaultexecutable()
     if not defaultexecutable:
-        return HttpResponse("You need to configure at least one Project as default")
+        return HttpResponse("There needs to be at least one executable")
     
     if "exe" in data:
         try:

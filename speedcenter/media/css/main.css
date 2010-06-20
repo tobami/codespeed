@@ -1,5 +1,5 @@
 body {
-    min-width: 600px;
+    min-width: 700px;
     margin: 0;
     padding: 0;
     background-color: #596A74;
@@ -193,7 +193,8 @@ a.checkall, a.uncheckall { font-size: normal; color: #AAAAAA; }
 a.checkall { margin-left: 0.4em; }
 
 /* tables */
-table.tablesorter, table.commits {
+table#results, table.commits, table.info {
+    float: left;
     font-family:arial;
     font-size: 11pt;
     text-align: left;
@@ -258,17 +259,15 @@ table.tablesorter tbody tr.highlight td {
     cursor: pointer;
 }
 
-table.commits { width: 100%; margin-top: 2em;}
+table.info { margin-left: 0.8em; margin-bottom: 0.8em;}
+table.info th, table.info td { padding: 0.3em; }
+
+table.commits { width: 100%; margin-top: 2em; }
 table.commits th, table.commits td { padding: 0.5em; }
 table.commits th { background-color: #F1F1F1; font-weight: normal; }
-table.commits tbody tr td {
-  border-bottom: 1px solid #CDCDCD;
-  vertical-align: top;
-}
-
+table.commits tbody tr td { border-bottom: 1px solid #CDCDCD; vertical-align: top; }
 table.commits tbody tr td.date, div.author, span.note { font-size: 92%; color: #666666; }
 table.commits tbody tr td.date { padding-top: 0.6em;}
-/* div.author{ margin-bottom: 0.3em; } */
 
 
 a#permalink { float: right; font-size: small; }

@@ -112,7 +112,7 @@ class AddResultTest(TestCase):
             self.data[key] = backup
 
 class Timeline(TestCase):
-    fixtures = ["multi_project_host.json"]
+    fixtures = ["pypy.json"]
     
     def setUp(self):
         self.client = Client()
@@ -122,11 +122,11 @@ class Timeline(TestCase):
         """
         path = reverse('codespeed.views.gettimelinedata')
         data = {
-            "exe": "1,2,6",
-            "bas": "true",
+            "exe": "1,2",
+            "base": "2+35",
             "ben": "ai",
             "env": "tannit",
-            "rev": 16
+            "revs": 16
         }
         response = self.client.get(path, data)
         responsedata = json.loads(response.content)

@@ -12,7 +12,7 @@ RESULTS_URLS = {
     'pypy-c-jit': 'http://buildbot.pypy.org/bench_results/',
     'pypy-c':  'http://buildbot.pypy.org/bench_results_nojit/',
 }
-START_REV = 75400
+START_REV = 74400
 PROJECT = "pypy"
 
 for INTERP in RESULTS_URLS:
@@ -57,6 +57,6 @@ for INTERP in RESULTS_URLS:
         
         host = 'tannit'
         saveresults.save(proj, revision, result['results'], options, interpreter, host)
-        #if filename == filelist[len(filelist)-1]:
-            #savecpython.save('cpython', '262', result['results'], options, 'cpython', host)
+        if filename == filelist[len(filelist)-1]:
+            savecpython.save('cpython', '262', result['results'], options, 'cpython', host)
 print "\nOK"

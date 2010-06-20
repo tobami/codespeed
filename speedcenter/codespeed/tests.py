@@ -17,7 +17,7 @@ class AddResultTest(TestCase):
         self.data = {
                 'commitid': '23232',
                 'project': 'pypy',
-                'executable_name': 'pypy-c',
+                'executable': 'pypy-c',
                 'benchmark': 'Richards',
                 'environment': 'bigdog',
                 'result_value': 456,
@@ -53,9 +53,6 @@ class AddResultTest(TestCase):
         Add result data with non-default options
         """
         modified_data = copy.deepcopy(self.data)
-        modified_data['benchmark_type'] = "O"
-        modified_data['units'] = "fps"
-        modified_data['lessisbetter'] = False
         modified_data['result_date'] = self.cdate
         modified_data['std_dev'] = 1.11111
         modified_data['max'] = 2

@@ -406,21 +406,6 @@ def getchangestable(request):
     ).filter(
         executable=executable
     )
-    
-    base_list = None
-    baseline = None
-    if data['base'] != "undefined" and data['base'] != "+":
-        exeid, revid = data['base'].split("+")
-        exe = Executable.objects.get(id=exeid)
-        rev = Revision.objects.get(id=revid)
-        baseline = {'name': str(exe) + rev.tag, 'executable': exe.name}
-        base_list = Result.objects.filter(
-            revision=rev
-        ).filter(
-            environment=environment
-        ).filter(
-            executable=exe
-        )
 
     table_list = []
     totals = {'change': [], 'trend': [],}
@@ -462,18 +447,13 @@ def getchangestable(request):
             trend = "-"
 
         relative = 0
-        if base_list:
-            c = base_list.filter(benchmark=bench)
-            if c.count():
-                relative =  c[0].value / result
-                #totals['relative'].append(relative)#deactivate average for comparison
+
         table_list.append({
             'benchmark': bench,
             'result': result,
             'std_dev': std_dev,
             'change': change,
             'trend': trend,
-            'relative': relative,
         })
     
     if not len(table_list):
@@ -495,10 +475,8 @@ def getchangestable(request):
     
     return render_to_response('codespeed/changes_table.html', {
         'table_list': table_list,
-        'baseline': baseline,
         'trendconfig': trendconfig,
         'showunits': showunits,
-        'showcomparison': base_list,
         'executable': executable,
         'lastrevision': lastrevision,
         'totals': totals

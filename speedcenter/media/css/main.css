@@ -204,20 +204,8 @@ table.tablesorter, table.commits {
     background-color: #fafafa;
 }
 
-table.tablesorter {
-    width: 100%;
-}
-
 table#results thead tr th { padding-right: 10px; }
 table#results thead tr th.w {  width: 5em; }
-table#results thead tr th.bar {
-    background-image: url(/media/images/gridline_units.png);
-    background-repeat: no-repeat;
-    background-position: left bottom;
-    vertical-align: top;
-    text-align: center;
-    cursor: default;
-}
 
 table.tablesorter thead tr th {
     background-color: #9DADC6;
@@ -262,37 +250,6 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
 }
 
 table.tablesorter tbody td.text {text-align: left;}
-
-table.tablesorter tbody td.bar, table.tablesorter tfoot tr td.bar {
-    background-image: url(/media/images/gridline.png);
-    background-repeat: repeat;
-    background-position: left top;
-    text-align: left;
-    padding: 0px;
-    border: none;
-    background-color:transparent;
-}
-
-table.tablesorter tfoot tr td.bar {
-    border: 2px solid #CDCDCD;
-    border-left: 1px solid #CDCDCD;/*Firefox table border-collapse bug*/
-}
-    
-table.tablesorter tbody td.bar img {
-    vertical-align: middle;
-    margin: 5px 5px 5px 0;
-    border: none;
-}
-
-table.tablesorter tbody span, table.tablesorter tfoot span {
-  display: block;
-  opacity: 0;
-  height: 1.45em;
-  margin-top: 0.2em;
-  background: #5AA1D3;
-  text-indent: -9999px;
-  overflow: hidden;
-}
 
 table.tablesorter tbody tr td.status-red, .status-red  { background-color: #FF5640; }
 table.tablesorter tbody tr td.status-green, .status-green { background-color: #9FD54D; }

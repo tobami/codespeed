@@ -13,7 +13,6 @@
   function getConfiguration() {
     var config = new Object();
     config["tre"] = $("#trend option:selected").val();
-    config["base"] = $("#baseline option:selected").val();
     config["rev"] = $("#revision option:selected").val();
     config["exe"] = $("input[name='executable']:checked").val();
     config["env"] = $("input[name='environment']:checked").val();
@@ -24,13 +23,13 @@
     window.location="../timeline/?ben=" + benchmark + "&env=" + environment;
   }
 
-  function colorTable(length, index) {
+  function colorTable(tablelength, index) {
     var changethres = {{ defaultchangethres }};
     var trendthres = {{ defaulttrendthres }};
     $("#results > :not(thead) > tr").each(function() {
       //Color change column
       var change = $(this).children("td:eq("+index+")").text().slice(0, -1);
-      if (length == 6) {
+      if (tablelength == 6) {
         var lessisbetter = $(this).children("td:eq(2)").find("label").text();
         if (lessisbetter == 0) { change = -change; }
       }
@@ -42,42 +41,26 @@
   }
   
   function updateTable() {
-    var nexttolast = $("#results thead tr th:last").index() - 1;
-    colorTable(nexttolast, nexttolast-2);
-    //process table rows
-    var tdwidth = parseInt($("#results thead tr th:last").css("width"));
+    var last = $("#results thead tr th:last").index();
+    colorTable(last, last-1);//color two colums to the right starting with index = last-1
+    //Add permalink events to table rows
     $("#results > tbody > tr").each(function() {
-      //Size plot bars
-      if ($(this).children("td:eq("+nexttolast+")").length) {
-        var bar = transToLogBars(58, tdwidth,  parseFloat($(this).children("td:eq("+nexttolast+")").text()));
-        $(this).children("td:last").find("span").css("width", bar["width"]).css("margin-left", bar["margin"]).fadeTo("fast", 0.8);
-        
-      }
-      //Link rows to timelines
       $(this).click(function () {
         var environment = $("input[name='environment']:checked").val();
         permalinkToTimeline($(this).children("td:eq(0)").text(), environment);
       });
     });
-    //Configure table as tablesorter
-    if ($("#results > tbody > tr").first().length) {
-      $.tablesorter.defaults.sortList = [[nexttolast,1]];//sort by default by the compasison column
-      var last = nexttolast + 1;
-      $.tablesorter.defaults.headers = { last: { sorter: false } };//disable sorting for bar column (last one)
-    }
-    $("#results").tablesorter({widgets: ['zebra']});
+    //Add hover effect to rows
     $("#results tbody td").hover(function() {
       $(this).parents('tr').addClass('highlight');
     }, function() {
       $(this).parents('tr').removeClass('highlight');
     });
+    //Configure table as tablesorter
+    $("#results").tablesorter({widgets: ['zebra']});
   }
   
   function refreshContent() {
-    $.ajaxSetup ({
-      cache: false
-    });
-    
     var h = parseInt($("#content").css("height"));//get height for loading text
     $("#results").fadeOut("fast", function() {
       $("#content").html(getLoadText("Loading...", h, true));
@@ -108,16 +91,18 @@
     // Configure defaults
     $("#trend").val("{{ defaulttrend }}");
     $("#trend").change(refreshContent);
-    $("#baseline").val("{{ defaultbaseline }}");
-    $("#baseline").change(refreshContent);
+    
+    $("input:radio[name=executable]").filter('[value="{{ defaultexecutable.id }}"]').attr('checked', true);
+    $("input[name='executable']").change(changerevisions);
+    
+    $("input:radio[name='environment']").filter('[value="{{ defaultenvironment.name }}"]').attr('checked', true);
+    $("input[name='environment']").change(refreshContent);
+    
     //repopulate revision select box if the project has changed
     $("#revision").html(revisionboxes['{{ defaultexecutable.project.name }}']);
     $("#revision").val("{{ selectedrevision.commitid }}");
     $("#revision").change(refreshContent);
-    $("input:radio[name=executable]").filter('[value="{{ defaultexecutable.id }}"]').attr('checked', true);
-    $("input[name='executable']").change(changerevisions);
-    $("input:radio[name='environment']").filter('[value="{{ defaultenvironment.name }}"]').attr('checked', true);
-    $("input[name='environment']").change(refreshContent);
+    
     refreshContent();
   });
 </script>
@@ -163,15 +148,10 @@
   <div class="boxhead"><h2>Options</h2></div>
   <div class="boxbody">
   <ul>
-    <li title="Trend since a given number of tested revisions ago. Average of 3 revisions">Trend:<br/>
+    <li title="Trend since a given number of tested revisions ago. Average of 3 revisions">Trend for last<br/>
       <select id="trend">
       {% for trend in trends %}<option value="{{ trend }}">{{ trend }}</option>{% endfor %}
-      </select>
-    </li>
-    <li title="Select executable for comparison">Compare to:<br/>
-      <select id="baseline">
-      {% for base in baseline %}<option value="{{ base.executable.id }}+{{ base.revision.id }}">{{ base.name }}</option>{% endfor %}
-      </select>
+      </select> revisions
     </li>
   </ul>
   </div>

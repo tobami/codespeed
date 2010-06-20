@@ -5,6 +5,7 @@
   $(function() {
     $("#changes").click(function () { window.location="/changes/"; });
     $("#timeline").click(function () { window.location="/timeline/"; });
+    $("#comparison").click(function () { window.location="/comparison/"; });
   });
 </script>
 {% endblock %}
@@ -15,12 +16,17 @@
     <div id="changes">
       <h2>Changes</h2>
       <p>Track performance changes in the latest revisions</p>
-      <img src="/media/images/changes.png" height="130" width="250" alt="Changes"/>
+      <img src="/media/images/changes.png" height="130" width="220" alt="Changes"/>
     </div>
     <div id="timeline">
       <h2>Timeline</h2>
       <p>Analyze performance over time</p>
-      <img src="/media/images/timeline.png" height="150" width="250" alt="Timeline"/>
+      <img src="/media/images/timeline.png" height="140" width="220" alt="Timeline"/>
+    </div>
+    <div id="comparison">
+      <h2>Comparison</h2>
+      <p>Compare different executables and revisions</p>
+      <img src="/media/images/comparison.png" height="130" width="220" alt="Changes"/>
     </div>
 </div>
 </div>

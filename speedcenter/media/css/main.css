@@ -1,5 +1,5 @@
 body {
-    min-width: 960px;
+    min-width: 600px;
     margin: 0;
     padding: 0;
     background-color: #596A74;
@@ -74,11 +74,11 @@ div#workarea {
 }
 
 div#presentation_wrapper {
-    width: 725px;
+    width: 880px;
     margin-left: auto; margin-right: auto;
     text-align: center;
 }
-div#presentation_wrapper p { font-size: large; }
+div#presentation_wrapper h2 { margin-top: 0.5em; }
 div#presentation_wrapper p a:hover { text-decoration: underline; }
 div#presentation div {
     background-image: url(/media/images/vgradient.png);
@@ -88,23 +88,22 @@ div#presentation div {
     position: relative;
     float: left;
     height: 260px;
-    width: 270px;
+    width: 230px;
     cursor: pointer;
     text-align: center;
-    margin: 1.6em;
+    margin: 0.8em;
     padding: 0.8em;
     border: 5px solid #F1F1F1;
     -moz-border-radius: 20px;
     -webkit-border-radius: 20px;
 }
-div#presentation p { text-align: left; font-size: medium; }
+div#presentation p { text-align: left; font-size: small; }
 
 div#presentation div:hover {
     border: 5px solid #FFCE9C;
 }
 
-div#presentation h2 {  }
-div#presentation img { border: 0; position: relative; bottom: 0px;}
+div#presentation img { border: 0; position: relative; bottom: 0px; }
 
 div#sidebar {
     width: 13.7em;

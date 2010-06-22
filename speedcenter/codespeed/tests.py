@@ -134,4 +134,4 @@ class Timeline(TestCase):
         self.assertEquals(len(responsedata['timelines']), 1, "there should be 1 benchmark")
         self.assertEquals(len(responsedata['timelines'][0]['executables']), 2, "there should be 2 timelines")
         self.assertEquals(len(responsedata['timelines'][0]['executables']['1']), 16, "There are 16 datapoints")
-        self.assertEquals(responsedata['timelines'][0]['executables']['1'][4], ['2010-04-14 19:55:18', 0.433843383789, 0.0099517018942000008, '73755'], "Wrong data")
+        self.assertEquals(responsedata['timelines'][0]['executables']['1'][4], [u'2010-06-14 18:01:57', 0.40650734901399999, 0.0121723354796, u'75401'], "Wrong data returned")

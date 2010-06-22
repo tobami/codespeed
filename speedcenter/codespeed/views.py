@@ -9,7 +9,7 @@ import json
 from itertools import chain
 
 def getbaselineexecutables():
-    baseline = [{'key': "none", 'name': "none", 'executable': "none", 'revision': "none"}]
+    baseline = [{'key': "none", 'name': "None", 'executable': "none", 'revision': "none"}]
     revs = Revision.objects.exclude(tag="")
     maxlen = 22
     for rev in revs:

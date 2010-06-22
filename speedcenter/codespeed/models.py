@@ -22,10 +22,10 @@ class Project(models.Model):
 class Revision(models.Model):
     commitid = models.CharField(max_length=42)#git and mercurial's SHA-1 length is 40
     project = models.ForeignKey(Project)
-    tag = models.CharField(max_length=25, blank=True)
+    tag = models.CharField(max_length=20, blank=True)
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
-    author = models.CharField(max_length=25, blank=True)
+    author = models.CharField(max_length=30, blank=True)
 
     def __unicode__(self):
         return self.date.strftime("%h %d, %H:%M") + " - " + self.commitid + " " + self.tag
@@ -52,8 +52,8 @@ class Benchmark(models.Model):
     name = models.CharField(unique=True, max_length=30)
     benchmark_type = models.CharField(max_length=1, choices=B_TYPES, default='C')
     description = models.CharField(max_length=200, blank=True)
-    units_title = models.CharField(max_length=20, default='Time')
-    units = models.CharField(max_length=10, default='seconds')
+    units_title = models.CharField(max_length=30, default='Time')
+    units = models.CharField(max_length=20, default='seconds')
     lessisbetter = models.BooleanField(default=True)
     
     def __unicode__(self):
@@ -61,11 +61,11 @@ class Benchmark(models.Model):
 
 
 class Environment(models.Model):
-    name = models.CharField(unique=True,max_length=50)
-    cpu = models.CharField(max_length=20, blank=True)
-    memory = models.CharField(max_length=20, blank=True)
-    os = models.CharField(max_length=20, blank=True)
-    kernel = models.CharField(max_length=20, blank=True)
+    name = models.CharField(unique=True,max_length=30)
+    cpu = models.CharField(max_length=30, blank=True)
+    memory = models.CharField(max_length=30, blank=True)
+    os = models.CharField(max_length=30, blank=True)
+    kernel = models.CharField(max_length=30, blank=True)
     
     def __unicode__(self):
         return str(self.name)

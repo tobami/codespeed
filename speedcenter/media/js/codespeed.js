@@ -113,7 +113,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                 if ( baseval == 0 ) { val = 0; }
                 else { val = val / baseval; }
                 if (chart == "relative bars") {
-                    axislabel = "< worse - better >";
+                    axislabel = "<- worse - better ->";
                     if (val > 1) {
                         val = -val;
                     } else if (val != 0) {

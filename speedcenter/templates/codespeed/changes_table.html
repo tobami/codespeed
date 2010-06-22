@@ -1,8 +1,8 @@
 <table id="results" class="tablesorter">
 <thead>
   <tr>
-    <th class="w">Benchmark</th><th class="w">{% if showunits %}Result{% else %}
-seconds{% endif %}</th>{% if showunits %}<th class="w">units</th>{% endif %}<th class="w">std dev</th><th class="w">Current change</th><th class="w" title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
+    <th>Benchmark</th><th>{% if showunits %}Result{% else %}
+seconds{% endif %}</th>{% if showunits %}<th>units</th>{% endif %}<th>std dev</th><th>Current change</th><th title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
   </tr>
 </thead>
 <tfoot>
@@ -22,8 +22,8 @@ seconds{% endif %}</th>{% if showunits %}<th class="w">units</th>{% endif %}<th 
   </tr>
 </thead>
 <tbody>
-<tr><td>Date</td><td>{{ rev.date }}</td></tr>
-<tr><td>Commit</td><td>{{ rev.commitid }}</td></tr>
+<tr><td class="infofirst">Commit</td><td>{{ rev.commitid }}</td></tr>
+<tr><td class="infofirst">Date</td><td>{{ rev.date }}</td></tr>
 </tbody>
 </table>
 
@@ -34,8 +34,8 @@ seconds{% endif %}</th>{% if showunits %}<th class="w">units</th>{% endif %}<th 
   </tr>
 </thead>
 <tbody>
-<tr><td>Name</td><td>{{ exe }}</td></tr>
-<tr><td>Description</td><td>{{ exe.description }}</td></tr>
+<tr><td class="infofirst">Name</td><td>{{ exe }}</td></tr>
+<tr><td class="infofirst">Description</td><td>{{ exe.description }}</td></tr>
 </tbody>
 </table>
 
@@ -46,9 +46,11 @@ seconds{% endif %}</th>{% if showunits %}<th class="w">units</th>{% endif %}<th 
   </tr>
 </thead>
 <tbody>
-<tr><td>Name</td><td>{{ env.name }}</td></tr>
-<tr><td>CPU</td><td>{{ env.cpu }}</td></tr>
-<tr><td>Memory</td><td>{{ env.memory }}</td></tr>
+<tr><td class="infofirst">Name</td><td>{{ env.name }}</td></tr>
+<tr><td class="infofirst">CPU</td><td>{{ env.cpu }}</td></tr>
+<tr><td class="infofirst">Memory</td><td>{{ env.memory }}</td></tr>
+<tr><td class="infofirst">OS</td><td>{{ env.os }}</td></tr>
+<tr><td class="infofirst">Kernel</td><td>{{ env.kernel }}</td></tr>
 </tbody>
 </table>
 

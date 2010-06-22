@@ -129,8 +129,8 @@ div#configbar span {
     -webkit-border-radius: 5px;
 }
 
-div#configbar span.options { margin-left: 3em;  padding-left: 1em; padding-right: 1em; font-size: small; border-left: dashed black 1px; border-right: dashed black 1px; }
-div#configbar input { margin-left: 1em; margin-right: 0; vertical-align: middle; }
+div#configbar span.options { padding-right: 4em; font-size: 90%; }
+div#configbar input { margin-left: 1.5em; margin-right: 0; vertical-align: middle; }
     
 div#content, div.about_content {
     margin-left: 14.5em;
@@ -204,8 +204,7 @@ table#results, table.commits, table.info {
     background-color: #fafafa;
 }
 
-table#results thead tr th { padding-right: 10px; }
-table#results thead tr th.w {  width: 5em; }
+table#results thead tr th { padding-right: 10px; width: 5em; }
 
 table.tablesorter thead tr th {
     background-color: #9DADC6;
@@ -259,14 +258,20 @@ table.tablesorter tbody tr.highlight td {
     cursor: pointer;
 }
 
-table.info { margin-left: 0.8em; margin-bottom: 0.8em;}
+table.info { margin-left: 0.8em; margin-bottom: 0.8em; width: 22em; }
+table.info th { background-color: #F1F1F1; }
 table.info th, table.info td { padding: 0.3em; }
-
+/* table.info td { text-align: right; } */
+table.info tbody td.infofirst { width: 10em; text-align: left; }
+    
 table.commits { width: 100%; margin-top: 2em; }
 table.commits th, table.commits td { padding: 0.5em; }
 table.commits th { background-color: #F1F1F1; font-weight: normal; }
 table.commits tbody tr td { border-bottom: 1px solid #CDCDCD; vertical-align: top; }
-table.commits tbody tr td.date, div.author, span.note { font-size: 92%; color: #666666; }
+table.commits tbody tr td.date, div.author, span.note, table.info tbody td.infofirst {
+    font-size: 92%;
+    color: #666666;
+}
 table.commits tbody tr td.date { padding-top: 0.6em;}
 
 

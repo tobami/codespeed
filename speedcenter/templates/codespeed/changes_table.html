@@ -1,3 +1,4 @@
+<div style="float:left;">
 <table id="results" class="tablesorter">
 <thead>
   <tr>
@@ -18,57 +19,51 @@ seconds{% endif %}</th>{% if showunits %}<th>units</th>{% endif %}<th>std dev</t
 <table class="info">
 <thead>
   <tr>
-    <th colspan="2">Revision</th>
-  </tr>
-</thead>
-<tbody>
-<tr><td class="infofirst">Commit</td><td>{{ rev.commitid }}</td></tr>
-<tr><td class="infofirst">Date</td><td>{{ rev.date }}</td></tr>
-</tbody>
-</table>
-
-<table class="info">
-<thead>
-  <tr>
     <th colspan="2">Executable</th>
   </tr>
 </thead>
 <tbody>
-<tr><td class="infofirst">Name</td><td>{{ exe }}</td></tr>
-<tr><td class="infofirst">Description</td><td>{{ exe.description }}</td></tr>
+  <tr><td class="infofirst">Name</td><td>{{ exe }}</td></tr>
+  <tr><td class="infofirst">Description</td><td>{{ exe.description }}</td></tr>
 </tbody>
-</table>
-
-<table class="info">
 <thead>
   <tr>
     <th colspan="2">Environment</th>
   </tr>
 </thead>
 <tbody>
-<tr><td class="infofirst">Name</td><td>{{ env.name }}</td></tr>
-<tr><td class="infofirst">CPU</td><td>{{ env.cpu }}</td></tr>
-<tr><td class="infofirst">Memory</td><td>{{ env.memory }}</td></tr>
-<tr><td class="infofirst">OS</td><td>{{ env.os }}</td></tr>
-<tr><td class="infofirst">Kernel</td><td>{{ env.kernel }}</td></tr>
+  <tr><td class="infofirst">Name</td><td>{{ env.name }}</td></tr>
+  <tr><td class="infofirst">CPU</td><td>{{ env.cpu }}</td></tr>
+  <tr><td class="infofirst">Memory</td><td>{{ env.memory }}</td></tr>
+  <tr><td class="infofirst">OS</td><td>{{ env.os }}</td></tr>
+  <tr><td class="infofirst">Kernel</td><td>{{ env.kernel }}</td></tr>
 </tbody>
 </table>
-
-{% ifnotequal executable.project.repo_type 'N' %}
-<table class="commits">
+</div>
+<table class="revision">
 <thead>
   <tr>
-    <th colspan="2"><strong>Commit logs</strong> for <span class="note">{{ lastrevision.project.repo_path }}</span></th>
+    <th colspan="2">Revision</th>
   </tr>
 </thead>
-<tbody id="commitid__{{ lastrevision.id }}">
-<tr><td>Loading... <img src="/media/images/ajax-loader.gif" align="bottom"></td></tr>
+<tbody>
+  <tr><td class="infofirst">Commit</td><td>{{ rev.commitid }}</td></tr>
+  <tr><td class="infofirst">Date</td><td>{{ rev.date }}</td></tr>
 </tbody>
-</table>
-<script type="text/javascript">
-  var revisionid = $(".commits > tbody").attr("id");
-  $("#" + revisionid).html(getLoadText("Loading...", 0, true));
-  loadoption = "revisionid=" + revisionid.split('__')[1];
-  $("#" + revisionid).load("logs/", loadoption);
-</script>
+{% ifnotequal executable.project.repo_type 'N' %}
+<thead class="commits">
+  <tr>
+    <th colspan="2">Commit logs</th>
+  </tr>
+</thead>
+<tbody class="commits" id="commitid__{{ lastrevision.id }}">
+  <tr><td>Loading... <img src="/media/images/ajax-loader.gif" align="bottom"></td></tr>
+</tbody>
+  <script type="text/javascript">
+    var revisionid = $("tbody.commits").attr("id");
+    $("#" + revisionid).html(getLoadText("Loading...", 0, true));
+    loadoption = "revisionid=" + revisionid.split('__')[1];
+    $("#" + revisionid).load("logs/", loadoption);
+  </script>
 {% endifnotequal %}
+</table>

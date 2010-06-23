@@ -187,22 +187,22 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         plotoptions = {
             title: title,
             seriesDefaults: {
-                renderer:$.jqplot.BarRenderer,
-                rendererOptions:{barDirection: "horizontal", barPadding: 8, barMargin: 15}
+                renderer: $.jqplot.BarRenderer,
+                rendererOptions: {barDirection: "horizontal", barPadding: 8, barMargin: 15}
             },
             axesDefaults: {
                 tickRenderer: $.jqplot.CanvasAxisTickRenderer,
                 tickOptions: {angle: 0}
             },
             axes: {
-                xaxis:{
-                    min:0,
-                    autoscale:true,
+                xaxis: {
+                    min: 0,
+                    autoscale: true,
                     label: axislabel,
                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer
                 },
-                yaxis:{
-                    renderer:$.jqplot.CategoryAxisRenderer,
+                yaxis: {
+                    renderer: $.jqplot.CategoryAxisRenderer,
                     ticks: ticks
                 }
             }
@@ -238,21 +238,21 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         plotoptions = {
             title: title,
             seriesDefaults: {
-                renderer:$.jqplot.BarRenderer,
-                rendererOptions:{barDirection: "vertical", barPadding: 6, barMargin: 15}
+                renderer: $.jqplot.BarRenderer,
+                rendererOptions: {barDirection: "vertical", barPadding: 6, barMargin: 15}
             },
             axesDefaults: {
                 tickRenderer: $.jqplot.CanvasAxisTickRenderer
             },
             axes: {
-                xaxis:{
-                    renderer:$.jqplot.CategoryAxisRenderer,
+                xaxis: {
+                    renderer: $.jqplot.CategoryAxisRenderer,
                     ticks: ticks,
                     tickOptions: {angle: 0}
                 },
-                yaxis:{
-                    min:0,
-                    autoscale:true,//no effect for some plots due to min = 0
+                yaxis: {
+                    min: 0,
+                    autoscale: true,//no effect for some plots due to min = 0
                     label: axislabel,
                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer
                 }

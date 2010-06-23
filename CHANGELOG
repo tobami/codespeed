@@ -1,5 +1,25 @@
 CHANGELOG
 
+0.6
+
+This release brings a new view, together with many other changes. Unfortunately the DB Schema had to be changed, so it is not compatible with existing databases without migration. The decision was taken in order to make the executable model simpler.
+
+    * DB Modifications:
+        o Executable: removed coptions and added a description fields. This is the main reason for a DB change, as it really didn't bring much and it made things unecessarily complicated
+        o Benchmark: Added a units_title field, which is used as plot title
+        o Charfield lengths where adjusted
+    * New feature: Comparison view
+        o Normal bar charts
+        o Cummulative bar charts
+        o Relative bar charts
+        o Horizontal or verical orientation
+    * Name change: Overview became Changes
+        o Removal of inline plot bars (covered now by the comparison view)
+        o Added environment and executable info box
+    * Timeline view:
+        o Allow to select a baseline
+        o Added plot title
+
 0.5
 
 The focus of this release was polishing, making everything work seamlessly and cementing the DB design. The DB Schema should remain stable from now on. Last but not least, the installation and configuration process of codespeed was greatly simplified and is now documented.

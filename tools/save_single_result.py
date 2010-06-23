@@ -5,18 +5,19 @@
 from datetime import datetime
 import urllib, urllib2
 
+# You need to enter the real URL and have the server running
 CODESPEED_URL = 'http://localhost:8000/'
 
 temp = datetime.today()
 
 data = {
     'commitid': '1',
-    'project': 'pypy',
+    'project': 'MyProject',
     'revision_date': '', # Optional. Default is taken
                          # either from VCS integration or from current date
-    'executable': 'pypy-c-jit',
-    'benchmark': 'richards_mem',
-    'environment': "bigdog",
+    'executable': 'myexe O3 64bits',
+    'benchmark': 'float',
+    'environment': "Dual Core",
     'result_value': 4000,
     'result_date': datetime.today(), # Optional
     'std_dev': 1.11111, # Optional. Default is blank
@@ -26,20 +27,11 @@ data = {
 
 def add(data):
     params = urllib.urlencode(data)
-    f = None
     response = "None"
     print "Executable %s, revision %s, benchmark %s" % (data['executable_name'], data['commitid'], data['benchmark'])
-    try:
-        f = urllib2.urlopen(CODESPEED_URL + 'result/add/', params)
-        response = f.read()
-        f.close()
-    except urllib2.URLError, e:
-        if hasattr(e, 'reason'):
-            response = '\n  We failed to reach a server\n'
-            response += '  Reason: ' + str(e.reason)
-        elif hasattr(e, 'code'):
-            response = '\n  The server couldn\'t fulfill the request\n'
-            response += '  Error code: ' + str(e)
+    f = urllib2.urlopen(CODESPEED_URL + 'result/add/', params)
+    response = f.read()
+    f.close()
     print "Server (%s) response: %s\n" % (CODESPEED_URL, response)
 
 if __name__ == "__main__":

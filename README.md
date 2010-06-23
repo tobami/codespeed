@@ -10,7 +10,7 @@ If you need SVN integration, pysvn is also requiered:
     sudo apt-get install python-svn
 
 # Installation
-* Download a release and unpack it `wget http://github.com/tobami/codespeed/tarball/0.5`
+* Download a release and unpack it `wget http://github.com/tobami/codespeed/tarball/0.6`
 * For simplicity, you can use the default sqlite configuration, which will save the data to a database named `speedcenter/data.db`.  
 Create the DB by changing to the `speedcenter/` directory and typing `python manage.py syncdb`.  
 Create an admin user in the process.
@@ -47,6 +47,8 @@ The logo and title can be changed for every speedcenter.
 * The logo is defined in `<img src="/media/images/logo.png" height="48" alt="logo"/>`.  
 Either substitute the file `speedcenter/media/images/logo.png" by your own logo, of change the tag to whatever you see fit.  
 The layout will stay exactly the same for any image with a height of 48px (any width will do).
+* Home page: In `templates/home.html`, modify the line `<p><a href="about/">This site</a> monitors <a href="#">MyProject</a>'s performance</p>`.
+* About page: modify `templates/about.html`.
 
 ## Defaults
 The file `speedcenter/codespeed/settings.py` can contain customizations of several parameters (the file includes comments with full examples).

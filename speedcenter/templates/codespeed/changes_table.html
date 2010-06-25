@@ -57,11 +57,10 @@ seconds{% endif %}</th>{% if showunits %}<th>units</th>{% endif %}<th>std dev</t
   </tr>
 </thead>
 <tbody class="commits" id="commitid__{{ lastrevision.id }}">
-  <tr><td>Loading... <img src="/media/images/ajax-loader.gif" align="bottom"></td></tr>
+  <tr><td colspan="2" style="text-align:center;">Loading... <img src="/media/images/ajax-loader.gif" align="bottom"></td></tr>
 </tbody>
   <script type="text/javascript">
     var revisionid = $("tbody.commits").attr("id");
-    $("#" + revisionid).html(getLoadText("Loading...", 0, true));
     loadoption = "revisionid=" + revisionid.split('__')[1];
     $("#" + revisionid).load("logs/", loadoption);
   </script>

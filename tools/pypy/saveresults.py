@@ -47,7 +47,7 @@ def send(data):
     f = None
     response = "None"
     info = str(datetime.today()) + ": Saving result for " + data['executable']
-    info += " revision " + info + " " + str(data['commitid']) + ", benchmark "
+    info += " revision " + " " + str(data['commitid']) + ", benchmark "
     info += data['benchmark']
     print(info)
     try:

@@ -29,7 +29,7 @@ and create an environment.
 and create a project.
 Check the field "Track changes" and, in case you want version control integration, configure the relevant fields.
 
-**Note**: Only executables associated to projects with a checked "track changes" field will be shown in the Overview and Timeline views.
+**Note**: Only executables associated to projects with a checked "track changes" field will be shown in the Changes and Timeline views.
 
 # Saving data
 Data is saved POSTing to `http://localhost:8000/result/add/`.
@@ -50,10 +50,13 @@ The layout will stay exactly the same for any image with a height of 48px (any w
 * Home page: In `templates/home.html`, modify the line `<p><a href="about/">This site</a> monitors <a href="#">MyProject</a>'s performance</p>`.
 * About page: modify `templates/about.html`.
 
+## Baselines and Comparison view execuables
+* The results associated to an executable and a revision which has a non blank tag field will be listed as a baseline option in the Timeline view.
+* Additionaly, the Comparison view will show the results of the latest revision of projects being tracked as an executable as well.
+
 ## Defaults
 The file `speedcenter/codespeed/settings.py` can contain customizations of several parameters (the file includes comments with full examples).
 
-* defaultexecutable: in the overview, a random executable is chosen as default. It that doesn't suite you, you can specify here which one should be selected. You need to specify its id (since the name alone is not unique).
-* baselinelist: This option specifies which results (combination of an executable and a revision/tag) will be available as an option for comparing in the overview and as a baseline for the timeline view.  
-If nothing is specified, all revisions (together with their corresponding executables) that contain a tag will be included.
-* defaultbaseline: Defines which baseline option will be chosen as default in the overview, and which one will be available as a basline in the timeline vies.
+* defaultexecutable: in the Changes view, a random executable is chosen as default. It that doesn't suite you, you can specify here which one should be selected. You need to specify its id (since the name alone is not unique).
+* defaultbaseline: Defines which baseline option will be chosen as default in the Timeline and Changes views.
+* defaultenvironment: Defines which environment should be selected as default in the Changes and Timeline views.

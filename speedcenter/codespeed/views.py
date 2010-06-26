@@ -150,7 +150,7 @@ def comparison(request):
         checkedenviros = enviros
     
     if not len(Project.objects.all()):
-        return HttpResponse("You need to configure at least one Project as default")
+        return HttpResponse('You need to configure at least one Project as default (checked "Track changes" field)')
     
     executables, exekeys = getcomparisonexes()
     checkedexecutables = []
@@ -316,7 +316,7 @@ def timeline(request):
     
     defaultproject = Project.objects.filter(track=True)
     if not len(defaultproject):
-        return HttpResponse("You need to configure at least one Project as default")
+        return HttpResponse('You need to configure at least one Project as default (checked "Track changes" field)')
     else: defaultproject = defaultproject[0]
     
     checkedexecutables = []
@@ -512,7 +512,7 @@ def changes(request):
     
     defaultproject = Project.objects.filter(track=True)
     if not len(defaultproject):
-        return HttpResponse("You need to configure at least one Project as default")
+        return HttpResponse('You need to configure at least one Project as default (checked "Track changes" field)')
     else: defaultproject = defaultproject[0]
     
     defaultexecutable = getdefaultexecutable()

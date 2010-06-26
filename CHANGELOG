@@ -10,7 +10,7 @@ This release brings a new view, together with many other changes. Unfortunately 
         o Charfield lengths where adjusted
     * New feature: Comparison view
         o Normal bar charts
-        o Cummulative bar charts
+        o Cumulative bar charts
         o Relative bar charts
         o Horizontal or verical orientation
     * Name change: Overview became Changes

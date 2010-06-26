@@ -63,12 +63,12 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     var axislabel = "";
     var title = "";
     if (baseline == "none") {
-        if (chart == "stacked bars") { title = "Cummulative "; }
+        if (chart == "stacked bars") { title = "Cumulative "; }
         title += unit;
         axislabel = bench_units[unit][2] + bench_units[unit][1];
     } else {
         if (chart == "stacked bars") {
-            title = "Cummulative " + unit + " normalized to " + $("label[for='exe_" + baseline + "']").text();
+            title = "Cumulative " + unit + " normalized to " + $("label[for='exe_" + baseline + "']").text();
         } else if (chart == "relative bars") {
             title = "Compared to " + $("label[for='exe_" + baseline + "']").text() + " (" + unit + ")";
         } else {

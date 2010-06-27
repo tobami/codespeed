@@ -277,7 +277,9 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
             plotoptions.seriesDefaults.rendererOptions.barPadding = 15;
             plotoptions.seriesDefaults.rendererOptions.barMargin = 25;
         }
-        if (chart == "stacked bars") {
+        if (chart == "normal bars" && series.length == 1 && benchmarks.length > 1) {
+            plotoptions.axes.xaxis.tickOptions.angle = -30;
+        } else if (chart == "stacked bars") {
             plotoptions.axes.xaxis.tickOptions.angle = -60;
             plotoptions.seriesDefaults.rendererOptions.barMargin += 5;
             $("#" + plotid).css("margin-left", "25px");

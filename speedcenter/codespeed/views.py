@@ -197,10 +197,10 @@ def comparison(request):
     selectedbaseline = getbaselineexecutables()
     if 'bas' in data:
         selectedbaseline = data['bas']
-    elif len(selectedbaseline) > 1:
-        selectedbaseline = str(selectedbaseline[1]['executable'].id) + "+" + str(selectedbaseline[1]['revision'].id)
+    elif len(selectedbaseline) > 2:
+        selectedbaseline = selectedbaseline[1]['key']
     else:
-        selectedbaseline = executables[0]['key']
+        selectedbaseline = selectedbaseline[0]['key']#None
     
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true": selecteddirection = True

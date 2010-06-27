@@ -188,6 +188,8 @@ def comparison(request):
         checkedbenchmarks = Benchmark.objects.filter(benchmark_type="C")
     
     charts = ['normal bars', 'stacked bars', 'relative bars']
+    if len(executables) == 1: charts.remove('relative bars')
+    
     selectedchart = charts[0]
     if 'chart' in data and data['chart'] in charts:
         selectedchart = data['chart']

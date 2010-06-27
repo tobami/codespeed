@@ -199,6 +199,7 @@ def comparison(request):
         selectedbaseline = data['bas']
     elif len(selectedbaseline) > 2:
         selectedbaseline = selectedbaseline[1]['key']
+        checkedexecutables.remove(selectedbaseline)
     else:
         selectedbaseline = selectedbaseline[0]['key']#None
     

@@ -139,7 +139,8 @@
       });
       plotdata.push(data["baseline"]);
     }
-    plot = $.jqplot(plotid, plotdata, {
+    
+    var plotoptions = {
       title: {text: data['benchmark'], fontSize: '1.1em'},
       seriesDefaults: {lineWidth: 2, markerOptions:{style:'circle', size: 6}},
       series: series,
@@ -156,7 +157,8 @@
       },
       highlighter: {show:false},
       cursor:{showTooltip: false, style: 'pointer'}
-    });
+    };
+    plot = $.jqplot(plotid, plotdata, plotoptions);
   }
   
   function render(data) {
@@ -177,11 +179,11 @@
       //Render Grid of plots
       $("#revisions").attr("disabled",true);
       for (bench in data["timelines"]) {
-        plotid = "plot_" + data["timelines"][bench]["benchmark"];
+        plotid = "plot_" + data["timelines"][bench]["benchmark_id"];
         $("#plotgrid").append('<div id="' + plotid + '" class="miniplot"></div>');
         $("#" + plotid).click(function() {
-          var benchname = $(this).attr("id").slice(5);
-          $("input:radio[name='benchmark']").filter('[value=' + benchname + ']').attr('checked', true);
+          var benchid = $(this).attr("id").slice(5);
+          $("#benchmark_" + benchid).attr('checked', true);
           refreshContent();
         });
         renderMiniplot(plotid, data["timelines"][bench]);
@@ -260,17 +262,17 @@
 </div>
 <div id="benchmark" class="sidebox">
   <div class="boxhead"><h2>Benchmark</h2></div>
-  <div class="boxbody">
+  <div class="boxbody">{% ifnotequal benchmarks|length 1 %}
   <ul>
     <li>
       <input id="benchmarkgrid" type="radio" name="benchmark" value="grid" />
       <label for="benchmarkgrid">Display all in a grid</label>
     </li>
-  </ul>
+  </ul>{% endifnotequal %}
   <ul>{% for bench in benchmarks|dictsort:"name" %}
     <li title="{{ bench.description }}">
-      <input id="benchmark_{{ bench.name }}" type="radio" name="benchmark" value="{{ bench.name }}" />
-      <label for="benchmark_{{ bench.name }}">{{ bench }}</label>
+      <input id="benchmark_{{ bench.id }}" type="radio" name="benchmark" value="{{ bench.name }}" />
+      <label for="benchmark_{{ bench.id }}">{{ bench }}</label>
     </li>
     {% endfor %}
   </ul>

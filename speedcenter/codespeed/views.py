@@ -193,18 +193,22 @@ def comparison(request):
     selectedchart = charts[0]
     if 'chart' in data and data['chart'] in charts:
         selectedchart = data['chart']
+    elif hasattr(settings, 'charttype') and settings.charttype in charts:
+        selectedchart = settings.charttype
     
     selectedbaseline = getbaselineexecutables()
     if 'bas' in data:
         selectedbaseline = data['bas']
-    elif len(selectedbaseline) > 2:
+    elif len(selectedbaseline) > 1 and hasattr(settings, 'normalization') and settings.normalization:
         selectedbaseline = selectedbaseline[1]['key']
         checkedexecutables.remove(selectedbaseline)
     else:
         selectedbaseline = selectedbaseline[0]['key']#None
     
     selecteddirection = False
-    if 'hor' in data and data['hor'] == "true": selecteddirection = True
+    if 'hor' in data and data['hor'] == "true" or\
+        hasattr(settings, 'chartorientation') and settings.chartorientation == 'horizontal':
+        selecteddirection = True
     
     return render_to_response('codespeed/comparison.html', {
         'checkedexecutables': checkedexecutables,

@@ -117,7 +117,7 @@ def getcomparisondata(request):
                         benchmark=bench
                     ).value
                 except Result.DoesNotExist:
-                    value = 0
+                    value = None
                 compdata[exe['key']][env.id][bench.id] = value
     compdata['error'] = "None"
     

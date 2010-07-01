@@ -13,7 +13,7 @@ function readCheckbox(el) {
 }
 
 function getLoadText(text, h, showloader) {
-  var loadtext = '<div style="text-align:center;">'
+  var loadtext = '<div style="text-align:center;">';
   var pstyle = "";
   if (h > 0) {
       h = h - 32;
@@ -22,33 +22,11 @@ function getLoadText(text, h, showloader) {
       pstyle = ' style="line-height:' + h + 'px;"';
   }
   loadtext += '<p' + pstyle + '>'+ text;
-  if (showloader==true) {
+  if (showloader) {
     loadtext += ' <img src="/media/images/ajax-loader.gif" align="bottom">';
   }
   loadtext += '</p></div>';
   return loadtext;
-}
-
-function transToLogBars(gridlength, maxwidth, value) {
-  //Size bars according to comparison value, using a logarithmic scale, base 2
-  c = Math.log(value)/Math.log(2);
-  var cmargin = gridlength * 2;
-  var cwidth = 1;
-  if (c >= 0) {
-    cwidth = c * gridlength;
-    //Check too fast
-    if ((cwidth + cmargin) > maxwidth) { cwidth = maxwidth - 103; }
-  } else {
-    c = - gridlength * c;
-    cwidth = c;
-    cmargin = gridlength * 2 - c;
-    // Check too slow
-    if (cmargin < 0) { cmargin = 0; cwidth = gridlength * 2; }
-  }
-  var res = new Object();
-  res["margin"] = cmargin + "px";
-  res["width"] = cwidth + "px";
-  return res;
 }
 
 //colors number based on a threshold
@@ -62,7 +40,9 @@ function getColorcode(change, theigh, tlow) {
 function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart, horizontal) {        
     var axislabel = "";
     var title = "";
+    var baseline_is_empty = true;
     if (baseline == "none") {
+        baseline_is_empty = false;
         if (chart == "stacked bars") { title = "Cumulative "; }
         title += unit;
         axislabel = bench_units[unit][2] + bench_units[unit][1];
@@ -77,16 +57,16 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         axislabel = "Relative " + bench_units[unit][2] + bench_units[unit][1];
     }
     
-    var plotdata = new Array();
-    var ticks = new Array();
-    var series = new Array();
+    var plotdata = [];
+    var ticks = [];
+    var series = [];
     var barcounter = 0;
     
     if (chart == "normal bars" || chart == "relative bars") {
         if (horizontal) { benchmarks.reverse(); }
         // Add tick labels
-        for (var b in benchmarks) {
-            var benchlabel = $("label[for='benchmark_" + benchmarks[b] + "']").text();
+        for (var ben in benchmarks) {
+            var benchlabel = $("label[for='benchmark_" + benchmarks[ben] + "']").text();
             ticks.push(benchlabel);
         }
         // Add data
@@ -100,24 +80,36 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                 }
             }
             series.push({'label': exe + " @ " + env});
-            var customdata = new Array();
+            var customdata = [];
             var benchcounter = 0;
-            
+            if (baseline != "none") {
+                axislabel = "Relative " + bench_units[unit][2] + bench_units[unit][1];
+                if (chart == "relative bars") {
+                    axislabel = "<- worse - better ->";
+                }
+            }
             for (var b in benchmarks) {
               benchcounter++;
               barcounter++;
               var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
-              if (baseline != "none") {
-                axislabel = "Relative " + bench_units[unit][2] + bench_units[unit][1];
-                var baseval = compdata[baseline][enviros[j]][benchmarks[b]]
-                if ( baseval == 0 ) { val = 0; }
-                else { val = val / baseval; }
-                if (chart == "relative bars") {
-                    axislabel = "<- worse - better ->";
-                    if (val > 1) {
-                        val = -val;
-                    } else if (val != 0) {
-                        val = 1/val;
+              if (val === null) {
+                val = null;
+              } else {
+                if (baseline != "none") {
+                    var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
+                    if (baseval === null) {
+                        val = null;
+                    } else {
+                        baseline_is_empty = false;
+                        if ( baseval === 0 ) { val = 0; }
+                        else { val = val / baseval; }
+                        if (chart == "relative bars") {
+                            if (val > 1) {
+                                val = -val;
+                            } else if (val !== 0) {
+                                val = 1/val;
+                            }
+                        }
                     }
                 }
               }
@@ -146,7 +138,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         for (var b in benchmarks) {
             var benchlabel = $("label[for='benchmark_" + benchmarks[b] + "']").text();
             series.push({'label': benchlabel});
-            var customdata = new Array();
+            var customdata = [];
             var benchcounter = 0;
             barcounter = 1;
             for (var i in exes) {
@@ -155,10 +147,15 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                     var exe = $("label[for='exe_" + exes[i] + "']").text();
                     var env = $("label[for='env_" + enviros[j] + "']").text();
                     var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
-                    if (baseline != "none") {
-                        var base = compdata[baseline][enviros[j]][benchmarks[b]]
-                        if ( base == 0 ) { val = 0; }
-                        else { val = val / base; }
+                    if (baseval === null) {
+                        val = null;
+                    } else {
+                        baseline_is_empty = false;
+                        if (baseline != "none") {
+                            var base = compdata[baseline][enviros[j]][benchmarks[b]];
+                            if ( base === 0 ) { val = 0; }
+                            else { val = val / base; }
+                        }
                     }
                     if (!horizontal) {
                         customdata.push(val);
@@ -168,10 +165,15 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                 }
             }
             plotdata.push(customdata);
-        }  
+        }
     } else {
         // no valid chart type
         return false;
+    }
+    
+    if (baseline_is_empty) {
+        $("#plotwrapper").html(getLoadText("Baseline empty, select another one.", 0, false));
+        return -1;
     }
     
     // Set plot options and size depending on:
@@ -182,7 +184,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     var barWidth = 20;
     var w = 0;
     var h = 0;
-    var plotoptions = new Object();
+    var plotoptions = [];
     if (horizontal) {
         plotoptions = {
             title: title,
@@ -206,7 +208,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                     ticks: ticks
                 }
             }
-        }
+        };
         
         if (chart == "relative bars") {
             plotoptions.axes.xaxis.min = null;
@@ -257,7 +259,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer
                 }
             }
-        }
+        };
         
         w = barcounter * (plotoptions.seriesDefaults.rendererOptions.barPadding*2 + barWidth) + benchcounter * plotoptions.seriesDefaults.rendererOptions.barMargin * 2 + 60;
         h = plotheight;
@@ -302,9 +304,9 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     
     if (offplot) {
         // Move legend outside plot area to unclutter
-        var labels = new Array();
+        var labels = [];
         for (l in series) {
-            labels.push(series[l]['label'].length)
+            labels.push(series[l].label.length);
         }
         
         var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
@@ -326,7 +328,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     if (series.length > 14) {
         if (!horizontal || (series.length > ticks.length)) {
             var mb = $("#" + plotid).css("margin-bottom").slice(0, -2);
-            mb = parseInt(mb) + 4 + (series.length - 14) * 22;
+            mb = parseInt(mb, 10) + 4 + (series.length - 14) * 22;
             $("#" + plotid).css("margin-bottom", mb);
         }
     }

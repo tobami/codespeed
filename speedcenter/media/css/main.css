@@ -205,7 +205,7 @@ table#results, table.info, table.revision {
 }
 
 table#results { float: left; margin-right: 0.8em; }
-table#results thead tr th { padding-right: 10px; width: 5em; }
+table#results thead tr th { padding-right: 10px; width: 5em; text-align: center; }
 
 table.tablesorter thead tr th {
     background-color: #9DADC6;

@@ -3,7 +3,7 @@
 <thead>
   <tr>
     <th>Benchmark</th><th>{% if showunits %}Result{% else %}
-seconds{% endif %}</th>{% if showunits %}<th>units</th>{% endif %}<th>std dev</th><th>Current change</th><th title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
+{{ units_title }}{% endif %}</th>{% if showunits %}<th>Units</th>{% endif %}<th>Std dev</th><th>Current change</th><th title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
   </tr>
 </thead>
 <tfoot>
@@ -11,7 +11,7 @@ seconds{% endif %}</th>{% if showunits %}<th>units</th>{% endif %}<th>std dev</t
 </tfoot>
 <tbody>
 {% for row in table_list %}  <tr>
-        <td class="text" title="{{ row.bench_description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:4 }}</td>{% if showunits %}<td>{{ row.benchmark.units }}<label style="display:none;">{{ row.benchmark.lessisbetter }}</label></td>{% endif %}<td>{{ row.std_dev|floatformat:4 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td>
+        <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:4 }}</td>{% if showunits %}<td>{{ row.benchmark.units }}<label style="display:none;">{{ row.benchmark.lessisbetter }}</label></td>{% endif %}<td>{{ row.std_dev|floatformat:4 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td>
   </tr>{% endfor %}
 </tbody>
 </table>

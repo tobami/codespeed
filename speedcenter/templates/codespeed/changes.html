@@ -4,107 +4,112 @@
 <script type="text/javascript" src="../media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
 <script type="text/javascript">
-  var projectmatrix = eval({{ projectmatrix|safe }});
-  var revisionboxes = new Object();
-  {% for project, revlist in revisionboxes.items %}
-  revisionboxes['{{ project }}'] = '{% for rev in revlist %}<option value="{{ rev.commitid }}">{{ rev }}</option>{% endfor %}';{% endfor %}
-  var currentproject = "{{ defaultexecutable.project }}";
+    var projectmatrix = eval({{ projectmatrix|safe }});
+    var revisionboxes = new Object();
+    {% for project, revlist in revisionboxes.items %}
+    revisionboxes['{{ project }}'] = '{% for rev in revlist %}<option value="{{ rev.commitid }}">{{ rev }}</option>{% endfor %}';{% endfor %}
+    var currentproject = "{{ defaultexecutable.project }}";
   
-  function getConfiguration() {
-    var config = new Object();
-    config["tre"] = $("#trend option:selected").val();
-    config["rev"] = $("#revision option:selected").val();
-    config["exe"] = $("input[name='executable']:checked").val();
-    config["env"] = $("input[name='environment']:checked").val();
-    return config;
-  }
-  
-  function permalinkToTimeline(benchmark, environment) {
-    window.location="../timeline/?ben=" + benchmark + "&env=" + environment;
-  }
+    function getConfiguration() {
+        var config = new Object();
+        config["tre"] = $("#trend option:selected").val();
+        config["rev"] = $("#revision option:selected").val();
+        config["exe"] = $("input[name='executable']:checked").val();
+        config["env"] = $("input[name='environment']:checked").val();
+        return config;
+    }
+    
+    function permalinkToTimeline(benchmark, environment) {
+        window.location="../timeline/?ben=" + benchmark + "&env=" + environment;
+    }
 
-  function colorTable(tablelength, index) {
-    var changethres = {{ defaultchangethres }};
-    var trendthres = {{ defaulttrendthres }};
-    $("#results > :not(thead) > tr").each(function() {
-      //Color change column
-      var change = $(this).children("td:eq("+index+")").text().slice(0, -1);
-      if (tablelength == 6) {
-        var lessisbetter = $(this).children("td:eq(2)").find("label").text();
-        if (lessisbetter == 0) { change = -change; }
-      }
-      $(this).children("td:eq("+index+")").addClass(getColorcode(-change, changethres, -changethres));
-      //Color trend column
-      var trend = $(this).children("td:eq("+(index+1)+")").text().slice(0, -1);
-      $(this).children("td:eq("+(index+1)+")").addClass(getColorcode(-trend, trendthres, -trendthres));
-    });
-  }
-  
-  function updateTable() {
-    var last = $("#results thead tr th:last").index();
-    colorTable(last, last-1);//color two colums to the right starting with index = last-1
-    //Add permalink events to table rows
-    $("#results > tbody > tr").each(function() {
-      $(this).click(function () {
-        var environment = $("input[name='environment']:checked").val();
-        permalinkToTimeline($(this).children("td:eq(0)").text(), environment);
-      });
-    });
-    //Add hover effect to rows
-    $("#results tbody td").hover(function() {
-      $(this).parents('tr').addClass('highlight');
-    }, function() {
-      $(this).parents('tr').removeClass('highlight');
-    });
-    //Configure table as tablesorter
-    $("#results").tablesorter({widgets: ['zebra']});
-  }
-  
-  function refreshContent() {
-    var h = parseInt($("#content").css("height"));//get height for loading text
-    $("#results").fadeOut("fast", function() {
-      $("#content").html(getLoadText("Loading...", h, true));
-      $("#content").load("table/", $.param(getConfiguration()), function(responseText) { updateTable(); });
-    });
-  }
-  
-  function changerevisions() {
-    // This function repopulates the revision selectbox everytime a new
-    // executable is selected that corresponds to a different project.
-    var executable = $("input[name='executable']:checked").val();
-    if (projectmatrix[executable] != currentproject) {
-      $("#revision").html(revisionboxes[projectmatrix[executable]]);
-      currentproject = projectmatrix[executable];
-      
-      //Give visual cue that the select box has changed
-      var bgc = $("#revision").parent().parent().css("backgroundColor");
-      $("#revision").parent()
-        .animate({ backgroundColor: "#9DADC6" }, 200, function() {
-          // Animation complete.
-          $(this).animate({ backgroundColor: bgc }, 1500);
+    function colorTable(tablelength, index) {
+        var changethres = {{ defaultchangethres }};
+        var trendthres = {{ defaulttrendthres }};
+        var unitscheck = $("#results > thead > tr > th:eq(2)").text() == "Units";
+        $("#results > :not(thead) > tr").each(function() {
+            var change = $(this).children("td:eq("+index+")").text().slice(0, -1);
+            var trend = $(this).children("td:eq("+(index+1)+")").text().slice(0, -1);
+            // Check whether less is better
+            if (unitscheck) {
+                var lessisbetter = $(this).children("td:eq(2)").find("label").text();
+                if (lessisbetter == 'False') {
+                change = -change;
+                trend = -trend;
+                }
+            }
+            //Color change column
+            $(this).children("td:eq("+index+")").addClass(getColorcode(-change, changethres, -changethres));
+            //Color trend column
+            $(this).children("td:eq("+(index+1)+")").addClass(getColorcode(-trend, trendthres, -trendthres));
         });
     }
-    refreshContent();
-  }
   
-  $(function() {
-    // Configure defaults
-    $("#trend").val("{{ defaulttrend }}");
-    $("#trend").change(refreshContent);
+    function updateTable() {
+        var last = $("#results thead tr th:last").index();
+        colorTable(last, last-1);//color two colums to the right starting with index = last-1
+        //Add permalink events to table rows
+        $("#results > tbody > tr").each(function() {
+            $(this).click(function () {
+                var environment = $("input[name='environment']:checked").val();
+                permalinkToTimeline($(this).children("td:eq(0)").text(), environment);
+            });
+        });
+        //Add hover effect to rows
+        $("#results tbody td").hover(function() {
+            $(this).parents('tr').addClass('highlight');
+        }, function() {
+            $(this).parents('tr').removeClass('highlight');
+        });
+        //Configure table as tablesorter
+        $("#results").tablesorter({widgets: ['zebra']});
+    }
     
-    $("input:radio[name=executable]").filter('[value="{{ defaultexecutable.id }}"]').attr('checked', true);
-    $("input[name='executable']").change(changerevisions);
+    function refreshContent() {
+        var h = parseInt($("#content").css("height"));//get height for loading text
+        $("#results").fadeOut("fast", function() {
+            $("#content").html(getLoadText("Loading...", h, true));
+            $("#content").load("table/", $.param(getConfiguration()), function(responseText) { updateTable(); });
+        });
+    }
     
-    $("input:radio[name='environment']").filter('[value="{{ defaultenvironment.name }}"]').attr('checked', true);
-    $("input[name='environment']").change(refreshContent);
-    
-    //repopulate revision select box if the project has changed
-    $("#revision").html(revisionboxes['{{ defaultexecutable.project.name }}']);
-    $("#revision").val("{{ selectedrevision.commitid }}");
-    $("#revision").change(refreshContent);
-    
-    refreshContent();
-  });
+    function changerevisions() {
+        // This function repopulates the revision selectbox everytime a new
+        // executable is selected that corresponds to a different project.
+        var executable = $("input[name='executable']:checked").val();
+        if (projectmatrix[executable] != currentproject) {
+            $("#revision").html(revisionboxes[projectmatrix[executable]]);
+            currentproject = projectmatrix[executable];
+            
+            //Give visual cue that the select box has changed
+            var bgc = $("#revision").parent().parent().css("backgroundColor");
+            $("#revision").parent()
+                .animate({ backgroundColor: "#9DADC6" }, 200, function() {
+                // Animation complete.
+                $(this).animate({ backgroundColor: bgc }, 1500);
+            });
+        }
+        refreshContent();
+    }
+  
+    $(function() {
+        // Configure defaults
+        $("#trend").val("{{ defaulttrend }}");
+        $("#trend").change(refreshContent);
+        
+        $("input:radio[name=executable]").filter('[value="{{ defaultexecutable.id }}"]').attr('checked', true);
+        $("input[name='executable']").change(changerevisions);
+        
+        $("input:radio[name='environment']").filter('[value="{{ defaultenvironment.name }}"]').attr('checked', true);
+        $("input[name='environment']").change(refreshContent);
+        
+        //repopulate revision select box if the project has changed
+        $("#revision").html(revisionboxes['{{ defaultexecutable.project.name }}']);
+        $("#revision").val("{{ selectedrevision.commitid }}");
+        $("#revision").change(refreshContent);
+        
+        refreshContent();
+    });
 </script>
 {% endblock %}
 

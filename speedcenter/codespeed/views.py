@@ -468,6 +468,7 @@ def getchangestable(request):
     
     if not len(table_list):
         return HttpResponse('<table id="results" class="tablesorter" style="height: 232px;"></table><p>No results for this parameters</p>')
+    
     # Compute Arithmetic averages
     for key in totals.keys():
         if len(totals[key]):
@@ -481,12 +482,18 @@ def getchangestable(request):
     
     # Only show units column if a benchmark has units other than seconds
     showunits = False
-    if len(Benchmark.objects.exclude(units='seconds')): showunits = True
+    units_titles = Benchmark.objects.filter(
+        benchmark_type="C"
+    ).values('units_title').distinct()
+    if len(units_titles) > 1: showunits = True
+    units_title = table_list[0]['benchmark'].units_title + " in "
+    units_title += table_list[0]['benchmark'].units
     
     return render_to_response('codespeed/changes_table.html', {
         'table_list': table_list,
         'trendconfig': trendconfig,
         'showunits': showunits,
+        'units_title': units_title,
         'executable': executable,
         'lastrevision': lastrevision,
         'totals': totals,
@@ -567,6 +574,9 @@ def changes(request):
         except Revision.DoesNotExist:
             selectedrevision = lastrevisions[0]
     
+    # This variable is used to know when the newly selected executable
+    # belongs to another project (project changed) and then trigger the
+    # repopulation of the revision selection selectbox
     projectmatrix = {}
     for e in executables: projectmatrix[e.id] = e.project.name
     projectmatrix = json.dumps(projectmatrix)

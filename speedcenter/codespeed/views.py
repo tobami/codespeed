@@ -598,13 +598,24 @@ def displaylogs(request):
     rev = Revision.objects.get(id=request.GET['revisionid'])
     logs = []
     logs.append(rev)
+    error = False
     remotelogs = getcommitlogs(rev)
-    if len(remotelogs): logs = remotelogs
-    return render_to_response('codespeed/changes_logs.html', { 'logs': logs })
+    if len(remotelogs):
+        print remotelogs
+        try:
+            if remotelogs[0]['error']:
+                error = remotelogs[0]['message']
+        except KeyError:
+            pass#no errors
+        logs = remotelogs
+    else: error = 'no logs found'
+    print error
+    return render_to_response('codespeed/changes_logs.html', { 'error': error, 'logs': logs })
 
 def getlogsfromsvn(newrev, startrev):
     import pysvn
     logs = []
+    log_messages = []
     loglimit = 200
     if startrev == newrev:
         start = startrev.commitid
@@ -618,16 +629,19 @@ def getlogsfromsvn(newrev, startrev):
     client = pysvn.Client()
     if newrev.project.repo_user != "":
         client.callback_get_login = get_login
-    log_message = \
-        client.log(
-            newrev.project.repo_path,
-            revision_start=pysvn.Revision(
-                    pysvn.opt_revision_kind.number, start
-            ),
-            revision_end=pysvn.Revision(
-                pysvn.opt_revision_kind.number, newrev.commitid
+    try:
+        log_messages = \
+            client.log(
+                newrev.project.repo_path,
+                revision_start=pysvn.Revision(
+                        pysvn.opt_revision_kind.number, start
+                ),
+                revision_end=pysvn.Revision(
+                    pysvn.opt_revision_kind.number, newrev.commitid
+                )
             )
-        )
+    except pysvn.ClientError:
+        return [{'error': True, 'message': "Could not resolve '" + newrev.project.repo_path + "'"}]
     log_message.reverse()
     s = len(log_message)
     while s > loglimit:

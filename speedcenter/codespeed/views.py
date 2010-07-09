@@ -197,7 +197,6 @@ def comparison(request):
         selectedchart = settings.charttype
     
     selectedbaseline = "None"
-    print exekeys
     if 'bas' in data:
         selectedbaseline = data['bas']
     elif len(exekeys) > 1 and hasattr(settings, 'normalization') and settings.normalization:
@@ -457,7 +456,7 @@ def getchangestable(request):
             trend = "-"
 
         relative = 0
-
+        
         table_list.append({
             'benchmark': bench,
             'result': result,
@@ -601,7 +600,6 @@ def displaylogs(request):
     error = False
     remotelogs = getcommitlogs(rev)
     if len(remotelogs):
-        print remotelogs
         try:
             if remotelogs[0]['error']:
                 error = remotelogs[0]['message']
@@ -609,7 +607,6 @@ def displaylogs(request):
             pass#no errors
         logs = remotelogs
     else: error = 'no logs found'
-    print error
     return render_to_response('codespeed/changes_logs.html', { 'error': error, 'logs': logs })
 
 def getlogsfromsvn(newrev, startrev):

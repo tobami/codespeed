@@ -192,6 +192,7 @@ div.about_content { text-align: left; }
 a.checkall, a.uncheckall { font-size: normal; color: #AAAAAA; }
 a.checkall { margin-left: 0.4em; }
 
+p.errormessage { line-height: 10em; margin-bottom: 10em; }
 /* tables */
 table#results, table.info, table.revision {
     margin-bottom: 0.8em;

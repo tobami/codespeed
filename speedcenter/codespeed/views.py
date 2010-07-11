@@ -188,6 +188,8 @@ def comparison(request):
         checkedbenchmarks = Benchmark.objects.filter(benchmark_type="C")
     
     charts = ['normal bars', 'stacked bars', 'relative bars']
+    # Don't show relative charts as an option if there is only one executable
+    # Relative charts need normalization
     if len(executables) == 1: charts.remove('relative bars')
     
     selectedchart = charts[0]
@@ -197,9 +199,10 @@ def comparison(request):
         selectedchart = settings.charttype
     
     selectedbaseline = "None"
-    if 'bas' in data:
+    if 'bas' in data and data['bas'] in exekeys:
         selectedbaseline = data['bas']
     elif len(exekeys) > 1 and hasattr(settings, 'normalization') and settings.normalization:
+        # Uncheck exe used for normalization when normalization is chosen as default in the settings
         selectedbaseline = exekeys[0]#this is the default baseline
         checkedexecutables.remove(selectedbaseline)
     
@@ -466,7 +469,7 @@ def getchangestable(request):
         })
     
     if not len(table_list):
-        return HttpResponse('<table id="results" class="tablesorter" style="height: 232px;"></table><p>No results for this parameters</p>')
+        return HttpResponse('<table id="results" class="tablesorter" style="height: 232px;"></table><p class="errormessage">No results for this parameters</p>')
     
     # Compute Arithmetic averages
     for key in totals.keys():

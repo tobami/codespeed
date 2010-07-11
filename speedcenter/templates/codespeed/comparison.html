@@ -34,16 +34,16 @@
     
     h = parseInt($("#plotwrapper").css("height"));//get height for error message
     if (exes[0] == "") {
-      $("#plotwrapper").html(getLoadText("No executables selected", h, false));
+      $("#plotwrapper").html(getLoadText("No executables selected", h));
       return false;
     } else if (bens[0] == "") {
-      $("#plotwrapper").html(getLoadText("No benchmarks selected", h, false));
+      $("#plotwrapper").html(getLoadText("No benchmarks selected", h));
       return false;
     } else if (enviros[0] == "") {
-      $("#plotwrapper").html(getLoadText("No environments selected", h, false));
+      $("#plotwrapper").html(getLoadText("No environments selected", h));
       return false;
     } else if (conf['chart'] == "relative bars" &&  conf['bas'] == "none") {
-      $("#plotwrapper").html(getLoadText("For relative bar charts, you must select a baseline to normalize to.", h, false));
+      $("#plotwrapper").html(getLoadText("For relative bar charts, you must select a baseline to normalize to.", h));
       return false;
     }
     
@@ -70,7 +70,7 @@
   function savedata(data) {
     if (data['error'] != "None") {
       h = parseInt($("#content").css("height"));//get height for error message
-      $("#cplot").html(getLoadText(data["error"], h, false));
+      $("#cplot").html(getLoadText(data["error"], h));
       return 1;
     }
     delete data['error'];
@@ -192,8 +192,8 @@
   </span>
   <span class="options">Normalization:
   <select id="baseline" title="Select baseline for normalization">
-    <option value="none">None</option>{% for exe in executables %}
-    <option value="{{ exe.key }}">{{ exe.name }}</option>{% endfor %}
+    <option value="none">None</option>{% ifnotequal executables|length 1 %}{% for exe in executables %}
+    <option value="{{ exe.key }}">{{ exe.name }}</option>{% endfor %}{% endifnotequal %}
   </select>
   <input id="direction" type="checkbox" name="direction" value="horizontal"/>
   <label for="direction">horizontal</label>

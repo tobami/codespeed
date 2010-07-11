@@ -11,10 +11,6 @@ function readCheckbox(el) {
     config = config.slice(0, -1);
     return config;
 }
-function abortRender(plotid, message) {
-    $("#" + plotid).html(getLoadText(message), h, false);
-    return -1;
-}
 
 function getLoadText(text, h, showloader) {
     var loadtext = '<div style="text-align:center;">';
@@ -39,6 +35,14 @@ function getColorcode(change, theigh, tlow) {
     if(change < tlow) { colorcode = "status-red"; }
     else if(change > theigh) { colorcode = "status-green"; }
     return colorcode;
+}
+
+function abortRender(plotid, message) {
+    $("#" + plotid).css("border", "dashed 1px grey");
+    $("#" + plotid).css("padding", "1em");
+    $("#" + plotid).css("width", "400px");
+    $("#" + plotid).html(getLoadText(message, 0));
+    return -1;
 }
 
 function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart, horizontal) {        
@@ -101,7 +105,11 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                         if (baseline != "none") {
                             var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
                             if (baseval === null || baseval === 0) {
-                                return abortRender(plotid, "Baseline has empty results for benchmark " + benchlabel);
+                                var benchlabel = $("label[for='benchmark_" + benchmarks[b] + "']").text();
+                                var baselinelabel = $("label[for='exe_" + baseline + "']").text();
+                                var msg = "<strong>"+ title + "</strong>" + "<br><br>";
+                                msg += "Could not render plot because baseline<br>"+baselinelabel+" has empty results for benchmark " + benchlabel;
+                                return abortRender(plotid, msg);
                             } else {
                                 baseline_is_empty = false;
                                 val = val / baseval;
@@ -121,7 +129,6 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                 plotdata.push(customdata);
             }
         }
-//         if (horizontal) {plotdata.reverse();}
     } else if (chart == "stacked bars") {
         // Add tick labels
         for (var i in exes) {
@@ -148,7 +155,11 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                         if (baseline != "none") {
                             var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
                             if (baseval === null || baseval === 0) {
-                                return abortRender(plotid, "Baseline has empty results for benchmark " + benchlabel);
+                                var benchlabel = $("label[for='benchmark_" + benchmarks[b] + "']").text();
+                                var baselinelabel = $("label[for='exe_" + baseline + "']").text();
+                                var msg = "<strong>"+ title + "</strong>" + "<br><br>";
+                                msg += "Could not render plot because baseline "+baselinelabel+" has empty results for benchmark " + benchlabel;
+                                return abortRender(plotid, msg);
                             } else {
                                 baseline_is_empty = false;
                                 val = val / baseval;
@@ -170,7 +181,10 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     }
     
     if (baseline_is_empty) {
-        return abortRender(plotid, "Baseline empty, select another one.");
+        var baselinelabel = $("label[for='exe_" + baseline + "']").text();
+        var msg = "<strong>"+ title + "</strong>" + "<br><br>";
+        msg += "Could not render plot because baseline "+baselinelabel+" is empty";
+        return abortRender(plotid, msg);
         return -1;
     }
     

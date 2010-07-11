@@ -75,98 +75,61 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         }
         // Add data
         for (var i in exes) {
-          for (var j in enviros) {
-            var exe = $("label[for='exe_" + exes[i] + "']").text();
-            var env = $("label[for='env_" + enviros[j] + "']").text();
-            if (chart == "relative bars") {
-                if (exe == $("label[for='exe_" + baseline + "']").text()) {
-                    continue;
-                }
-            }
-            series.push({'label': exe + " @ " + env});
-            var customdata = [];
-            var benchcounter = 0;
-            if (baseline != "none") {
-                axislabel = "Relative " + bench_units[unit][2] + bench_units[unit][1];
+            for (var j in enviros) {
+                var exe = $("label[for='exe_" + exes[i] + "']").text();
+                var env = $("label[for='env_" + enviros[j] + "']").text();
+                // for relative bars leave out (don't show) the baseline exe
                 if (chart == "relative bars") {
-                    axislabel = "<- worse - better ->";
+                    if (exe == $("label[for='exe_" + baseline + "']").text()) {
+                        continue;
+                    }
                 }
-            }
-            for (var b in benchmarks) {
-              benchcounter++;
-              barcounter++;
-              var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
-              if (val === null) {
-                val = null;
-              } else {
+                series.push({'label': exe + " @ " + env});
+                var customdata = [];
+                var benchcounter = 0;
                 if (baseline != "none") {
-                    var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
-                    if (baseval === null) {
-                        val = null;
-                    } else {
-                        baseline_is_empty = false;
-                        if ( baseval === 0 ) { val = 0; }
-                        else { val = val / baseval; }
-                        if (chart == "relative bars") {
-                            if (val > 1) {
-                                val = -val;
-                            } else if (val !== 0) {
-                                val = 1/val;
+                    axislabel = "Relative " + bench_units[unit][2] + bench_units[unit][1];
+                    if (chart == "relative bars") {
+                        axislabel = "<- worse - better ->";
+                    }
+                }
+                for (var b in benchmarks) {
+                    benchcounter++;
+                    barcounter++;
+                    var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
+                    if (val !== null) {
+                        if (baseline != "none") {
+                            var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
+                            if (baseval === null || baseval === 0) {
+                                return abortRender(plotid, "Baseline has empty results for benchmark " + benchlabel);
+                            } else {
+                                baseline_is_empty = false;
+                                val = val / baseval;
+                                if (chart == "relative bars" && val > 1) {
+                                    val = -val;
+                                }
                             }
                         }
                     }
-                }
-              }
-              
-              if (!horizontal) {
-                customdata.push(val);
-              } else {
-                customdata.push([val, benchcounter]);
-              }
-            }
-            plotdata.push(customdata);
-          }
-        }
-        
-    } else if (chart == "stacked bars" && baseline == "none") {
-        // Add tick labels
-        for (var i in exes) {
-          for (var j in enviros) {
-            var exe = $("label[for='exe_" + exes[i] + "']").text();
-            var env = $("label[for='env_" + enviros[j] + "']").text();
-            ticks.push(exe + " @ " + env);
-          }
-        }
-        // Add data
-        for (var b in benchmarks) {
-            var benchlabel = $("label[for='benchmark_" + benchmarks[b] + "']").text();
-            series.push({'label': benchlabel});
-            var customdata = [];
-            var benchcounter = 0;
-            barcounter = 1;
-            for (var i in exes) {
-                for (var j in enviros) {
-                    benchcounter++;
-                    var exe = $("label[for='exe_" + exes[i] + "']").text();
-                    var env = $("label[for='env_" + enviros[j] + "']").text();
-                    var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
+                    //Add data
                     if (!horizontal) {
                         customdata.push(val);
                     } else {
                         customdata.push([val, benchcounter]);
                     }
                 }
+                plotdata.push(customdata);
             }
-            plotdata.push(customdata);
         }
-    } else if(chart == "stacked bars" && baseline != "none") {
+//         if (horizontal) {plotdata.reverse();}
+    } else if (chart == "stacked bars") {
         // Add tick labels
         for (var i in exes) {
-          for (var j in enviros) {
-            var exe = $("label[for='exe_" + exes[i] + "']").text();
-            var env = $("label[for='env_" + enviros[j] + "']").text();
-            ticks.push(exe + " @ " + env);
-          }
+            for (var j in enviros) {
+                var exe = $("label[for='exe_" + exes[i] + "']").text();
+                var env = $("label[for='env_" + enviros[j] + "']").text();
+                ticks.push(exe + " @ " + env);
+            }
         }
         // Add data
         for (var b in benchmarks) {
@@ -181,12 +144,16 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                     var exe = $("label[for='exe_" + exes[i] + "']").text();
                     var env = $("label[for='env_" + enviros[j] + "']").text();
                     var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
-                    var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
-                    if (baseval === null || baseval === 0) {
-                        return abortRender(plotid, "Baseline has empty results for benchmark " + benchlabel);
-                    } else {
-                        baseline_is_empty = false;
-                        val = val / baseval;
+                    if (val !== null) {
+                        if (baseline != "none") {
+                            var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
+                            if (baseval === null || baseval === 0) {
+                                return abortRender(plotid, "Baseline has empty results for benchmark " + benchlabel);
+                            } else {
+                                baseline_is_empty = false;
+                                val = val / baseval;
+                            }
+                        }
                     }
                     if (!horizontal) {
                         customdata.push(val);

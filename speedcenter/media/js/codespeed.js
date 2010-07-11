@@ -160,39 +160,6 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
             plotdata.push(customdata);
         }
     } else if(chart == "stacked bars" && baseline != "none") {
-        // Compute arithmetic and geometric means
-        var arithmeans = [];
-        var geomeans = [];
-        for (var i in exes) {
-            for (var j in enviros) {
-                var gtotal = 1;
-                var atotal = 0;
-                for (var b in benchmarks) {
-                    var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
-                    var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
-                    if (baseval === null || baseval === 0) {
-                        return abortRender(plotid, "Baseline has empty results for benchmark " + benchlabel);
-                    } else {
-                        baseline_is_empty = false;
-                        val = val / baseval;
-                    }
-                    atotal += val;
-                    gtotal *= val;
-                }
-                arithmeans.push(atotal/benchmarks.length);
-                var geomean = Math.pow(gtotal,(1/benchmarks.length));
-                if (geomean == 0) {
-                    return abortRender(plotid, "Could not compute geomean");
-                }
-                geomeans.push(geomean);
-            }
-        }
-        
-        // Compute renormalization factors
-        var renorm = [];
-        for (var a = 0; a < arithmeans.length; a++) {
-            renorm.push(geomeans[a]/arithmeans[a]);
-        }
         // Add tick labels
         for (var i in exes) {
           for (var j in enviros) {
@@ -218,10 +185,8 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                     if (baseval === null || baseval === 0) {
                         return abortRender(plotid, "Baseline has empty results for benchmark " + benchlabel);
                     } else {
+                        baseline_is_empty = false;
                         val = val / baseval;
-                        //renormalize to geomean total
-                        if (benchcounter > renorm.length) { return abortRender(plotid, "Error: geomean could not be rendered"); }
-                        val = (val * renorm[benchcounter-1])/benchmarks.length;
                     }
                     if (!horizontal) {
                         customdata.push(val);

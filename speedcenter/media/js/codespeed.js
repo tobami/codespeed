@@ -11,6 +11,10 @@ function readCheckbox(el) {
     config = config.slice(0, -1);
     return config;
 }
+function abortRender(plotid, message) {
+    $("#" + plotid).html(getLoadText(message), h, false);
+    return -1;
+}
 
 function getLoadText(text, h, showloader) {
     var loadtext = '<div style="text-align:center;">';
@@ -50,7 +54,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         if (chart == "stacked bars") {
             title = "Cumulative " + unit + " normalized to " + $("label[for='exe_" + baseline + "']").text();
         } else if (chart == "relative bars") {
-            title = "Compared to " + $("label[for='exe_" + baseline + "']").text() + " (" + unit + ")";
+            title =  unit + " ratio to " + $("label[for='exe_" + baseline + "']").text();
         } else {
             title = unit + " normalized to " + $("label[for='exe_" + baseline + "']").text();
         }
@@ -61,7 +65,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     var ticks = [];
     var series = [];
     var barcounter = 0;
-    
+    if (chart == "stacked bars" && horizontal) { exes.reverse(); }
     if (chart == "normal bars" || chart == "relative bars") {
         if (horizontal) { benchmarks.reverse(); }
         // Add tick labels
@@ -124,8 +128,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
           }
         }
         
-    } else if (chart == "stacked bars") {
-        if (horizontal) { exes.reverse(); }
+    } else if (chart == "stacked bars" && baseline == "none") {
         // Add tick labels
         for (var i in exes) {
           for (var j in enviros) {
@@ -147,15 +150,78 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                     var exe = $("label[for='exe_" + exes[i] + "']").text();
                     var env = $("label[for='env_" + enviros[j] + "']").text();
                     var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
-                    if (baseval === null) {
-                        val = null;
+                    if (!horizontal) {
+                        customdata.push(val);
+                    } else {
+                        customdata.push([val, benchcounter]);
+                    }
+                }
+            }
+            plotdata.push(customdata);
+        }
+    } else if(chart == "stacked bars" && baseline != "none") {
+        // Compute arithmetic and geometric means
+        var arithmeans = [];
+        var geomeans = [];
+        for (var i in exes) {
+            for (var j in enviros) {
+                var gtotal = 1;
+                var atotal = 0;
+                for (var b in benchmarks) {
+                    var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
+                    var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
+                    if (baseval === null || baseval === 0) {
+                        return abortRender(plotid, "Baseline has empty results for benchmark " + benchlabel);
                     } else {
                         baseline_is_empty = false;
-                        if (baseline != "none") {
-                            var base = compdata[baseline][enviros[j]][benchmarks[b]];
-                            if ( base === 0 ) { val = 0; }
-                            else { val = val / base; }
-                        }
+                        val = val / baseval;
+                    }
+                    atotal += val;
+                    gtotal *= val;
+                }
+                arithmeans.push(atotal/benchmarks.length);
+                var geomean = Math.pow(gtotal,(1/benchmarks.length));
+                if (geomean == 0) {
+                    return abortRender(plotid, "Could not compute geomean");
+                }
+                geomeans.push(geomean);
+            }
+        }
+        
+        // Compute renormalization factors
+        var renorm = [];
+        for (var a = 0; a < arithmeans.length; a++) {
+            renorm.push(geomeans[a]/arithmeans[a]);
+        }
+        // Add tick labels
+        for (var i in exes) {
+          for (var j in enviros) {
+            var exe = $("label[for='exe_" + exes[i] + "']").text();
+            var env = $("label[for='env_" + enviros[j] + "']").text();
+            ticks.push(exe + " @ " + env);
+          }
+        }
+        // Add data
+        for (var b in benchmarks) {
+            var benchlabel = $("label[for='benchmark_" + benchmarks[b] + "']").text();
+            series.push({'label': benchlabel});
+            var customdata = [];
+            var benchcounter = 0;
+            barcounter = 1;
+            for (var i in exes) {
+                for (var j in enviros) {
+                    benchcounter++;
+                    var exe = $("label[for='exe_" + exes[i] + "']").text();
+                    var env = $("label[for='env_" + enviros[j] + "']").text();
+                    var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
+                    var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
+                    if (baseval === null || baseval === 0) {
+                        return abortRender(plotid, "Baseline has empty results for benchmark " + benchlabel);
+                    } else {
+                        val = val / baseval;
+                        //renormalize to geomean total
+                        if (benchcounter > renorm.length) { return abortRender(plotid, "Error: geomean could not be rendered"); }
+                        val = (val * renorm[benchcounter-1])/benchmarks.length;
                     }
                     if (!horizontal) {
                         customdata.push(val);
@@ -172,7 +238,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     }
     
     if (baseline_is_empty) {
-        $("#plotwrapper").html(getLoadText("Baseline empty, select another one.", 0, false));
+        return abortRender(plotid, "Baseline empty, select another one.");
         return -1;
     }
     
@@ -227,7 +293,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         
         if (h > 820) {
             h = h/2;
-            plotoptions.seriesDefaults.rendererOptions.barPadding = 4;
+            plotoptions.seriesDefaults.rendererOptions.barPadding = 0;
             plotoptions.seriesDefaults.rendererOptions.barMargin = 8;
             plotoptions.seriesDefaults.shadow = false;
         } else if (h < 300) {
@@ -264,12 +330,10 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         w = barcounter * (plotoptions.seriesDefaults.rendererOptions.barPadding*2 + barWidth) + benchcounter * plotoptions.seriesDefaults.rendererOptions.barMargin * 2 + 60;
         h = plotheight;
         // Check if calculated width is greater than actually available width
-        if (w > plotwidth + 180) {
-            plotoptions.seriesDefaults.rendererOptions.barPadding = 4;
-            plotoptions.seriesDefaults.rendererOptions.barMargin = 8;
-            plotoptions.seriesDefaults.shadow = false;
-        }
         if (w > plotwidth + 75) {
+            plotoptions.seriesDefaults.rendererOptions.barPadding = 0;
+            plotoptions.seriesDefaults.rendererOptions.barMargin = 10;
+            plotoptions.seriesDefaults.shadow = false;
             plotoptions.axes.xaxis.tickOptions.angle = -30;
         }
         if (w > plotwidth) {

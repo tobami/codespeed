@@ -1,6 +1,31 @@
-CHANGELOG
+== Change Log ==
 
-0.6
+=== Version 0.6.1, Jul 12, 2010 ===
+
+Bug fix release
+
+    General:
+    - Repare 404 and 500 pages
+    Changes view:
+    - Fix units column and less is better checking in the changes table
+    - Stop loading commit logs when URL does not respond
+    Timeline view:
+    - Fix timeline grid bug triggered when benchmarks names present with special characters (reported by joe)
+    - don't display grid option when only one benchmark present
+    Comparison view:
+    - Fix several small bugs
+    - Make chart defaults configurable in settings (whished by joe)
+    - Change in style when there are lots of benchmarks: no bar padding.
+    - Fix benchmark/legend ordering
+    - Improve error messages
+    - Issue correctness warning for normalized stacked bars.
+    
+    Known bugs:
+    - There are several bugs in the comparison view related to the plotting library jqplot
+        - Bad autoscaling under some circumstancies
+        - infinite recursion in some cases, notably when there are no values for some benchmarks
+
+=== Version 0.6.0, Jun 23, 2010 ===
 
 This release brings a new view, together with many other changes. Unfortunately the DB Schema had to be changed, so it is not compatible with existing databases without migration. The decision was taken in order to make the executable model simpler.
 

@@ -12,8 +12,9 @@
 
 <script type="text/javascript">
   var compdata = new Object();
+  var defaultbase = "";
   var bench_units = eval({{ bench_units|safe }});
-  var plotheight = 10;
+  var plotheight = 10;//Initial height
   
   function getConfiguration() {
     var config = new Object();
@@ -31,6 +32,7 @@
     var exes = conf['exe'].split(",");
     var bens  = conf['ben'].split(",");
     var enviros = conf['env'].split(",");
+    var msg = "";
     
     h = parseInt($("#plotwrapper").css("height"));//get height for error message
     if (exes[0] == "") {
@@ -43,12 +45,15 @@
       $("#plotwrapper").html(getLoadText("No environments selected", h));
       return false;
     } else if (conf['chart'] == "relative bars" &&  conf['bas'] == "none") {
-      $("#plotwrapper").html(getLoadText("For relative bar charts, you must select a baseline to normalize to.", h));
+      msg = '<p class="message warning">For relative bar charts, you must select a baseline to normalize to.</p>'
+      $("#plotwrapper").html(msg);
       return false;
+    } else if (conf['chart'] == "stacked bars" &&  conf['bas'] != "none") {
+        msg = '<p class="message note">Normalized stacked bars actually represent the weighted arithmetic sum. Choosing different weightings from the "Normalization" menu will change the totals relative to one another. For the correct way to calculate total bars, the geometric mean must be used (see <a href="http://portal.acm.org/citation.cfm?id=5666.5673 " title="How not to lie with statistics: the correct way to summarize benchmark results">paper</a>)</p>';
     }
     
     $("#plotwrapper").fadeOut("fast", function() {
-      $(this).html("").show();
+      $(this).html(msg).show();
       var plotcounter = 1;
       for (unit in bench_units) {
         var benchmarks = new Array();

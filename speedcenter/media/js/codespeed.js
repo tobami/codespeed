@@ -62,7 +62,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         } else {
             title = unit + " normalized to " + $("label[for='exe_" + baseline + "']").text();
         }
-        axislabel = "Relative " + bench_units[unit][2] + bench_units[unit][1];
+        axislabel = "Ratio " + bench_units[unit][1];
     }
     
     var plotdata = [];
@@ -92,7 +92,6 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                 var customdata = [];
                 var benchcounter = 0;
                 if (baseline != "none") {
-                    axislabel = "Relative " + bench_units[unit][2] + bench_units[unit][1];
                     if (chart == "relative bars") {
                         axislabel = "<- worse - better ->";
                     }

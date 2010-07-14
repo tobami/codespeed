@@ -198,13 +198,13 @@ def comparison(request):
     elif hasattr(settings, 'charttype') and settings.charttype in charts:
         selectedchart = settings.charttype
     
-    selectedbaseline = "None"
+    selectedbaseline = "none"
     if 'bas' in data and data['bas'] in exekeys:
         selectedbaseline = data['bas']
     elif len(exekeys) > 1 and hasattr(settings, 'normalization') and settings.normalization:
         # Uncheck exe used for normalization when normalization is chosen as default in the settings
         selectedbaseline = exekeys[0]#this is the default baseline
-        checkedexecutables.remove(selectedbaseline)
+        checkedexecutables.remove(selectedbaseline)        
     
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true" or\

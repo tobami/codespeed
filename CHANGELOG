@@ -1,6 +1,6 @@
 == Change Log ==
 
-=== Version 0.6.1, Jul 12, 2010 ===
+=== Version 0.6.1, Jul 16, 2010 ===
 
 Bug fix release
 
@@ -11,7 +11,7 @@ Bug fix release
     - Stop loading commit logs when URL does not respond
     Timeline view:
     - Fix timeline grid bug triggered when benchmarks names present with special characters (reported by joe)
-    - don't display grid option when only one benchmark present
+    - Don't display grid option when only one benchmark present
     Comparison view:
     - Fix several small bugs
     - Make chart defaults configurable in settings (whished by joe)
@@ -22,8 +22,8 @@ Bug fix release
     
     Known bugs:
     - There are several bugs in the comparison view related to the plotting library jqplot
-        - Bad autoscaling under some circumstancies
-        - infinite recursion in some cases, notably when there are no values for some benchmarks
+        - Bad autoscaling under some circumstancies. Issue#199 (http://bitbucket.org/cleonello/jqplot/issue/199/autoscale-breaks-negative-values)
+        - infinite loop in some cases, notably when there are no result values for some benchmarks. Issue#200 (http://bitbucket.org/cleonello/jqplot/issue/200/autoscale-error)
 
 === Version 0.6.0, Jun 23, 2010 ===
 

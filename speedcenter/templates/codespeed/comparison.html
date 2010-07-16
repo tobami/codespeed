@@ -36,13 +36,13 @@
     
     h = parseInt($("#plotwrapper").css("height"));//get height for error message
     if (exes[0] == "") {
-      $("#plotwrapper").html(getLoadText("No executables selected", h));
+      $("#plotwrapper").html('<p class="message warning">No executables selected</p>');
       return false;
     } else if (bens[0] == "") {
-      $("#plotwrapper").html(getLoadText("No benchmarks selected", h));
+      $("#plotwrapper").html('<p class="message warning">No benchmarks selected</p>');
       return false;
     } else if (enviros[0] == "") {
-      $("#plotwrapper").html(getLoadText("No environments selected", h));
+      $("#plotwrapper").html('<p class="message warning">No environments selected</p>');
       return false;
     } else if (conf['chart'] == "relative bars" &&  conf['bas'] == "none") {
       msg = '<p class="message warning">For relative bar charts, you must select a baseline to normalize to.</p>'

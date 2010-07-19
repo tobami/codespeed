@@ -305,7 +305,7 @@ div.compplot {
     margin-bottom: 2em;
 }
 
-p.message {
+p.note, p.warning {
     position: relative;
     float: left;
     padding: 0.8em;

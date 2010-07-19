@@ -1,20 +1,19 @@
-<div style="float:left;">
-<table id="results" class="tablesorter">
+<div class="leftcolumn">{% for units in tablelist %}
+<table class="tablesorter">
 <thead>
   <tr>
-    <th>Benchmark</th><th>{% if showunits %}Result{% else %}
-{{ units_title }}{% endif %}</th>{% if showunits %}<th>Units</th>{% endif %}<th>Std dev</th><th>Current change</th><th title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
+    <th>Benchmark</th><th>{{ units.units_title }} in {{ units.units }}<label style="display:none;">{{ untis.lessisbetter }}</label></th><th>Std dev</th><th>Current change</th><th title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
   </tr>
 </thead>
 <tfoot>
-  <tr><td class="text" title="Arithmetic mean">Average</td><td></td>{% if showunits %}<td></td>{% endif %}<td></td><td>{{ totals.change|floatformat:2 }}%</td><td>{{ totals.trend|floatformat:2 }}%</td></tr>
+  <tr><td class="text" title="Arithmetic mean">Average</td><td></td><td></td><td>{{ units.totals.change|floatformat:2 }}%</td><td>{{ units.totals.trend|floatformat:2 }}%</td></tr>
 </tfoot>
 <tbody>
-{% for row in table_list %}  <tr>
-        <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:4 }}</td>{% if showunits %}<td>{{ row.benchmark.units }}<label style="display:none;">{{ row.benchmark.lessisbetter }}</label></td>{% endif %}<td>{{ row.std_dev|floatformat:4 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td>
+{% for row in units.rows %}  <tr>
+        <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:row.precission }}</td><td>{{ row.std_dev|floatformat:row.precission }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td>
   </tr>{% endfor %}
 </tbody>
-</table>
+</table>{% endfor %}
 
 <table class="info">
 <thead>

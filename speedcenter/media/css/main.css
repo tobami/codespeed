@@ -193,8 +193,12 @@ a.checkall, a.uncheckall { font-size: normal; color: #AAAAAA; }
 a.checkall { margin-left: 0.4em; }
 
 p.errormessage { line-height: 10em; margin-bottom: 10em; }
+
 /* tables */
-table#results, table.info, table.revision {
+div.leftcolumn { float: left; margin-right: 0.8em;  }
+table.tablesorter, table.info { width: 100%; }
+
+table.tablesorter, table.info, table.revision {
     margin-bottom: 0.8em;
     font-family:arial;
     font-size: 11pt;
@@ -205,10 +209,12 @@ table#results, table.info, table.revision {
     background-color: #fafafa;
 }
 
-table#results { float: left; margin-right: 0.8em; }
-table#results thead tr th { padding-right: 10px; width: 5em; text-align: center; }
+table.tablesorter { float: left; margin-right: 0.8em; clear: both; }
 
 table.tablesorter thead tr th {
+    padding-right: 10px;
+    width: 5em;
+    text-align: center;
     background-color: #9DADC6;
     border: 1px solid #CDCDCD;
     font-size: 8pt;
@@ -250,7 +256,7 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
     background-color: #8dbdd8;
 }
 
-table.tablesorter tbody td.text {text-align: left; width: 7em; }
+table.tablesorter tbody td.text {text-align: left; width: 8em; }
 
 table.tablesorter tbody tr td.status-red, .status-red  { background-color: #FF5640; }
 table.tablesorter tbody tr td.status-green, .status-green { background-color: #9FD54D; }
@@ -260,7 +266,7 @@ table.tablesorter tbody tr.highlight td {
     cursor: pointer;
 }
 
-table.info { float:left; clear: both; width: 26.6em;}
+table.info { float:left; clear: both; }
 table.info th, table.revision th { background-color: #F1F1F1; }
 table.info th, table.info td, table.revision th, table.revision td { padding: 0.3em; }
 /* table.info td { text-align: right; } */

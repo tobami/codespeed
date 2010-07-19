@@ -419,83 +419,86 @@ def getchangestable(request):
         executable=executable
     )
 
-    table_list = []
-    totals = {'change': [], 'trend': [],}
-    for bench in Benchmark.objects.all():
-        resultquery = result_list.filter(benchmark=bench)
-        if not len(resultquery): continue
-        result = resultquery.filter(benchmark=bench)[0]
-        std_dev = result.std_dev
-        result = result.value
-        
-        change = 0
-        if len(change_list):
-            c = change_list.filter(benchmark=bench)
-            if c.count():
-                change = (result - c[0].value)*100/c[0].value
-                totals['change'].append(result / c[0].value)
-        
-        #calculate past average
-        average = 0
-        averagecount = 0
-        if len(pastrevisions):
-            for rev in pastrevisions:
-                past_rev = Result.objects.filter(
-                    revision=rev
-                ).filter(
-                    environment=environment
-                ).filter(
-                    executable=executable
-                ).filter(benchmark=bench)
-                if past_rev.count():
-                    average += past_rev[0].value
-                    averagecount += 1
-        trend = 0
-        if average:
-            average = average / averagecount
-            trend =  (result - average)*100/average
-            totals['trend'].append(result / average)
-        else:
-            trend = "-"
+    tablelist = []
+    for units in Benchmark.objects.all().values('units').distinct():
+        currentlist = []
+        units_title = ""
+        totals = {'change': [], 'trend': [],}
+        for bench in Benchmark.objects.filter(units=units['units']):
+            units_title = bench.units_title
+            lessisbetter = bench.lessisbetter
+            resultquery = result_list.filter(benchmark=bench)
+            if not len(resultquery): continue
+            result = resultquery.filter(benchmark=bench)[0]
+            std_dev = result.std_dev
+            result = result.value
+            
+            change = 0
+            if len(change_list):
+                c = change_list.filter(benchmark=bench)
+                if c.count():
+                    change = (result - c[0].value)*100/c[0].value
+                    totals['change'].append(result / c[0].value)
+            
+            #calculate past average
+            average = 0
+            averagecount = 0
+            if len(pastrevisions):
+                for rev in pastrevisions:
+                    past_rev = Result.objects.filter(
+                        revision=rev
+                    ).filter(
+                        environment=environment
+                    ).filter(
+                        executable=executable
+                    ).filter(benchmark=bench)
+                    if past_rev.count():
+                        average += past_rev[0].value
+                        averagecount += 1
+            trend = 0
+            if average:
+                average = average / averagecount
+                trend =  (result - average)*100/average
+                totals['trend'].append(result / average)
+            else:
+                trend = "-"
 
-        relative = 0
+            relative = 0
+            precission = 6
+            currentlist.append({
+                'benchmark': bench,
+                'precission': precission,
+                'result': result,
+                'std_dev': std_dev,
+                'change': change,
+                'trend': trend,
+            })
         
-        table_list.append({
-            'benchmark': bench,
-            'result': result,
-            'std_dev': std_dev,
-            'change': change,
-            'trend': trend,
+        # Compute Arithmetic averages
+        for key in totals.keys():
+            if len(totals[key]):
+                totals[key] = float(sum(totals[key]) / len(totals[key]))
+            else:
+                totals[key] = "-"
+        if totals['change'] != "-":
+            totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
+        if totals['trend'] != "-":
+            totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
+        
+        tablelist.append({
+            'units': units['units'],
+            'units_title': units_title,
+            'lessisbetter': lessisbetter,
+            'rows': currentlist,
+            'totals': totals
         })
-    
-    if not len(table_list):
+
+    if not len(tablelist):
         return HttpResponse('<table id="results" class="tablesorter" style="height: 232px;"></table><p class="errormessage">No results for this parameters</p>')
     
-    # Compute Arithmetic averages
-    for key in totals.keys():
-        if len(totals[key]):
-            totals[key] = float(sum(totals[key]) / len(totals[key]))
-        else:
-            totals[key] = "-"
-    if totals['change'] != "-":
-        totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
-    if totals['trend'] != "-":
-        totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
-    
-    # Only show units column if a benchmark has units other than seconds
-    showunits = False
-    units_titles = Benchmark.objects.filter(
-        benchmark_type="C"
-    ).values('units_title').distinct()
-    if len(units_titles) > 1: showunits = True
-    units_title = table_list[0]['benchmark'].units_title + " in "
-    units_title += table_list[0]['benchmark'].units
-    
     return render_to_response('codespeed/changes_table.html', {
-        'table_list': table_list,
+        'tablelist': tablelist,
         'trendconfig': trendconfig,
-        'showunits': showunits,
-        'units_title': units_title,
         'executable': executable,
         'lastrevision': lastrevision,
         'totals': totals,

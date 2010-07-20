@@ -425,6 +425,7 @@ def getchangestable(request):
         units_title = ""
         hasmin = False
         hasmax = False
+        smallest = 1000
         totals = {'change': [], 'trend': [],}
         for bench in Benchmark.objects.filter(units=units['units']):
             units_title = bench.units_title
@@ -470,12 +471,11 @@ def getchangestable(request):
                 totals['trend'].append(result / average)
             else:
                 trend = "-"
-
-            relative = 0
-            precission = 6
+            
+            if result < smallest: smallest = result
+            
             currentlist.append({
                 'benchmark': bench,
-                'precission': precission,
                 'result': result,
                 'std_dev': std_dev,
                 'val_min': val_min,
@@ -495,14 +495,21 @@ def getchangestable(request):
         if totals['trend'] != "-":
             totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
         
+        # Calculate significant digits
+        digits = 2;
+        while smallest < 1:
+            smallest *= 10
+            digits += 1
+        
         tablelist.append({
             'units': units['units'],
             'units_title': units_title,
             'lessisbetter': lessisbetter,
             'hasmin': hasmin,
             'hasmax': hasmax,
-            'rows': currentlist,
-            'totals': totals
+            'precission': digits,
+            'totals': totals,
+            'rows': currentlist
         })
 
     if not len(tablelist):

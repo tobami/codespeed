@@ -10,7 +10,7 @@
 </tfoot>
 <tbody>
 {% for row in units.rows %}  <tr>
-        <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:row.precission }}</td><td>{{ row.std_dev|floatformat:row.precission }}</td>{% if units.hasmin %}<td>{{ row.val_min }}</td>{% endif%}{% if units.hasmax %}<td>{{ row.val_max }}</td>{% endif%}<td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td>
+        <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:units.precission }}</td><td>{{ row.std_dev|floatformat:units.precission }}</td>{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>{% endif%}{% if units.hasmax|floatformat:units.precission %}<td>{{ row.val_max }}</td>{% endif%}<td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td>
   </tr>{% endfor %}
 </tbody>
 </table>{% endfor %}

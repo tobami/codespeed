@@ -423,15 +423,23 @@ def getchangestable(request):
     for units in Benchmark.objects.all().values('units').distinct():
         currentlist = []
         units_title = ""
+        hasmin = False
+        hasmax = False
         totals = {'change': [], 'trend': [],}
         for bench in Benchmark.objects.filter(units=units['units']):
             units_title = bench.units_title
             lessisbetter = bench.lessisbetter
             resultquery = result_list.filter(benchmark=bench)
             if not len(resultquery): continue
-            result = resultquery.filter(benchmark=bench)[0]
-            std_dev = result.std_dev
-            result = result.value
+            resobj = resultquery.filter(benchmark=bench)[0]
+            std_dev = resobj.std_dev
+            result = resobj.value
+            val_min = resobj.val_min
+            if val_min is not None: hasmin = True
+            else: val_min = "-"
+            val_max = resobj.val_max
+            if val_max is not None: hasmax = True
+            else: val_max = "-"
             
             change = 0
             if len(change_list):
@@ -470,8 +478,10 @@ def getchangestable(request):
                 'precission': precission,
                 'result': result,
                 'std_dev': std_dev,
+                'val_min': val_min,
+                'val_max': val_max,
                 'change': change,
-                'trend': trend,
+                'trend': trend
             })
         
         # Compute Arithmetic averages
@@ -489,6 +499,8 @@ def getchangestable(request):
             'units': units['units'],
             'units_title': units_title,
             'lessisbetter': lessisbetter,
+            'hasmin': hasmin,
+            'hasmax': hasmax,
             'rows': currentlist,
             'totals': totals
         })

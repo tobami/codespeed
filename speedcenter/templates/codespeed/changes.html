@@ -29,12 +29,12 @@
         var trendthres = {{ defaulttrendthres }};
         $(".tablesorter").each(function() {
             var index = $(this).find("thead tr th:last").index()-1;
-            var lessisbetter = $(this).find("th:eq(0) label").text();
+            var lessisbetter = $(this).find("th:eq(1) label").text();
             $(this).find(":not(thead) > tr").each(function() {
                 var change = $(this).children("td:eq("+index+")").text().slice(0, -1);
                 var trend = $(this).children("td:eq("+(index+1)+")").text().slice(0, -1);
                 // Check whether less is better
-                if (lessisbetter != "True") {
+                if (lessisbetter == "False") {
                     change = -change;
                     trend = -trend;
                 }

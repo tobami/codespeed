@@ -2,15 +2,15 @@
 <table class="tablesorter">
 <thead>
   <tr>
-    <th>Benchmark</th><th>{{ units.units_title }} in {{ units.units }}<label style="display:none;">{{ untis.lessisbetter }}</label></th><th>Std dev</th><th>Current change</th><th title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
+    <th>Benchmark</th><th>{{ units.units_title }} in {{ units.units }}<label title="lessisbetter" style="display:none;">{{ units.lessisbetter }}</label></th><th>Std dev</th>{% if units.hasmin %}<th>Min</th>{% endif%}{% if units.hasmax %}<th>Max</th>{% endif%}<th>Current change</th><th title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
   </tr>
 </thead>
 <tfoot>
-  <tr><td class="text" title="Arithmetic mean">Average</td><td></td><td></td><td>{{ units.totals.change|floatformat:2 }}%</td><td>{{ units.totals.trend|floatformat:2 }}%</td></tr>
+  <tr><td class="text" title="Arithmetic mean">Average</td><td></td><td></td>{% if units.hasmin %}<td>{{ units.totals.min }}</td>{% endif%}{% if units.hasmax %}<td>{{ units.totals.max }}</td>{% endif%}<td>{{ units.totals.change|floatformat:2 }}%</td><td>{{ units.totals.trend|floatformat:2 }}%</td></tr>
 </tfoot>
 <tbody>
 {% for row in units.rows %}  <tr>
-        <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:row.precission }}</td><td>{{ row.std_dev|floatformat:row.precission }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td>
+        <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:row.precission }}</td><td>{{ row.std_dev|floatformat:row.precission }}</td>{% if units.hasmin %}<td>{{ row.val_min }}</td>{% endif%}{% if units.hasmax %}<td>{{ row.val_max }}</td>{% endif%}<td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td>
   </tr>{% endfor %}
 </tbody>
 </table>{% endfor %}

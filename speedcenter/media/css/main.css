@@ -33,7 +33,14 @@ ul.inline li {
     *display: inline; /* IE */
 }
 
-ul#links { position: absolute; bottom: 0; right: 0; padding: 0.7em; padding-bottom: 0.5em; font-size: large; }
+ul#links {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 0.7em;
+    padding-bottom: 0.5em;
+    font-size: large;
+}
 ul#links li { margin-left: 0.8em; }
 ul#links li a:link, ul#links li a:visited { color: #000000; }
 ul#links li a:hover { text-decoration: underline; }
@@ -147,11 +154,9 @@ div.about_content { text-align: left; }
     overflow: hidden;
     margin: 0;
     margin-bottom: 1em;
-/*     background: url(sbbody-r.gif) no-repeat bottom right; */
     font-size: 90%;
 }
 .boxhead {
-/*     background: url(sbhead-r.gif) no-repeat top right; */
     background-color: #9DADC6;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
@@ -160,7 +165,6 @@ div.about_content { text-align: left; }
     text-align: left;
 }
 .boxhead h2 {
-/*     background: url(sbhead-l.gif) no-repeat top left; */
     margin: 0;
     padding: 0.5em 0.8em 0.3em;
     color: white; 
@@ -169,8 +173,6 @@ div.about_content { text-align: left; }
     line-height: 1em;
 }
 .boxbody {
-/*     background: url(sbbody-l.gif) no-repeat bottom left; */
-/*     background-color: #F1F1F1; */
     -moz-border-radius-bottomleft: 10px;
     -moz-border-radius-bottomright: 10px;
     -webkit-border-radius-bottomleft: 10px;
@@ -212,13 +214,13 @@ table.tablesorter, table.info, table.revision {
 table.tablesorter { float: left; margin-right: 0.8em; clear: both; }
 
 table.tablesorter thead tr th {
-    padding-right: 10px;
-    width: 5em;
+    padding: 4px;
+    padding-right: 12px;
+    width: 5.5em;
     text-align: center;
     background-color: #9DADC6;
     border: 1px solid #CDCDCD;
     font-size: 8pt;
-    padding: 4px;
 }
 table.tablesorter thead tr .header {
     background-image: url(/media/images/bg.gif);
@@ -256,11 +258,10 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
     background-color: #8dbdd8;
 }
 
-table.tablesorter tbody td.text {text-align: left; width: 8em; }
+table.tablesorter tbody td.text {text-align: left; width: 8.5em; }
 
 table.tablesorter tbody tr td.status-red, .status-red  { background-color: #FF5640; }
 table.tablesorter tbody tr td.status-green, .status-green { background-color: #9FD54D; }
-/* table.tablesorter tbody tr td.status-yellow { background-color: #FEE772; } */
 table.tablesorter tbody tr.highlight td {
     background-color: #9DADC6 !important;
     cursor: pointer;
@@ -269,10 +270,8 @@ table.tablesorter tbody tr.highlight td {
 table.info { float:left; clear: both; }
 table.info th, table.revision th { background-color: #F1F1F1; }
 table.info th, table.info td, table.revision th, table.revision td { padding: 0.3em; }
-/* table.info td { text-align: right; } */
 table.info tbody td.infofirst { width: 10em; text-align: left; }
 
-/* table.revision { min-width: 22em; float: left; } */
 tbody.commits tr td { border-bottom: 1px solid #CDCDCD; vertical-align: top; }
 tbody.commits tr td.date, table.revision tr td.infofirst, div.author, span.note, table.info tbody td.infofirst {
     font-size: 92%;

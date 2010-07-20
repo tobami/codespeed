@@ -1,5 +1,13 @@
 == Change Log ==
 
+=== Version 0.6.2, not released yet ===
+
+Bug Fix release
+    - Changes view:
+        - Render a different results table for each unit type.
+          Finally fixes color coding of benchmark results which have different "lessisbetter" values
+        - Small CSS touches
+
 === Version 0.6.1, Jul 16, 2010 ===
 
 Bug fix release

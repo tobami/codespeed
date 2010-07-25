@@ -1,26 +1,30 @@
 == Change Log ==
 
-=== Version 0.6.2, not released yet ===
+=== Version 0.6.2, Jul 25, 2010 ===
 
 Bug Fix release
-    - Changes view:
-        - Render a different results table for each unit type.
-          Finally fixes color coding of benchmark results which have different "lessisbetter" values
-        - Small CSS touches
+
+* Changes view:
+    - Render a different results table for each unit type.
+      Finally fixes color coding of benchmark results which have different "lessisbetter" values
+    - Display min/max columns if data present
+    - Display only significant digits (automatically calculated precision)
+    - Small CSS touches
+
 
 === Version 0.6.1, Jul 16, 2010 ===
 
 Bug fix release
 
-    General:
+* General:
     - Repare 404 and 500 pages
-    Changes view:
+* Changes view:
     - Fix units column and less is better checking in the changes table
     - Stop loading commit logs when URL does not respond
     Timeline view:
     - Fix timeline grid bug triggered when benchmarks names present with special characters (reported by joe)
     - Don't display grid option when only one benchmark present
-    Comparison view:
+* Comparison view:
     - Fix several small bugs
     - Make chart defaults configurable in settings (whished by joe)
     - Change in style when there are lots of benchmarks: no bar padding.
@@ -28,10 +32,11 @@ Bug fix release
     - Improve error messages
     - Issue correctness warning for normalized stacked bars.
     
-    Known bugs:
+* Known bugs:
     - There are several bugs in the comparison view related to the plotting library jqplot
-        - Bad autoscaling under some circumstancies. Issue#199 (http://bitbucket.org/cleonello/jqplot/issue/199/autoscale-breaks-negative-values)
-        - infinite loop in some cases, notably when there are no result values for some benchmarks. Issue#200 (http://bitbucket.org/cleonello/jqplot/issue/200/autoscale-error)
+    - Bad autoscaling under some circumstancies. Issue#199 (http://bitbucket.org/cleonello/jqplot/issue/199/autoscale-breaks-negative-values)
+    - infinite loop in some cases, notably when there are no result values for some benchmarks. Issue#200 (http://bitbucket.org/cleonello/jqplot/issue/200/autoscale-error)
+
 
 === Version 0.6.0, Jun 23, 2010 ===
 
@@ -52,6 +57,7 @@ This release brings a new view, together with many other changes. Unfortunately 
     * Timeline view:
         o Allow to select a baseline
         o Added plot title
+
 
 0.5
 

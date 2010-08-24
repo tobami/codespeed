@@ -28,7 +28,7 @@ data = {
 def add(data):
     params = urllib.urlencode(data)
     response = "None"
-    print "Executable %s, revision %s, benchmark %s" % (data['executable_name'], data['commitid'], data['benchmark'])
+    print "Executable %s, revision %s, benchmark %s" % (data['executable'], data['commitid'], data['benchmark'])
     f = urllib2.urlopen(CODESPEED_URL + 'result/add/', params)
     response = f.read()
     f.close()

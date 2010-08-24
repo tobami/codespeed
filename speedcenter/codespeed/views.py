@@ -8,6 +8,21 @@ from time import sleep
 import json
 from itertools import chain
 
+def no_environment_error():
+    return render_to_response('nodata.html', {
+        'message': 'You need to configure at least one Environment. Please go to the <a href="../admin/codespeed/environment/">admin interface</a>'
+    })
+
+def no_default_project_error():
+    return render_to_response('nodata.html', {
+        'message': 'You need to configure at least one one Project as default (checked "Track changes" field).<br />Please go to the <a href="../admin/codespeed/project/">admin interface</a>'
+    })
+
+def no_executables_error():
+    return render_to_response('nodata.html', {
+        'message': 'There needs to be at least one executable'
+    })
+
 def getbaselineexecutables():
     baseline = [{'key': "none", 'name': "None", 'executable': "none", 'revision': "none"}]
     revs = Revision.objects.exclude(tag="")
@@ -129,8 +144,7 @@ def comparison(request):
     
     # Configuration of default parameters
     defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment:
-        return HttpResponse("You need to configure at least one Environment")
+    if not defaultenvironment: return no_environment_error()
     if 'env' in data:
         try:
             defaultenvironment = Environment.objects.get(name=data['env'])
@@ -149,8 +163,10 @@ def comparison(request):
     if not checkedenviros:
         checkedenviros = enviros
     
-    if not len(Project.objects.all()):
-        return HttpResponse('You need to configure at least one Project as default (checked "Track changes" field)')
+    if not len(Project.objects.all()): return no_default_project_error()
+    
+    defaultexecutable = getdefaultexecutable()
+    if not defaultexecutable: return no_executables_error()
     
     executables, exekeys = getcomparisonexes()
     checkedexecutables = []
@@ -315,8 +331,7 @@ def timeline(request):
     
     # Configuration of default parameters
     defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment:
-        return HttpResponse("You need to configure at least one Environment")
+    if not defaultenvironment: return no_environment_error()
     if 'env' in data:
         try:
             defaultenvironment = Environment.objects.get(name=data['env'])
@@ -324,8 +339,7 @@ def timeline(request):
             pass
     
     defaultproject = Project.objects.filter(track=True)
-    if not len(defaultproject):
-        return HttpResponse('You need to configure at least one Project as default (checked "Track changes" field)')
+    if not len(defaultproject): return no_default_project_error()
     else: defaultproject = defaultproject[0]
     
     checkedexecutables = []
@@ -339,8 +353,7 @@ def timeline(request):
     if not checkedexecutables:
         checkedexecutables = Executable.objects.filter(project__track=True)
     
-    if not len(checkedexecutables):
-        return HttpResponse("There needs to be at least one executable")
+    if not len(checkedexecutables): return no_executables_error()
     
     baseline = getbaselineexecutables()
     defaultbaseline = None
@@ -539,8 +552,7 @@ def changes(request):
         defaulttrend = int(data['tre'])
     
     defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment:
-        return HttpResponse("You need to configure at least one Environment")
+    if not defaultenvironment: return no_environment_error()
     if 'env' in data:
         try:
             defaultenvironment = Environment.objects.get(name=data['env'])
@@ -549,13 +561,11 @@ def changes(request):
     environments = Environment.objects.all()
     
     defaultproject = Project.objects.filter(track=True)
-    if not len(defaultproject):
-        return HttpResponse('You need to configure at least one Project as default (checked "Track changes" field)')
+    if not len(defaultproject): return no_default_project_error()
     else: defaultproject = defaultproject[0]
     
     defaultexecutable = getdefaultexecutable()
-    if not defaultexecutable:
-        return HttpResponse("There needs to be at least one executable")
+    if not defaultexecutable: return no_executables_error()
     
     if "exe" in data:
         try:

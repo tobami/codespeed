@@ -117,7 +117,7 @@ def getcomparisondata(request):
                         benchmark=bench
                     ).value
                 except Result.DoesNotExist:
-                    value = 0
+                    value = None
                 compdata[exe['key']][env.id][bench.id] = value
     compdata['error'] = "None"
     
@@ -188,20 +188,28 @@ def comparison(request):
         checkedbenchmarks = Benchmark.objects.filter(benchmark_type="C")
     
     charts = ['normal bars', 'stacked bars', 'relative bars']
+    # Don't show relative charts as an option if there is only one executable
+    # Relative charts need normalization
+    if len(executables) == 1: charts.remove('relative bars')
+    
     selectedchart = charts[0]
     if 'chart' in data and data['chart'] in charts:
         selectedchart = data['chart']
+    elif hasattr(settings, 'charttype') and settings.charttype in charts:
+        selectedchart = settings.charttype
     
-    selectedbaseline = getbaselineexecutables()
-    if 'bas' in data:
+    selectedbaseline = "none"
+    if 'bas' in data and data['bas'] in exekeys:
         selectedbaseline = data['bas']
-    elif len(selectedbaseline) > 1:
-        selectedbaseline = str(selectedbaseline[1]['executable'].id) + "+" + str(selectedbaseline[1]['revision'].id)
-    else:
-        selectedbaseline = executables[0]['key']
+    elif len(exekeys) > 1 and hasattr(settings, 'normalization') and settings.normalization:
+        # Uncheck exe used for normalization when normalization is chosen as default in the settings
+        selectedbaseline = exekeys[0]#this is the default baseline
+        checkedexecutables.remove(selectedbaseline)        
     
     selecteddirection = False
-    if 'hor' in data and data['hor'] == "true": selecteddirection = True
+    if 'hor' in data and data['hor'] == "true" or\
+        hasattr(settings, 'chartorientation') and settings.chartorientation == 'horizontal':
+        selecteddirection = True
     
     return render_to_response('codespeed/comparison.html', {
         'checkedexecutables': checkedexecutables,
@@ -247,6 +255,7 @@ def gettimelinedata(request):
         append = False
         timeline = {}
         timeline['benchmark'] = bench.name
+        timeline['benchmark_id'] = bench.id
         timeline['units'] = bench.units
         lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'
         timeline['lessisbetter'] = lessisbetter
@@ -410,76 +419,105 @@ def getchangestable(request):
         executable=executable
     )
 
-    table_list = []
-    totals = {'change': [], 'trend': [],}
-    for bench in Benchmark.objects.all():
-        resultquery = result_list.filter(benchmark=bench)
-        if not len(resultquery): continue
-        result = resultquery.filter(benchmark=bench)[0]
-        std_dev = result.std_dev
-        result = result.value
+    tablelist = []
+    for units in Benchmark.objects.all().values('units').distinct():
+        currentlist = []
+        units_title = ""
+        hasmin = False
+        hasmax = False
+        smallest = 1000
+        totals = {'change': [], 'trend': [],}
+        for bench in Benchmark.objects.filter(units=units['units']):
+            units_title = bench.units_title
+            lessisbetter = bench.lessisbetter
+            resultquery = result_list.filter(benchmark=bench)
+            if not len(resultquery): continue
+            resobj = resultquery.filter(benchmark=bench)[0]
+            std_dev = resobj.std_dev
+            result = resobj.value
+            val_min = resobj.val_min
+            if val_min is not None: hasmin = True
+            else: val_min = "-"
+            val_max = resobj.val_max
+            if val_max is not None: hasmax = True
+            else: val_max = "-"
+            
+            change = 0
+            if len(change_list):
+                c = change_list.filter(benchmark=bench)
+                if c.count():
+                    change = (result - c[0].value)*100/c[0].value
+                    totals['change'].append(result / c[0].value)
+            
+            #calculate past average
+            average = 0
+            averagecount = 0
+            if len(pastrevisions):
+                for rev in pastrevisions:
+                    past_rev = Result.objects.filter(
+                        revision=rev
+                    ).filter(
+                        environment=environment
+                    ).filter(
+                        executable=executable
+                    ).filter(benchmark=bench)
+                    if past_rev.count():
+                        average += past_rev[0].value
+                        averagecount += 1
+            trend = 0
+            if average:
+                average = average / averagecount
+                trend =  (result - average)*100/average
+                totals['trend'].append(result / average)
+            else:
+                trend = "-"
+            
+            if result < smallest: smallest = result
+            
+            currentlist.append({
+                'benchmark': bench,
+                'result': result,
+                'std_dev': std_dev,
+                'val_min': val_min,
+                'val_max': val_max,
+                'change': change,
+                'trend': trend
+            })
         
-        change = 0
-        if len(change_list):
-            c = change_list.filter(benchmark=bench)
-            if c.count():
-                change = (result - c[0].value)*100/c[0].value
-                totals['change'].append(result / c[0].value)
+        # Compute Arithmetic averages
+        for key in totals.keys():
+            if len(totals[key]):
+                totals[key] = float(sum(totals[key]) / len(totals[key]))
+            else:
+                totals[key] = "-"
+        if totals['change'] != "-":
+            totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
+        if totals['trend'] != "-":
+            totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
         
-        #calculate past average
-        average = 0
-        averagecount = 0
-        if len(pastrevisions):
-            for rev in pastrevisions:
-                past_rev = Result.objects.filter(
-                    revision=rev
-                ).filter(
-                    environment=environment
-                ).filter(
-                    executable=executable
-                ).filter(benchmark=bench)
-                if past_rev.count():
-                    average += past_rev[0].value
-                    averagecount += 1
-        trend = 0
-        if average:
-            average = average / averagecount
-            trend =  (result - average)*100/average
-            totals['trend'].append(result / average)
-        else:
-            trend = "-"
-
-        relative = 0
-
-        table_list.append({
-            'benchmark': bench,
-            'result': result,
-            'std_dev': std_dev,
-            'change': change,
-            'trend': trend,
+        # Calculate significant digits
+        digits = 2;
+        while smallest < 1:
+            smallest *= 10
+            digits += 1
+        
+        tablelist.append({
+            'units': units['units'],
+            'units_title': units_title,
+            'lessisbetter': lessisbetter,
+            'hasmin': hasmin,
+            'hasmax': hasmax,
+            'precission': digits,
+            'totals': totals,
+            'rows': currentlist
         })
-    
-    if not len(table_list):
-        return HttpResponse('<table id="results" class="tablesorter" style="height: 232px;"></table><p>No results for this parameters</p>')
-    # Compute Arithmetic averages
-    for key in totals.keys():
-        if len(totals[key]):
-            totals[key] = float(sum(totals[key]) / len(totals[key]))
-        else:
-            totals[key] = "-"
-    if totals['change'] != "-":
-        totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
-    if totals['trend'] != "-":
-        totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
-    
-    # Only show units column if a benchmark has units other than seconds
-    showunits = False
-    if len(Benchmark.objects.exclude(units='seconds')): showunits = True
+
+    if not len(tablelist):
+        return HttpResponse('<table id="results" class="tablesorter" style="height: 232px;"></table><p class="errormessage">No results for this parameters</p>')
     
     return render_to_response('codespeed/changes_table.html', {
-        'table_list': table_list,
+        'tablelist': tablelist,
         'trendconfig': trendconfig,
-        'showunits': showunits,
         'executable': executable,
         'lastrevision': lastrevision,
         'totals': totals,
@@ -560,6 +598,9 @@ def changes(request):
         except Revision.DoesNotExist:
             selectedrevision = lastrevisions[0]
     
+    # This variable is used to know when the newly selected executable
+    # belongs to another project (project changed) and then trigger the
+    # repopulation of the revision selection selectbox
     projectmatrix = {}
     for e in executables: projectmatrix[e.id] = e.project.name
     projectmatrix = json.dumps(projectmatrix)
@@ -581,13 +622,22 @@ def displaylogs(request):
     rev = Revision.objects.get(id=request.GET['revisionid'])
     logs = []
     logs.append(rev)
+    error = False
     remotelogs = getcommitlogs(rev)
-    if len(remotelogs): logs = remotelogs
-    return render_to_response('codespeed/changes_logs.html', { 'logs': logs })
+    if len(remotelogs):
+        try:
+            if remotelogs[0]['error']:
+                error = remotelogs[0]['message']
+        except KeyError:
+            pass#no errors
+        logs = remotelogs
+    else: error = 'no logs found'
+    return render_to_response('codespeed/changes_logs.html', { 'error': error, 'logs': logs })
 
 def getlogsfromsvn(newrev, startrev):
     import pysvn
     logs = []
+    log_messages = []
     loglimit = 200
     if startrev == newrev:
         start = startrev.commitid
@@ -601,16 +651,19 @@ def getlogsfromsvn(newrev, startrev):
     client = pysvn.Client()
     if newrev.project.repo_user != "":
         client.callback_get_login = get_login
-    log_message = \
-        client.log(
-            newrev.project.repo_path,
-            revision_start=pysvn.Revision(
-                    pysvn.opt_revision_kind.number, start
-            ),
-            revision_end=pysvn.Revision(
-                pysvn.opt_revision_kind.number, newrev.commitid
+    try:
+        log_messages = \
+            client.log(
+                newrev.project.repo_path,
+                revision_start=pysvn.Revision(
+                        pysvn.opt_revision_kind.number, start
+                ),
+                revision_end=pysvn.Revision(
+                    pysvn.opt_revision_kind.number, newrev.commitid
+                )
             )
-        )
+    except pysvn.ClientError:
+        return [{'error': True, 'message': "Could not resolve '" + newrev.project.repo_path + "'"}]
     log_message.reverse()
     s = len(log_message)
     while s > loglimit:

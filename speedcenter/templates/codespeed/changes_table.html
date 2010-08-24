@@ -1,20 +1,19 @@
-<div style="float:left;">
-<table id="results" class="tablesorter">
+<div class="leftcolumn">{% for units in tablelist %}
+<table class="tablesorter">
 <thead>
   <tr>
-    <th>Benchmark</th><th>{% if showunits %}Result{% else %}
-seconds{% endif %}</th>{% if showunits %}<th>units</th>{% endif %}<th>std dev</th><th>Current change</th><th title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
+    <th>Benchmark</th><th>{{ units.units_title }} in {{ units.units }}<label title="lessisbetter" style="display:none;">{{ units.lessisbetter }}</label></th><th>Std dev</th>{% if units.hasmin %}<th>Min</th>{% endif%}{% if units.hasmax %}<th>Max</th>{% endif%}<th>Current change</th><th title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
   </tr>
 </thead>
 <tfoot>
-  <tr><td class="text" title="Arithmetic mean">Average</td><td></td>{% if showunits %}<td></td>{% endif %}<td></td><td>{{ totals.change|floatformat:2 }}%</td><td>{{ totals.trend|floatformat:2 }}%</td></tr>
+  <tr><td class="text" title="Arithmetic mean">Average</td><td></td><td></td>{% if units.hasmin %}<td>{{ units.totals.min }}</td>{% endif%}{% if units.hasmax %}<td>{{ units.totals.max }}</td>{% endif%}<td>{{ units.totals.change|floatformat:2 }}%</td><td>{{ units.totals.trend|floatformat:2 }}%</td></tr>
 </tfoot>
 <tbody>
-{% for row in table_list %}  <tr>
-        <td class="text" title="{{ row.bench_description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:4 }}</td>{% if showunits %}<td>{{ row.benchmark.units }}<label style="display:none;">{{ row.benchmark.lessisbetter }}</label></td>{% endif %}<td>{{ row.std_dev|floatformat:4 }}</td><td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td>
+{% for row in units.rows %}  <tr>
+        <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:units.precission }}</td><td>{{ row.std_dev|floatformat:units.precission }}</td>{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>{% endif%}{% if units.hasmax|floatformat:units.precission %}<td>{{ row.val_max }}</td>{% endif%}<td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td>
   </tr>{% endfor %}
 </tbody>
-</table>
+</table>{% endfor %}
 
 <table class="info">
 <thead>

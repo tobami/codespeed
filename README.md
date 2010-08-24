@@ -57,6 +57,14 @@ The layout will stay exactly the same for any image with a height of 48px (any w
 ## Defaults
 The file `speedcenter/codespeed/settings.py` can contain customizations of several parameters (the file includes comments with full examples).
 
+General settings:
+
 * defaultexecutable: in the Changes view, a random executable is chosen as default. It that doesn't suite you, you can specify here which one should be selected. You need to specify its id (since the name alone is not unique).
 * defaultbaseline: Defines which baseline option will be chosen as default in the Timeline and Changes views.
 * defaultenvironment: Defines which environment should be selected as default in the Changes and Timeline views.
+
+Comparison view settings:
+
+* charttype: Chooses the default chart type (normal bars, stacked bars or relative bars)
+* normalization: Defines whether normalization should be enabled as default in the Comparison view.
+* orientation: horizontal or vertical

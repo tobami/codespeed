@@ -9,17 +9,17 @@ import json
 from itertools import chain
 
 def no_environment_error():
-    return render_to_response('nodata.html', {
+    return render_to_response('codespeed/nodata.html', {
         'message': 'You need to configure at least one Environment. Please go to the <a href="../admin/codespeed/environment/">admin interface</a>'
     })
 
 def no_default_project_error():
-    return render_to_response('nodata.html', {
+    return render_to_response('codespeed/nodata.html', {
         'message': 'You need to configure at least one one Project as default (checked "Track changes" field).<br />Please go to the <a href="../admin/codespeed/project/">admin interface</a>'
     })
 
 def no_executables_error():
-    return render_to_response('nodata.html', {
+    return render_to_response('codespeed/nodata.html', {
         'message': 'There needs to be at least one executable'
     })
 
@@ -373,13 +373,15 @@ def timeline(request):
             lastrevisions.append(data['revs'])
         defaultlast = data['revs']
     
-    defaultbenchmark = "grid"
+    benchmarks = Benchmark.objects.all()
+    if len(benchmarks) > 1: defaultbenchmark = "grid"
+    else: defaultbenchmark = benchmarks[0]
+    
     if 'ben' in data and data['ben'] != defaultbenchmark:
         defaultbenchmark = get_object_or_404(Benchmark, name=data['ben'])
     
     # Information for template
     executables = Executable.objects.filter(project__track=True)
-    benchmarks = Benchmark.objects.all()
     environments = Environment.objects.all()
     return render_to_response('codespeed/timeline.html', {
         'checkedexecutables': checkedexecutables,

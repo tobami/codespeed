@@ -203,22 +203,31 @@
     $.ajaxSetup ({  
       cache: false  
     });
-    //set default amount of revisions shown
+    //Set default amount of revisions shown
     $("#revisions").val({{ defaultlast }});
     $("#revisions").change(refreshContent);
+    
+    //Reset all checkboxes
     $("input:checkbox").removeAttr('checked');
-    //set default selected executables
+    
+    //Set default selected executables
     $("#baseline").val("{{ defaultbaseline }}");
     $("#baseline").change(refreshContent);
+    
     {% for checkedexecutable in checkedexecutables %}
     $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
     {% endfor %}
     $("input[name='executable']").change(refreshContent);
-    //set default selected benchmark
+    
+    //Set default selected benchmark
     $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
     $("input[name='benchmark']").change(refreshContent);
+    
+    //Set default selected environment
     $("input:radio[name='environments']").filter('[value={{ defaultenvironment.name }}]').attr('checked', true);
     $("input[name='environments']").change(refreshContent);
+    
+    //Add color legend to executable list
     $("#executable div.boxbody > ul > li > input").each(function() {
       var colorid = $(this).attr("id").slice(10);
       $(this).parent().find("div.seriescolor").css("background-color", seriesColors[colorid-1]);

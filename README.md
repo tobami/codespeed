@@ -10,7 +10,7 @@ If you need SVN integration, pysvn is also requiered:
     sudo apt-get install python-svn
 
 # Installation
-* Download the last stable release from http://github.com/tobami/codespeed/downloads and unpack it
+* Download the last stable release from [http://github.com/tobami/codespeed/downloads](http://github.com/tobami/codespeed/downloads) and unpack it
 * For simplicity, you can use the default sqlite configuration, which will save the data to a database named `speedcenter/data.db`.  
 Create the DB by changing to the `speedcenter/` directory and typing `python manage.py syncdb`.  
 Create an admin user in the process.

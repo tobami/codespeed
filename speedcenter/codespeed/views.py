@@ -676,12 +676,12 @@ def getlogsfromsvn(newrev, startrev):
             )
     except pysvn.ClientError:
         return [{'error': True, 'message': "Could not resolve '" + newrev.project.repo_path + "'"}]
-    log_message.reverse()
-    s = len(log_message)
+    log_messages.reverse()
+    s = len(log_messages)
     while s > loglimit:
-        log_message = log_message[:s]
-        s = len(log_message) - 1
-    for log in log_message:
+        log_messages = log_messages[:s]
+        s = len(log_messages) - 1
+    for log in log_messages:
         try:
             author = log.author
         except AttributeError:

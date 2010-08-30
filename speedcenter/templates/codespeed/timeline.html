@@ -67,9 +67,11 @@
     //determine significant digits
     var digits = 2;
     var value = Math.min.apply( Math, lastvalues );
-    while( value < 1 ) {
-      value *= 10;
-      digits++;
+    if (value != 0) {
+      while( value < 1 ) {
+        value *= 10;
+        digits++;
+      }
     }
     
     $("#plotgrid").html('<div id="plot"></div>');

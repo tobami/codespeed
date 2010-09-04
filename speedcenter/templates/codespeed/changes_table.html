@@ -6,11 +6,11 @@
   </tr>
 </thead>
 <tfoot>
-  <tr><td class="text" title="Arithmetic mean">Average</td><td></td><td></td>{% if units.hasmin %}<td>{{ units.totals.min }}</td>{% endif%}{% if units.hasmax %}<td>{{ units.totals.max }}</td>{% endif%}<td>{{ units.totals.change|floatformat:2 }}%</td><td>{{ units.totals.trend|floatformat:2 }}%</td></tr>
+  <tr><td class="text" title="Arithmetic mean">Average</td><td></td><td></td>{% if units.hasmin %}<td>{{ units.totals.min }}</td>{% endif%}{% if units.hasmax %}<td>{{ units.totals.max }}</td>{% endif%}<td>{% ifnotequal units.totals.change "-" %}{{ units.totals.change|floatformat:2 }}%{% else %}{{ units.totals.change }}{% endifnotequal %}</td><td>{% ifnotequal units.totals.trend "-" %}{{ units.totals.trend|floatformat:2 }}%{% else %}{{ units.totals.trend }}{% endifnotequal %}</td></tr>
 </tfoot>
 <tbody>
 {% for row in units.rows %}  <tr>
-        <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:units.precission }}</td><td>{{ row.std_dev|floatformat:units.precission }}</td>{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>{% endif%}{% if units.hasmax|floatformat:units.precission %}<td>{{ row.val_max }}</td>{% endif%}<td>{{ row.change|floatformat:2 }}%</td><td>{% ifequal row.trend "-" %}-{% endifequal %}{% ifnotequal row.trend "-" %}{{ row.trend|floatformat:2 }}%{% endifnotequal %}</td>
+        <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:units.precission }}</td><td>{{ row.std_dev|floatformat:units.precission }}</td>{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>{% endif%}{% if units.hasmax %}<td>{{ row.val_max|floatformat:units.precission }}</td>{% endif%}<td>{% ifequal row.change "-" %}-{% else %}{{ row.change|floatformat:2 }}%{% endifequal %}</td><td>{% ifequal row.trend "-" %}-{% else %}{{ row.trend|floatformat:2 }}%{% endifequal %}</td>
   </tr>{% endfor %}
 </tbody>
 </table>{% endfor %}

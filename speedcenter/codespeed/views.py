@@ -457,14 +457,17 @@ def getchangestable(request):
             if val_max is not None: hasmax = True
             else: val_max = "-"
             
-            change = 0
+            # Calculate percentage change relative to previous result
+            change = "-"
             if len(change_list):
                 c = change_list.filter(benchmark=bench)
-                if c.count():
+                if c.count() and c[0].value and result:
                     change = (result - c[0].value)*100/c[0].value
                     totals['change'].append(result / c[0].value)
             
-            #calculate past average
+            # Calculate trend:
+            # percentage change relative to average of 3 previous results
+            # Calculate past average
             average = 0
             averagecount = 0
             if len(pastrevisions):
@@ -479,15 +482,16 @@ def getchangestable(request):
                     if past_rev.count():
                         average += past_rev[0].value
                         averagecount += 1
-            trend = 0
+            trend = "-"
             if average:
                 average = average / averagecount
                 trend =  (result - average)*100/average
                 totals['trend'].append(result / average)
-            else:
-                trend = "-"
             
-            if result < smallest: smallest = result
+            # Retain lowest number different than 0
+            # to be used later for calculating significant digits
+            if result < smallest and result:
+                smallest = result
             
             currentlist.append({
                 'benchmark': bench,
@@ -505,6 +509,7 @@ def getchangestable(request):
                 totals[key] = float(sum(totals[key]) / len(totals[key]))
             else:
                 totals[key] = "-"
+        
         if totals['change'] != "-":
             totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
         if totals['trend'] != "-":

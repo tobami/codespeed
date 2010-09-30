@@ -272,6 +272,7 @@ def gettimelinedata(request):
         timeline = {}
         timeline['benchmark'] = bench.name
         timeline['benchmark_id'] = bench.id
+        timeline['benchmark_description'] = bench.description
         timeline['units'] = bench.units
         lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'
         timeline['lessisbetter'] = lessisbetter

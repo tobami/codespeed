@@ -75,6 +75,7 @@
     }
     
     $("#plotgrid").html('<div id="plot"></div>');
+    $("#plotdescription").text(data['benchmark_description']);
     var plotoptions = 
     {
       title: {text: data['benchmark'], fontSize: '1.1em'},
@@ -311,5 +312,6 @@
 </div>
 <div id="content" class="clearfix">
 <div id="plotgrid"></div>
+<div id="plotdescription"></div>
 </div>
 {% endblock %}

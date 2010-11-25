@@ -10,7 +10,8 @@ admin.site.register(Project, ProjectAdmin)
 class RevisionAdmin(admin.ModelAdmin):
     list_display = ('commitid', 'project', 'tag', 'date')
     list_filter  = ('project', 'tag', 'date')
-    
+    search_fields = ['commitid']
+
 admin.site.register(Revision, RevisionAdmin)
 
 class ExecutableAdmin(admin.ModelAdmin):

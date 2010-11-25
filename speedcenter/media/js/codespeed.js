@@ -104,11 +104,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                         if (baseline != "none") {
                             var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
                             if (baseval === null || baseval === 0) {
-                                var benchlabel = $("label[for='benchmark_" + benchmarks[b] + "']").text();
-                                var baselinelabel = $("label[for='exe_" + baseline + "']").text();
-                                var msg = "<strong>"+ title + "</strong>" + "<br><br>";
-                                msg += "Could not render plot because baseline<br>"+baselinelabel+" has empty results for benchmark " + benchlabel;
-                                return abortRender(plotid, msg);
+                                val = 0.0001;
                             } else {
                                 baseline_is_empty = false;
                                 val = val / baseval;
@@ -159,6 +155,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                                 var msg = "<strong>"+ title + "</strong>" + "<br><br>";
                                 msg += "Could not render plot because baseline "+baselinelabel+" has empty results for benchmark " + benchlabel;
                                 return abortRender(plotid, msg);
+                                val = 0.0001;
                             } else {
                                 baseline_is_empty = false;
                                 val = val / baseval;

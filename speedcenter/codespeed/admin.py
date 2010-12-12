@@ -21,6 +21,7 @@ admin.site.register(Executable, ExecutableAdmin)
 
 class BenchmarkAdmin(admin.ModelAdmin):
     list_display = ('name', 'benchmark_type', 'description', 'units_title', 'units', 'lessisbetter')
+    ordering = ['name']
 
 admin.site.register(Benchmark, BenchmarkAdmin)
 

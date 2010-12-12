@@ -75,9 +75,12 @@
     }
     
     $("#plotgrid").html('<div id="plot"></div>');
-    $("#plotdescription").text(data['benchmark_description']);
-    var plotoptions = 
-    {
+    
+    if (data['benchmark_description']) {
+        $("#plotdescription").html('<p class="note">Benchmark description: ' + data['benchmark_description'] + '</p>');
+    }
+    
+    var plotoptions = {
       title: {text: data['benchmark'], fontSize: '1.1em'},
       series: series,
       axes:{
@@ -196,6 +199,7 @@
   
   function refreshContent() {
     var h = parseInt($("#content").css("height"));//get height for loading text
+    $("#plotdescription").html('');
     $("#plotgrid").fadeOut("fast", function() {
       $("#plotgrid").html(getLoadText("Loading...", h, true)).show();
       $.getJSON("json/", getConfiguration(), render);

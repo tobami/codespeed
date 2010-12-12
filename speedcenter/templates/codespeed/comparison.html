@@ -49,7 +49,7 @@
       $("#plotwrapper").html(msg);
       return false;
     } else if (conf['chart'] == "stacked bars" &&  conf['bas'] != "none") {
-        msg = '<p class="note">Normalized stacked bars actually represent the weighted arithmetic sum. Choosing different weightings from the "Normalization" menu will change the totals relative to one another. For the correct way to calculate total bars, the geometric mean must be used (see <a href="http://portal.acm.org/citation.cfm?id=5666.5673 " title="How not to lie with statistics: the correct way to summarize benchmark results">paper</a>)</p>';
+        msg = '<p class="warning">Normalized stacked bars actually represent the weighted arithmetic sum. Choosing different weightings from the "Normalization" menu will change the totals relative to one another. For the correct way to calculate total bars, the geometric mean must be used (see <a href="http://portal.acm.org/citation.cfm?id=5666.5673 " title="How not to lie with statistics: the correct way to summarize benchmark results">paper</a>)</p>';
     }
     
     $("#plotwrapper").fadeOut("fast", function() {

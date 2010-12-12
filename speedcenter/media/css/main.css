@@ -305,11 +305,10 @@ div.compplot {
 }
 
 p.note, p.warning {
-    position: relative;
-    float: left;
     padding: 0.8em;
-    padding-left: 48px;
+    padding-left: 50px;
     margin-top: 0;
+    text-align: left;
     background-color: #F1F1F1;
     background-repeat: no-repeat;
     background-position: left;

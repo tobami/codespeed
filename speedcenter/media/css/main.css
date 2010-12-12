@@ -277,7 +277,7 @@ tbody.commits tr td.date, table.revision tr td.infofirst, div.author, span.note,
     font-size: 92%;
     color: #666666;
 }
-tbody.commits tr td.date { padding-top: 0.6em;}
+tbody.commits tr td.date { padding-top: 0.6em; }
 
 
 a#permalink { float: right; font-size: small; }

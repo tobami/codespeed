@@ -60,5 +60,4 @@ def send(data):
             response += '  Error code: ' + str(e)
         print("Server (%s) response: %s\n" % (SPEEDURL, response))
         return 1
-    print "saved correctly!\n"
     return 0

@@ -225,7 +225,6 @@ def comparison(request):
         # Uncheck exe used for normalization when normalization is chosen as default in the settings
         selectedbaseline = exekeys[0]#this is the default baseline
         checkedexecutables.remove(selectedbaseline)        
-    print selectedbaseline
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true" or\
         hasattr(settings, 'chartorientation') and settings.chartorientation == 'horizontal':

@@ -27,8 +27,12 @@ class Revision(models.Model):
     message = models.TextField(blank=True)
     author = models.CharField(max_length=30, blank=True)
 
+    def _short_commitid(self):
+        return self.commitid[:10]
+    
     def __unicode__(self):
-        return self.date.strftime("%h %d, %H:%M") + " - " + self.commitid + " " + self.tag
+        return self.date.strftime("%h %d, %H:%M") + " - " + \
+            self._short_commitid() + " " + self.tag
     
     class Meta:
         unique_together = ("commitid", "project")

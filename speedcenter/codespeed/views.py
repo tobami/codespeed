@@ -644,15 +644,18 @@ def displaylogs(request):
     logs = []
     logs.append(rev)
     error = False
-    remotelogs = getcommitlogs(rev)
-    if len(remotelogs):
-        try:
-            if remotelogs[0]['error']:
-                error = remotelogs[0]['message']
-        except KeyError:
-            pass#no errors
-        logs = remotelogs
-    else: error = 'no logs found'
+    try:
+        remotelogs = getcommitlogs(rev)
+        if len(remotelogs):
+            try:
+                if remotelogs[0]['error']:
+                    error = remotelogs[0]['message']
+            except KeyError:
+                pass#no errors
+            logs = remotelogs
+        else: error = 'no logs found'
+    except Exception, e:
+        error = str(e)
     return render_to_response('codespeed/changes_logs.html', { 'error': error, 'logs': logs })
 
 def getlogsfromsvn(newrev, startrev):

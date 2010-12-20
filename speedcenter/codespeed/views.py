@@ -663,10 +663,6 @@ def getlogsfromsvn(newrev, startrev):
     logs = []
     log_messages = []
     loglimit = 200
-    removelast = False
-    if startrev != newrev:
-        #don't show info corresponding to previously tested revision
-        removelast = True
     
     def get_login(realm, username, may_save):
         return True, newrev.project.repo_user, newrev.project.repo_pass, False
@@ -709,7 +705,7 @@ def getlogsfromsvn(newrev, startrev):
         date = datetime.fromtimestamp(log.date).strftime("%Y-%m-%d %H:%M:%S")
         message = log.message
         # Add log unless it is the last commit log, which has already been tested
-        if not removelast and log.revision.number != int(startrev.commitid):
+        if not (startrev != newrev and log.revision.number == int(startrev.commitid)):
             logs.append(
                 {'date': date, 'author': author, 'message': message,
                 'commitid': log.revision.number})

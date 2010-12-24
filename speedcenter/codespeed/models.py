@@ -5,7 +5,8 @@ class Project(models.Model):
     REPO_TYPES = (
         ('N', 'none'),
         ('G', 'git'),
-        ('S', 'svn'),
+        ('M', 'mercurial'),
+        ('S', 'subversion'),
     )
     
     name = models.CharField(unique=True, max_length=30)

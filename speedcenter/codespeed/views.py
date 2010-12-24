@@ -645,7 +645,12 @@ def displaylogs(request):
     logs.append(rev)
     error = False
     try:
-        remotelogs = getcommitlogs(rev)
+        startrev = Revision.objects.filter(
+            project=rev.project
+        ).filter(date__lt=rev.date).order_by('-date')[:1]
+        if not len(startrev): startrev = rev
+        else: startrev = startrev[0]
+        remotelogs = getcommitlogs(rev, startrev)
         if len(remotelogs):
             try:
                 if remotelogs[0]['error']:
@@ -658,82 +663,25 @@ def displaylogs(request):
         error = str(e)
     return render_to_response('codespeed/changes_logs.html', { 'error': error, 'logs': logs })
 
-def getlogsfromsvn(newrev, startrev):
-    import pysvn
-    logs = []
-    log_messages = []
-    loglimit = 200
-    
-    def get_login(realm, username, may_save):
-        return True, newrev.project.repo_user, newrev.project.repo_pass, False
-    
-    client = pysvn.Client()
-    if newrev.project.repo_user != "":
-        client.callback_get_login = get_login
-    
-    try:
-        log_messages = \
-            client.log(
-                newrev.project.repo_path,
-                revision_start=pysvn.Revision(
-                        pysvn.opt_revision_kind.number, startrev.commitid
-                ),
-                revision_end=pysvn.Revision(
-                    pysvn.opt_revision_kind.number, newrev.commitid
-                )
-            )
-    except pysvn.ClientError:
-        return [
-            {'error': True,
-            'message': "Could not resolve '" + newrev.project.repo_path + "'"}]
-    except ValueError:
-        return [{
-            'error': True,
-            'message': "'%s' is an invalid subversion revision number" % newrev.commitid
-        }]
-    log_messages.reverse()
-    s = len(log_messages)
-    while s > loglimit:
-        log_messages = log_messages[:s]
-        s = len(log_messages) - 1
-    
-    for log in log_messages:
-        try:
-            author = log.author
-        except AttributeError:
-            author = ""
-        date = datetime.fromtimestamp(log.date).strftime("%Y-%m-%d %H:%M:%S")
-        message = log.message
-        # Add log unless it is the last commit log, which has already been tested
-        if not (startrev != newrev and log.revision.number == int(startrev.commitid)):
-            logs.append(
-                {'date': date, 'author': author, 'message': message,
-                'commitid': log.revision.number})
-    return logs
-
-def getcommitlogs(rev):
-    logs = []
+def getcommitlogs(rev, startrev, update=False):
+    logs = []    
     if rev.project.repo_type == 'N' or rev.project.repo_path == "":
-        #Don't create logs
-        return []
-    
-    startrev = Revision.objects.filter(
-        project=rev.project
-    ).filter(date__lt=rev.date).order_by('-date')[:1]
-    if not len(startrev): startrev = rev
-    else: startrev = startrev[0]
-    
-    if rev.project.repo_type == 'S':
-        logs = getlogsfromsvn(rev, startrev)
+        #Don't fetch logs
+        pass
+    elif rev.project.repo_type == 'S':
+        from subversion import getlogs
+        logs = getlogs(rev, startrev)
+    elif rev.project.repo_type == 'M':
+        import mercurial
+        if update:
+            resp = mercurial.update(rev.project.repo_path)
+            if resp.get('error'):
+                return resp
+        logs = mercurial.getlogs(rev, startrev)
     return logs
 
 def saverevisioninfo(rev):
-    log = None
-    if rev.project.repo_type == 'N' or rev.project.repo_path == "":
-        #Don't create logs
-        return
-    elif rev.project.repo_type == 'S':
-        log = getlogsfromsvn(rev, rev)
+    log = getcommitlogs(rev, rev, update=True)
     if len(log):
         log = log[0]
         rev.author  = log['author']

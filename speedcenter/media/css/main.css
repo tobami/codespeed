@@ -273,12 +273,13 @@ table.info th, table.info td, table.revision th, table.revision td { padding: 0.
 table.info tbody td.infofirst { width: 10em; text-align: left; }
 
 tbody.commits tr td { border-bottom: 1px solid #CDCDCD; vertical-align: top; }
+tbody.commits tr > td:first-child { padding-right: 20px; }
 tbody.commits tr td.date, table.revision tr td.infofirst, div.author, span.note, table.info tbody td.infofirst {
     font-size: 92%;
     color: #666666;
 }
 tbody.commits tr td.date { padding-top: 0.6em; }
-
+div > pre { margin-top: 2px; margin-bottom: 2px; white-space: pre-wrap; }
 
 a#permalink { float: right; font-size: small; }
 a#permalink:hover { text-decoration: underline; }

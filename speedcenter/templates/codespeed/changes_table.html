@@ -48,6 +48,7 @@
 <tbody>
   <tr><td class="infofirst">Commit</td><td>{{ rev.commitid }}</td></tr>
   <tr><td class="infofirst">Date</td><td>{{ rev.date }}</td></tr>
+  {% ifnotequal rev.project.repo_type "N" %}<tr><td class="infofirst">Repo</td><td>{{ rev.project.repo_path }}</td></tr>{% endifnotequal %}
 </tbody>
 {% ifnotequal executable.project.repo_type 'N' %}
 <thead class="commits">

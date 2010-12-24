@@ -1,10 +1,12 @@
 import os, datetime
 from subprocess import Popen, PIPE
+from speedcenter import settings
 
-path = os.getcwd() + '/repos/'
-repodir = path + 'pypy/'
+
+path = settings.BASEDIR + '/repos/'
     
 def updaterepo(repo):
+    repodir = path + repo.split('/')[-1] + "/"
     if os.path.exists(repodir):
         cmd = "hg up"
         p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, cwd=repodir)
@@ -24,6 +26,8 @@ def updaterepo(repo):
             return [{'error': False}]
 
 def getlogs(endrev, startrev):
+    repodir = path + endrev.project.repo_path.split('/')[-1] + "/"
+    print repodir
     if not os.path.exists(repodir):
         updaterepo(endrev.project.repo_path)
     

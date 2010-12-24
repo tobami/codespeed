@@ -27,7 +27,6 @@ def updaterepo(repo):
 
 def getlogs(endrev, startrev):
     repodir = path + endrev.project.repo_path.split('/')[-1] + "/"
-    print repodir
     if not os.path.exists(repodir):
         updaterepo(endrev.project.repo_path)
     

@@ -41,12 +41,14 @@ def getlogs(endrev, startrev):
             commitid, author, date, message = ("","","","")
             elements = []
             elements = log.split('\n')[:-1]
-            if not len(elements) or len(elements) < 4:
+            if len(elements) < 4:
+                # Don't save "malformed" log
                 continue
             else:
                 commitid = elements.pop(0)
                 author = elements.pop(0)
                 date = elements.pop(0)
+                # All other newlines should belong to the description text. Join.
                 message = '\n'.join(elements)
                 
                 # Parse date
@@ -56,4 +58,7 @@ def getlogs(endrev, startrev):
                 # Add changeset info
                 logs.append({'date': date, 'author': author, 'message': message,
                 'commitid': commitid})
+    # Remove last log because the startrev log shouldn't be shown
+    if len(logs) > 1:
+        print logs.pop()
     return logs

@@ -8,7 +8,7 @@ path = settings.BASEDIR + '/repos/'
 def updaterepo(repo):
     repodir = path + repo.split('/')[-1] + "/"
     if os.path.exists(repodir):
-        cmd = "hg up"
+        cmd = "hg pull -u"
         p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, cwd=repodir)
         stdout, stderr = p.communicate()
         if stderr:
@@ -30,7 +30,7 @@ def getlogs(endrev, startrev):
     if not os.path.exists(repodir):
         updaterepo(endrev.project.repo_path)
     
-    cmd = "hg log -r %s:%s --template '{rev}:{node|short}\n{author|person} / {author|user}\n{date}\n{desc}\n=newlog=\n'" % (endrev.commitid, startrev.commitid)
+    cmd = "hg log -r %s:%s -b default --template '{rev}:{node|short}\n{author|person} / {author|user}\n{date}\n{desc}\n=newlog=\n'" % (endrev.commitid, startrev.commitid)
     p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, cwd=repodir)
     stdout, stderr = p.communicate()
     if stderr:

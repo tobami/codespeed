@@ -674,7 +674,7 @@ def getcommitlogs(rev, startrev, update=False):
     elif rev.project.repo_type == 'M':
         import mercurial
         if update:
-            resp = mercurial.update(rev.project.repo_path)
+            resp = mercurial.updaterepo(rev.project.repo_path)
             if resp.get('error'):
                 return resp
         logs = mercurial.getlogs(rev, startrev)

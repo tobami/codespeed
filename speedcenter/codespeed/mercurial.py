@@ -8,6 +8,7 @@ path = settings.BASEDIR + '/repos/'
 def updaterepo(repo):
     repodir = path + repo.split('/')[-1] + "/"
     if os.path.exists(repodir):
+        # Update repo
         cmd = "hg pull -u"
         p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, cwd=repodir)
         stdout, stderr = p.communicate()
@@ -16,7 +17,7 @@ def updaterepo(repo):
         else:
             return [{'error': False}]
     else:
-        #os.mkdir(path)
+        # Clone repo
         cmd = "hg clone %s" % repo
         p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, cwd=path)
         stdout, stderr = p.communicate()
@@ -60,5 +61,5 @@ def getlogs(endrev, startrev):
                 'commitid': commitid})
     # Remove last log because the startrev log shouldn't be shown
     if len(logs) > 1:
-        print logs.pop()
+        logs.pop()
     return logs

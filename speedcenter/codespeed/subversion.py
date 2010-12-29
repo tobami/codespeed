@@ -2,6 +2,11 @@
 '''Subversion commit logs support'''
 from datetime import datetime
 
+
+def updaterepo():
+    '''Not needed for a remote subversion repo'''
+    return [{'error': False}]
+
 def getlogs(newrev, startrev):
     import pysvn
     

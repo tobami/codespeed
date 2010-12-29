@@ -668,16 +668,18 @@ def getcommitlogs(rev, startrev, update=False):
     if rev.project.repo_type == 'N' or rev.project.repo_path == "":
         #Don't fetch logs
         pass
-    elif rev.project.repo_type == 'S':
-        from subversion import getlogs
-        logs = getlogs(rev, startrev)
-    elif rev.project.repo_type == 'M':
-        import mercurial
+    else:
+        if rev.project.repo_type == 'S':
+            from subversion import getlogs, updaterepo
+        elif rev.project.repo_type == 'M':
+            from mercurial import getlogs, updaterepo
+        
         if update:
-            resp = mercurial.updaterepo(rev.project.repo_path)
+            resp = updaterepo(rev.project.repo_path)
             if resp.get('error'):
                 return resp
-        logs = mercurial.getlogs(rev, startrev)
+        logs = getlogs(rev, startrev)
+    
     return logs
 
 def saverevisioninfo(rev):

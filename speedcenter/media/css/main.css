@@ -6,6 +6,7 @@ body {
     background-image: url(/media/images/vgradient.png);
     background-repeat: repeat-x;
     font-size: 16px;
+    margin-bottom: 0.8em;
 }
 a:link, a:visited, a:hover { color: blue; text-decoration: none; }
 
@@ -21,6 +22,8 @@ div#title {
     -moz-border-radius-bottomright: 10px;
     -webkit-border-bottom-left-radius: 10px;
     -webkit-border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
 }
 div#title img { float: left; padding: 0.2em; margin: 0; }
 div#title h2 { float: left; margin: 0 0 0 0.4em; font-style: italic; margin-top: 0.55em; }
@@ -57,6 +60,8 @@ div#nav ul li {
     -moz-border-radius-topright: 16px;
     -webkit-border-top-left-radius: 16px;
     -webkit-border-top-right-radius: 16px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
 }
 div#nav ul li a {
     display: block;
@@ -78,6 +83,7 @@ div#workarea {
     padding: 0.8em;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
+    border-radius: 10px;
 }
 
 div#presentation_wrapper {
@@ -103,6 +109,7 @@ div#presentation div {
     border: 5px solid #F1F1F1;
     -moz-border-radius: 20px;
     -webkit-border-radius: 20px;
+    border-radius: 20px;
 }
 div#presentation p { text-align: left; font-size: small; }
 
@@ -117,6 +124,7 @@ div#sidebar {
     float: left;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
+    border-radius: 10px;
 }
 
 div#configbar {
@@ -127,6 +135,7 @@ div#configbar {
     padding: 0.8em;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
+    border-radius: 10px;
 }
 
 div#configbar span {
@@ -134,6 +143,7 @@ div#configbar span {
     padding-bottom: 3px;
     -moz-border-radius: 5px;
     -webkit-border-radius: 5px;
+    border-radius: 5px;
 }
 
 div#configbar span.options { padding-right: 4em; font-size: 90%; }
@@ -146,6 +156,7 @@ div#content, div.about_content {
     background-color: #FFFFFF;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
+    border-radius: 10px;
 }
 
 div.about_content { text-align: left; }
@@ -160,6 +171,7 @@ div.about_content { text-align: left; }
     background-color: #9DADC6;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
+    border-radius: 10px;
     margin: 0;
     padding: 0;
     text-align: left;
@@ -175,8 +187,10 @@ div.about_content { text-align: left; }
 .boxbody {
     -moz-border-radius-bottomleft: 10px;
     -moz-border-radius-bottomright: 10px;
-    -webkit-border-radius-bottomleft: 10px;
-    -webkit-border-radius-bottomright: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+    -webkit-border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
     margin: 0;
     padding: 0.5em 0.5em 0.5em;
 /*     padding: 5px 30px 31px; */
@@ -294,9 +308,12 @@ div.miniplot {
     width: 23%;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
+    border-radius: 10px;
 }
-div.miniplot:hover {background-color: #F1F1F1;}
-.jqplot-highlighter-tooltip { -moz-border-radius: 10px; -webkit-border-radius: 10px; }
+div.miniplot:hover { background-color: #F1F1F1; }
+.jqplot-highlighter-tooltip {
+    -moz-border-radius: 10px; -webkit-border-radius: 10px; border-radius: 10px;
+}
 div.compplot {
     text-align: left;
     height: 450px;
@@ -306,19 +323,31 @@ div.compplot {
 }
 
 p.note, p.warning {
-    padding: 0.8em;
-    padding-left: 50px;
     margin-top: 0;
+    padding: 1.2em;
     text-align: left;
+    font-size: small;
     background-color: #F1F1F1;
     background-repeat: no-repeat;
-    background-position: left;
-    background-image: url(/media/images/warning.png);
+    background-position: 3px;
     -moz-border-radius: 10px;
     -webkit-border-radius: 10px;
+    border-radius: 10px;
 }
-p.warning { background-image: url(/media/images/warning.png); }
-p.note { background-image: url(/media/images/note.png); }
+p.warning {
+    padding-left: 42px;
+    background-image: url(/media/images/warning.png);
+}
+p.note {
+    margin-top: 20px;
+    margin-left: 2.4em;
+    margin-right: 2.4em;
+    padding-left: 55px;
+    -moz-box-shadow: 3px 3px 3px #888;
+    -webkit-box-shadow: 3px 3px 3px #888;
+    box-shadow: 3px 3px 3px #888;
+    background-image: url(/media/images/note.png);
+}
 
 
 /* new clearfix */

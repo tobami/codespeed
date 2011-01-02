@@ -1,5 +1,5 @@
 body {
-    min-width: 700px;
+    min-width: 710px;
     margin: 0;
     padding: 0;
     background-color: #596A74;
@@ -146,9 +146,9 @@ div#configbar span {
     border-radius: 5px;
 }
 
-div#configbar span.options { padding-right: 4em; font-size: 90%; }
-div#configbar input { margin-left: 1.5em; margin-right: 0; vertical-align: middle; }
-    
+div#configbar span.options { padding-right: 1.8em; font-size: 90%; white-space: nowrap; }
+div#configbar input { margin-right: 0; vertical-align: middle; }
+
 div#content, div.about_content {
     margin-left: 14.5em;
     text-align: center;
@@ -210,12 +210,31 @@ a.checkall { margin-left: 0.4em; }
 
 p.errormessage { line-height: 10em; margin-bottom: 10em; }
 
-/* tables */
-div.leftcolumn { float: left; margin-right: 0.8em;  }
-table.tablesorter, table.info { width: 100%; }
+/* Changes table layout */
+div#contentwrap { display: table; table-layout: fixed; width: 100%; }
+div#contentwrap div { display: table-cell; }
+div#contentwrap div.leftcolumn { width: 28em;}
+div#contentwrap div.rightcolumn { padding-left: 0.8em; }
 
+div#contentwrap div div { display: block; }
+
+/*Remove outher margins so that it comfortably fits in a 1024px wide screen */
+@media only screen and (max-width:1090px)  {
+    div#containter { width: 100%; margin: 0; }
+    div#sidebar { width: 12em; }
+    div#configbar { margin-left: 12.8em; }
+    div#content { margin-left: 12.8em; }
+}
+
+/* For smaller screens the changes view should only show one colunm */
+@media only screen and (max-width:1020px)  {
+    div#contentwrap div { display: table-row!important; }
+    table.info { margin-bottom: 0.8em; }
+}
+
+/* tables */
 table.tablesorter, table.info, table.revision {
-    margin-bottom: 0.8em;
+    width: 100%;
     font-family:arial;
     font-size: 11pt;
     text-align: left;
@@ -225,7 +244,7 @@ table.tablesorter, table.info, table.revision {
     background-color: #fafafa;
 }
 
-table.tablesorter { float: left; margin-right: 0.8em; clear: both; }
+table.tablesorter { margin-right: 0.8em; margin-bottom: 0.8em; }
 
 table.tablesorter thead tr th {
     padding: 4px;
@@ -281,7 +300,6 @@ table.tablesorter tbody tr.highlight td {
     cursor: pointer;
 }
 
-table.info { float:left; clear: both; }
 table.info th, table.revision th { background-color: #F1F1F1; }
 table.info th, table.info td, table.revision th, table.revision td { padding: 0.3em; }
 table.info tbody td.infofirst { width: 10em; text-align: left; }
@@ -298,6 +316,7 @@ div > pre { margin-top: 2px; margin-bottom: 2px; white-space: pre-wrap; }
 a#permalink { float: right; font-size: small; }
 a#permalink:hover { text-decoration: underline; }
 
+/* Plot styles */
 div#plot { text-align: left; height: 500px; width: 100%; }
 div.miniplot {
     cursor: pointer;

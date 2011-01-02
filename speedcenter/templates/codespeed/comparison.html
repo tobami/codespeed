@@ -191,17 +191,19 @@
 
 <div id="configbar">
   <span class="options">Chart type:
-  <select id="chart_type" title="Select chart type">{% for chart in charts %}
-    <option value="{{ chart }}">{{ chart }}</option>{% endfor %}
-  </select>
+    <select id="chart_type" title="Select chart type">{% for chart in charts %}
+      <option value="{{ chart }}">{{ chart }}</option>{% endfor %}
+    </select>
   </span>
   <span class="options">Normalization:
-  <select id="baseline" title="Select baseline for normalization">
-    <option value="none">None</option>{% ifnotequal executables|length 1 %}{% for exe in executables %}
-    <option value="{{ exe.key }}">{{ exe.name }}</option>{% endfor %}{% endifnotequal %}
-  </select>
-  <input id="direction" type="checkbox" name="direction" value="horizontal"/>
-  <label for="direction">horizontal</label>
+    <select id="baseline" title="Select baseline for normalization">
+      <option value="none">None</option>{% ifnotequal executables|length 1 %}{% for exe in executables %}
+      <option value="{{ exe.key }}">{{ exe.name }}</option>{% endfor %}{% endifnotequal %}
+    </select>
+  </span>
+  <span class="options">
+    <label for="direction">horizontal</label>
+    <input id="direction" type="checkbox" name="direction" value="horizontal"/>
   </span>
   <a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>

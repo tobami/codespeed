@@ -74,7 +74,7 @@
       }
     }
     
-    $("#plotgrid").html('<div id="plot"></div>');
+    $("#plotgrid").html('<div id="plot"></div><div id="plotdescription"></div>');
     
     if (data['benchmark_description']) {
         $("#plotdescription").html('<p class="note">Benchmark description: ' + data['benchmark_description'] + '</p>');
@@ -199,7 +199,6 @@
   
   function refreshContent() {
     var h = parseInt($("#content").css("height"));//get height for loading text
-    $("#plotdescription").html('');
     $("#plotgrid").fadeOut("fast", function() {
       $("#plotgrid").html(getLoadText("Loading...", h, true)).show();
       $.getJSON("json/", getConfiguration(), render);

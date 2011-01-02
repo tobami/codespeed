@@ -55,8 +55,7 @@ def getlogs(newrev, startrev):
         date = datetime.fromtimestamp(log.date).strftime("%Y-%m-%d %H:%M:%S")
         message = log.message
         # Add log unless it is the last commit log, which has already been tested
-        if not (startrev != newrev and log.revision.number == int(startrev.commitid)):
-            logs.append(
-                {'date': date, 'author': author, 'message': message,
-                'commitid': log.revision.number})
+        logs.append({
+            'date': date, 'author': author, 'message': message,
+            'commitid': log.revision.number})
     return logs

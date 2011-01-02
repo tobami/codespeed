@@ -57,9 +57,7 @@ def getlogs(endrev, startrev):
                 date = datetime.datetime.fromtimestamp(float(date)).strftime("%Y-%m-%d %H:%M:%S")
                 
                 # Add changeset info
-                logs.append({'date': date, 'author': author, 'message': message,
-                'commitid': commitid})
-    # Remove last log because the startrev log shouldn't be shown
-    if len(logs) > 1:
-        logs.pop()
+                logs.append({
+                    'date': date, 'author': author,
+                    'message': message,'commitid': commitid})
     return logs

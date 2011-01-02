@@ -226,15 +226,17 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
             // Not good when there is a 0 bar. It even shows negative bars when all bars are 0
         }
         
-        //determine optimal height
+        // Determine optimal height
         if (chart =="stacked bars") {
             h = 90 + ticks.length * (plotoptions.seriesDefaults.rendererOptions.barPadding*2 + barWidth);
         } else {
             h = barcounter * (plotoptions.seriesDefaults.rendererOptions.barPadding*2 + barWidth) + benchcounter * plotoptions.seriesDefaults.rendererOptions.barMargin * 2;
         }
-        
-        if (h > 820) {
+        // Adjust plot height
+        if (h > 700) {
             h = h/2;
+            if (h < 700) { h = 700; }
+            else if (h > 2000) { h = 2000; }
             plotoptions.seriesDefaults.rendererOptions.barPadding = 0;
             plotoptions.seriesDefaults.rendererOptions.barMargin = 8;
             plotoptions.seriesDefaults.shadow = false;

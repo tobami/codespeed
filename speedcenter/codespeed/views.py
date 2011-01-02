@@ -679,7 +679,9 @@ def getcommitlogs(rev, startrev, update=False):
             if resp.get('error'):
                 return resp
         logs = getlogs(rev, startrev)
-    
+        # Remove last log because the startrev log shouldn't be shown
+        if len(logs) > 1 and logs[-1].get('commitid') == startrev.commitid:
+            logs.pop()
     return logs
 
 def saverevisioninfo(rev):

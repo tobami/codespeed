@@ -272,15 +272,16 @@ def gettimelinedata(request):
         baselineexe = Executable.objects.get(id=exeid)
     for bench in benchmarks:
         append = False
-        timeline = {}
-        timeline['benchmark'] = bench.name
-        timeline['benchmark_id'] = bench.id
-        timeline['benchmark_description'] = bench.description
-        timeline['units'] = bench.units
         lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'
-        timeline['lessisbetter'] = lessisbetter
-        timeline['executables'] = {}
-        timeline['baseline'] = "None"
+        timeline = {
+            'benchmark':             bench.name,
+            'benchmark_id':          bench.id,
+            'benchmark_description': bench.description,
+            'units':                 bench.units,
+            'lessisbetter':          lessisbetter,
+            'executables':           {},
+            'baseline':              "None",
+        }
         
         for executable in executables:
             resultquery = Result.objects.filter(
@@ -296,7 +297,7 @@ def gettimelinedata(request):
                 std_dev = ""
                 if res.std_dev != None: std_dev = res.std_dev
                 results.append(
-                    [str(res.revision.date), res.value, std_dev, res.revision.commitid]
+                    [str(res.revision.date), res.value, std_dev, res.revision.get_short_commitid()]
                 )
             timeline['executables'][executable] = results
             append = True

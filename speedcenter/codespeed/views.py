@@ -285,7 +285,9 @@ def gettimelinedata(request):
                     environment=environment
                 ).filter(
                     executable=executable
-                ).order_by('-revision__date')[:number_of_rev]
+                ).select_related(
+                    "revision"
+                ).order_by("-revision__date")[:number_of_rev]
             if not len(resultquery): continue
             results = []
             for res in resultquery:

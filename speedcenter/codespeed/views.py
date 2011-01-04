@@ -260,6 +260,7 @@ def gettimelinedata(request):
         number_of_rev = 15
     else:
         benchmarks.append(Benchmark.objects.get(name=data['ben']))
+        number_of_rev = int(number_of_rev)
 
 
     resultData = {}

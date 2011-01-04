@@ -260,7 +260,18 @@ def gettimelinedata(request):
         number_of_rev = 15
     else:
         benchmarks.append(Benchmark.objects.get(name=data['ben']))
-    
+
+
+    resultData = {}
+    for result in Result.objects.filter(environment=environment):
+        key = (result.benchmark_id, result.executable_id)
+        resultData.setdefault(key, []).append(result)
+    dates = {}
+    commitids = {}
+    for revision in Revision.objects.all():
+        dates[revision.id] = revision.date
+        commitids[revision.id] = revision.commitid
+
     baselinerev = None
     baselineexe = None
     if data['base'] != "none" and data['base'] != 'undefined':
@@ -279,34 +290,28 @@ def gettimelinedata(request):
         timeline['baseline'] = "None"
         
         for executable in executables:
-            resultquery = Result.objects.filter(
-                    benchmark=bench
-                ).filter(
-                    environment=environment
-                ).filter(
-                    executable=executable
-                ).select_related(
-                    "revision"
-                ).order_by("-revision__date")[:number_of_rev]
-            if not len(resultquery): continue
+            resultquery = resultData.get((bench.id, int(executable)))
+            if not resultquery:
+                continue
+            resultquery.sort(key=lambda result: dates[result.revision_id])
+            resultquery.reverse()
+            del resultquery[number_of_rev:]
+
             results = []
             for res in resultquery:
                 std_dev = ""
                 if res.std_dev != None: std_dev = res.std_dev
-                results.append(
-                    [str(res.revision.date), res.value, std_dev, res.revision.commitid]
-                )
+                results.append([
+                        str(dates[res.revision_id]),
+                        res.value, std_dev,
+                        str(commitids[res.revision_id])])
+
             timeline['executables'][executable] = results
             append = True
         if baselinerev != None and append:
             try:
-                baselinevalue = Result.objects.get(
-                    executable=baselineexe,
-                    benchmark=bench,
-                    revision=baselinerev,
-                    environment=environment
-                ).value
-            except Result.DoesNotExist:
+                baselinevalue = resultData[bench, baselineexe].value
+            except KeyError:
                 timeline['baseline'] = "None"
             else:
                 # determine start and end revision (x axis) from longest data series
@@ -325,6 +330,7 @@ def gettimelinedata(request):
     if not len(timeline_list['timelines']):
         response = 'No data found for the selected options'
         timeline_list['error'] = response
+
     return HttpResponse(json.dumps( timeline_list ))
 
 def timeline(request):

@@ -27,8 +27,10 @@
         //color two colums to the right starting with index = last-1
         var changethres = {{ defaultchangethres }};
         var trendthres = {{ defaulttrendthres }};
+        // Each because there is one table per units type
         $(".tablesorter").each(function() {
-            var index = $(this).find("thead tr th:last").index()-1;
+            // Find column index of the current change column (one before last)
+            var index = $(this).find("thead tr th").length -2;
             var lessisbetter = $(this).find("th:eq(1) label").text();
             $(this).find(":not(thead) > tr").each(function() {
                 var change = $(this).children("td:eq("+index+")").text().slice(0, -1);
@@ -170,6 +172,6 @@
   <a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content" class="clearfix">
-<div id="contentwrap""></div>
+<div id="contentwrap"></div>
 </div>
 {% endblock %}

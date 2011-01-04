@@ -12,7 +12,8 @@ RESULTS_URLS = {
     'pypy-c-jit': 'http://buildbot.pypy.org/bench_results/',
     'pypy-c':  'http://buildbot.pypy.org/bench_results_nojit/',
 }
-START_REV = 75572
+START_REV = 79485
+END_REV = 79485
 PROJECT = "PyPy"
 
 for INTERP in RESULTS_URLS:
@@ -27,7 +28,8 @@ for INTERP in RESULTS_URLS:
                 if len(e.childNodes):
                     filename = e.firstChild.toxml()
                     if e.tagName == "a" and ".json" in filename:
-                        if int(filename.replace(".json", "")) >= START_REV:
+                        if int(filename.replace(".json", "")) >= START_REV and\
+                            int(filename.replace(".json", "")) <= END_REV:
                             filelist.append(filename)
     except urllib2.URLError, e:
         response = "None"
@@ -41,7 +43,7 @@ for INTERP in RESULTS_URLS:
         sys.exit(1)
     finally:
         datasource.close()
-        
+    
     # read json result and save to speed.pypy.org
     for filename in filelist:
         print "Reading %s..." % filename
@@ -56,7 +58,7 @@ for INTERP in RESULTS_URLS:
         if result.has_key('options'): options = result['options']
         
         host = 'tannit'
-        saveresults.save(proj, revision, result['results'], options, interpreter, host)
-        #if filename == filelist[len(filelist)-1]:
-            #savecpython.save('cpython', '100', result['results'], options, 'cpython', host)
+        #saveresults.save(proj, revision, result['results'], options, interpreter, host)
+        if filename == filelist[len(filelist)-1]:
+            savecpython.save('cpython', '100', result['results'], options, 'cpython', host)
 print "\nOK"

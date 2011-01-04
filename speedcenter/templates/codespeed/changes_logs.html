@@ -1,6 +1,6 @@
 {% if error %}
-  <tr><td colspan="2">Error: {{ error }}</td></tr>
+  <tr><td colspan="2">Error while retrieving logs: {{ error }}</td></tr>
 {% else %}
 {% for log in logs %}
-  <tr><td class="date">{{ log.date }}</td><td><div class="author">{{ log.author }} <strong>commited</strong> {{ log.commitid }}</div><div>{{ log.message }}</div></td></tr>{% endfor %}
+  <tr><td class="date">{{ log.date }}</td><td><div class="author">{{ log.author }} <strong>commited</strong> {{ log.commitid }}</div><div><pre>{{ log.message }}</pre></div></td></tr>{% endfor %}
 {% endif %}

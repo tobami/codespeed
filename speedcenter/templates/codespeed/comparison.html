@@ -49,7 +49,7 @@
       $("#plotwrapper").html(msg);
       return false;
     } else if (conf['chart'] == "stacked bars" &&  conf['bas'] != "none") {
-        msg = '<p class="note">Normalized stacked bars actually represent the weighted arithmetic sum. Choosing different weightings from the "Normalization" menu will change the totals relative to one another. For the correct way to calculate total bars, the geometric mean must be used (see <a href="http://portal.acm.org/citation.cfm?id=5666.5673 " title="How not to lie with statistics: the correct way to summarize benchmark results">paper</a>)</p>';
+        msg = '<p class="warning">Normalized stacked bars actually represent the weighted arithmetic sum, useful to spot which individual benchmarks take up the most time. Choosing different weightings from the "Normalization" menu will change the totals relative to one another. For the correct way to calculate total bars, the geometric mean must be used (see <a href="http://portal.acm.org/citation.cfm?id=5666.5673 " title="How not to lie with statistics: the correct way to summarize benchmark results">paper</a>)</p>';
     }
     
     $("#plotwrapper").fadeOut("fast", function() {
@@ -191,17 +191,19 @@
 
 <div id="configbar">
   <span class="options">Chart type:
-  <select id="chart_type" title="Select chart type">{% for chart in charts %}
-    <option value="{{ chart }}">{{ chart }}</option>{% endfor %}
-  </select>
+    <select id="chart_type" title="Select chart type">{% for chart in charts %}
+      <option value="{{ chart }}">{{ chart }}</option>{% endfor %}
+    </select>
   </span>
   <span class="options">Normalization:
-  <select id="baseline" title="Select baseline for normalization">
-    <option value="none">None</option>{% ifnotequal executables|length 1 %}{% for exe in executables %}
-    <option value="{{ exe.key }}">{{ exe.name }}</option>{% endfor %}{% endifnotequal %}
-  </select>
-  <input id="direction" type="checkbox" name="direction" value="horizontal"/>
-  <label for="direction">horizontal</label>
+    <select id="baseline" title="Select baseline for normalization">
+      <option value="none">None</option>{% ifnotequal executables|length 1 %}{% for exe in executables %}
+      <option value="{{ exe.key }}">{{ exe.name }}</option>{% endfor %}{% endifnotequal %}
+    </select>
+  </span>
+  <span class="options">
+    <label for="direction">horizontal</label>
+    <input id="direction" type="checkbox" name="direction" value="horizontal"/>
   </span>
   <a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>

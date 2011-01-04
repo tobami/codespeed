@@ -5,7 +5,8 @@ class Project(models.Model):
     REPO_TYPES = (
         ('N', 'none'),
         ('G', 'git'),
-        ('S', 'svn'),
+        ('M', 'mercurial'),
+        ('S', 'subversion'),
     )
     
     name = models.CharField(unique=True, max_length=30)
@@ -27,8 +28,12 @@ class Revision(models.Model):
     message = models.TextField(blank=True)
     author = models.CharField(max_length=30, blank=True)
 
+    def get_short_commitid(self):
+        return self.commitid[:10]
+    
     def __unicode__(self):
-        return self.date.strftime("%h %d, %H:%M") + " - " + self.commitid + " " + self.tag
+        return self.date.strftime("%h %d, %H:%M") + " - " + \
+            self.get_short_commitid() + " " + self.tag
     
     class Meta:
         unique_together = ("commitid", "project")

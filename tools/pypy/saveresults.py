@@ -6,8 +6,8 @@
 import urllib, urllib2
 from datetime import datetime
 
-SPEEDURL = 'http://127.0.0.1:8000/'
-#SPEEDURL = 'http://speed.pypy.org/'
+#SPEEDURL = 'http://127.0.0.1:8000/'
+SPEEDURL = 'http://speed.pypy.org/'
 
 def save(project, revision, results, options, executable, environment, testing=False):
     testparams = []
@@ -63,5 +63,4 @@ def send(data):
             response += '  Error code: ' + str(e)
         print("Server (%s) response: %s\n" % (SPEEDURL, response))
         return 1
-    print "saved correctly!\n"
     return 0

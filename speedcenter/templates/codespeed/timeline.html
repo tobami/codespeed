@@ -74,9 +74,13 @@
       }
     }
     
-    $("#plotgrid").html('<div id="plot"></div>');
-    var plotoptions = 
-    {
+    $("#plotgrid").html('<div id="plot"></div><div id="plotdescription"></div>');
+    
+    if (data['benchmark_description']) {
+        $("#plotdescription").html('<p class="note"><i>' + data['benchmark'] + '</i>: ' + data['benchmark_description'] + '</p>');
+    }
+    
+    var plotoptions = {
       title: {text: data['benchmark'], fontSize: '1.1em'},
       series: series,
       axes:{
@@ -311,5 +315,6 @@
 </div>
 <div id="content" class="clearfix">
 <div id="plotgrid"></div>
+<div id="plotdescription"></div>
 </div>
 {% endblock %}

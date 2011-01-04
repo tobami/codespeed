@@ -217,11 +217,14 @@ def comparison(request):
     selectedbaseline = "none"
     if 'bas' in data and data['bas'] in exekeys:
         selectedbaseline = data['bas']
-    elif len(exekeys) > 1 and hasattr(settings, 'normalization') and settings.normalization:
+    elif 'bas' in data:
+        # bas is present but is none
+        pass
+    elif len(exekeys) > 1 and hasattr(settings, 'normalization') and\
+        settings.normalization:
         # Uncheck exe used for normalization when normalization is chosen as default in the settings
         selectedbaseline = exekeys[0]#this is the default baseline
         checkedexecutables.remove(selectedbaseline)        
-    
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true" or\
         hasattr(settings, 'chartorientation') and settings.chartorientation == 'horizontal':
@@ -271,7 +274,7 @@ def gettimelinedata(request):
     commitids = {}
     for revision in Revision.objects.all():
         dates[revision.id] = revision.date
-        commitids[revision.id] = revision.commitid
+        commitids[revision.id] = revision.get_short_commitid
 
     baselinerev = None
     baselineexe = None
@@ -281,14 +284,16 @@ def gettimelinedata(request):
         baselineexe = Executable.objects.get(id=exeid)
     for bench in benchmarks:
         append = False
-        timeline = {}
-        timeline['benchmark'] = bench.name
-        timeline['benchmark_id'] = bench.id
-        timeline['units'] = bench.units
         lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'
-        timeline['lessisbetter'] = lessisbetter
-        timeline['executables'] = {}
-        timeline['baseline'] = "None"
+        timeline = {
+            'benchmark':             bench.name,
+            'benchmark_id':          bench.id,
+            'benchmark_description': bench.description,
+            'units':                 bench.units,
+            'lessisbetter':          lessisbetter,
+            'executables':           {},
+            'baseline':              "None",
+        }
         
         for executable in executables:
             resultquery = resultData.get((bench.id, int(executable)))
@@ -305,7 +310,7 @@ def gettimelinedata(request):
                 results.append([
                         str(dates[res.revision_id]),
                         res.value, std_dev,
-                        str(commitids[res.revision_id])])
+                        commitids[res.revision_id]()])
 
             timeline['executables'][executable] = results
             append = True
@@ -649,85 +654,48 @@ def displaylogs(request):
     logs = []
     logs.append(rev)
     error = False
-    remotelogs = getcommitlogs(rev)
-    if len(remotelogs):
-        try:
-            if remotelogs[0]['error']:
-                error = remotelogs[0]['message']
-        except KeyError:
-            pass#no errors
-        logs = remotelogs
-    else: error = 'no logs found'
+    try:
+        startrev = Revision.objects.filter(
+            project=rev.project
+        ).filter(date__lt=rev.date).order_by('-date')[:1]
+        if not len(startrev): startrev = rev
+        else: startrev = startrev[0]
+        remotelogs = getcommitlogs(rev, startrev)
+        if len(remotelogs):
+            try:
+                if remotelogs[0]['error']:
+                    error = remotelogs[0]['message']
+            except KeyError:
+                pass#no errors
+            logs = remotelogs
+        else: error = 'no logs found'
+    except Exception, e:
+        error = str(e)
     return render_to_response('codespeed/changes_logs.html', { 'error': error, 'logs': logs })
 
-def getlogsfromsvn(newrev, startrev):
-    import pysvn
-    logs = []
-    log_messages = []
-    loglimit = 200
-    if startrev == newrev:
-        start = startrev.commitid
-    else:
-        #don't show info corresponding to previously tested revision
-        start = int(startrev.commitid) + 1
-    
-    def get_login(realm, username, may_save):
-        return True, newrev.project.repo_user, newrev.project.repo_pass, False
-    
-    client = pysvn.Client()
-    if newrev.project.repo_user != "":
-        client.callback_get_login = get_login
-    try:
-        log_messages = \
-            client.log(
-                newrev.project.repo_path,
-                revision_start=pysvn.Revision(
-                        pysvn.opt_revision_kind.number, start
-                ),
-                revision_end=pysvn.Revision(
-                    pysvn.opt_revision_kind.number, newrev.commitid
-                )
-            )
-    except pysvn.ClientError:
-        return [{'error': True, 'message': "Could not resolve '" + newrev.project.repo_path + "'"}]
-    log_messages.reverse()
-    s = len(log_messages)
-    while s > loglimit:
-        log_messages = log_messages[:s]
-        s = len(log_messages) - 1
-    for log in log_messages:
-        try:
-            author = log.author
-        except AttributeError:
-            author = ""
-        date = datetime.fromtimestamp(log.date).strftime("%Y-%m-%d %H:%M:%S")
-        message = log.message
-        logs.append({'date': date, 'author': author, 'message': message, 'commitid': log.revision.number})
-    return logs
-
-def getcommitlogs(rev):
-    logs = []
+def getcommitlogs(rev, startrev, update=False):
+    logs = []    
     if rev.project.repo_type == 'N' or rev.project.repo_path == "":
-        #Don't create logs
-        return []
-    
-    startrev = Revision.objects.filter(
-        project=rev.project
-    ).filter(date__lt=rev.date).order_by('-date')[:1]
-    if not len(startrev): startrev = rev
-    else: startrev = startrev[0]
-    
-    if rev.project.repo_type == 'S':
-        logs = getlogsfromsvn(rev, startrev)
+        #Don't fetch logs
+        pass
+    else:
+        if rev.project.repo_type == 'S':
+            from subversion import getlogs, updaterepo
+        elif rev.project.repo_type == 'M':
+            from mercurial import getlogs, updaterepo
+        
+        if update:
+            resp = updaterepo(rev.project.repo_path)
+            if resp.get('error'):
+                return resp
+        logs = getlogs(rev, startrev)
+        # Remove last log because the startrev log shouldn't be shown
+        if len(logs) > 1 and logs[-1].get('commitid') == startrev.commitid:
+            logs.pop()
     return logs
 
 def saverevisioninfo(rev):
-    log = None
-    if rev.project.repo_type == 'N' or rev.project.repo_path == "":
-        #Don't create logs
-        return
-    elif rev.project.repo_type == 'S':
-        log = getlogsfromsvn(rev, rev)
+    log = getcommitlogs(rev, rev, update=True)
     if len(log):
         log = log[0]
         rev.author  = log['author']

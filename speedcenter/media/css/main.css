@@ -218,7 +218,8 @@ div#contentwrap div.rightcolumn { padding-left: 0.8em; }
 
 div#contentwrap div div { display: block; }
 
-/*Remove outher margins so that it comfortably fits in a 1024px wide screen */
+/* 1024px wide screen Tablet, Netbook */
+/* Remove outher margins so that it comfortably fits */
 @media only screen and (max-width:1090px)  {
     div#containter { width: 100%; margin: 0; }
     div#sidebar { width: 12em; }
@@ -226,7 +227,8 @@ div#contentwrap div div { display: block; }
     div#content { margin-left: 12.8em; }
 }
 
-/* For smaller screens the changes view should only show one colunm */
+/* Less than 1024px wide screens (Smartphones) */
+/* The changes view should only show one colunm */
 @media only screen and (max-width:1020px)  {
     div#contentwrap div { display: table-row!important; }
     table.info { margin-bottom: 0.8em; }
@@ -318,6 +320,7 @@ a#permalink:hover { text-decoration: underline; }
 
 /* Plot styles */
 div#plot { text-align: left; height: 500px; width: 100%; }
+
 div.miniplot {
     cursor: pointer;
     margin: 0.5em;
@@ -333,12 +336,28 @@ div.miniplot:hover { background-color: #F1F1F1; }
 .jqplot-highlighter-tooltip {
     -moz-border-radius: 10px; -webkit-border-radius: 10px; border-radius: 10px;
 }
+
 div.compplot {
     text-align: left;
     height: 450px;
     float: left;
     margin-right: 0.8em;
     margin-bottom: 2em;
+}
+
+/* 1024px wide screen (Tablet, Netbook) */
+/* Reduce plot hight */
+@media only screen and (max-width:1090px)  {
+    div#plot { height: 450px; }
+    div.miniplot { height: 120px; }
+}
+
+/* Less than 1024px wide screens (Smartphones) */
+/* Reduce plot hight */
+@media only screen and (max-width:1020px)  {
+    div#plot { height: 400px; }
+    div.miniplot { height: 100px; }
+    div.compplot { height: 400px; }
 }
 
 p.note, p.warning {

@@ -1,5 +1,5 @@
 body {
-    min-width: 710px;
+    min-width: 650px;
     margin: 0;
     padding: 0;
     background-color: #596A74;
@@ -14,7 +14,6 @@ div#containter { width: 98%; margin: 0; margin-left: auto; margin-right: auto; }
 
 div#title {
     height: 55px;
-    position: relative;
     margin-bottom: 0.8em;
     background-color: #F1F1F1;
     color: #000000;
@@ -37,9 +36,9 @@ ul.inline li {
 }
 
 ul#links {
-    position: absolute;
-    bottom: 0;
-    right: 0;
+    position: relative;
+/*    bottom: 0;*/
+    float: right;
     padding: 0.7em;
     padding-bottom: 0.5em;
     font-size: large;
@@ -222,16 +221,29 @@ div#contentwrap div div { display: block; }
 /* Remove outher margins so that it comfortably fits */
 @media only screen and (max-width:1090px)  {
     div#containter { width: 100%; margin: 0; }
-    div#sidebar { width: 12em; }
+    div#workarea { padding-left: 0.3em; }
+    div#sidebar { width: 12.5em; }
     div#configbar { margin-left: 12.8em; }
     div#content { margin-left: 12.8em; }
+    div#title { margin-bottom: 0.4em; }
+    div#nav ul { padding-left: 13.2em; }
 }
 
 /* Less than 1024px wide screens (Smartphones) */
 /* The changes view should only show one colunm */
-@media only screen and (max-width:1020px)  {
+@media only screen and (max-width:1010px)  {
     div#contentwrap div { display: table-row!important; }
     table.info { margin-bottom: 0.8em; }
+    div#title { margin-bottom: -37px; background-color: transparent; }
+    div#title h2 { margin-top: 0.1em; margin-right: 2px; font-size: 90%; float: none; }
+    div#title ul {
+        position: absolute;
+        font-size: 90%;
+        float: none;
+        top: 0; right: 0;
+        padding-top: 2px;
+    }
+    div#title img { padding: 0; }
 }
 
 /* tables */
@@ -354,7 +366,7 @@ div.compplot {
 
 /* Less than 1024px wide screens (Smartphones) */
 /* Reduce plot hight */
-@media only screen and (max-width:1020px)  {
+@media only screen and (max-width:1010px)  {
     div#plot { height: 400px; }
     div.miniplot { height: 100px; }
     div.compplot { height: 400px; }

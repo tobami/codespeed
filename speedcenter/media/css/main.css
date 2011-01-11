@@ -368,6 +368,17 @@ p.note {
     background-image: url(/media/images/note.png);
 }
 
+div.footer {
+    font-size: small;
+    margin-top: 0.6em;
+    margin-left: auto; margin-right: auto;
+    text-align: center;
+}
+
+div.footer a {
+    color: black;
+    text-decoration: underline;
+}
 
 /* new clearfix */
 .clearfix:after {

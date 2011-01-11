@@ -2,15 +2,35 @@
 <table class="tablesorter">
 <thead>
   <tr>
-    <th>Benchmark</th><th>{{ units.units_title }} in {{ units.units }}<label title="lessisbetter" style="display:none;">{{ units.lessisbetter }}</label></th><th>Std dev</th>{% if units.hasmin %}<th>Min</th>{% endif%}{% if units.hasmax %}<th>Max</th>{% endif%}<th>Current change</th><th title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
+    <th>Benchmark</th>
+    <th>{{ units.units_title }} in {{ units.units }}<label title="lessisbetter" style="display:none;">{{ units.lessisbetter }}</label></th>
+    {% if units.has_stddev %}<th>Std dev</th>{% endif%}
+    {% if units.hasmin %}<th>Min</th>{% endif%}
+    {% if units.hasmax %}<th>Max</th>{% endif%}
+    <th title="Current change">Change</th>
+    <th title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
   </tr>
 </thead>
 <tfoot>
-  <tr><td class="text" title="Arithmetic mean">Average</td><td></td><td></td>{% if units.hasmin %}<td>{{ units.totals.min }}</td>{% endif%}{% if units.hasmax %}<td>{{ units.totals.max }}</td>{% endif%}<td>{% ifnotequal units.totals.change "-" %}{{ units.totals.change|floatformat:2 }}%{% else %}{{ units.totals.change }}{% endifnotequal %}</td><td>{% ifnotequal units.totals.trend "-" %}{{ units.totals.trend|floatformat:2 }}%{% else %}{{ units.totals.trend }}{% endifnotequal %}</td></tr>
+  <tr>
+    <td class="text" title="Arithmetic mean">Average</td>
+    <td></td>
+    {% if units.hasmin %}<td></td>
+    {% endif%}{% if units.has_stddev %}<td>{{ units.totals.min }}</td>
+    {% endif%}{% if units.hasmax %}<td>{{ units.totals.max }}</td>
+    {% endif%}<td>{% ifnotequal units.totals.change "-" %}{{ units.totals.change|floatformat:2 }}%{% else %}{{ units.totals.change }}{% endifnotequal %}</td>
+    <td>{% ifnotequal units.totals.trend "-" %}{{ units.totals.trend|floatformat:2 }}%{% else %}{{ units.totals.trend }}{% endifnotequal %}</td>
+  </tr>
 </tfoot>
 <tbody>
 {% for row in units.rows %}  <tr>
-        <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td><td>{{ row.result|floatformat:units.precission }}</td><td>{{ row.std_dev|floatformat:units.precission }}</td>{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>{% endif%}{% if units.hasmax %}<td>{{ row.val_max|floatformat:units.precission }}</td>{% endif%}<td>{% ifequal row.change "-" %}-{% else %}{{ row.change|floatformat:2 }}%{% endifequal %}</td><td>{% ifequal row.trend "-" %}-{% else %}{{ row.trend|floatformat:2 }}%{% endifequal %}</td>
+    <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td>
+    <td>{{ row.result|floatformat:units.precission }}</td>
+    {% if units.has_stddev %}<td>{{ row.std_dev|floatformat:units.precission }}</td>
+    {% endif%}{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>
+    {% endif%}{% if units.hasmax %}<td>{{ row.val_max|floatformat:units.precission }}</td>
+    {% endif%}<td>{% ifequal row.change "-" %}-{% else %}{{ row.change|floatformat:2 }}%{% endifequal %}</td>
+    <td>{% ifequal row.trend "-" %}-{% else %}{{ row.trend|floatformat:2 }}%{% endifequal %}</td>
   </tr>{% endfor %}
 </tbody>
 </table>{% endfor %}

@@ -212,14 +212,20 @@ p.errormessage { line-height: 10em; margin-bottom: 10em; }
 /* Changes table layout */
 div#contentwrap { display: table; table-layout: fixed; width: 100%; }
 div#contentwrap div { display: table-cell; }
-div#contentwrap div.leftcolumn { width: 28em;}
+div#contentwrap div.leftcolumn { width: 55%;}
 div#contentwrap div.rightcolumn { padding-left: 0.8em; }
 
 div#contentwrap div div { display: block; }
 
+/* For large screens don't expand the left colunm so much */
+@media only screen and (min-width:1270px)  {
+    div#contentwrap div.leftcolumn { width: 34em; }
+}
+
 /* 1024px wide screen Tablet, Netbook */
 /* Remove outher margins so that it comfortably fits */
-@media only screen and (max-width:1090px)  {
+@media only screen and (max-width:1100px)  {
+    div#contentwrap div.leftcolumn { width: 28.1em; }
     div#containter { width: 100%; margin: 0; }
     div#workarea { padding-left: 0.3em; }
     div#sidebar { width: 12.5em; }
@@ -231,7 +237,7 @@ div#contentwrap div div { display: block; }
 
 /* Less than 1024px wide screens (Smartphones) */
 /* The changes view should only show one colunm */
-@media only screen and (max-width:1010px)  {
+@media only screen and (max-width:1005px)  {
     div#contentwrap div { display: table-row!important; }
     table.info { margin-bottom: 0.8em; }
     div#title { margin-bottom: -35px; background-color: transparent; }
@@ -262,14 +268,14 @@ table.tablesorter { margin-right: 0.8em; margin-bottom: 0.8em; }
 
 table.tablesorter thead tr th {
     padding: 4px;
-    padding-right: 12px;
-    width: 5.5em;
+    padding-right: 14px;
+/*    width: 5.5em;*/
     text-align: center;
     background-color: #9DADC6;
     border: 1px solid #CDCDCD;
     font-size: 8pt;
 }
-table.tablesorter thead tr .header {
+table.tablesorter thead tr th.header {
     background-image: url(/media/images/bg.gif);
     background-repeat: no-repeat;
     background-position: center right;

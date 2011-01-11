@@ -23,6 +23,11 @@ def no_executables_error():
         'message': 'There needs to be at least one executable'
     })
 
+def no_data_found():
+    return render_to_response('codespeed/nodata.html', {
+        'message': 'No data found'
+    })
+
 def getbaselineexecutables():
     baseline = [{'key': "none", 'name': "None", 'executable': "none", 'revision': "none"}]
     revs = Revision.objects.exclude(tag="")
@@ -98,7 +103,8 @@ def getcomparisonexes():
         if rev.tag == "":
             for exe in Executable.objects.filter(project=rev.project):
                 exestring = str(exe)
-                if len(exestring) > maxlen: exestring = str(exe)[0:maxlen] + "..."
+                if len(exestring) > maxlen:
+                    exestring = str(exe)[0:maxlen] + "..."
                 name = exestring + " latest"
                 key = str(exe.id) + "+L"
                 executablekeys.append(key)
@@ -163,10 +169,13 @@ def comparison(request):
     if not checkedenviros:
         checkedenviros = enviros
     
-    if not len(Project.objects.all()): return no_default_project_error()
+    if not len(Project.objects.all()):
+        return no_default_project_error()
     
     defaultexecutable = getdefaultexecutable()
-    if not defaultexecutable: return no_executables_error()
+    
+    if not defaultexecutable:
+        return no_executables_error()
     
     executables, exekeys = getcomparisonexes()
     checkedexecutables = []
@@ -374,8 +383,10 @@ def timeline(request):
             pass
     
     defaultproject = Project.objects.filter(track=True)
-    if not len(defaultproject): return no_default_project_error()
-    else: defaultproject = defaultproject[0]
+    if not len(defaultproject):
+        return no_default_project_error()
+    else:
+        defaultproject = defaultproject[0]
     
     checkedexecutables = []
     if 'exe' in data:
@@ -389,7 +400,8 @@ def timeline(request):
     if not checkedexecutables:
         checkedexecutables = Executable.objects.filter(project__track=True)
     
-    if not len(checkedexecutables): return no_executables_error()
+    if not len(checkedexecutables):
+        return no_executables_error()
     
     baseline = getbaselineexecutables()
     defaultbaseline = None
@@ -410,8 +422,12 @@ def timeline(request):
         defaultlast = data['revs']
     
     benchmarks = Benchmark.objects.all()
-    if len(benchmarks) > 1: defaultbenchmark = "grid"
-    else: defaultbenchmark = benchmarks[0]
+    if not len(benchmarks):
+        return no_data_found()
+    elif len(benchmarks) == 1:
+        defaultbenchmark = benchmarks[0]
+    else:
+        defaultbenchmark = "grid"
     
     if 'ben' in data and data['ben'] != defaultbenchmark:
         defaultbenchmark = get_object_or_404(Benchmark, name=data['ben'])
@@ -476,6 +492,7 @@ def getchangestable(request):
         units_title = ""
         hasmin = False
         hasmax = False
+        has_stddev = False
         smallest = 1000
         totals = {'change': [], 'trend': [],}
         for bench in Benchmark.objects.filter(units=units['units']):
@@ -483,17 +500,23 @@ def getchangestable(request):
             lessisbetter = bench.lessisbetter
             resultquery = result_list.filter(benchmark=bench)
             if not len(resultquery): continue
+            
             resobj = resultquery.filter(benchmark=bench)[0]
+            
             std_dev = resobj.std_dev
-            result = resobj.value
+            if std_dev is not None: has_stddev = True
+            else: std_dev = "-"
+            
             val_min = resobj.val_min
             if val_min is not None: hasmin = True
             else: val_min = "-"
+            
             val_max = resobj.val_max
             if val_max is not None: hasmax = True
             else: val_max = "-"
             
             # Calculate percentage change relative to previous result
+            result = resobj.value
             change = "-"
             if len(change_list):
                 c = change_list.filter(benchmark=bench)
@@ -561,6 +584,7 @@ def getchangestable(request):
             'units': units['units'],
             'units_title': units_title,
             'lessisbetter': lessisbetter,
+            'has_stddev': has_stddev,
             'hasmin': hasmin,
             'hasmax': hasmax,
             'precission': digits,
@@ -585,7 +609,7 @@ def getchangestable(request):
 def changes(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
-
+    
     # Configuration of default parameters
     defaultchangethres = 3
     defaulttrendthres = 3
@@ -609,11 +633,14 @@ def changes(request):
     environments = Environment.objects.all()
     
     defaultproject = Project.objects.filter(track=True)
-    if not len(defaultproject): return no_default_project_error()
-    else: defaultproject = defaultproject[0]
+    if not len(defaultproject):
+        return no_default_project_error()
+    else:
+        defaultproject = defaultproject[0]
     
     defaultexecutable = getdefaultexecutable()
-    if not defaultexecutable: return no_executables_error()
+    if not defaultexecutable:
+        return no_executables_error()
     
     if "exe" in data:
         try:
@@ -641,8 +668,8 @@ def changes(request):
         project=defaultexecutable.project
     ).order_by('-date')[:revlimit]
     if not len(lastrevisions):
-        response = 'No data found for project "' + str(defaultexecutable.project) + '"'
-        return HttpResponse(response)
+        return no_data_found()
+    
     selectedrevision = lastrevisions[0]
     if "rev" in data:
         commitid = data['rev']

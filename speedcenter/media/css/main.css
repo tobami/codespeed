@@ -210,22 +210,15 @@ a.checkall { margin-left: 0.4em; }
 p.errormessage { line-height: 10em; margin-bottom: 10em; }
 
 /* Changes table layout */
-div#contentwrap { display: table; table-layout: fixed; width: 100%; }
+div#contentwrap { display: table; table-layout: auto; width: 100%; }
 div#contentwrap div { display: table-cell; }
-div#contentwrap div.leftcolumn { width: 55%;}
 div#contentwrap div.rightcolumn { padding-left: 0.8em; }
 
 div#contentwrap div div { display: block; }
 
-/* For large screens don't expand the left colunm so much */
-@media only screen and (min-width:1270px)  {
-    div#contentwrap div.leftcolumn { width: 34em; }
-}
-
 /* 1024px wide screen Tablet, Netbook */
 /* Remove outher margins so that it comfortably fits */
 @media only screen and (max-width:1100px)  {
-    div#contentwrap div.leftcolumn { width: 28.1em; }
     div#containter { width: 100%; margin: 0; }
     div#workarea { padding-left: 0.3em; }
     div#sidebar { width: 12.5em; }
@@ -269,7 +262,7 @@ table.tablesorter { margin-right: 0.8em; margin-bottom: 0.8em; }
 table.tablesorter thead tr th {
     padding: 4px;
     padding-right: 14px;
-/*    width: 5.5em;*/
+    width: 5em;
     text-align: center;
     background-color: #9DADC6;
     border: 1px solid #CDCDCD;

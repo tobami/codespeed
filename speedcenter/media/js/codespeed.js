@@ -307,7 +307,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     
     // determine conditions for rendering the legend outside the plot area
     var offplot = false;
-    if (!horizontal && (series.length > 4 || ticks.length == 1)) { offplot = true; }
+    if (!horizontal && series.length > 4) { offplot = true; }
     else if (horizontal && series.length > 2*ticks.length) { offplot = true; }
     
     if (offplot) {

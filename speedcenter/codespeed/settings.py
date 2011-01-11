@@ -7,6 +7,13 @@ defaultbaseline = None # Which executable + revision should be default as a base
                        # Given as the name of the executable and commitid of the revision
                        # Example: defaultbaseline = {'executable': 'myexe', 'revision': '21'}
 
+# Threshold that determines when a performance change over the last result is significant
+changethreshold = 3.0
+
+# Threshold that determines when a performance change
+# over a number of revisions is significant
+trendthreshold  = 3.0
+
 # Changes view options ##
 defaultexecutable = None # Executable that should be chosen as default in the changes view
                          # Given as the id of the executable.

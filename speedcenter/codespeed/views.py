@@ -589,6 +589,11 @@ def changes(request):
     # Configuration of default parameters
     defaultchangethres = 3
     defaulttrendthres = 3
+    if hasattr(settings, 'changethreshold') and settings.changethreshold != None:
+        defaultchangethres = settings.changethreshold
+    if hasattr(settings, 'trendthreshold') and settings.trendthreshold != None:
+        defaulttrendthres = settings.trendthreshold
+    
     defaulttrend = 10
     trends = [5, 10, 20, 50, 100]
     if 'tre' in data and int(data['tre']) in trends:

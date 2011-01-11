@@ -234,7 +234,7 @@ div#contentwrap div div { display: block; }
 @media only screen and (max-width:1010px)  {
     div#contentwrap div { display: table-row!important; }
     table.info { margin-bottom: 0.8em; }
-    div#title { margin-bottom: -37px; background-color: transparent; }
+    div#title { margin-bottom: -35px; background-color: transparent; }
     div#title h2 { margin-top: 0.1em; margin-right: 2px; font-size: 90%; float: none; }
     div#title ul {
         position: absolute;

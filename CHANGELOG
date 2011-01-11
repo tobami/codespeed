@@ -43,7 +43,7 @@ Bug fix release
 This release brings a new view, together with many other changes. Unfortunately the DB Schema had to be changed, so it is not compatible with existing databases without migration. The decision was taken in order to make the executable model simpler.
 
     * DB Modifications:
-        o Executable: removed coptions and added a description fields. This is the main reason for a DB change, as it really didn't bring much and it made things unecessarily complicated
+        o Executable: removed coptions and added a description field, as it really didn't bring much and it made things unecessarily complicated. This is the main reason for a DB change
         o Benchmark: Added a units_title field, which is used as plot title
         o Charfield lengths where adjusted
     * New feature: Comparison view
@@ -59,7 +59,7 @@ This release brings a new view, together with many other changes. Unfortunately 
         o Added plot title
 
 
-0.5
+=== Version 0.5, May 10, 2010 ===
 
 The focus of this release was polishing, making everything work seamlessly and cementing the DB design. The DB Schema should remain stable from now on. Last but not least, the installation and configuration process of codespeed was greatly simplified and is now documented.
 
@@ -85,7 +85,8 @@ Changelog
     * Multiple Hosts (Environments): it now just works
     * Multiple Projects: more than one project can know be default (tracked)
 
-0.4
+
+=== Version 0.4, April 13, 2010 ===
 
     * DB Redesign (http://github.com/tobami/codespeed/blob/master/documentation/backend.png)
           o New Project model
@@ -102,7 +103,8 @@ Changelog
           o Add std dev column
           o Show all commit logs between the selected revision and the (tested) one preceding it.
 
-0.3
+
+=== Version 0.3, March 10, 2010 ===
 
     * Plot Grid: a new default view for Timeline, showing all benchmarks at the same time
           o Thanks go to nsf (no.smile.face) for helping with the implementation
@@ -113,7 +115,8 @@ Changelog
           o Moved templates to its subdirectory
     * Several bug fixes
 
-0.2
+
+=== Version 0.2, March 09, 2010 ===
 
     * First working version for speed.pypy.org
     * Backend

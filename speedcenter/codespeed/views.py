@@ -257,12 +257,12 @@ def gettimelinedata(request):
 
     environment = Environment.objects.get(name=data['env'])
     benchmarks = []
-    number_of_rev = data['revs']
+    number_of_revs = data['revs']
     if data['ben'] == 'grid':
         benchmarks = Benchmark.objects.all().order_by('name')
-        number_of_rev = 15
+        number_of_revs = 15
     else:
-        benchmarks.append(Benchmark.objects.get(name=data['ben']))
+        benchmarks = [Benchmark.objects.get(name=data['ben'])]
     
     baselinerev = None
     baselineexe = None
@@ -290,12 +290,17 @@ def gettimelinedata(request):
                     environment=environment
                 ).filter(
                     executable=executable
-                ).order_by('-revision__date')[:number_of_rev]
-            if not len(resultquery): continue
+                ).select_related(
+                    "revision"
+                ).order_by('-revision__date')[:number_of_revs]
+            if not len(resultquery):
+                continue
+            
             results = []
             for res in resultquery:
                 std_dev = ""
-                if res.std_dev != None: std_dev = res.std_dev
+                if res.std_dev != None:
+                    std_dev = res.std_dev
                 results.append(
                     [str(res.revision.date), res.value, std_dev, res.revision.get_short_commitid()]
                 )

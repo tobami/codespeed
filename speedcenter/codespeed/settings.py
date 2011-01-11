@@ -4,7 +4,7 @@ defaultenvironment = None #Name of the environment which should be selected as d
 
 
 defaultbaseline = None # Which executable + revision should be default as a baseline
-                       # Given as the id of the executable + commitid of the revision
+                       # Given as the name of the executable and commitid of the revision
                        # Example: defaultbaseline = {'executable': 'myexe', 'revision': '21'}
 
 # Changes view options ##
@@ -21,3 +21,13 @@ normalization = False # True will enable normalization as the default selection
 
 chartorientation = 'vertical' # 'vertical' or 'horizontal can be chosen as
                               # default chart orientation
+
+comp_defaultexecutables = None  # Which executable + revision should be checked
+                                # Given as a list of tuples containing the
+                                # name of an executable + commitid of a revision
+                                # An 'L' denotes the last revision
+                                # Example:
+                                # comp_defaultexecutables = [
+                                #     ('myexe', '21df2423ra'),
+                                #     ('myexe', 'L'),
+                                #]

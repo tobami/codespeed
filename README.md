@@ -1,6 +1,8 @@
 # Codespeed
 A web application to monitor and analyze the performance of your code.
 
+It is known to be used by [PyPy](speed.pypy.org) and [Twisted](speed.twistedmatrix.com).
+
 # Requirements
 You will need Python 2.6+ and Django 1.1+.
 

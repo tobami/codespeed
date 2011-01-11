@@ -175,6 +175,29 @@ def comparison(request):
             if not i: continue
             if i in exekeys:
                 checkedexecutables.append(i)
+    elif hasattr(settings, 'comp_defaultexecutables') and\
+        settings.comp_defaultexecutables != None:
+        for exe, rev in settings.comp_defaultexecutables:
+            try:
+                exe = Executable.objects.get(name=exe)
+                key = str(exe.id) + "+"
+                if rev == "L":
+                    key += rev
+                else:
+                    rev = Revision.objects.get(commitid=rev)
+                    key += str(rev.id)
+                if key in exekeys:
+                    checkedexecutables.append(key)
+                else:
+                    #TODO: log
+                    pass
+            except Executable.DoesNotExist:
+                #TODO: log
+                pass
+            except Revision.DoesNotExist:
+                #TODO: log
+                pass
+    
     if not checkedexecutables:
         checkedexecutables = exekeys
     
@@ -186,7 +209,9 @@ def comparison(request):
     bench_units = {}
     for unit in units_titles:
         # Only include benchmarks marked as cross-project
-        benchmarks[unit] = Benchmark.objects.filter(benchmark_type="C").filter(units_title=unit)
+        benchmarks[unit] = Benchmark.objects.filter(
+            benchmark_type="C"
+        ).filter(units_title=unit)
         units = benchmarks[unit][0].units
         lessisbetter = benchmarks[unit][0].lessisbetter and ' (less is better)' or ' (more is better)'
         bench_units[unit] = [[b.id for b in benchmarks[unit]], lessisbetter, units]
@@ -360,6 +385,7 @@ def timeline(request):
                 checkedexecutables.append(Executable.objects.get(id=int(i)))
             except Executable.DoesNotExist:
                 pass
+    
     if not checkedexecutables:
         checkedexecutables = Executable.objects.filter(project__track=True)
     

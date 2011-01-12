@@ -127,7 +127,8 @@ class Report(models.Model):
         for units in tablelist:
             # Total change
             val = units['totals']['change']
-            if val == "-": continue
+            if val == "-":
+                continue
             color = self.getcolorcode(val, units['lessisbetter'], change_threshold)
             if self.is_big_change(val, color, average_change, average_change_color):
                 # Do update biggest total change
@@ -136,20 +137,18 @@ class Report(models.Model):
                 average_change_color = color
             # Total trend
             val = units['totals']['trend']
-            if val == "-": continue
-            color = self.getcolorcode(val, units['lessisbetter'], trend_threshold)
-            if self.is_big_change(val, color, average_trend, average_trend_color):
-                # Do update biggest total trend change
-                average_trend       = val
-                average_trend_units = units['units_title']
-                # A trend break is only a warning
-                if color == "red":
-                    color = "yellow"
-                average_trend_color = color
+            if val != "-":
+                color = self.getcolorcode(val, units['lessisbetter'], trend_threshold)
+                if self.is_big_change(val, color, average_trend, average_trend_color):
+                    # Do update biggest total trend change
+                    average_trend       = val
+                    average_trend_units = units['units_title']
+                    average_trend_color = color
             for row in units['rows']:
                 # Single change
                 val = row['change']
-                if val == "-": continue
+                if val == "-":
+                    continue
                 color = self.getcolorcode(val, units['lessisbetter'], change_threshold)
                 if self.is_big_change(val, color, max_change, max_change_color):
                     # Do update biggest single change
@@ -158,15 +157,13 @@ class Report(models.Model):
                     max_change_color = color
                 # Single trend
                 val = row['trend']
-                if val == "-": continue
+                if val == "-":
+                    continue
                 color = self.getcolorcode(val, units['lessisbetter'], trend_threshold)
                 if self.is_big_change(val, color, max_trend, max_trend_color):
                     # Do update biggest single trend change
                     max_trend       = val
                     max_trend_ben   = row['benchmark']
-                    # A trend break is only a warning
-                    if color == "red":
-                        color = "yellow"
                     max_trend_color = color
         
         if abs(max_trend) > trend_threshold:
@@ -174,27 +171,30 @@ class Report(models.Model):
                 max_trend_ben, round(max_trend, 1))
             self.colorcode = max_trend_color
         if abs(average_trend) > trend_threshold:
-            if average_trend_color == "yellow" or self.colorcode != "yellow":
+            if average_trend_color == "red" or self.colorcode != "red":
                 self.summary   = "Average %s trend %.1f%%" % (
                     average_trend_units.lower(), round(average_trend, 1))
                 self.colorcode = average_trend_color
         if abs(max_change) > change_threshold:
-            if max_change_color == "red" or self.colorcode != "yellow":
+            if max_change_color == "red" or self.colorcode != "red":
                 self.summary   = "%s %.1f%%" % (
                     max_change_ben, round(max_change, 1))
                 self.colorcode = max_change_color
         if abs(average_change) > change_threshold:
-            if average_change_color == "red" or\
-                (self.colorcode != "red" and self.colorcode != "yellow"):
+            if average_change_color == "red" or self.colorcode != "red":
                 self.summary   = "Average %s %.1f%%" % (
                     average_change_units.lower(), round(average_change, 1))
                 self.colorcode = average_change_color
+        if "trend" in self.summary:
+            # trend break is only a warning
+            self.colorcode = "yellow"
         
         super(Report, self).save(*args, **kwargs)
     
     def is_big_change(self, val, color, current_val, current_color):
-        if color == "red" and\
-            abs(val) > abs(current_val):
+        if color == "red" and current_color != "red":
+            return True
+        elif color == "red" and abs(val) > abs(current_val):
             return True
         elif color == "green" and  current_color != "red" and \
             abs(val) > abs(current_val):

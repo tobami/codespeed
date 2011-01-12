@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-from codespeed.models import Project, Revision, Executable, Benchmark, Result, Environment
+from codespeed.models import Project, Revision, Executable, Benchmark
+from codespeed.models import Result, Environment, Report
 from django.contrib import admin
 
 class ProjectAdmin(admin.ModelAdmin):
@@ -35,3 +36,8 @@ class ResultAdmin(admin.ModelAdmin):
     list_filter  = ('date', 'executable', 'benchmark', 'environment')
 
 admin.site.register(Result, ResultAdmin)
+
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ('revision', 'summary', 'colorcode')
+    
+admin.site.register(Report, ReportAdmin)

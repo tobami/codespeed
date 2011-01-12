@@ -72,13 +72,13 @@
   <tr><td class="infofirst">Date</td><td>{{ rev.date }}</td></tr>
   {% ifnotequal rev.project.repo_type "N" %}<tr><td class="infofirst">Repo</td><td>{{ rev.project.repo_path }}</td></tr>{% endifnotequal %}
 </tbody>
-{% ifnotequal executable.project.repo_type 'N' %}
+{% ifnotequal exe.project.repo_type 'N' %}
 <thead class="commits">
   <tr>
     <th colspan="2">Commit logs</th>
   </tr>
 </thead>
-<tbody class="commits" id="commitid__{{ lastrevision.id }}">
+<tbody class="commits" id="commitid__{{ rev.id }}">
   <tr><td colspan="2" style="text-align:center;">Loading... <img src="/media/images/ajax-loader.gif" align="bottom"></td></tr>
 </tbody>
   <script type="text/javascript">

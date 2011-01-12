@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.shortcuts import get_object_or_404, render_to_response
-from codespeed.models import Project, Revision, Result, Executable, Benchmark, Environment
+from codespeed.models import Project, Revision, Result, Executable, Benchmark
+from codespeed.models import Environment, Report
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
 from codespeed import settings
 from datetime import datetime
@@ -457,166 +458,33 @@ def getchangestable(request):
     selectedrev = Revision.objects.get(
         commitid=data['rev'], project=executable.project
     )
-    date = selectedrev.date
-    lastrevisions = Revision.objects.filter(
-        project=executable.project
-    ).filter(
-        date__lte=date
-    ).order_by('-date')[:trendconfig+1]
-    lastrevision = lastrevisions[0]
-
-    change_list = []
-    pastrevisions = []
-    if len(lastrevisions) > 1:
-        changerevision = lastrevisions[1]
-        change_list = Result.objects.filter(
-            revision=changerevision
-        ).filter(
-            environment=environment
-        ).filter(
-            executable=executable
-        )
-        pastrevisions = lastrevisions[trendconfig-2:trendconfig+1]
-
-    result_list = Result.objects.filter(
-        revision=lastrevision
-    ).filter(
-        environment=environment
-    ).filter(
-        executable=executable
+    report, created = Report.objects.get_or_create(
+        executable=executable, environment=environment, revision=selectedrev
     )
-
-    tablelist = []
-    for units in Benchmark.objects.all().values('units').distinct():
-        currentlist = []
-        units_title = ""
-        hasmin = False
-        hasmax = False
-        has_stddev = False
-        smallest = 1000
-        totals = {'change': [], 'trend': [],}
-        for bench in Benchmark.objects.filter(units=units['units']):
-            units_title = bench.units_title
-            lessisbetter = bench.lessisbetter
-            resultquery = result_list.filter(benchmark=bench)
-            if not len(resultquery): continue
-            
-            resobj = resultquery.filter(benchmark=bench)[0]
-            
-            std_dev = resobj.std_dev
-            if std_dev is not None: has_stddev = True
-            else: std_dev = "-"
-            
-            val_min = resobj.val_min
-            if val_min is not None: hasmin = True
-            else: val_min = "-"
-            
-            val_max = resobj.val_max
-            if val_max is not None: hasmax = True
-            else: val_max = "-"
-            
-            # Calculate percentage change relative to previous result
-            result = resobj.value
-            change = "-"
-            if len(change_list):
-                c = change_list.filter(benchmark=bench)
-                if c.count() and c[0].value and result:
-                    change = (result - c[0].value)*100/c[0].value
-                    totals['change'].append(result / c[0].value)
-            
-            # Calculate trend:
-            # percentage change relative to average of 3 previous results
-            # Calculate past average
-            average = 0
-            averagecount = 0
-            if len(pastrevisions):
-                for rev in pastrevisions:
-                    past_rev = Result.objects.filter(
-                        revision=rev
-                    ).filter(
-                        environment=environment
-                    ).filter(
-                        executable=executable
-                    ).filter(benchmark=bench)
-                    if past_rev.count():
-                        average += past_rev[0].value
-                        averagecount += 1
-            trend = "-"
-            if average:
-                average = average / averagecount
-                trend =  (result - average)*100/average
-                totals['trend'].append(result / average)
-            
-            # Retain lowest number different than 0
-            # to be used later for calculating significant digits
-            if result < smallest and result:
-                smallest = result
-            
-            currentlist.append({
-                'benchmark': bench,
-                'result': result,
-                'std_dev': std_dev,
-                'val_min': val_min,
-                'val_max': val_max,
-                'change': change,
-                'trend': trend
-            })
-        
-        # Compute Arithmetic averages
-        for key in totals.keys():
-            if len(totals[key]):
-                totals[key] = float(sum(totals[key]) / len(totals[key]))
-            else:
-                totals[key] = "-"
-        
-        if totals['change'] != "-":
-            totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
-        if totals['trend'] != "-":
-            totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
-        
-        # Calculate significant digits
-        digits = 2;
-        while smallest < 1:
-            smallest *= 10
-            digits += 1
-        
-        tablelist.append({
-            'units': units['units'],
-            'units_title': units_title,
-            'lessisbetter': lessisbetter,
-            'has_stddev': has_stddev,
-            'hasmin': hasmin,
-            'hasmax': hasmax,
-            'precission': digits,
-            'totals': totals,
-            'rows': currentlist
-        })
-
+    tablelist = report.get_changes_table(trendconfig)
+    
     if not len(tablelist):
         return HttpResponse('<table id="results" class="tablesorter" style="height: 232px;"></table><p class="errormessage">No results for this parameters</p>')
     
     return render_to_response('codespeed/changes_table.html', {
         'tablelist': tablelist,
         'trendconfig': trendconfig,
-        'executable': executable,
-        'lastrevision': lastrevision,
-        'totals': totals,
         'rev': selectedrev,
         'exe': executable,
         'env': environment,
     })
-    
+
 def changes(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
     
     # Configuration of default parameters
-    defaultchangethres = 3
-    defaulttrendthres = 3
-    if hasattr(settings, 'changethreshold') and settings.changethreshold != None:
-        defaultchangethres = settings.changethreshold
-    if hasattr(settings, 'trendthreshold') and settings.trendthreshold != None:
-        defaulttrendthres = settings.trendthreshold
+    defaultchangethres = 3.0
+    defaulttrendthres = 4.0
+    if hasattr(settings, 'change_threshold') and settings.change_threshold != None:
+        defaultchangethres = settings.change_threshold
+    if hasattr(settings, 'trend_threshold') and settings.trend_threshold != None:
+        defaulttrendthres = settings.trend_threshold
     
     defaulttrend = 10
     trends = [5, 10, 20, 50, 100]
@@ -624,7 +492,8 @@ def changes(request):
         defaulttrend = int(data['tre'])
     
     defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment: return no_environment_error()
+    if not defaultenvironment:
+        return no_environment_error()
     if 'env' in data:
         try:
             defaultenvironment = Environment.objects.get(name=data['env'])

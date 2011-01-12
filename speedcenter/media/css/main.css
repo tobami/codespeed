@@ -37,7 +37,7 @@ ul.inline li {
 
 ul#links {
     position: relative;
-/*    bottom: 0;*/
+    margin-top: 0.6em;
     float: right;
     padding: 0.7em;
     padding-bottom: 0.5em;
@@ -231,6 +231,7 @@ div#contentwrap div div { display: block; }
 /* Less than 1024px wide screens (Smartphones) */
 /* The changes view should only show one colunm */
 @media only screen and (max-width:1005px)  {
+    ul#links { margin-top: 0; }
     div#contentwrap div { display: table-row!important; }
     table.info { margin-bottom: 0.8em; }
     div#title { margin-bottom: -35px; background-color: transparent; }

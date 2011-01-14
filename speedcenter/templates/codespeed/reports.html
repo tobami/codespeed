@@ -1,0 +1,11 @@
+{% if reports|length %}
+<table class="reports">
+    <caption>Latest runs</caption>
+    <tbody>
+    {% for report in reports %}  <tr class="status-{{ report.colorcode }}">
+        <td><label title="lessisbetter" style="display:none;">rev={{ report.revision.commitid }}&exe= {{ report.executable.id }}&env={{ report.environment.name }}</label>{{ report.revision }}</td><td>{{ report.executable }}@{{ report.environment}}</td>
+        <td class="summary">{% ifequal report.summary "none" %}<span class="nochanges">no significant changes</span>{% else %}{{ report.summary }}{% endifequal %}</td>
+    </tr>{% endfor %}
+    </tbody>
+</table>
+{% endif %}

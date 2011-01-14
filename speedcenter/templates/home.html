@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block body %}
+
 {% block script %}
 <script type="text/javascript">
     function permalinkToChanges(permalink) {
@@ -26,13 +26,13 @@
         $("#changes").click(function () { window.location="/changes/"; });
         $("#timeline").click(function () { window.location="/timeline/"; });
         $("#comparison").click(function () { window.location="/comparison/"; });
-        $("#reports")
-            .html(getLoadText("Loading...", 0, true))
+        $("#reports").html(getLoadText("Loading...", 0, true))
             .load("reports/", function(responseText) { updateTable(); });
   });
 </script>
 {% endblock %}
 
+{% block body %}
 <div id="presentation" class="clearfix">
     <div id="changes" class="menubox">
       <h2>Changes</h2>
@@ -49,5 +49,4 @@
     <br />
     <div id="reports"></div>
 </div>
-
 {% endblock %}

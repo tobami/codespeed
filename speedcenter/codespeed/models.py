@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.utils import simplejson as json
 from codespeed import settings
 
 class Project(models.Model):
@@ -101,7 +102,8 @@ class Report(models.Model):
     executable  = models.ForeignKey(Executable)
     summary     = models.CharField(max_length=30, default="none")
     colorcode   = models.CharField(max_length=10, default="none")
-    tablecache  = models.CharField(max_length=10, default="none")
+    _tablecache = models.TextField(blank=True)
+    
     def __unicode__(self):
         return "Report for " + str(self.revision.commitid)
     
@@ -109,7 +111,7 @@ class Report(models.Model):
         unique_together = ("revision", "executable", "environment")
     
     def save(self, *args, **kwargs):
-        tablelist = self.get_changes_table()
+        tablelist = self.get_changes_table(force_save=True)
         max_change, max_change_ben, max_change_color = 0, None, "none"
         max_trend, max_trend_ben, max_trend_color = 0, None, "none"
         average_change, average_change_units, average_change_color = 0, None, "none"
@@ -153,7 +155,7 @@ class Report(models.Model):
                 if self.is_big_change(val, color, max_change, max_change_color):
                     # Do update biggest single change
                     max_change       = val
-                    max_change_ben   = row['benchmark']
+                    max_change_ben   = row['bench_name']
                     max_change_color = color
                 # Single trend
                 val = row['trend']
@@ -163,7 +165,7 @@ class Report(models.Model):
                 if self.is_big_change(val, color, max_trend, max_trend_color):
                     # Do update biggest single trend change
                     max_trend       = val
-                    max_trend_ben   = row['benchmark']
+                    max_trend_ben   = row['bench_name']
                     max_trend_color = color
         # Reinitialize
         self.summary = "none"
@@ -225,7 +227,16 @@ class Report(models.Model):
             colorcode = "green"
         return colorcode;
     
-    def get_changes_table(self, trend_depth=10):
+    def get_changes_table(self, trend_depth=10, force_save=False):
+        # Determine whether required trend value is the default one
+        default_trend = 10
+        if hasattr(settings, 'trend') and settings.trend:
+            default_trend = settings.trend
+        # If the trend is the default and a forced save is not required
+        # just return the cached changes table
+        if not force_save and trend_depth == default_trend:
+            return self._get_tablecache()
+        
         lastrevisions = Revision.objects.filter(
             project=self.executable.project
         ).filter(
@@ -321,7 +332,8 @@ class Report(models.Model):
                     smallest = result
                 
                 currentlist.append({
-                    'benchmark': bench,
+                    'bench_name': bench.name,
+                    'bench_description': bench.description,
                     'result': result,
                     'std_dev': std_dev,
                     'val_min': val_min,
@@ -359,4 +371,14 @@ class Report(models.Model):
                 'totals': totals,
                 'rows': currentlist
             })
+        if force_save:
+            self._save_tablecache(tablelist)
         return tablelist
+    
+    def _save_tablecache(self, data):
+        self._tablecache = json.dumps(data)
+    
+    def _get_tablecache(self):
+        if self._tablecache == '':
+            return {}
+        return json.loads(self._tablecache)

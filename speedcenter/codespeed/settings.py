@@ -7,6 +7,9 @@ defaultbaseline = None # Which executable + revision should be default as a base
                        # Given as the name of the executable and commitid of the revision
                        # Example: defaultbaseline = {'executable': 'myexe', 'revision': '21'}
 
+trend = 10 # Default value for the depth of the trend
+           # Used by reports for the latest runs and changes view
+
 # Threshold that determines when a performance change over the last result is significant
 change_threshold = 3.0
 

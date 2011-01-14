@@ -23,8 +23,8 @@
   </tr>
 </tfoot>
 <tbody>
-{% for row in units.rows %}  <tr>
-    <td class="text" title="{{ row.benchmark.description }}">{{ row.benchmark.name }}</td>
+{% for row in units.rows|dictsort:"bench_name" %}  <tr>
+    <td class="text" title="{{ row.bench_description }}">{{ row.bench_name }}</td>
     <td>{{ row.result|floatformat:units.precission }}</td>
     {% if units.has_stddev %}<td>{{ row.std_dev|floatformat:units.precission }}</td>
     {% endif%}{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>

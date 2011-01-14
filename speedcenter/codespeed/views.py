@@ -577,7 +577,7 @@ def reports(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
     
     return render_to_response('codespeed/reports.html', {
-        'reports': Report.objects.all().order_by('-revision')[:15],
+        'reports': Report.objects.all().order_by('-revision')[:10],
     })
 
 def displaylogs(request):

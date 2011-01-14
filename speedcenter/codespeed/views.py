@@ -47,43 +47,45 @@ def getbaselineexecutables():
                 'name': name,
             })
     # move default to first place
-    if hasattr(settings, 'defaultbaseline') and settings.defaultbaseline != None:
+    if hasattr(settings, 'def_baseline') and settings.def_baseline != None:
         try:
             for base in baseline:
                 if base['key'] == "none": continue
-                exename = settings.defaultbaseline['executable']
-                commitid = settings.defaultbaseline['revision']
+                exename = settings.def_baseline['executable']
+                commitid = settings.def_baseline['revision']
                 if base['executable'].name == exename and base['revision'].commitid == commitid:
                     baseline.remove(base)
                     baseline.insert(1, base)
                     break
         except KeyError:
             # TODO: write to server logs
-            #error in settings.defaultbaseline
+            #error in settings.def_baseline
             pass
     return baseline
 
 def getdefaultenvironment():
     default = Environment.objects.all()
-    if not len(default): return 0
+    if not len(default):
+        return 0
     default = default[0]
-    if hasattr(settings, 'defaultenvironment'):
+    if hasattr(settings, 'def_environment'):
         try:
-            default = Environment.objects.get(name=settings.defaultenvironment)
+            default = Environment.objects.get(name=settings.def_environment)
         except Environment.DoesNotExist:
             pass
     return default
 
 def getdefaultexecutable():
     default = None
-    if hasattr(settings, 'defaultexecutable') and settings.defaultexecutable != None:
+    if hasattr(settings, 'def_executable') and settings.def_executable != None:
         try:
-            default = Executable.objects.get(name=settings.defaultexecutable)
+            default = Executable.objects.get(name=settings.def_executable)
         except Executable.DoesNotExist:
             pass
     if default == None:
         execquery = Executable.objects.filter(project__track=True)
-        if len(execquery): default = execquery[0]
+        if len(execquery):
+            default = execquery[0]
     
     return default
 
@@ -93,7 +95,8 @@ def getcomparisonexes():
     maxlen = 20
     # add all tagged revs for any project
     for exe in getbaselineexecutables():
-        if exe['key'] == "none": continue
+        if exe['key'] == "none":
+            continue
         executablekeys.append(exe['key'])
         executables.append(exe)
     
@@ -185,9 +188,9 @@ def comparison(request):
             if not i: continue
             if i in exekeys:
                 checkedexecutables.append(i)
-    elif hasattr(settings, 'comp_defaultexecutables') and\
-        settings.comp_defaultexecutables != None:
-        for exe, rev in settings.comp_defaultexecutables:
+    elif hasattr(settings, 'com_executables') and\
+        settings.comp_executables != None:
+        for exe, rev in settings.comp_executables:
             try:
                 exe = Executable.objects.get(name=exe)
                 key = str(exe.id) + "+"
@@ -246,8 +249,8 @@ def comparison(request):
     selectedchart = charts[0]
     if 'chart' in data and data['chart'] in charts:
         selectedchart = data['chart']
-    elif hasattr(settings, 'charttype') and settings.charttype in charts:
-        selectedchart = settings.charttype
+    elif hasattr(settings, 'chart_type') and settings.chart_type in charts:
+        selectedchart = settings.chart_type
     
     selectedbaseline = "none"
     if 'bas' in data and data['bas'] in exekeys:
@@ -262,7 +265,7 @@ def comparison(request):
         checkedexecutables.remove(selectedbaseline)        
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true" or\
-        hasattr(settings, 'chartorientation') and settings.chartorientation == 'horizontal':
+        hasattr(settings, 'chart_orientation') and settings.chart_orientation == 'horizontal':
         selecteddirection = True
     
     return render_to_response('codespeed/comparison.html', {

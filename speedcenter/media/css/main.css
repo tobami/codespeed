@@ -85,24 +85,25 @@ div#workarea {
     border-radius: 10px;
 }
 
-div#presentation_wrapper {
-    width: 880px;
-    margin-left: auto; margin-right: auto;
+div#presentation {
     text-align: center;
 }
-div#presentation_wrapper h2 { margin-top: 0.5em; }
-div#presentation_wrapper p a:hover { text-decoration: underline; }
+div#presentation h2, div#presentation h4 { margin-top: 0.2em; margin-bottom: 0.2em; }
+
 div#presentation div {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+}
+div#presentation div.menubox {
     background-image: url(/media/images/vgradient.png);
     background-repeat: repeat-x;
     background-color: #FFFFFF;
     color: white;
-    position: relative;
-    float: left;
-    height: 260px;
-    width: 230px;
+    width: 220px;
     cursor: pointer;
     text-align: center;
+    font-size: small;
     margin: 0.8em;
     padding: 0.8em;
     border: 5px solid #F1F1F1;
@@ -110,14 +111,21 @@ div#presentation div {
     -webkit-border-radius: 20px;
     border-radius: 20px;
 }
-div#presentation p { text-align: left; font-size: small; }
+div#presentation div.menubox:hover { border: 5px solid #FFCE9C; }
 
-div#presentation div:hover {
-    border: 5px solid #FFCE9C;
+div#presentation p { height: 5em; padding-left: 120px; }
+
+div#presentation div#changes p {
+    background: url(/media/images/changes.png) no-repeat;
+}
+div#presentation div#timeline p {
+    background: url(/media/images/timeline.png) no-repeat;
+}
+div#presentation div#comparison p {
+    background: url(/media/images/comparison.png) no-repeat;
 }
 
-div#presentation img { border: 0; position: relative; bottom: 0px; }
-
+/* Navigation elements */
 div#sidebar {
     width: 13.7em;
     float: left;
@@ -245,11 +253,14 @@ div#contentwrap div div { display: block; }
         top: 0; right: 0;
         padding-top: 2px;
     }
-    div#title img { padding: 0; }
+    div#title img {
+        padding: 0;
+    }
+    div#nav { height: 2em; }
 }
 
 /* tables */
-table.tablesorter, table.info, table.revision {
+table.tablesorter, table.info, table.revision, table.reports {
     width: 100%;
     font-family:arial;
     font-size: 11pt;
@@ -259,6 +270,13 @@ table.tablesorter, table.info, table.revision {
     border: 1px solid #CDCDCD;
     background-color: #fafafa;
 }
+
+/*table.reports {
+    border-width: 2px;
+}*/
+table.reports caption { font-size: 110%; }
+table.reports td { padding: 0.4em; }
+table.reports td span { opacity: 0.4; }
 
 table.tablesorter { margin-right: 0.8em; margin-bottom: 0.8em; }
 
@@ -309,9 +327,14 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
 
 table.tablesorter tbody td.text {text-align: left; width: 8.5em; }
 
-table.tablesorter tbody tr td.status-red, .status-red  { background-color: #FF5640; }
-table.tablesorter tbody tr td.status-green, .status-green { background-color: #9FD54D; }
-table.tablesorter tbody tr.highlight td {
+table.tablesorter tbody tr td.status-red { background-color: #FF5640; }
+.reports tr.status-red td.summary { color: #FF5640; font-weight: bold; }
+table.tablesorter tbody tr td.status-green { background-color: #9FD54D; }
+tr.status-green td.summary { color: #9FD54D; font-weight: bold; }
+table.tablesorter tbody tr td.status-yellow { background-color: #FFD843; }
+tr.status-yellow td.summary { color: #FFD843; font-weight: bold; }
+
+table.tablesorter tbody tr.highlight td, tr.highlight td {
     background-color: #9DADC6 !important;
     cursor: pointer;
 }

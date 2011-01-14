@@ -99,9 +99,9 @@ class Report(models.Model):
     revision    = models.ForeignKey(Revision)
     environment = models.ForeignKey(Environment)
     executable  = models.ForeignKey(Executable)
-    summary     = models.CharField(max_length=30, default="OK")
+    summary     = models.CharField(max_length=30, default="none")
     colorcode   = models.CharField(max_length=10, default="none")
-    
+    tablecache  = models.CharField(max_length=10, default="none")
     def __unicode__(self):
         return "Report for " + str(self.revision.commitid)
     
@@ -120,7 +120,7 @@ class Report(models.Model):
         trend_threshold  = 4.0
         if hasattr(settings, 'change_threshold') and settings.change_threshold != None:
             change_threshold = settings.change_threshold
-        if hasattr(settings, 'trend_threshold') and settings.trend_threshold != None:
+        if hasattr(settings, 'trend_threshold') and settings.trend_threshold:
             trend_threshold = settings.trend_threshold
         
         # Fetch big changes for each unit type and each benchmark
@@ -165,27 +165,40 @@ class Report(models.Model):
                     max_trend       = val
                     max_trend_ben   = row['benchmark']
                     max_trend_color = color
-        
+        # Reinitialize
+        self.summary = "none"
+        self.colorcode = "none"
+
         if abs(max_trend) > trend_threshold:
-            self.summary   = "%s trend %.1f%%" % (
-                max_trend_ben, round(max_trend, 1))
+            #Substitute plus/minus with up/down
+            direction = max_trend >= 0 and "+" or ""
+            self.summary = "%s trend %s%.1f%%" % (
+                max_trend_ben, direction, round(max_trend, 1))
             self.colorcode = max_trend_color
         if abs(average_trend) > trend_threshold:
             if average_trend_color == "red" or self.colorcode != "red":
-                self.summary   = "Average %s trend %.1f%%" % (
-                    average_trend_units.lower(), round(average_trend, 1))
+                #Substitute plus/minus with up/down
+                direction = average_trend >= 0 and "+" or ""
+                self.summary = "Average %s trend %s%.1f%%" % (
+                    average_trend_units.lower(), direction, round(average_trend, 1))
                 self.colorcode = average_trend_color
         if abs(max_change) > change_threshold:
             if max_change_color == "red" or self.colorcode != "red":
-                self.summary   = "%s %.1f%%" % (
-                    max_change_ben, round(max_change, 1))
+                #Substitute plus/minus with up/down
+                direction = max_change >= 0 and "+" or ""
+                self.summary = "%s %s%.1f%%" % (
+                    max_change_ben, direction, round(max_change, 1))
                 self.colorcode = max_change_color
         if abs(average_change) > change_threshold:
             if average_change_color == "red" or self.colorcode != "red":
-                self.summary   = "Average %s %.1f%%" % (
-                    average_change_units.lower(), round(average_change, 1))
+                #Substitute plus/minus with up/down
+                direction = average_change >= 0 and "+" or ""
+                self.summary = "Average %s %s%.1f%%" % (
+                    average_change_units.lower(),
+                    direction,
+                    round(abs(average_change), 1))
                 self.colorcode = average_change_color
-        if "trend" in self.summary:
+        if "trend" in self.summary and self.colorcode == "red":
             # trend break is only a warning
             self.colorcode = "yellow"
         
@@ -205,7 +218,7 @@ class Report(models.Model):
     def getcolorcode(self, val, lessisbetter, threshold):
         if lessisbetter:
             val = -val
-        colorcode = "yellow"
+        colorcode = "none"
         if val < -threshold:
             colorcode = "red"
         elif val > threshold:

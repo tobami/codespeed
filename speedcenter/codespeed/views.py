@@ -572,6 +572,14 @@ def changes(request):
         ).order_by('-date')[:revlimit]
     return render_to_response('codespeed/changes.html', locals())
 
+
+def reports(request):
+    if request.method != 'GET': return HttpResponseNotAllowed('GET')
+    
+    return render_to_response('codespeed/reports.html', {
+        'reports': Report.objects.all().order_by('-revision')[:15],
+    })
+
 def displaylogs(request):
     rev = Revision.objects.get(id=request.GET['revisionid'])
     logs = []

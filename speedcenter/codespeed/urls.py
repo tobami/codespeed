@@ -8,6 +8,7 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('codespeed.views',
+    (r'^reports/$', 'reports'),
     (r'^changes/$', 'changes'),
     (r'^changes/table/$', 'getchangestable'),
     (r'^changes/logs/$', 'displaylogs'),

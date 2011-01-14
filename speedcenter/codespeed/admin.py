@@ -39,5 +39,6 @@ admin.site.register(Result, ResultAdmin)
 
 class ReportAdmin(admin.ModelAdmin):
     list_display = ('revision', 'summary', 'colorcode')
+    ordering = ['-revision']
     
 admin.site.register(Report, ReportAdmin)

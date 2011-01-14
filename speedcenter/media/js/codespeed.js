@@ -31,7 +31,7 @@ function getLoadText(text, h, showloader) {
 
 //colors number based on a threshold
 function getColorcode(change, theigh, tlow) {
-    var colorcode = "status-yellow";
+    var colorcode = "status-none";
     if(change < tlow) { colorcode = "status-red"; }
     else if(change > theigh) { colorcode = "status-green"; }
     return colorcode;

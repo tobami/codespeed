@@ -701,4 +701,19 @@ def addresult(request):
     if 'max' in data: r.val_max = data['max']
     r.save()
     
+    # Trigger Report creation when there are enough results
+    last_revs = Revision.objects.order_by('-date')[:2]
+    if len(last_revs) > 1:
+        current_results = rev.result_set.filter(
+            executable=exe).filter(environment=e)
+        last_results = last_revs[1].result_set.filter(
+            executable=exe).filter(environment=e)
+        # If there is are at least as many results as in the last revision,
+        # create new report
+        if len(current_results) >= len(last_results):
+            report, created = Report.objects.get_or_create(
+                executable=exe, environment=e, revision=rev
+            )
+            report.save()
+    
     return HttpResponse("Result data saved succesfully")

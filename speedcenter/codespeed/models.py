@@ -29,7 +29,7 @@ class Revision(models.Model):
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
     author = models.CharField(max_length=30, blank=True)
-
+    
     def get_short_commitid(self):
         return self.commitid[:10]
     
@@ -100,7 +100,7 @@ class Report(models.Model):
     revision    = models.ForeignKey(Revision)
     environment = models.ForeignKey(Environment)
     executable  = models.ForeignKey(Executable)
-    summary     = models.CharField(max_length=30, default="none")
+    summary     = models.CharField(max_length=30, blank=True)
     colorcode   = models.CharField(max_length=10, default="none")
     _tablecache = models.TextField(blank=True)
     
@@ -168,41 +168,43 @@ class Report(models.Model):
                     max_trend_ben   = row['bench_name']
                     max_trend_color = color
         # Reinitialize
-        self.summary = "none"
+        self.summary = ""
         self.colorcode = "none"
-
-        if abs(max_trend) > trend_threshold:
+        
+        # Save summary in order of priority
+        # Average change
+        if average_change_color != "none":
             #Substitute plus/minus with up/down
-            direction = max_trend >= 0 and "+" or ""
-            self.summary = "%s trend %s%.1f%%" % (
-                max_trend_ben, direction, round(max_trend, 1))
-            self.colorcode = max_trend_color
-        if abs(average_trend) > trend_threshold:
-            if average_trend_color == "red" or self.colorcode != "red":
-                #Substitute plus/minus with up/down
-                direction = average_trend >= 0 and "+" or ""
-                self.summary = "Average %s trend %s%.1f%%" % (
-                    average_trend_units.lower(), direction, round(average_trend, 1))
-                self.colorcode = average_trend_color
-        if abs(max_change) > change_threshold:
-            if max_change_color == "red" or self.colorcode != "red":
-                #Substitute plus/minus with up/down
-                direction = max_change >= 0 and "+" or ""
-                self.summary = "%s %s%.1f%%" % (
-                    max_change_ben, direction, round(max_change, 1))
-                self.colorcode = max_change_color
-        if abs(average_change) > change_threshold:
-            if average_change_color == "red" or self.colorcode != "red":
-                #Substitute plus/minus with up/down
-                direction = average_change >= 0 and "+" or ""
-                self.summary = "Average %s %s%.1f%%" % (
-                    average_change_units.lower(),
-                    direction,
-                    round(abs(average_change), 1))
-                self.colorcode = average_change_color
-        if "trend" in self.summary and self.colorcode == "red":
-            # trend break is only a warning
-            self.colorcode = "yellow"
+            direction = average_change >= 0 and "+" or "-"
+            self.summary = "Average %s %s%.1f%%" % (
+                average_change_units.lower(),
+                direction,
+                round(abs(average_change), 1))
+            self.colorcode = average_change_color
+        # Single benchmark change
+        if max_change_color != "none" and self.colorcode != "red":
+            #Substitute plus/minus with up/down
+            direction = max_change >= 0 and "+" or "-"
+            self.summary = "%s %s%.1f%%" % (
+                max_change_ben, direction, round(abs(max_change), 1))
+            self.colorcode = max_change_color
+        
+        # Average trend
+        if average_trend_color != "none" and self.colorcode == "none":
+            #Substitute plus/minus with up/down
+            direction = average_trend >= 0 and "+" or ""
+            self.summary = "Average %s trend %s%.1f%%" % (
+                average_trend_units.lower(), direction, round(average_trend, 1))
+            self.colorcode = average_trend_color == "red"\
+                and "yellow" or average_trend_color
+        # Single benchmark trend
+        if max_trend_color != "none" and self.colorcode != "red":
+            if self.colorcode == "none" or (self.colorcode == "green" and "trend" not in self.summary):
+                direction = max_trend >= 0 and "+" or ""
+                self.summary = "%s trend %s%.1f%%" % (
+                    max_trend_ben, direction, round(max_trend, 1))
+                self.colorcode = max_trend_color == "red"\
+                    and "yellow" or max_trend_color
         
         super(Report, self).save(*args, **kwargs)
     
@@ -374,6 +376,10 @@ class Report(models.Model):
         if force_save:
             self._save_tablecache(tablelist)
         return tablelist
+    
+    def get_absolute_url(self):
+        return "/changes/?rev=%s&exe=%s&env=%s" % (
+            self.revision.commitid, self.executable.id, self.environment.name)
     
     def _save_tablecache(self, data):
         self._tablecache = json.dumps(data)

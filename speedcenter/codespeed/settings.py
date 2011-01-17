@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 ## General default options ##
+website_name = "MySpeedSite"
+
 def_environment = None #Name of the environment which should be selected as default
 
 
@@ -15,7 +17,7 @@ change_threshold = 3.0
 
 # Threshold that determines when a performance change
 # over a number of revisions is significant
-trend_threshold  = 4.0
+trend_threshold  = 5.0
 
 # Changes view options ##
 def_executable = None # Executable that should be chosen as default in the changes view

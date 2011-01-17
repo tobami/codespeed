@@ -125,6 +125,8 @@ div#presentation div#comparison p {
     background: url(/media/images/comparison.png) no-repeat;
 }
 
+div#presentation div#reports { margin-top: 0.8em; }
+
 /* Navigation elements */
 div#sidebar {
     width: 13.7em;
@@ -275,6 +277,9 @@ table.tablesorter, table.info, table.revision, table.reports {
     border-width: 2px;
 }*/
 table.reports caption { font-size: 110%; }
+table.reports caption a { color: black; }
+table.reports caption a img {
+    border: 0; vertical-align: middle; height: 14px; margin-bottom: 1px; }
 table.reports td { padding: 0.4em; }
 table.reports td span { opacity: 0.4; }
 
@@ -327,11 +332,11 @@ table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSo
 
 table.tablesorter tbody td.text {text-align: left; width: 8.5em; }
 
-table.tablesorter tbody tr td.status-red { background-color: #FF5640; }
+table.tablesorter tbody tr td.status-red, td.status-red { background-color: #FF5640; }
 .reports tr.status-red td.summary { color: #FF5640; font-weight: bold; }
-table.tablesorter tbody tr td.status-green { background-color: #9FD54D; }
+table.tablesorter tbody tr td.status-green, td.status-green { background-color: #9FD54D; }
 tr.status-green td.summary { color: #9FD54D; font-weight: bold; }
-table.tablesorter tbody tr td.status-yellow { background-color: #FFD843; }
+table.tablesorter tbody tr td.status-yellow, td.status-yellow { background-color: #FFD843; }
 tr.status-yellow td.summary { color: #FFD843; font-weight: bold; }
 
 table.tablesorter tbody tr.highlight td, tr.highlight td {

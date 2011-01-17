@@ -119,7 +119,7 @@ class Report(models.Model):
         
         # Get default threshold values
         change_threshold = 3.0
-        trend_threshold  = 4.0
+        trend_threshold  = 5.0
         if hasattr(settings, 'change_threshold') and settings.change_threshold != None:
             change_threshold = settings.change_threshold
         if hasattr(settings, 'trend_threshold') and settings.trend_threshold:

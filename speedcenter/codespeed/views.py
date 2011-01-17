@@ -577,7 +577,8 @@ def changes(request):
 
 
 def reports(request):
-    if request.method != 'GET': return HttpResponseNotAllowed('GET')
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
     
     return render_to_response('codespeed/reports.html', {
         'reports': Report.objects.order_by('-revision')[:10],
@@ -592,8 +593,12 @@ def displaylogs(request):
         startrev = Revision.objects.filter(
             project=rev.project
         ).filter(date__lt=rev.date).order_by('-date')[:1]
-        if not len(startrev): startrev = rev
-        else: startrev = startrev[0]
+        
+        if not len(startrev):
+            startrev = rev
+        else:
+            startrev = startrev[0]
+        
         remotelogs = getcommitlogs(rev, startrev)
         if len(remotelogs):
             try:
@@ -602,7 +607,8 @@ def displaylogs(request):
             except KeyError:
                 pass#no errors
             logs = remotelogs
-        else: error = 'no logs found'
+        else:
+            error = 'no logs found'
     except Exception, e:
         error = str(e)
     return render_to_response('codespeed/changes_logs.html', { 'error': error, 'logs': logs })
@@ -672,7 +678,8 @@ def addresult(request):
         project=p,
     )
     if created:
-        if 'revision_date' in data: rev.date = data["revision_date"]
+        if 'revision_date' in data:
+            rev.date = data["revision_date"]
         else:
             try:
                 saverevisioninfo(rev)
@@ -693,12 +700,16 @@ def addresult(request):
         r = Result.objects.get(revision=rev,executable=exe,benchmark=b,environment=e)
     except Result.DoesNotExist:
         r = Result(revision=rev,executable=exe,benchmark=b,environment=e)
+    
     r.value = data["result_value"]    
-    if 'result_date' in data: r.date = data["result_date"]
-    else: r.date = rev.date
-    if 'std_dev' in data: r.std_dev = data['std_dev']
-    if 'min' in data: r.val_min = data['min']
-    if 'max' in data: r.val_max = data['max']
+    if 'result_date' in data:
+        r.date = data["result_date"]
+    else:
+        r.date = rev.date
+    
+    r.std_dev = data.get('std_dev')
+    r.val_min = data.get('min')
+    r.val_max = data.get('max')
     r.save()
     
     # Trigger Report creation when there are enough results

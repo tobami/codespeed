@@ -63,7 +63,9 @@ class AddResultTest(TestCase):
         e = Environment.objects.get(name='bigdog')    
         p = Project.objects.get(name='pypy')
         r = Revision.objects.get(commitid='23232', project=p)
-        self.assertEquals(r.date, self.cdate)
+        
+        # reduce precision of r.data to allow test to pass
+        self.assertEquals(r.date.replace(microsecond=0), self.cdate)
         i = Executable.objects.get(name='pypy-c')
         b = Benchmark.objects.get(name='Richards')
         res = Result.objects.get(

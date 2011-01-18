@@ -644,11 +644,7 @@ def saverevisioninfo(rev):
     else:
         rev.date = datetime.now()
 
-def addresult(request):
-    if request.method != 'POST':
-        return HttpResponseNotAllowed('POST')
-    data = request.POST
-    
+def identify_missing_or_empty_data(item):
     mandatory_data = [
         'commitid',
         'project',
@@ -658,18 +654,43 @@ def addresult(request):
         'result_value',
     ]
     
+    problematic = {}
+    
     for key in mandatory_data:
-        if not key in data:
-            return HttpResponseBadRequest('Key "' + key + '" missing from request')
-        elif key in data and data[key] == "":
-            return HttpResponseBadRequest('Key "' + key + '" empty in request')
+        if not key in item:
+            problematic[key] = False
+        elif key in item and item[key] == "":
+            problematic[key] = True
+    
+    return problematic
 
+def addresult(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed('POST')
+    data = request.POST
+    
+    problematic = identify_missing_or_empty_data(data)
+    for key, empty in problematic.items():
+        if empty:
+            return HttpResponseBadRequest('Key "' + key + '" empty in request')
+        else:
+            return HttpResponseBadRequest('Key "' + key + '" missing from request')
+
+    
     # Check that Environment exists
     try:
         e = get_object_or_404(Environment, name=data['environment'])
     except Http404:
         return HttpResponseNotFound("Environment " + data["environment"] + " not found")
-    
+
+    add_data_to_database(data, e)
+        
+    create_report_when_enough_results_were_added()
+
+    return HttpResponse("Result data saved succesfully")
+
+
+def add_data_to_database(data, e):
     p, created = Project.objects.get_or_create(name=data["project"])
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
     
@@ -712,6 +733,7 @@ def addresult(request):
     r.val_max = data.get('max')
     r.save()
     
+def create_report_when_enough_results_were_added():
     # Trigger Report creation when there are enough results
     last_revs = Revision.objects.order_by('-date')[:2]
     if len(last_revs) > 1:
@@ -726,5 +748,4 @@ def addresult(request):
                 executable=exe, environment=e, revision=rev
             )
             report.save()
-    
-    return HttpResponse("Result data saved succesfully")
+

@@ -14,17 +14,18 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('codespeed.views',
-    (r'^reports/$', 'reports'),
-    (r'^changes/$', 'changes'),
-    (r'^changes/table/$', 'getchangestable'),
-    (r'^changes/logs/$', 'displaylogs'),
-    (r'^timeline/$', 'timeline'),
-    (r'^timeline/json/$', 'gettimelinedata'),
-    (r'^comparison/$', 'comparison'),
+    (r'^reports/$',         'reports'),
+    (r'^changes/$',         'changes'),
+    (r'^changes/table/$',   'getchangestable'),
+    (r'^changes/logs/$',    'displaylogs'),
+    (r'^timeline/$',        'timeline'),
+    (r'^timeline/json/$',   'gettimelinedata'),
+    (r'^comparison/$',      'comparison'),
     (r'^comparison/json/$', 'getcomparisondata'),
 )
 
 urlpatterns += patterns('codespeed.views',
     # URL interface for adding results
-    (r'^result/add/$', 'addresult'),
+    (r'^result/add/$',          'addresult'),
+    (r'^result/add-multiple/$', 'addresults'),
 )

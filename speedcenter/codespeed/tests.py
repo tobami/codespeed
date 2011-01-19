@@ -114,7 +114,7 @@ class AddResultTest(TestCase):
             self.assertEquals(response.content, 'Key "' + key + '" missing from request')
             self.data[key] = backup
 
-class AddResultsTest(AddResultTest):
+class AddResultsTest(TestCase):
     def setUp(self):
         self.path = reverse('codespeed.views.addresults')
         self.client = Client()
@@ -123,31 +123,32 @@ class AddResultsTest(AddResultTest):
         temp = datetime.today()
         self.cdate = datetime(temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
         
-        self.data = {'items':
-            [  {'commitid':    '123',
-                'project':     'pypy',
-                'executable':  'pypy-c',
-                'benchmark':   'Richards1',
-                'environment': 'bigdog',
-                'result_value': 456,},
-               {'commitid':    '456',
-                'project':     'pypy',
-                'executable':  'pypy-c',
-                'benchmark':   'Richards2',
-                'environment': 'bigdog',
-                'result_value': 457,},
-               {'commitid':    '789',
-                'project':     'pypy',
-                'executable':  'pypy-c',
-                'benchmark':   'Richards3',
-                'environment': 'bigdog',
-                'result_value': 458,}] }
+        self.data = [  {'commitid':    '123',
+                        'project':     'pypy',
+                        'executable':  'pypy-c',
+                        'benchmark':   'Richards',
+                        'environment': 'bigdog',
+                        'result_value': 456,},
+                       {'commitid':    '456',
+                        'project':     'pypy',
+                        'executable':  'pypy-c',
+                        'benchmark':   'Richards',
+                        'environment': 'bigdog',
+                        'result_value': 457,},
+                       {'commitid':    '789',
+                        'project':     'pypy',
+                        'executable':  'pypy-c',
+                        'benchmark':   'Richards',
+                        'environment': 'bigdog',
+                        'result_value': 458,}]
 
     def test_add_default_result(self):
         """
         Add result data using default options
         """
-        response = self.client.post(self.path, self.data)
+        response = self.client.post(self.path,  
+                    {'json' : json.dumps(self.data)})
+
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.content, "Result data saved succesfully")
         e = Environment.objects.get(name='bigdog')        
@@ -187,20 +188,17 @@ class AddResultsTest(AddResultTest):
         )
         self.assertTrue(res.value, 458)
         
-
     def test_bad_environment(self):
         """
         Add result associated with non-existing environment.
         Only change one item in the list.
         """
-        response = self.client.post(self.path, self.data)
-        print response
-        
-        
-        data = self.data['items'][0]
+        data = self.data[0]
         bad_name = 'bigdog1'
         data['environment'] = bad_name
-        response = self.client.post(self.path, self.data)
+        response = self.client.post(self.path,  
+                    {'json' : json.dumps(self.data)})
+        #print response
         self.assertEquals(response.status_code, 404)
         self.assertEquals(response.content, "Environment " + bad_name + " not found")
         data['environment'] = 'bigdog'
@@ -210,11 +208,12 @@ class AddResultsTest(AddResultTest):
         Make POST request with an empty argument.
         Only change one item in the list.
         """
-        data = self.data['items'][1]
+        data = self.data[1]
         for key in data:
             backup = data[key]
             data[key] = ""
-            response = self.client.post(self.path, self.data)
+            response = self.client.post(self.path,  
+                        {'json' : json.dumps(self.data)})
             self.assertEquals(response.status_code, 400)
             self.assertEquals(response.content, 'Key "' + key + '" empty in request')
             data[key] = backup
@@ -224,11 +223,12 @@ class AddResultsTest(AddResultTest):
         Make POST request with a missing argument.
         Only change one item in the list.
         """
-        data = self.data['items'][2]
+        data = self.data[2]
         for key in data:
             backup = data[key]
             del(data[key])
-            response = self.client.post(self.path, self.data)
+            response = self.client.post(self.path,  
+                        {'json' : json.dumps(self.data)})
             self.assertEquals(response.status_code, 400)
             self.assertEquals(response.content, 'Key "' + key + '" missing from request')
             data[key] = backup

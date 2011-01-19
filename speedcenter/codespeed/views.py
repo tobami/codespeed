@@ -676,16 +676,15 @@ def addresult(request):
         else:
             return HttpResponseBadRequest('Key "' + key + '" missing from request')
 
-    
     # Check that Environment exists
     try:
         e = get_object_or_404(Environment, name=data['environment'])
     except Http404:
         return HttpResponseNotFound("Environment " + data["environment"] + " not found")
 
-    add_data_to_database(data, e)
+    rev, exe = add_data_to_database(data, e)
         
-    create_report_when_enough_results_were_added()
+    create_report_when_enough_results_were_added(rev, exe, e)
 
     return HttpResponse("Result data saved succesfully")
 
@@ -733,7 +732,9 @@ def add_data_to_database(data, e):
     r.val_max = data.get('max')
     r.save()
     
-def create_report_when_enough_results_were_added():
+    return rev, exe
+    
+def create_report_when_enough_results_were_added(rev, exe, e):
     # Trigger Report creation when there are enough results
     last_revs = Revision.objects.order_by('-date')[:2]
     if len(last_revs) > 1:
@@ -748,4 +749,30 @@ def create_report_when_enough_results_were_added():
                 executable=exe, environment=e, revision=rev
             )
             report.save()
+
+def addresults(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed('POST')
+    data = json.loads(request.POST['json'])
+    
+    for result in data:
+        problematic = identify_missing_or_empty_data(result)
+        for key, empty in problematic.items():
+            if empty:
+                return HttpResponseBadRequest('Key "' + key + '" empty in request')
+            else:
+                return HttpResponseBadRequest('Key "' + key + '" missing from request')
+
+        # Check that Environment exists
+        try:
+            e = get_object_or_404(Environment, name=result['environment'])
+        except Http404:
+            return HttpResponseNotFound("Environment " + result["environment"] + " not found")
+
+        rev, exe = add_data_to_database(result, e)
+
+    # after all results are added
+    create_report_when_enough_results_were_added(rev, exe, e)
+
+    return HttpResponse("Result data saved succesfully")
 

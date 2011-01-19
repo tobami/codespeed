@@ -624,6 +624,8 @@ def getcommitlogs(rev, startrev, update=False):
         from subversion import getlogs, updaterepo
     elif rev.project.repo_type == 'M':
         from mercurial import getlogs, updaterepo
+    elif rev.project.repo_type == 'G':
+        from git import getlogs, updaterepo
     else:
         if rev.project.repo_type not in ("N", ""):
             logging.warning("Don't know how to retrieve logs from %s project",
@@ -645,7 +647,8 @@ def getcommitlogs(rev, startrev, update=False):
 
 def saverevisioninfo(rev):
     log = getcommitlogs(rev, rev, update=True)
-    if len(log):
+
+    if log:
         log = log[0]
         rev.author  = log['author']
         rev.date    = log['date']
@@ -686,6 +689,7 @@ def addresult(request):
         commitid=data['commitid'],
         project=p,
     )
+
     if created:
         if 'revision_date' in data:
             rev.date = data["revision_date"]

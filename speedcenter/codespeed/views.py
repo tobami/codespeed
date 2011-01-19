@@ -5,7 +5,7 @@ from itertools import chain
 import json
 import logging
 
-from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
+from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render_to_response
 
 from codespeed import settings
@@ -677,7 +677,7 @@ def addresult(request):
     try:
         e = get_object_or_404(Environment, name=data['environment'])
     except Http404:
-        return HttpResponseNotFound("Environment " + data["environment"] + " not found")
+        return HttpResponseBadRequest("Environment " + data["environment"] + " not found")
 
     p, created = Project.objects.get_or_create(name=data["project"])
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])

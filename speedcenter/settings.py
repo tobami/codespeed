@@ -72,7 +72,7 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'speedcenter.urls'
 
 TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(__file__), 'templates').replace('\\','/'),
+    os.path.join(os.path.dirname(__file__), 'templates'),
 )
 
 INSTALLED_APPS = (

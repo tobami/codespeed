@@ -704,8 +704,7 @@ def addresult(request):
                                 exc_info=e)
 
         if not rev.date:
-            temp = datetime.today()
-            rev.date = datetime(temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
+            rev.date = datetime.now()
 
         rev.full_clean()
         rev.save()
@@ -723,8 +722,10 @@ def addresult(request):
     r.value = data["result_value"]
     if 'result_date' in data:
         r.date = data["result_date"]
-    else:
+    elif rev.date:
         r.date = rev.date
+    else:
+        r.date = datetime.now()
 
     r.std_dev = data.get('std_dev')
     r.val_min = data.get('min')

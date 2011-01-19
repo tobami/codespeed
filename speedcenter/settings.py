@@ -12,13 +12,12 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
-DATABASE_ENGINE = 'sqlite3'
-DATABASE_OPTIONS = ''
-DATABASE_NAME = BASEDIR + "/data.db"  # Or path to database file if using sqlite3.
-DATABASE_USER = ''             # Not used with sqlite3.
-DATABASE_PASSWORD = ''         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+DATABASES = {
+    "default": {
+        "ENGINE": 'sqlite3',
+        "NAME": os.path.join(BASEDIR, "data.db"),
+    }
+}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name

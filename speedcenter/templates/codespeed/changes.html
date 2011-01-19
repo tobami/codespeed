@@ -1,6 +1,7 @@
-{% extends "base.html" %}
-{% block title %}: Changes{% endblock %}
-{% block script %}
+{% extends "site_base.html" %}
+{% block title %}{{ block.super }}: Changes{% endblock %}
+{% block extra_head %}
+{{ block.super }}
 <script type="text/javascript" src="../media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
 <script type="text/javascript">

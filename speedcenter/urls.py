@@ -15,6 +15,8 @@ urlpatterns = patterns('',
 
 if settings.DEBUG or settings.SERVE_STATIC:
     urlpatterns += patterns('',
+        (r'^media/override/(?P<path>.*)$', 'django.views.static.serve',
+            {'document_root': settings.OVERRIDE_MEDIA_ROOT}),
         (r'^media/(?P<path>.*)$', 'django.views.static.serve',
             {'document_root': settings.MEDIA_ROOT}),
         (r'^admin_media/(?P<path>.*)$', 'django.views.static.serve',

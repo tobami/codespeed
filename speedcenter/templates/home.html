@@ -1,6 +1,7 @@
-{% extends "base.html" %}
+{% extends "site_base.html" %}
 
-{% block script %}
+{% block extra_head %}
+{{ block.super }}
 <script type="text/javascript">
     function permalinkToChanges(permalink) {
         window.location="changes/?" + permalink;

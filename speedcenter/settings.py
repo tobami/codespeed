@@ -42,6 +42,7 @@ USE_I18N = False
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
 MEDIA_ROOT = os.path.join(BASEDIR, "media")
+OVERRIDE_MEDIA_ROOT = os.path.join(BASEDIR, "..", "override", "media")
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -72,7 +73,17 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'speedcenter.urls'
 
 TEMPLATE_DIRS = (
+    os.path.join(os.path.dirname(__file__), '..', 'override', 'templates'),
     os.path.join(os.path.dirname(__file__), 'templates'),
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.request',
 )
 
 INSTALLED_APPS = (

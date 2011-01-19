@@ -26,13 +26,13 @@ If you need SVN integration, pysvn is also required:
   the data to a database named `speedcenter/data.db`.
 * Create the DB by changing to the `speedcenter/` directory and running:
 
-    `python manage.py syncdb`
+        python manage.py syncdb
 
 * Create an admin user in the process.
 
 * For testing purposes, you can now start the development server:
 
-    `python manage.py runserver 8000`
+        python manage.py runserver 8000
 
 The codespeed installation can now be accessed by navigating to `http://localhost:8000/`.
 
@@ -42,6 +42,7 @@ lighttpd, etc... (refer to the Django docs:
 modify `speedcenter/settings.py` and set `DEBUG = False`.
 
 # Codespeed configuration
+
 Before you can start saving (and displaying) data, you need to first create an
 environment and define a default project.
 
@@ -57,6 +58,7 @@ integration, configure the relevant fields.
 field will be shown in the Changes and Timeline views.
 
 # Saving data
+
 Data is saved POSTing to `http://localhost:8000/result/add/`.
 
 You can use the script `tools/save_single_result.py` as a guide.
@@ -70,20 +72,77 @@ section).
 
 # Further customization
 
-## Looks
-The logo and title can be changed for every speedcenter.
+You may customize many of the speed center settings by creating files within
+an `override` directory at the same level as `speedcenter`.
 
-* In `templates/base.html`, subtitute "My Speed Center" by your prefered name.
-* The logo is defined in `<img src="/media/images/logo.png" height="48" alt="logo"/>`.
-  Either substitute the file `speedcenter/media/images/logo.png" by your own
-  logo, of change the tag to whatever you see fit.
-  The layout will stay exactly the same for any image with a height of 48px (any
-  width will do).
-* Home page: In `templates/home.html`, modify the line:
+## Custom Settings
 
-    `<p><a href="about/">This site</a> monitors <a href="#">MyProject</a>'s performance</p>`
+You may override any of the default settings by creating the file
+`override/settings.py`. It is strongly recommended that you only override the
+settings you need by importing the default settings and replacing only the
+values needed for your customizations:
 
-* About page: modify `templates/about.html`.
+        from speedcenter.settings import *
+
+        DATABASES = {"default": … standard Django db config …}
+
+        ADMINS = (…)
+
+## Templates and images
+
+Many details may be changed for every speedcenter using standard Django
+template override techniques. All of the templates mentioned below should be
+contained in the `override/templates` directory.
+
+### Site-wide Changes
+
+All of the speedcenter pages inherit from the `site_base.html` template, which
+extends `base.html`. To change every page on the site simply create a new file
+(`override/templates/site_base.html`) which extends `base.html` and override
+the appropriate block:
+
+* Custom title: you may replace the default "My Speed Center" for the title
+  block with your prefered value:
+
+        {% block title}
+            My Project's Speed Center
+        {% endblock %}
+
+* Custom logo: Place your logo in `override/media/img` and add a block like
+  this:
+
+        {% block logo %}
+            <img src="{{ MEDIA_URL }}override/img/my-logo.png" width="120" height="48" alt="My Project">
+        {% endblock logo %}
+
+  n.b. the layout will stay exactly the same for any image with a height of
+  48px (any width will do)
+
+* Custom JavaScript or CSS: add your files to the `override/media` directory
+  and extend the `extra_head` template block:
+
+        {% block extra_head %}
+            {{ block.super }}
+            <script type="text/javascript" src="{{ MEDIA_URL }}override/js/my_cool_tweaks.js">
+        {% endblock extra_head %}
+
+### Specific Pages
+
+Since `override/templates` is the first entry in `settings.TEMPLATE_DIRS` you
+may override any template on the site simply by creating a new one with the
+same name.
+
+* About page: create `override/templates/speedcenter/about.html`:
+
+        {% extends "site_base.html" %}
+        {% block title %}{{ block.super }}: About this project{% endblock %}
+        {% block body %}
+            <div id="sidebar"></div>
+            <div id="about" class="about_content clearfix">
+                Your content here
+            </div>
+        {% endblock %}
+
 
 ## Baselines and Comparison view executables
 * The results associated to an executable and a revision which has a non blank

@@ -7,6 +7,7 @@ import logging
 
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render_to_response
+from django.template import RequestContext
 
 from codespeed import settings
 from codespeed.models import Environment, Report
@@ -285,7 +286,7 @@ def comparison(request):
         'selectedbaseline': selectedbaseline,
         'selectedchart': selectedchart,
         'selecteddirection': selecteddirection
-    })
+    }, context_instance=RequestContext(request))
 
 def gettimelinedata(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
@@ -454,7 +455,7 @@ def timeline(request):
         'executables': executables,
         'benchmarks': benchmarks,
         'environments': environments
-    })
+    }, context_instance=RequestContext(request))
 
 def getchangestable(request):
     data = request.GET
@@ -479,7 +480,7 @@ def getchangestable(request):
         'rev': selectedrev,
         'exe': executable,
         'env': environment,
-    })
+    }, context_instance=RequestContext(request))
 
 def changes(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
@@ -577,7 +578,7 @@ def changes(request):
         revisionboxes[p.name] = Revision.objects.filter(
             project=p
         ).order_by('-date')[:revlimit]
-    return render_to_response('codespeed/changes.html', locals())
+    return render_to_response('codespeed/changes.html', locals(), context_instance=RequestContext(request))
 
 
 def reports(request):
@@ -586,7 +587,7 @@ def reports(request):
 
     return render_to_response('codespeed/reports.html', {
         'reports': Report.objects.order_by('-revision')[:10],
-    })
+    }, context_instance=RequestContext(request))
 
 def displaylogs(request):
     rev = Revision.objects.get(id=request.GET['revisionid'])
@@ -615,7 +616,9 @@ def displaylogs(request):
             error = 'no logs found'
     except Exception, e:
         error = str(e)
-    return render_to_response('codespeed/changes_logs.html', { 'error': error, 'logs': logs })
+    return render_to_response('codespeed/changes_logs.html',
+                                {'error': error, 'logs': logs },
+                                context_instance=RequestContext(request))
 
 def getcommitlogs(rev, startrev, update=False):
     logs = []

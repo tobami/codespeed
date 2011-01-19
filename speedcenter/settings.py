@@ -81,3 +81,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'speedcenter.codespeed',
 )
+
+#: Control whether to enable local static media serving using
+#: :function:`django.views.static.serve`
+SERVE_STATIC = False

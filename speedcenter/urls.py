@@ -13,14 +13,15 @@ urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
 )
 
-if settings.DEBUG:
+if settings.DEBUG or settings.SERVE_STATIC:
     urlpatterns += patterns('',
         (r'^media/(?P<path>.*)$', 'django.views.static.serve',
-         {'document_root': settings.MEDIA_ROOT}),
+            {'document_root': settings.MEDIA_ROOT}),
         (r'^admin_media/(?P<path>.*)$', 'django.views.static.serve',
-         {'document_root':
-              os.path.join(os.path.dirname(admin.__file__), 'media')}),
+            {'document_root': os.path.join(os.path.dirname(admin.__file__),
+                                            'media')}),
     )
+
 urlpatterns += patterns('',
     (r'^', include('codespeed.urls')),
 )

@@ -707,6 +707,7 @@ def addresult(request):
             temp = datetime.today()
             rev.date = datetime(temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
 
+        rev.full_clean()
         rev.save()
 
     exe, created = Executable.objects.get_or_create(
@@ -728,6 +729,8 @@ def addresult(request):
     r.std_dev = data.get('std_dev')
     r.val_min = data.get('min')
     r.val_max = data.get('max')
+
+    r.full_clean()
     r.save()
 
     # Trigger Report creation when there are enough results
@@ -743,6 +746,7 @@ def addresult(request):
             report, created = Report.objects.get_or_create(
                 executable=exe, environment=e, revision=rev
             )
+            report.full_clean()
             report.save()
 
     return HttpResponse("Result data saved succesfully")

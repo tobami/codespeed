@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
-from django.shortcuts import get_object_or_404, render_to_response
-from codespeed.models import Project, Revision, Result, Executable, Benchmark
-from codespeed.models import Environment, Report
-from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
-from codespeed import settings
+
 from datetime import datetime
-from time import sleep
-import json
 from itertools import chain
+import json
+import logging
+
+from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest, HttpResponseNotFound
+from django.shortcuts import get_object_or_404, render_to_response
+
+from codespeed import settings
+from codespeed.models import Environment, Report
+from codespeed.models import Project, Revision, Result, Executable, Benchmark
+
 
 def no_environment_error():
     return render_to_response('codespeed/nodata.html', {
@@ -615,23 +619,28 @@ def displaylogs(request):
 
 def getcommitlogs(rev, startrev, update=False):
     logs = []
-    if rev.project.repo_type == 'N' or rev.project.repo_path == "":
-        #Don't fetch logs
-        pass
-    else:
-        if rev.project.repo_type == 'S':
-            from subversion import getlogs, updaterepo
-        elif rev.project.repo_type == 'M':
-            from mercurial import getlogs, updaterepo
 
-        if update:
-            resp = updaterepo(rev.project.repo_path)
-            if resp.get('error'):
-                return resp
-        logs = getlogs(rev, startrev)
-        # Remove last log because the startrev log shouldn't be shown
-        if len(logs) > 1 and logs[-1].get('commitid') == startrev.commitid:
-            logs.pop()
+    if rev.project.repo_type == 'S':
+        from subversion import getlogs, updaterepo
+    elif rev.project.repo_type == 'M':
+        from mercurial import getlogs, updaterepo
+    else:
+        if rev.project.repo_type not in ("N", ""):
+            logging.warning("Don't know how to retrieve logs from %s project",
+                            rev.project.get_repo_type_display())
+        return logs
+
+    if update:
+        resp = updaterepo(rev.project.repo_path)
+        if resp.get('error'):
+            return resp
+
+    logs = getlogs(rev, startrev)
+
+    # Remove last log because the startrev log shouldn't be shown
+    if len(logs) > 1 and logs[-1].get('commitid') == startrev.commitid:
+        logs.pop()
+
     return logs
 
 def saverevisioninfo(rev):

@@ -750,4 +750,4 @@ def addresult(request):
             report.full_clean()
             report.save()
 
-    return HttpResponse("Result data saved succesfully")
+    return HttpResponse("Result data saved succesfully", status=202)

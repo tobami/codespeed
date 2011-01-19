@@ -692,8 +692,10 @@ def addresult(request):
         else:
             try:
                 saverevisioninfo(rev)
-            except:
-                pass
+            except StandardError, e:
+                logging.warning("unable to save revision %s info: %s", rev, e,
+                                exc_info=e)
+
         if not rev.date:
             temp = datetime.today()
             rev.date = datetime(temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)

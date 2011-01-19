@@ -681,9 +681,9 @@ def addresult(request):
 
     # Check that Environment exists
     try:
-        e = get_object_or_404(Environment, name=data['environment'])
-    except Http404:
-        return HttpResponseBadRequest("Environment " + data["environment"] + " not found")
+        e = Environment.objects.get(name=data['environment'])
+    except Environment.DoesNotExist:
+        return HttpResponseBadRequest("Environment %(environment)s not found" % data)
 
     p, created = Project.objects.get_or_create(name=data["project"])
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])

@@ -44,9 +44,9 @@ def getlogs(endrev, startrev):
     working_copy = os.path.join(settings.REPOSITORY_BASE_PATH, repo_name)
 
     cmd = ["git", "log",
-            # Tab separated host, author date as Unix timestamp, author
-            # name, and subject - see PRETTY FORMATS in git-log(1):
-            '--format=format:%H%x09%at%x09%an%x09%s']
+            # NULL separated values delimited by 0x1e record separators
+            # See PRETTY FORMATS in git-log(1):
+            '--format=format:%h%x00%H%x00%at%x00%an%x00%ae%x00%s%x00%b%x1e']
 
     if endrev.commitid != startrev.commitid:
         cmd.append("%s...%s" % (startrev.commitid, endrev.commitid))
@@ -64,12 +64,14 @@ def getlogs(endrev, startrev):
                                                     stderr))
     logs = []
 
-    for log in stdout.split("\n"):
-        commit_id, date_t, author, subject = log.split('\t', 4)
+    for log in filter(None, stdout.split("\x1e")):
+        (short_commit_id, commit_id, date_t, author_name, author_email,
+            subject, body) = log.split("\x00", 7)
 
         date = datetime.datetime.fromtimestamp(int(date_t)).strftime("%Y-%m-%d %H:%M:%S")
 
-        logs.append({'date': date, 'author': author, 'message': subject,
-                        'commitid': commit_id})
+        logs.append({'date': date, 'message': subject, 'body': body,
+                        'author': author_name, 'author_email': author_email,
+                        'commitid': commit_id, 'short_commit_id': short_commit_id})
 
     return logs

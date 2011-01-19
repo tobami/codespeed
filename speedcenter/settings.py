@@ -7,6 +7,9 @@ TEMPLATE_DEBUG = DEBUG
 
 BASEDIR = os.path.dirname(__file__)
 
+#: The directory which should contain checked out source repositories:
+REPOSITORY_BASE_PATH = os.path.join(BASEDIR, "repos")
+
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )

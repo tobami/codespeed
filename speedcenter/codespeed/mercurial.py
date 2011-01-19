@@ -1,12 +1,11 @@
 import os, datetime
 from subprocess import Popen, PIPE
-from speedcenter import settings
+from django.conf import settings
 
-
-path = settings.BASEDIR + '/repos/'
 
 def updaterepo(repo):
-    repodir = path + repo.split('/')[-1] + "/"
+    repodir = os.path.join(settings.REPOSITORY_BASE_PATH, repo.split(os.sep)[-1])
+
     if os.path.exists(repodir):
         # Update repo
         cmd = "hg pull -u"
@@ -19,7 +18,8 @@ def updaterepo(repo):
     else:
         # Clone repo
         cmd = "hg clone %s" % repo
-        p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, cwd=path)
+        p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE,
+                    cwd=settings.REPOSITORY_BASE_PATH)
         stdout, stderr = p.communicate()
         if stderr:
             return [{'error': True, 'message': stderr}]
@@ -27,9 +27,11 @@ def updaterepo(repo):
             return [{'error': False}]
 
 def getlogs(endrev, startrev):
-    repodir = path + endrev.project.repo_path.split('/')[-1] + "/"
+    repo_name = os.path.splitext(endrev.project.repo_path.split(os.sep)[-1])[0]
+    repodir = os.path.join(settings.REPOSITORY_BASE_PATH, repo_name)
+
     if not os.path.exists(repodir):
-        updaterepo(endrev.project.repo_path)
+        updaterepo(repodir)
 
     cmd = "hg log -r %s:%s -b default --template '{rev}:{node|short}\n{author|person} / {author|user}\n{date}\n{desc}\n=newlog=\n'" % (endrev.commitid, startrev.commitid)
     p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, cwd=repodir)

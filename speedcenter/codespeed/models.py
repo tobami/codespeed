@@ -19,7 +19,7 @@ class Project(models.Model):
     track = models.BooleanField("Track changes", default=False)
 
     def __unicode__(self):
-        return str(self.name)
+        return self.name
 
 
 class Revision(models.Model):
@@ -34,8 +34,11 @@ class Revision(models.Model):
         return self.commitid[:10]
 
     def __unicode__(self):
-        return self.date.strftime("%h %d, %H:%M") + " - " + \
-            self.get_short_commitid() + " " + self.tag
+        if self.date is None:
+            date = "Unknown"
+        else:
+            date = self.date.isoformat()
+        return " - ".join(filter(None, (date, self.commitid, self.tag)))
 
     class Meta:
         unique_together = ("commitid", "project")
@@ -47,7 +50,7 @@ class Executable(models.Model):
     project = models.ForeignKey(Project)
 
     def __unicode__(self):
-        return str(self.name)
+        return self.name
 
 
 class Benchmark(models.Model):
@@ -64,7 +67,7 @@ class Benchmark(models.Model):
     lessisbetter = models.BooleanField(default=True)
 
     def __unicode__(self):
-        return str(self.name)
+        return self.name
 
 
 class Environment(models.Model):
@@ -75,7 +78,7 @@ class Environment(models.Model):
     kernel = models.CharField(max_length=30, blank=True)
 
     def __unicode__(self):
-        return str(self.name)
+        return self.name
 
 
 class Result(models.Model):
@@ -90,7 +93,7 @@ class Result(models.Model):
     environment = models.ForeignKey(Environment)
 
     def __unicode__(self):
-        return str(self.benchmark.name) + " " + str(self.value)
+        return u"%s: %s" % (self.benchmark.name, self.value)
 
     class Meta:
         unique_together = ("revision", "executable", "benchmark", "environment")
@@ -105,7 +108,7 @@ class Report(models.Model):
     _tablecache = models.TextField(blank=True)
 
     def __unicode__(self):
-        return "Report for " + str(self.revision.commitid)
+        return u"Report for %s" % self.revision
 
     class Meta:
         unique_together = ("revision", "executable", "environment")

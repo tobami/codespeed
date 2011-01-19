@@ -86,7 +86,7 @@ def getdefaultexecutable():
         execquery = Executable.objects.filter(project__track=True)
         if len(execquery):
             default = execquery[0]
-    
+
     return default
 
 def getcomparisonexes():
@@ -99,7 +99,7 @@ def getcomparisonexes():
             continue
         executablekeys.append(exe['key'])
         executables.append(exe)
-    
+
     # add latest revs of tracked projects
     projects = Project.objects.filter(track=True)
     for proj in projects:
@@ -118,15 +118,15 @@ def getcomparisonexes():
                     'revision': rev,
                     'name': name,
                 })
-    
+
     return executables, executablekeys
 
 def getcomparisondata(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
-    
+
     executables, exekeys = getcomparisonexes()
-    
+
     compdata = {}
     compdata['error'] = "Unknown error"
     for exe in executables:
@@ -145,13 +145,13 @@ def getcomparisondata(request):
                     value = None
                 compdata[exe['key']][env.id][bench.id] = value
     compdata['error'] = "None"
-    
+
     return HttpResponse(json.dumps( compdata ))
 
 def comparison(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
-    
+
     # Configuration of default parameters
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment: return no_environment_error()
@@ -160,7 +160,7 @@ def comparison(request):
             defaultenvironment = Environment.objects.get(name=data['env'])
         except Environment.DoesNotExist:
             pass
-    
+
     enviros = Environment.objects.all()
     checkedenviros = []
     if 'env' in data:
@@ -172,15 +172,15 @@ def comparison(request):
                 pass
     if not checkedenviros:
         checkedenviros = enviros
-    
+
     if not len(Project.objects.all()):
         return no_default_project_error()
-    
+
     defaultexecutable = getdefaultexecutable()
-    
+
     if not defaultexecutable:
         return no_executables_error()
-    
+
     executables, exekeys = getcomparisonexes()
     checkedexecutables = []
     if 'exe' in data:
@@ -210,10 +210,10 @@ def comparison(request):
             except Revision.DoesNotExist:
                 #TODO: log
                 pass
-    
+
     if not checkedexecutables:
         checkedexecutables = exekeys
-    
+
     units_titles = Benchmark.objects.filter(
         benchmark_type="C"
     ).values('units_title').distinct()
@@ -240,18 +240,18 @@ def comparison(request):
     if not checkedbenchmarks:
         # Only include benchmarks marked as cross-project
         checkedbenchmarks = Benchmark.objects.filter(benchmark_type="C")
-    
+
     charts = ['normal bars', 'stacked bars', 'relative bars']
     # Don't show relative charts as an option if there is only one executable
     # Relative charts need normalization
     if len(executables) == 1: charts.remove('relative bars')
-    
+
     selectedchart = charts[0]
     if 'chart' in data and data['chart'] in charts:
         selectedchart = data['chart']
     elif hasattr(settings, 'chart_type') and settings.chart_type in charts:
         selectedchart = settings.chart_type
-    
+
     selectedbaseline = "none"
     if 'bas' in data and data['bas'] in exekeys:
         selectedbaseline = data['bas']
@@ -262,12 +262,12 @@ def comparison(request):
         settings.normalization:
         # Uncheck exe used for normalization when normalization is chosen as default in the settings
         selectedbaseline = exekeys[0]#this is the default baseline
-        checkedexecutables.remove(selectedbaseline)        
+        checkedexecutables.remove(selectedbaseline)
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true" or\
         hasattr(settings, 'chart_orientation') and settings.chart_orientation == 'horizontal':
         selecteddirection = True
-    
+
     return render_to_response('codespeed/comparison.html', {
         'checkedexecutables': checkedexecutables,
         'checkedbenchmarks': checkedbenchmarks,
@@ -286,7 +286,7 @@ def comparison(request):
 def gettimelinedata(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
-    
+
     timeline_list = {'error': 'None', 'timelines': []}
     executables = data['exe'].split(",")
     if executables[0] == "":
@@ -301,7 +301,7 @@ def gettimelinedata(request):
         number_of_revs = 15
     else:
         benchmarks = [Benchmark.objects.get(name=data['ben'])]
-    
+
     baselinerev = None
     baselineexe = None
     if data['base'] != "none" and data['base'] != 'undefined':
@@ -320,7 +320,7 @@ def gettimelinedata(request):
             'executables':           {},
             'baseline':              "None",
         }
-        
+
         for executable in executables:
             resultquery = Result.objects.filter(
                     benchmark=bench
@@ -333,7 +333,7 @@ def gettimelinedata(request):
                 ).order_by('-revision__date')[:number_of_revs]
             if not len(resultquery):
                 continue
-            
+
             results = []
             for res in resultquery:
                 std_dev = ""
@@ -367,7 +367,7 @@ def gettimelinedata(request):
                     [str(end), baselinevalue]
                 ]
         if append: timeline_list['timelines'].append(timeline)
-    
+
     if not len(timeline_list['timelines']):
         response = 'No data found for the selected options'
         timeline_list['error'] = response
@@ -376,7 +376,7 @@ def gettimelinedata(request):
 def timeline(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
-    
+
     # Configuration of default parameters
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment: return no_environment_error()
@@ -385,13 +385,13 @@ def timeline(request):
             defaultenvironment = Environment.objects.get(name=data['env'])
         except Environment.DoesNotExist:
             pass
-    
+
     defaultproject = Project.objects.filter(track=True)
     if not len(defaultproject):
         return no_default_project_error()
     else:
         defaultproject = defaultproject[0]
-    
+
     checkedexecutables = []
     if 'exe' in data:
         for i in data['exe'].split(","):
@@ -400,13 +400,13 @@ def timeline(request):
                 checkedexecutables.append(Executable.objects.get(id=int(i)))
             except Executable.DoesNotExist:
                 pass
-    
+
     if not checkedexecutables:
         checkedexecutables = Executable.objects.filter(project__track=True)
-    
+
     if not len(checkedexecutables):
         return no_executables_error()
-    
+
     baseline = getbaselineexecutables()
     defaultbaseline = None
     if len(baseline) > 1:
@@ -417,14 +417,14 @@ def timeline(request):
             defaultbaseline = data['base']
         except ValueError:
             pass
-    
+
     lastrevisions = [10, 50, 200, 1000]
     defaultlast = 200
     if 'revs' in data:
         if int(data['revs']) not in lastrevisions:
             lastrevisions.append(data['revs'])
         defaultlast = data['revs']
-    
+
     benchmarks = Benchmark.objects.all()
     if not len(benchmarks):
         return no_data_found()
@@ -432,10 +432,10 @@ def timeline(request):
         defaultbenchmark = benchmarks[0]
     else:
         defaultbenchmark = "grid"
-    
+
     if 'ben' in data and data['ben'] != defaultbenchmark:
         defaultbenchmark = get_object_or_404(Benchmark, name=data['ben'])
-    
+
     # Information for template
     executables = Executable.objects.filter(project__track=True)
     environments = Environment.objects.all()
@@ -454,7 +454,7 @@ def timeline(request):
 
 def getchangestable(request):
     data = request.GET
-    
+
     executable = Executable.objects.get(id=int(data['exe']))
     environment = Environment.objects.get(name=data['env'])
     trendconfig = int(data['tre'])
@@ -465,10 +465,10 @@ def getchangestable(request):
         executable=executable, environment=environment, revision=selectedrev
     )
     tablelist = report.get_changes_table(trendconfig)
-    
+
     if not len(tablelist):
         return HttpResponse('<table id="results" class="tablesorter" style="height: 232px;"></table><p class="errormessage">No results for this parameters</p>')
-    
+
     return render_to_response('codespeed/changes_table.html', {
         'tablelist': tablelist,
         'trendconfig': trendconfig,
@@ -480,7 +480,7 @@ def getchangestable(request):
 def changes(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
-    
+
     # Configuration of default parameters
     defaultchangethres = 3.0
     defaulttrendthres = 4.0
@@ -488,12 +488,12 @@ def changes(request):
         defaultchangethres = settings.change_threshold
     if hasattr(settings, 'trend_threshold') and settings.trend_threshold != None:
         defaulttrendthres = settings.trend_threshold
-    
+
     defaulttrend = 10
     trends = [5, 10, 20, 50, 100]
     if 'tre' in data and int(data['tre']) in trends:
         defaulttrend = int(data['tre'])
-    
+
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment:
         return no_environment_error()
@@ -503,17 +503,17 @@ def changes(request):
         except Environment.DoesNotExist:
             pass
     environments = Environment.objects.all()
-    
+
     defaultproject = Project.objects.filter(track=True)
     if not len(defaultproject):
         return no_default_project_error()
     else:
         defaultproject = defaultproject[0]
-    
+
     defaultexecutable = getdefaultexecutable()
     if not defaultexecutable:
         return no_executables_error()
-    
+
     if "exe" in data:
         try:
             defaultexecutable = Executable.objects.get(id=int(data['exe']))
@@ -521,7 +521,7 @@ def changes(request):
             pass
         except ValueError:
             pass
-    
+
     baseline = getbaselineexecutables()
     defaultbaseline = "+"
     if len(baseline) > 1:
@@ -532,7 +532,7 @@ def changes(request):
             defaultbaseline = data['base']
         except ValueError:
             pass
-    
+
     # Information for template
     executables = Executable.objects.filter(project__track=True)
     revlimit = 20
@@ -541,7 +541,7 @@ def changes(request):
     ).order_by('-date')[:revlimit]
     if not len(lastrevisions):
         return no_data_found()
-    
+
     selectedrevision = lastrevisions[0]
     if "rev" in data:
         commitid = data['rev']
@@ -554,7 +554,7 @@ def changes(request):
                 lastrevisions.append(selectedrevision)
         except Revision.DoesNotExist:
             selectedrevision = lastrevisions[0]
-    
+
     # This variable is used to know when the newly selected executable
     # belongs to another project (project changed) and then trigger the
     # repopulation of the revision selection selectbox
@@ -579,7 +579,7 @@ def changes(request):
 def reports(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
-    
+
     return render_to_response('codespeed/reports.html', {
         'reports': Report.objects.order_by('-revision')[:10],
     })
@@ -593,12 +593,12 @@ def displaylogs(request):
         startrev = Revision.objects.filter(
             project=rev.project
         ).filter(date__lt=rev.date).order_by('-date')[:1]
-        
+
         if not len(startrev):
             startrev = rev
         else:
             startrev = startrev[0]
-        
+
         remotelogs = getcommitlogs(rev, startrev)
         if len(remotelogs):
             try:
@@ -614,7 +614,7 @@ def displaylogs(request):
     return render_to_response('codespeed/changes_logs.html', { 'error': error, 'logs': logs })
 
 def getcommitlogs(rev, startrev, update=False):
-    logs = []    
+    logs = []
     if rev.project.repo_type == 'N' or rev.project.repo_path == "":
         #Don't fetch logs
         pass
@@ -623,7 +623,7 @@ def getcommitlogs(rev, startrev, update=False):
             from subversion import getlogs, updaterepo
         elif rev.project.repo_type == 'M':
             from mercurial import getlogs, updaterepo
-        
+
         if update:
             resp = updaterepo(rev.project.repo_path)
             if resp.get('error'):
@@ -648,7 +648,7 @@ def addresult(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed('POST')
     data = request.POST
-    
+
     mandatory_data = [
         'commitid',
         'project',
@@ -657,7 +657,7 @@ def addresult(request):
         'environment',
         'result_value',
     ]
-    
+
     for key in mandatory_data:
         if not key in data:
             return HttpResponseBadRequest('Key "' + key + '" missing from request')
@@ -669,10 +669,10 @@ def addresult(request):
         e = get_object_or_404(Environment, name=data['environment'])
     except Http404:
         return HttpResponseNotFound("Environment " + data["environment"] + " not found")
-    
+
     p, created = Project.objects.get_or_create(name=data["project"])
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
-    
+
     rev, created = Revision.objects.get_or_create(
         commitid=data['commitid'],
         project=p,
@@ -690,28 +690,28 @@ def addresult(request):
             rev.date = datetime(temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
 
         rev.save()
-    
+
     exe, created = Executable.objects.get_or_create(
         name=data['executable'],
         project=p
     )
-    
+
     try:
         r = Result.objects.get(revision=rev,executable=exe,benchmark=b,environment=e)
     except Result.DoesNotExist:
         r = Result(revision=rev,executable=exe,benchmark=b,environment=e)
-    
-    r.value = data["result_value"]    
+
+    r.value = data["result_value"]
     if 'result_date' in data:
         r.date = data["result_date"]
     else:
         r.date = rev.date
-    
+
     r.std_dev = data.get('std_dev')
     r.val_min = data.get('min')
     r.val_max = data.get('max')
     r.save()
-    
+
     # Trigger Report creation when there are enough results
     last_revs = Revision.objects.order_by('-date')[:2]
     if len(last_revs) > 1:
@@ -726,5 +726,5 @@ def addresult(request):
                 executable=exe, environment=e, revision=rev
             )
             report.save()
-    
+
     return HttpResponse("Result data saved succesfully")

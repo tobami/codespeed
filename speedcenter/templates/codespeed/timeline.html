@@ -14,10 +14,10 @@
   var baselineColor = "#d8b83f";
   var seriesColors = ["#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#ff5800", "#0085cc"];
   var seriesindex = new Array();
-  
+
   function getConfiguration() {
     var config = new Object();
-    
+
     config["exe"] = readCheckbox("input[name='executable']:checked");
     config["base"] = $("#baseline option:selected").val();
     config["ben"] = $("input[name='benchmark']:checked").val();
@@ -25,11 +25,11 @@
     config["revs"] = $("#revisions option:selected").val();
     return config;
   }
-  
+
   function permalinkToChanges(commitid, executableid, environment) {
     window.location="../changes/?rev=" + commitid + "&" + "exe=" + executableid + "&env=" + environment;
   }
-  
+
   function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
     if($("input[name='benchmark']:checked").val() == "grid") { return false; }
     if (neighbor) {
@@ -39,7 +39,7 @@
       permalinkToChanges(commitid, executableid, environment);
     }
   }
-      
+
   function renderPlot(data) {
     var plotdata = new Array();
     var series = new Array();
@@ -59,7 +59,7 @@
     if (data["baseline"] != "None") {
       series.push({
         "label": $("#baseline option:selected").html(), "color": baselineColor,
-        showMarker: false, 
+        showMarker: false,
         lineWidth: 1.5
       });
       plotdata.push(data["baseline"]);
@@ -73,13 +73,13 @@
         digits++;
       }
     }
-    
+
     $("#plotgrid").html('<div id="plot"></div><div id="plotdescription"></div>');
-    
+
     if (data['benchmark_description']) {
         $("#plotdescription").html('<p class="note"><i>' + data['benchmark'] + '</i>: ' + data['benchmark_description'] + '</p>');
     }
-    
+
     var plotoptions = {
       title: {text: data['benchmark'], fontSize: '1.1em'},
       series: series,
@@ -112,7 +112,7 @@
         for (l in series) {
             labels.push(series[l]['label'].length)
         }
-        
+
         var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
         plotoptions.legend.location = 'ne';
         plotoptions.legend.xoffset = -offset;
@@ -120,11 +120,11 @@
         var w = $("#plot").width();
         $("#plot").css('width', w - offset);
     }
-    
+
     //Render plot
     plot = $.jqplot('plot',  plotdata, plotoptions);
   }
-  
+
   function renderMiniplot(plotid, data) {
     var plotdata = new Array();
     var series = new Array();
@@ -140,12 +140,12 @@
     if (data["baseline"] != "None") {
       series.push({
         "color": baselineColor,
-        showMarker: false, 
+        showMarker: false,
         lineWidth: 1.5
       });
       plotdata.push(data["baseline"]);
     }
-    
+
     var plotoptions = {
       title: {text: data['benchmark'], fontSize: '1.1em'},
       seriesDefaults: {lineWidth: 2, markerOptions:{style:'circle', size: 6}},
@@ -166,7 +166,7 @@
     };
     plot = $.jqplot(plotid, plotdata, plotoptions);
   }
-  
+
   function render(data) {
     $("#revisions").attr("disabled", false);
     $("#plotgrid").html("");
@@ -196,7 +196,7 @@
       }
     }
   }
-  
+
   function refreshContent() {
     var h = parseInt($("#content").css("height"));//get height for loading text
     $("#plotgrid").fadeOut("fast", function() {
@@ -204,44 +204,44 @@
       $.getJSON("json/", getConfiguration(), render);
     });
   }
-  
+
   $(function() {
-    $.ajaxSetup ({  
-      cache: false  
+    $.ajaxSetup ({
+      cache: false
     });
     //Set default amount of revisions shown
     $("#revisions").val({{ defaultlast }});
     $("#revisions").change(refreshContent);
-    
+
     //Reset all checkboxes
     $("input:checkbox").removeAttr('checked');
-    
+
     //Set default selected executables
     $("#baseline").val("{{ defaultbaseline }}");
     $("#baseline").change(refreshContent);
-    
+
     {% for checkedexecutable in checkedexecutables %}
     $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
     {% endfor %}
     $("input[name='executable']").change(refreshContent);
-    
+
     //Set default selected benchmark
     $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
     $("input[name='benchmark']").change(refreshContent);
-    
+
     //Set default selected environment
     $("input:radio[name='environments']").filter('[value={{ defaultenvironment.name }}]').attr('checked', true);
     $("input[name='environments']").change(refreshContent);
-    
+
     //Add color legend to executable list
     $("#executable div.boxbody > ul > li > input").each(function() {
       var colorid = $(this).attr("id").slice(10);
       $(this).parent().find("div.seriescolor").css("background-color", seriesColors[colorid-1]);
     });
     $("#baselinecolor").css("background-color", baselineColor);
-    
+
     $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
-    
+
     refreshContent();
   });
 </script>

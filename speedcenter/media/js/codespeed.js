@@ -45,7 +45,7 @@ function abortRender(plotid, message) {
     return -1;
 }
 
-function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart, horizontal) {        
+function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart, horizontal) {
     var axislabel = "";
     var title = "";
     var baseline_is_empty = true;
@@ -64,7 +64,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         }
         axislabel = "Ratio " + bench_units[unit][1];
     }
-    
+
     var plotdata = [];
     var ticks = [];
     var series = [];
@@ -175,7 +175,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         // no valid chart type
         return false;
     }
-    
+
     if (baseline_is_empty) {
         var baselinelabel = $("label[for='exe_" + baseline + "']").text();
         var msg = "<strong>"+ title + "</strong>" + "<br><br>";
@@ -183,7 +183,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         return abortRender(plotid, msg);
         return -1;
     }
-    
+
     // Set plot options and size depending on:
     // - Bar orientation (horizontal/vertical)
     // - Screen width and number of bars being displayed
@@ -217,7 +217,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                 }
             }
         };
-        
+
         if (chart == "relative bars") {
             plotoptions.axes.xaxis.min = null;
             plotoptions.axes.xaxis.tickOptions = {formatString:'%.1fx'};
@@ -225,7 +225,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
 //             plotoptions.axes.xaxis.min = null;
             // Not good when there is a 0 bar. It even shows negative bars when all bars are 0
         }
-        
+
         // Determine optimal height
         if (chart =="stacked bars") {
             h = 90 + ticks.length * (plotoptions.seriesDefaults.rendererOptions.barPadding*2 + barWidth);
@@ -270,7 +270,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                 }
             }
         };
-        
+
         w = barcounter * (plotoptions.seriesDefaults.rendererOptions.barPadding*2 + barWidth) + benchcounter * plotoptions.seriesDefaults.rendererOptions.barMargin * 2 + 60;
         h = plotheight;
         // Check if calculated width is greater than actually available width
@@ -301,22 +301,22 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
             plotoptions.axes.xaxis.tickOptions.angle = -30;
         }
     }
-    
+
     plotoptions.legend = {show: true, location: 'ne'};
     plotoptions.series = series;
-    
+
     // determine conditions for rendering the legend outside the plot area
     var offplot = false;
     if (!horizontal && series.length > 4) { offplot = true; }
     else if (horizontal && series.length > 2*ticks.length) { offplot = true; }
-    
+
     if (offplot) {
         // Move legend outside plot area to unclutter
         var labels = [];
         for (l in series) {
             labels.push(series[l].label.length);
         }
-        
+
         var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
         plotoptions.legend.xoffset = -offset;
         $("#" + plotid).css("margin-right", offset + 10);
@@ -324,7 +324,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     } else if (!horizontal && ticks.length <= 2) {
         plotoptions.legend = {show: true, location: 'se'};
     }
-    
+
     // Set bar type
     if (chart == "stacked bars") {
         plotoptions.stackSeries = true;
@@ -333,7 +333,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         plotoptions.seriesDefaults.fillToZero = true;
         plotoptions.seriesDefaults.useNegativeColors = false;
     }
-    
+
     // check that legend does not overflow
     if (series.length > 14) {
         if (!horizontal || (series.length > ticks.length)) {
@@ -343,7 +343,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         }
     }
     /* End set plot style */
-        
+
     // Render plot
     $("#" + plotid).css('width', w);
     $("#" + plotid).css('height', h);

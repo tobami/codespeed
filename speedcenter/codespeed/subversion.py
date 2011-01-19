@@ -9,18 +9,18 @@ def updaterepo():
 
 def getlogs(newrev, startrev):
     import pysvn
-    
+
     logs = []
     log_messages = []
     loglimit = 200
-    
+
     def get_login(realm, username, may_save):
         return True, newrev.project.repo_user, newrev.project.repo_pass, False
-    
+
     client = pysvn.Client()
     if newrev.project.repo_user != "":
         client.callback_get_login = get_login
-    
+
     try:
         log_messages = \
             client.log(
@@ -46,7 +46,7 @@ def getlogs(newrev, startrev):
     while s > loglimit:
         log_messages = log_messages[:s]
         s = len(log_messages) - 1
-    
+
     for log in log_messages:
         try:
             author = log.author

@@ -5,7 +5,7 @@
     function permalinkToChanges(permalink) {
         window.location="changes/?" + permalink;
     }
-    
+
     function updateTable() {
         //Add permalink events to table rows
         $("div#reports table tbody tr").each(function() {
@@ -21,7 +21,7 @@
             $(this).parents('tr').removeClass('highlight');
         });
     }
-    
+
     $(function() {
         $("#changes").click(function () { window.location="/changes/"; });
         $("#timeline").click(function () { window.location="/timeline/"; });

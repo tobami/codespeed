@@ -7,6 +7,6 @@ class LatestEntries(Feed):
     title = settings.website_name
     link = "/changes/"
     description = "Last benchmark runs"
-    
+
     def items(self):
         return Report.objects.order_by('-revision')[:10]

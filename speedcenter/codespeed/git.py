@@ -12,27 +12,26 @@ def updaterepo(project, update=True):
     if os.path.exists(working_copy):
         if not update:
             return
-        else:
-            p = Popen(['git', 'pull'], stdout=PIPE, stderr=PIPE,
-                        cwd=working_copy)
 
-            stdout, stderr = p.communicate()
-            if p.returncode != 0:
-                raise RuntimeError("git pull returned %s: %s" % (p.returncode,
-                                                                    stderr))
-            else:
-                return [{'error': False}]
+        p = Popen(['git', 'pull'], stdout=PIPE, stderr=PIPE,
+                    cwd=working_copy)
+
+        stdout, stderr = p.communicate()
+        if p.returncode != 0:
+            raise RuntimeError("git pull returned %s: %s" % (p.returncode,
+                                                                stderr))
+        else:
+            return [{'error': False}]
     else:
         cmd = ['git', 'clone', project.repo_path, repo_name]
         p = Popen(cmd, stdout=PIPE, stderr=PIPE,
                     cwd=settings.REPOSITORY_BASE_PATH)
         stdout, stderr = p.communicate()
 
-        if stderr:
-            if p.returncode != 0:
-                raise RuntimeError("%s returned %s: %s" % (" ".join(cmd),
-                                                            p.returncode,
-                                                            stderr))
+        if p.returncode != 0:
+            raise RuntimeError("%s returned %s: %s" % (" ".join(cmd),
+                                                        p.returncode,
+                                                        stderr))
         else:
             return [{'error': False}]
 

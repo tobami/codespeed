@@ -3,38 +3,48 @@ from subprocess import Popen, PIPE
 from django.conf import settings
 
 
-def updaterepo(repo):
-    repodir = os.path.join(settings.REPOSITORY_BASE_PATH, repo.split(os.sep)[-1])
+def updaterepo(project, update=True):
+    repo_name = os.path.splitext(project.repo_path.split(os.sep)[-1])[0]
+    working_copy = os.path.join(settings.REPOSITORY_BASE_PATH, repo_name)
 
-    if os.path.exists(repodir):
-        # Update repo
-        cmd = "hg pull -u"
-        p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, cwd=repodir)
+    if os.path.exists(working_copy):
+        if not update:
+            return
+
+        p = Popen(['hg', 'pull', '-u'], stdout=PIPE, stderr=PIPE,
+                    cwd=working_copy)
         stdout, stderr = p.communicate()
-        if stderr:
-            return [{'error': True, 'message': stderr}]
+
+        if p.returncode != 0 or stderr:
+            raise RuntimeError("hg pull returned %s: %s" % (p.returncode,
+                                                                stderr))
         else:
             return [{'error': False}]
     else:
         # Clone repo
-        cmd = "hg clone %s" % repo
-        p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE,
+        cmd = ['hg', 'clone', project.repo_path, repo_name]
+
+        p = Popen(cmd, stdout=PIPE, stderr=PIPE,
                     cwd=settings.REPOSITORY_BASE_PATH)
+
         stdout, stderr = p.communicate()
-        if stderr:
-            return [{'error': True, 'message': stderr}]
+
+        if p.returncode != 0:
+            raise RuntimeError("%s returned %s: %s" % (" ".join(cmd),
+                                                        p.returncode,
+                                                        stderr))
         else:
             return [{'error': False}]
 
 def getlogs(endrev, startrev):
-    repo_name = os.path.splitext(endrev.project.repo_path.split(os.sep)[-1])[0]
-    repodir = os.path.join(settings.REPOSITORY_BASE_PATH, repo_name)
+    updaterepo(endrev.project, update=False)
 
-    if not os.path.exists(repodir):
-        updaterepo(repodir)
+    # TODO: Move all of this onto the model so we can avoid needing to repeat it:
+    repo_name = os.path.splitext(endrev.project.repo_path.split(os.sep)[-1])[0]
+    working_copy = os.path.join(settings.REPOSITORY_BASE_PATH, repo_name)
 
     cmd = "hg log -r %s:%s -b default --template '{rev}:{node|short}\n{author|person} / {author|user}\n{date}\n{desc}\n=newlog=\n'" % (endrev.commitid, startrev.commitid)
-    p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, cwd=repodir)
+    p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, cwd=working_copy)
     stdout, stderr = p.communicate()
     if stderr:
         return [{'error': True, 'message': stderr}]

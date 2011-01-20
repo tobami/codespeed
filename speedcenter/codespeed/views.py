@@ -169,7 +169,8 @@ def comparison(request):
     checkedenviros = []
     if 'env' in data:
         for i in data['env'].split(","):
-            if not i: continue
+            if not i:
+                continue
             try:
                 checkedenviros.append(Environment.objects.get(id=int(i)))
             except Environment.DoesNotExist:
@@ -193,8 +194,8 @@ def comparison(request):
                 continue
             if i in exekeys:
                 checkedexecutables.append(i)
-    elif hasattr(settings, 'com_executables') and\
-        settings.comp_executables != None:
+    elif hasattr(settings, 'comp_executables') and\
+        settings.comp_executables:
         for exe, rev in settings.comp_executables:
             try:
                 exe = Executable.objects.get(name=exe)

@@ -5,7 +5,7 @@ from django.contrib import admin
 
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'repo_type', 'repo_path', 'track')
-    
+
 admin.site.register(Project, ProjectAdmin)
 
 class RevisionAdmin(admin.ModelAdmin):
@@ -40,5 +40,5 @@ admin.site.register(Result, ResultAdmin)
 class ReportAdmin(admin.ModelAdmin):
     list_display = ('revision', 'summary', 'colorcode')
     ordering = ['-revision']
-    
+
 admin.site.register(Report, ReportAdmin)

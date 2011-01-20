@@ -20,7 +20,7 @@ class testSaveresults(unittest.TestCase):
         ['twisted_iteration', 'SimpleComparisonResult', {'base_time': 0.148289627437, 'changed_time': 0.035354803126799998, 'time_delta': '4.1943x faster'}],
         ['twisted_web', 'SimpleComparisonResult', {'base_time': 0.11312217194599999, 'changed_time': 0.625, 'time_delta': '5.5250x slower'}]
     ]
-    
+
     def testGoodInput(self):
         '''Given correct result data, check that every result being saved has the right parameters'''
         for resultparams in saveresults.save("pypy", 71212, self.fixture, "", "pypy-c-jit", "tannit", True):

@@ -1,6 +1,7 @@
-{% extends "base.html" %}
-{% block title %}: Changes{% endblock %}
-{% block script %}
+{% extends "site_base.html" %}
+{% block title %}{{ block.super }}: Changes{% endblock %}
+{% block extra_head %}
+{{ block.super }}
 <script type="text/javascript" src="../media/js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
 <script type="text/javascript">
@@ -9,7 +10,7 @@
     {% for project, revlist in revisionboxes.items %}
     revisionboxes['{{ project }}'] = '{% for rev in revlist %}<option value="{{ rev.commitid }}">{{ rev }}</option>{% endfor %}';{% endfor %}
     var currentproject = "{{ defaultexecutable.project }}";
-  
+
     function getConfiguration() {
         var config = new Object();
         config["tre"] = $("#trend option:selected").val();
@@ -18,7 +19,7 @@
         config["env"] = $("input[name='environment']:checked").val();
         return config;
     }
-    
+
     function permalinkToTimeline(benchmark, environment) {
         window.location="../timeline/?ben=" + benchmark + "&env=" + environment;
     }
@@ -47,7 +48,7 @@
             });
         });
     }
-  
+
     function updateTable() {
         colorTable();
         //Add permalink events to table rows
@@ -66,7 +67,7 @@
         //Configure table as tablesorter
         $(".tablesorter").tablesorter({widgets: ['zebra']});
     }
-    
+
     function refreshContent() {
         var h = parseInt($("#content").css("height"));//get height for loading text
         $("#contentwrap").fadeOut("fast", function() {
@@ -75,7 +76,7 @@
             $(this).load("table/", $.param(getConfiguration()), function(responseText) { updateTable(); });
         });
     }
-    
+
     function changerevisions() {
         // This function repopulates the revision selectbox everytime a new
         // executable is selected that corresponds to a different project.
@@ -83,7 +84,7 @@
         if (projectmatrix[executable] != currentproject) {
             $("#revision").html(revisionboxes[projectmatrix[executable]]);
             currentproject = projectmatrix[executable];
-            
+
             //Give visual cue that the select box has changed
             var bgc = $("#revision").parent().parent().css("backgroundColor");
             $("#revision").parent()
@@ -94,23 +95,23 @@
         }
         refreshContent();
     }
-  
+
     $(function() {
         // Configure defaults
         $("#trend").val("{{ defaulttrend }}");
         $("#trend").change(refreshContent);
-        
+
         $("input:radio[name=executable]").filter('[value="{{ defaultexecutable.id }}"]').attr('checked', true);
         $("input[name='executable']").change(changerevisions);
-        
+
         $("input:radio[name='environment']").filter('[value="{{ defaultenvironment.name }}"]').attr('checked', true);
         $("input[name='environment']").change(refreshContent);
-        
+
         //repopulate revision select box if the project has changed
         $("#revision").html(revisionboxes['{{ defaultexecutable.project.name }}']);
         $("#revision").val("{{ selectedrevision.commitid }}");
         $("#revision").change(refreshContent);
-        
+
         refreshContent();
     });
 </script>

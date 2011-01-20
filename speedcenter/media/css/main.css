@@ -1,3 +1,4 @@
+/* Global styles */
 body {
     min-width: 650px;
     margin: 0;
@@ -10,7 +11,13 @@ body {
 }
 a:link, a:visited, a:hover { color: blue; text-decoration: none; }
 
-div#containter { width: 98%; margin: 0; margin-left: auto; margin-right: auto; }
+.fixed {
+    font-family: "Menlo", "ProFont", "Inconsolata", "Lucida Sans Console", monospace;
+    font-size: 14px;
+}
+
+/* Structural */
+div#container { width: 98%; margin: 0; margin-left: auto; margin-right: auto; }
 
 div#title {
     height: 55px;
@@ -188,9 +195,9 @@ div.about_content { text-align: left; }
 .boxhead h2 {
     margin: 0;
     padding: 0.5em 0.8em 0.3em;
-    color: white; 
-    font-weight: bold; 
-    font-size: 1.1em; 
+    color: white;
+    font-weight: bold;
+    font-size: 1.1em;
     line-height: 1em;
 }
 .boxbody {
@@ -231,7 +238,7 @@ div#contentwrap div div { display: block; }
 /* Remove outher margins so that it comfortably fits */
 @media only screen and (max-width:1100px)  {
     div#contentwrap div.leftcolumn { width: 28.2em; }
-    div#containter { width: 100%; margin: 0; }
+    div#container { width: 100%; margin: 0; }
     div#workarea { padding-left: 0.3em; }
     div#sidebar { width: 12.5em; }
     div#configbar { margin-left: 12.8em; }
@@ -348,14 +355,33 @@ table.info th, table.revision th { background-color: #F1F1F1; }
 table.info th, table.info td, table.revision th, table.revision td { padding: 0.3em; }
 table.info tbody td.infofirst { width: 10em; text-align: left; }
 
+.revision tbody th {
+    font-weight: inherit;
+}
+
+.repo-path td, .commit-id td {
+    font-family: monospace;
+    white-space: pre;
+}
+
 tbody.commits tr td { border-bottom: 1px solid #CDCDCD; vertical-align: top; }
 tbody.commits tr > td:first-child { padding-right: 20px; }
-tbody.commits tr td.date, table.revision tr td.infofirst, div.author, span.note, table.info tbody td.infofirst {
+tbody.commits tr td.date, table.revision tr .infofirst, div.author, span.note, table.info tbody .infofirst {
     font-size: 92%;
     color: #666666;
 }
-tbody.commits tr td.date { padding-top: 0.6em; }
-div > pre { margin-top: 2px; margin-bottom: 2px; white-space: pre-wrap; }
+tbody.commits tr td.date {
+	padding: 0.3em;
+	width: 5em;
+	text-align: right;
+}
+
+.commits pre {
+	display: block;
+	margin: 2px;
+	white-space: pre-wrap;
+	overflow: auto;
+}
 
 a#permalink { float: right; font-size: small; }
 a#permalink:hover { text-decoration: underline; }

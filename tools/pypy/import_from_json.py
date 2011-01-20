@@ -43,7 +43,7 @@ for INTERP in RESULTS_URLS:
         sys.exit(1)
     finally:
         datasource.close()
-    
+
     # read json result and save to speed.pypy.org
     for filename in filelist:
         print "Reading %s..." % filename
@@ -56,7 +56,7 @@ for INTERP in RESULTS_URLS:
         int_options = ""
         options = ""
         if result.has_key('options'): options = result['options']
-        
+
         host = 'tannit'
         #saveresults.save(proj, revision, result['results'], options, interpreter, host)
         if filename == filelist[len(filelist)-1]:

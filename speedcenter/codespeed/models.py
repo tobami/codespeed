@@ -10,16 +10,16 @@ class Project(models.Model):
         ('M', 'mercurial'),
         ('S', 'subversion'),
     )
-    
+
     name = models.CharField(unique=True, max_length=30)
     repo_type = models.CharField("Repository type", max_length=1, choices=REPO_TYPES, default='N')
     repo_path = models.CharField("Repository URL", blank=True, max_length=200)
     repo_user = models.CharField("Repository username", blank=True, max_length=100)
     repo_pass = models.CharField("Repository password", blank=True, max_length=100)
     track = models.BooleanField("Track changes", default=False)
-    
+
     def __unicode__(self):
-        return str(self.name)
+        return self.name
 
 
 class Revision(models.Model):
@@ -29,14 +29,17 @@ class Revision(models.Model):
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
     author = models.CharField(max_length=30, blank=True)
-    
+
     def get_short_commitid(self):
         return self.commitid[:10]
-    
+
     def __unicode__(self):
-        return self.date.strftime("%h %d, %H:%M") + " - " + \
-            self.get_short_commitid() + " " + self.tag
-    
+        if self.date is None:
+            date = "Unknown"
+        else:
+            date = self.date.isoformat()
+        return " - ".join(filter(None, (date, self.commitid, self.tag)))
+
     class Meta:
         unique_together = ("commitid", "project")
 
@@ -45,9 +48,9 @@ class Executable(models.Model):
     name = models.CharField(unique=True, max_length=30)
     description = models.CharField(max_length=200, blank=True)
     project = models.ForeignKey(Project)
-    
+
     def __unicode__(self):
-        return str(self.name)
+        return self.name
 
 
 class Benchmark(models.Model):
@@ -55,16 +58,16 @@ class Benchmark(models.Model):
         ('C', 'Cross-project'),
         ('O', 'Own-project'),
     )
-    
+
     name = models.CharField(unique=True, max_length=30)
     benchmark_type = models.CharField(max_length=1, choices=B_TYPES, default='C')
     description = models.CharField(max_length=200, blank=True)
     units_title = models.CharField(max_length=30, default='Time')
     units = models.CharField(max_length=20, default='seconds')
     lessisbetter = models.BooleanField(default=True)
-    
+
     def __unicode__(self):
-        return str(self.name)
+        return self.name
 
 
 class Environment(models.Model):
@@ -73,9 +76,9 @@ class Environment(models.Model):
     memory = models.CharField(max_length=30, blank=True)
     os = models.CharField(max_length=30, blank=True)
     kernel = models.CharField(max_length=30, blank=True)
-    
+
     def __unicode__(self):
-        return str(self.name)
+        return self.name
 
 
 class Result(models.Model):
@@ -88,10 +91,10 @@ class Result(models.Model):
     executable = models.ForeignKey(Executable)
     benchmark = models.ForeignKey(Benchmark)
     environment = models.ForeignKey(Environment)
-    
+
     def __unicode__(self):
-        return str(self.benchmark.name) + " " + str(self.value)
-    
+        return u"%s: %s" % (self.benchmark.name, self.value)
+
     class Meta:
         unique_together = ("revision", "executable", "benchmark", "environment")
 
@@ -103,20 +106,20 @@ class Report(models.Model):
     summary     = models.CharField(max_length=30, blank=True)
     colorcode   = models.CharField(max_length=10, default="none")
     _tablecache = models.TextField(blank=True)
-    
+
     def __unicode__(self):
-        return "Report for " + str(self.revision.commitid)
-    
+        return u"Report for %s" % self.revision
+
     class Meta:
         unique_together = ("revision", "executable", "environment")
-    
+
     def save(self, *args, **kwargs):
         tablelist = self.get_changes_table(force_save=True)
         max_change, max_change_ben, max_change_color = 0, None, "none"
         max_trend, max_trend_ben, max_trend_color = 0, None, "none"
         average_change, average_change_units, average_change_color = 0, None, "none"
         average_trend, average_trend_units, average_trend_color = 0, None, "none"
-        
+
         # Get default threshold values
         change_threshold = 3.0
         trend_threshold  = 5.0
@@ -124,7 +127,7 @@ class Report(models.Model):
             change_threshold = settings.change_threshold
         if hasattr(settings, 'trend_threshold') and settings.trend_threshold:
             trend_threshold = settings.trend_threshold
-        
+
         # Fetch big changes for each unit type and each benchmark
         for units in tablelist:
             # Total change
@@ -170,7 +173,7 @@ class Report(models.Model):
         # Reinitialize
         self.summary = ""
         self.colorcode = "none"
-        
+
         # Save summary in order of priority
         # Average change
         if average_change_color != "none":
@@ -188,7 +191,7 @@ class Report(models.Model):
             self.summary = "%s %s%.1f%%" % (
                 max_change_ben, direction, round(abs(max_change), 1))
             self.colorcode = max_change_color
-        
+
         # Average trend
         if average_trend_color != "none" and self.colorcode == "none":
             #Substitute plus/minus with up/down
@@ -205,9 +208,9 @@ class Report(models.Model):
                     max_trend_ben, direction, round(max_trend, 1))
                 self.colorcode = max_trend_color == "red"\
                     and "yellow" or max_trend_color
-        
+
         super(Report, self).save(*args, **kwargs)
-    
+
     def is_big_change(self, val, color, current_val, current_color):
         if color == "red" and current_color != "red":
             return True
@@ -218,7 +221,7 @@ class Report(models.Model):
             return True
         else:
             return False
-    
+
     def getcolorcode(self, val, lessisbetter, threshold):
         if lessisbetter:
             val = -val
@@ -228,7 +231,7 @@ class Report(models.Model):
         elif val > threshold:
             colorcode = "green"
         return colorcode;
-    
+
     def get_changes_table(self, trend_depth=10, force_save=False):
         # Determine whether required trend value is the default one
         default_trend = 10
@@ -238,14 +241,14 @@ class Report(models.Model):
         # just return the cached changes table
         if not force_save and trend_depth == default_trend:
             return self._get_tablecache()
-        
+
         lastrevisions = Revision.objects.filter(
             project=self.executable.project
         ).filter(
             date__lte=self.revision.date
         ).order_by('-date')[:trend_depth+1]
         lastrevision = lastrevisions[0]#same as self.revision unless in a different branch
-        
+
         change_list = []
         pastrevisions = []
         if len(lastrevisions) > 1:
@@ -258,7 +261,7 @@ class Report(models.Model):
                 executable=self.executable
             )
             pastrevisions = lastrevisions[trend_depth-2:trend_depth+1]
-        
+
         result_list = Result.objects.filter(
             revision=lastrevision
         ).filter(
@@ -266,7 +269,7 @@ class Report(models.Model):
         ).filter(
             executable=self.executable
         )
-        
+
         tablelist = []
         for units in Benchmark.objects.all().values('units').distinct():
             currentlist = []
@@ -281,21 +284,21 @@ class Report(models.Model):
                 lessisbetter = bench.lessisbetter
                 resultquery = result_list.filter(benchmark=bench)
                 if not len(resultquery): continue
-                
+
                 resobj = resultquery.filter(benchmark=bench)[0]
-                
+
                 std_dev = resobj.std_dev
                 if std_dev is not None: has_stddev = True
                 else: std_dev = "-"
-                
+
                 val_min = resobj.val_min
                 if val_min is not None: hasmin = True
                 else: val_min = "-"
-                
+
                 val_max = resobj.val_max
                 if val_max is not None: hasmax = True
                 else: val_max = "-"
-                
+
                 # Calculate percentage change relative to previous result
                 result = resobj.value
                 change = "-"
@@ -304,7 +307,7 @@ class Report(models.Model):
                     if c.count() and c[0].value and result:
                         change = (result - c[0].value)*100/c[0].value
                         totals['change'].append(result / c[0].value)
-                
+
                 # Calculate trend:
                 # percentage change relative to average of 3 previous results
                 # Calculate past average
@@ -327,12 +330,12 @@ class Report(models.Model):
                     average = average / averagecount
                     trend =  (result - average)*100/average
                     totals['trend'].append(result / average)
-                
+
                 # Retain lowest number different than 0
                 # to be used later for calculating significant digits
                 if result < smallest and result:
                     smallest = result
-                
+
                 currentlist.append({
                     'bench_name': bench.name,
                     'bench_description': bench.description,
@@ -343,25 +346,25 @@ class Report(models.Model):
                     'change': change,
                     'trend': trend
                 })
-            
+
             # Compute Arithmetic averages
             for key in totals.keys():
                 if len(totals[key]):
                     totals[key] = float(sum(totals[key]) / len(totals[key]))
                 else:
                     totals[key] = "-"
-            
+
             if totals['change'] != "-":
                 totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
             if totals['trend'] != "-":
                 totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
-            
+
             # Calculate significant digits
             digits = 2;
             while smallest < 1:
                 smallest *= 10
                 digits += 1
-            
+
             tablelist.append({
                 'units': units['units'],
                 'units_title': units_title,
@@ -376,14 +379,14 @@ class Report(models.Model):
         if force_save:
             self._save_tablecache(tablelist)
         return tablelist
-    
+
     def get_absolute_url(self):
         return "/changes/?rev=%s&exe=%s&env=%s" % (
             self.revision.commitid, self.executable.id, self.environment.name)
-    
+
     def _save_tablecache(self, data):
         self._tablecache = json.dumps(data)
-    
+
     def _get_tablecache(self):
         if self._tablecache == '':
             return {}

@@ -1,6 +1,7 @@
-{% extends "base.html" %}
-{% block title %}: Comparison{% endblock %}
-{% block script %}
+{% extends "site_base.html" %}
+{% block title %}{{ block.super }}: Comparison{% endblock %}
+{% block extra_head %}
+{{ block.super }}
 <!--[if IE]><script language="javascript" type="text/javascript" src="/media/js/jqplot/excanvas.min.js"></script><![endif]-->
 <link rel="stylesheet" type="text/css" href="../media/js/jqplot/jquery.jqplot.min.css" />
 <script type="text/javascript" src="../media/js/jqplot/jquery.jqplot.min.js"></script>
@@ -15,7 +16,7 @@
   var defaultbase = "";
   var bench_units = eval({{ bench_units|safe }});
   var plotheight = 10;//Initial height
-  
+
   function getConfiguration() {
     var config = new Object();
     config["exe"] = readCheckbox("input[name='executables']:checked");
@@ -26,14 +27,14 @@
     config["chart"] = $("#chart_type option:selected").val();
     return config;
   }
-  
+
   function refreshContent() {
     var conf = getConfiguration();
     var exes = conf['exe'].split(",");
     var bens  = conf['ben'].split(",");
     var enviros = conf['env'].split(",");
     var msg = "";
-    
+
     h = parseInt($("#plotwrapper").css("height"));//get height for error message
     if (exes[0] == "") {
       $("#plotwrapper").html('<p class="warning">No executables selected</p>');
@@ -51,7 +52,7 @@
     } else if (conf['chart'] == "stacked bars" &&  conf['bas'] != "none") {
         msg = '<p class="warning">Normalized stacked bars actually represent the weighted arithmetic sum, useful to spot which individual benchmarks take up the most time. Choosing different weightings from the "Normalization" menu will change the totals relative to one another. For the correct way to calculate total bars, the geometric mean must be used (see <a href="http://portal.acm.org/citation.cfm?id=5666.5673 " title="How not to lie with statistics: the correct way to summarize benchmark results">paper</a>)</p>';
     }
-    
+
     $("#plotwrapper").fadeOut("fast", function() {
       $(this).html(msg).show();
       var plotcounter = 1;
@@ -63,7 +64,7 @@
           }
         }
         if (benchmarks.length == 0) { continue; }
-        
+
         var plotid = "plot" + plotcounter;
         $("#plotwrapper").append('<div id="' + plotid + '" class="compplot"></div>');
         plotcounter++;
@@ -71,7 +72,7 @@
       }
     });
   }
-  
+
   function savedata(data) {
     if (data['error'] != "None") {
       h = parseInt($("#content").css("height"));//get height for error message
@@ -82,10 +83,10 @@
     compdata = data;
     refreshContent();
   }
-  
+
   $(function() {
-    $.ajaxSetup ({  
-      cache: false  
+    $.ajaxSetup ({
+      cache: false
     });
 
     //reset all checkboxes
@@ -94,28 +95,28 @@
     //set default chart type
     $("#chart_type").val("{{ selectedchart }}");
     $("#chart_type").change(refreshContent);
-    
+
     $("#baseline").val("{{ selectedbaseline }}");
     $("#baseline").change(refreshContent);
-    
+
     {% if selecteddirection %}$("input[name=direction]").attr('checked', true);{% endif %}
     $("#direction").change(refreshContent);
-    
+
     //set default selected executables
     {% for checkedexecutable in checkedexecutables %}
     $("input[name='executables']").filter('[value={{ checkedexecutable }}]').attr('checked', true);{% endfor %}
     $("input[name='executables']").change(refreshContent);
-    
+
     //set default selected benchmarks
     {% for checkedbenchmark in checkedbenchmarks %}
     $("input:checkbox[name='benchmarks']").filter('[value={{ checkedbenchmark.id }}]').attr('checked', true);{% endfor %}
     $("input[name='benchmarks']").change(refreshContent);
-    
+
     //set default selected environments
     {% for checkedenv in checkedenviros %}
     $("input:checkbox[name='environments']").filter('[value={{ checkedenv.id }}]').attr('checked', true);{% endfor %}
     $("input[name='environments']").change(refreshContent);
-    
+
     // Check all and none links
     $('.checkall').click(function() {
       $(this).parent().children("li").children("input").each(function() {
@@ -124,7 +125,7 @@
       refreshContent();
       return false;
     });
-    
+
     $('.uncheckall').click(function() {
       $(this).parent().children("li").children("input").each(function() {
         $(this).attr('checked', false);
@@ -132,7 +133,7 @@
       refreshContent();
       return false;
     });
-    
+
     plotheight = $("#cplot").height();
     // Get comparison data
     var h = parseInt($("#content").css("height"));//get height for loading text
@@ -143,7 +144,7 @@
 {% endblock %}
 {% block navigation %}
     <ul class="inline">
-    
+
       <li><a href="/changes/">Changes</a></li>
       <li><a href="/timeline/">Timeline</a></li>
       <li class="current"><a href="/comparison/">Comparison</a></li>

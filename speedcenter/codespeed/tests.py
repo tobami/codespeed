@@ -30,7 +30,7 @@ class AddResultTest(TestCase):
         response = self.client.post(self.path, self.data)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.content, "Result data saved succesfully")
-        e = Environment.objects.get(name='bigdog')        
+        e = Environment.objects.get(name='bigdog')
         b = Benchmark.objects.get(name='Richards')
         self.assertEquals(b.benchmark_type, "C")
         self.assertEquals(b.units, "seconds")
@@ -48,7 +48,7 @@ class AddResultTest(TestCase):
         resdate = res.date.strftime("%Y%m%dT%H%M%S")
         selfdate = self.cdate.strftime("%Y%m%dT%H%M%S")
         self.assertTrue(resdate, selfdate)
-        
+
     def test_add_non_default_result(self):
         """
         Add result data with non-default options
@@ -61,7 +61,7 @@ class AddResultTest(TestCase):
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 200)
         self.assertEquals(response.content, "Result data saved succesfully")
-        e = Environment.objects.get(name='bigdog')    
+        e = Environment.objects.get(name='bigdog')
         p = Project.objects.get(name='pypy')
         r = Revision.objects.get(commitid='23232', project=p)
         
@@ -89,7 +89,7 @@ class AddResultTest(TestCase):
         self.assertEquals(response.status_code, 404)
         self.assertEquals(response.content, "Environment " + bad_name + " not found")
         self.data['environment'] = 'bigdog'
-    
+
     def test_empty_argument(self):
         """
         Make POST request with an empty argument.
@@ -101,7 +101,7 @@ class AddResultTest(TestCase):
             self.assertEquals(response.status_code, 400)
             self.assertEquals(response.content, 'Key "' + key + '" empty in request')
             self.data[key] = backup
-    
+
     def test_missing_argument(self):
         """
         Make POST request with a missing argument.
@@ -236,10 +236,10 @@ class AddResultsTest(TestCase):
 
 class Timeline(TestCase):
     fixtures = ["pypy.json"]
-    
+
     def setUp(self):
         self.client = Client()
-    
+
     def test_gettimelinedata(self):
         """Test that gettimelinedata returns correct timeline data
         """

@@ -10,7 +10,7 @@ def save(project, revision, results, options, executable, host, testing=False):
     #Parse data
     data = {}
     current_date = datetime.today()
-        
+
     for b in results:
         bench_name = b[0]
         res_type = b[1]
@@ -38,7 +38,7 @@ def save(project, revision, results, options, executable, host, testing=False):
         else: send(data)
     if testing: return testparams
     else: return 0
-    
+
 def send(data):
     #save results
     params = urllib.urlencode(data)

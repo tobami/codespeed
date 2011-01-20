@@ -40,7 +40,7 @@ def save(project, revision, results, options, executable, environment, testing=F
         else: send(data)
     if testing: return testparams
     else: return 0
-    
+
 def send(data):
     #save results
     params = urllib.urlencode(data)

@@ -5,20 +5,22 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-BASEDIR = os.path.abspath( os.path.dirname(__file__).replace('\\','/') )
+BASEDIR = os.path.dirname(__file__)
+
+#: The directory which should contain checked out source repositories:
+REPOSITORY_BASE_PATH = os.path.join(BASEDIR, "repos")
 
 ADMINS = (
     # ('Your Name', 'your_email@domain.com'),
 )
 
 MANAGERS = ADMINS
-DATABASE_ENGINE = 'sqlite3'
-DATABASE_OPTIONS = ''
-DATABASE_NAME = BASEDIR + "/data.db"  # Or path to database file if using sqlite3.
-DATABASE_USER = ''             # Not used with sqlite3.
-DATABASE_PASSWORD = ''         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+DATABASES = {
+    "default": {
+        "ENGINE": 'sqlite3',
+        "NAME": os.path.join(BASEDIR, "data.db"),
+    }
+}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -39,7 +41,8 @@ USE_I18N = False
 
 # Absolute path to the directory that holds media.
 # Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = BASEDIR + "/media/"
+MEDIA_ROOT = os.path.join(BASEDIR, "media")
+OVERRIDE_MEDIA_ROOT = os.path.join(BASEDIR, "..", "override", "media")
 
 # URL that handles the media served from MEDIA_ROOT. Make sure to use a
 # trailing slash if there is a path component (optional in other cases).
@@ -70,7 +73,17 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'speedcenter.urls'
 
 TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(__file__), 'templates').replace('\\','/'),
+    os.path.join(os.path.dirname(__file__), '..', 'override', 'templates'),
+    os.path.join(os.path.dirname(__file__), 'templates'),
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.contrib.auth.context_processors.auth',
+    'django.contrib.messages.context_processors.messages',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
+    'django.core.context_processors.request',
 )
 
 INSTALLED_APPS = (
@@ -81,3 +94,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'speedcenter.codespeed',
 )
+
+#: Control whether to enable local static media serving using
+#: :function:`django.views.static.serve`
+SERVE_STATIC = False

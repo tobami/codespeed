@@ -8,7 +8,7 @@
     {% if units.hasmin %}<th>Min</th>{% endif%}
     {% if units.hasmax %}<th>Max</th>{% endif%}
     <th title="Current change">Change</th>
-    <th title="Trend for the last {{ trendconfig }} revisions"">Trend</th>
+    <th title="Trend for the last {{ trendconfig }} revisions">Trend</th>
   </tr>
 </thead>
 <tfoot>
@@ -25,7 +25,7 @@
 <tbody>
 {% for row in units.rows|dictsort:"bench_name" %}  <tr>
     <td class="text" title="{{ row.bench_description }}">{{ row.bench_name }}</td>
-    <td>{{ row.result|floatformat:units.precission }}</td>
+    <td class="fixed">{{ row.result|floatformat:units.precission }}</td>
     {% if units.has_stddev %}<td>{{ row.std_dev|floatformat:units.precission }}</td>
     {% endif%}{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>
     {% endif%}{% if units.hasmax %}<td>{{ row.val_max|floatformat:units.precission }}</td>
@@ -36,27 +36,29 @@
 </table>{% endfor %}
 
 <table class="info">
-<thead>
-  <tr>
-    <th colspan="2">Executable</th>
-  </tr>
-</thead>
-<tbody>
-  <tr><td class="infofirst">Name</td><td>{{ exe }}</td></tr>
-  <tr><td class="infofirst">Description</td><td>{{ exe.description }}</td></tr>
-</tbody>
-<thead>
-  <tr>
-    <th colspan="2">Environment</th>
-  </tr>
-</thead>
-<tbody>
-  <tr><td class="infofirst">Name</td><td>{{ env.name }}</td></tr>
-  <tr><td class="infofirst">CPU</td><td>{{ env.cpu }}</td></tr>
-  <tr><td class="infofirst">Memory</td><td>{{ env.memory }}</td></tr>
-  <tr><td class="infofirst">OS</td><td>{{ env.os }}</td></tr>
-  <tr><td class="infofirst">Kernel</td><td>{{ env.kernel }}</td></tr>
-</tbody>
+  <thead>
+    <tr>
+      <th colspan="2">Executable</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="infofirst">Name</td><td>{{ exe }}</td></tr>
+    <tr><td class="infofirst">Description</td><td>{{ exe.description }}</td></tr>
+  </tbody>
+</table>
+<table class="info">
+  <thead>
+    <tr>
+      <th colspan="2">Environment</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="infofirst">Name</td><td>{{ env.name }}</td></tr>
+    <tr><td class="infofirst">CPU</td><td>{{ env.cpu }}</td></tr>
+    <tr><td class="infofirst">Memory</td><td>{{ env.memory }}</td></tr>
+    <tr><td class="infofirst">OS</td><td>{{ env.os }}</td></tr>
+    <tr><td class="infofirst">Kernel</td><td>{{ env.kernel }}</td></tr>
+  </tbody>
 </table>
 </div>
 
@@ -68,24 +70,29 @@
   </tr>
 </thead>
 <tbody>
-  <tr><td class="infofirst">Commit</td><td>{{ rev.commitid }}</td></tr>
-  <tr><td class="infofirst">Date</td><td>{{ rev.date }}</td></tr>
-  {% ifnotequal rev.project.repo_type "N" %}<tr><td class="infofirst">Repo</td><td>{{ rev.project.repo_path }}</td></tr>{% endifnotequal %}
+  <tr class="commit-id"><th class="infofirst">Commit</td><td>{{ rev.commitid }}</td></tr>
+  <tr class="date"><th class="infofirst">Date</td><td>{{ rev.date }}</td></tr>
+  {% ifnotequal rev.project.repo_type "N" %}
+    <tr class="repo-path"><th class="infofirst">Repo</th><td>{{ rev.project.repo_path }}</td></tr>
+  {% endifnotequal %}
 </tbody>
-{% ifnotequal exe.project.repo_type 'N' %}
-<thead class="commits">
-  <tr>
-    <th colspan="2">Commit logs</th>
-  </tr>
-</thead>
-<tbody class="commits" id="commitid__{{ rev.id }}">
-  <tr><td colspan="2" style="text-align:center;">Loading... <img src="/media/images/ajax-loader.gif" align="bottom"></td></tr>
-</tbody>
-  <script type="text/javascript">
-    var revisionid = $("tbody.commits").attr("id");
-    loadoption = "revisionid=" + revisionid.split('__')[1];
-    $("#" + revisionid).load("logs/", loadoption);
-  </script>
-{% endifnotequal %}
 </table>
+
+{% ifnotequal exe.project.repo_type 'N' %}
+  <table class="revision">
+    <thead class="commits">
+      <tr>
+        <th colspan="2">Commit logs</th>
+      </tr>
+    </thead>
+    <tbody class="commits" id="commitid__{{ rev.id }}">
+      <tr><td colspan="2" style="text-align:center;">Loading... <img src="/media/images/ajax-loader.gif" align="bottom"></td></tr>
+    </tbody>
+    <script type="text/javascript">
+      var revisionid = $("tbody.commits").attr("id");
+      loadoption = "revisionid=" + revisionid.split('__')[1];
+      $("#" + revisionid).load("logs/", loadoption);
+    </script>
+</table>
+{% endifnotequal %}
 </div>

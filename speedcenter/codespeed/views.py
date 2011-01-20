@@ -50,7 +50,8 @@ def getbaselineexecutables():
     if hasattr(settings, 'def_baseline') and settings.def_baseline != None:
         try:
             for base in baseline:
-                if base['key'] == "none": continue
+                if base['key'] == "none":
+                    continue
                 exename = settings.def_baseline['executable']
                 commitid = settings.def_baseline['revision']
                 if base['executable'].name == exename and base['revision'].commitid == commitid:
@@ -122,7 +123,8 @@ def getcomparisonexes():
     return executables, executablekeys
 
 def getcomparisondata(request):
-    if request.method != 'GET': return HttpResponseNotAllowed('GET')
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
     data = request.GET
     
     executables, exekeys = getcomparisonexes()
@@ -149,12 +151,14 @@ def getcomparisondata(request):
     return HttpResponse(json.dumps( compdata ))
 
 def comparison(request):
-    if request.method != 'GET': return HttpResponseNotAllowed('GET')
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
     data = request.GET
     
     # Configuration of default parameters
     defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment: return no_environment_error()
+    if not defaultenvironment:
+        return no_environment_error()
     if 'env' in data:
         try:
             defaultenvironment = Environment.objects.get(name=data['env'])
@@ -185,7 +189,8 @@ def comparison(request):
     checkedexecutables = []
     if 'exe' in data:
         for i in data['exe'].split(","):
-            if not i: continue
+            if not i:
+                continue
             if i in exekeys:
                 checkedexecutables.append(i)
     elif hasattr(settings, 'com_executables') and\
@@ -284,7 +289,8 @@ def comparison(request):
     })
 
 def gettimelinedata(request):
-    if request.method != 'GET': return HttpResponseNotAllowed('GET')
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
     data = request.GET
     
     timeline_list = {'error': 'None', 'timelines': []}
@@ -374,12 +380,14 @@ def gettimelinedata(request):
     return HttpResponse(json.dumps( timeline_list ))
 
 def timeline(request):
-    if request.method != 'GET': return HttpResponseNotAllowed('GET')
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
     data = request.GET
     
     # Configuration of default parameters
     defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment: return no_environment_error()
+    if not defaultenvironment:
+        return no_environment_error()
     if 'env' in data:
         try:
             defaultenvironment = Environment.objects.get(name=data['env'])

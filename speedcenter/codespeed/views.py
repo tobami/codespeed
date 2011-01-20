@@ -701,7 +701,7 @@ def addresult(request):
         
     create_report_when_enough_results_were_added(rev, exe, e)
 
-    return HttpResponse("Result data saved succesfully")
+    return HttpResponse("Result data saved successfully", status=202)
 
 
 def add_data_to_database(data, e):
@@ -797,4 +797,4 @@ def addresults(request):
     # after all results are added
     create_report_when_enough_results_were_added(rev, exe, e)
 
-    return HttpResponse("Result data saved succesfully", status=202)
+    return HttpResponse("Result data saved successfully", status=202)

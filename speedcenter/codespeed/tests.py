@@ -28,8 +28,8 @@ class AddResultTest(TestCase):
         Add result data using default options
         """
         response = self.client.post(self.path, self.data)
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.content, "Result data saved succesfully")
+        self.assertEquals(response.status_code, 202)
+        self.assertEquals(response.content, "Result data saved successfully")
         e = Environment.objects.get(name='bigdog')
         b = Benchmark.objects.get(name='Richards')
         self.assertEquals(b.benchmark_type, "C")
@@ -59,8 +59,8 @@ class AddResultTest(TestCase):
         modified_data['max'] = 2
         modified_data['min'] = 1.0
         response = self.client.post(self.path, modified_data)
-        self.assertEquals(response.status_code, 200)
-        self.assertEquals(response.content, "Result data saved succesfully")
+        self.assertEquals(response.status_code, 202)
+        self.assertEquals(response.content, "Result data saved successfully")
         e = Environment.objects.get(name='bigdog')
         p = Project.objects.get(name='pypy')
         r = Revision.objects.get(commitid='23232', project=p)
@@ -150,7 +150,7 @@ class AddResultsTest(TestCase):
                     {'json' : json.dumps(self.data)})
 
         self.assertEquals(response.status_code, 202)
-        self.assertEquals(response.content, "Result data saved succesfully")
+        self.assertEquals(response.content, "Result data saved successfully")
         e = Environment.objects.get(name='bigdog')        
         b = Benchmark.objects.get(name='Richards')
         self.assertEquals(b.benchmark_type, "C")

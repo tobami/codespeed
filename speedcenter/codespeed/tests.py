@@ -86,7 +86,7 @@ class AddResultTest(TestCase):
         bad_name = 'bigdog1'
         self.data['environment'] = bad_name
         response = self.client.post(self.path, self.data)
-        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.status_code, 400)
         self.assertEquals(response.content, "Environment " + bad_name + " not found")
         self.data['environment'] = 'bigdog'
 
@@ -149,7 +149,7 @@ class AddResultsTest(TestCase):
         response = self.client.post(self.path,  
                     {'json' : json.dumps(self.data)})
 
-        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.status_code, 202)
         self.assertEquals(response.content, "Result data saved succesfully")
         e = Environment.objects.get(name='bigdog')        
         b = Benchmark.objects.get(name='Richards')
@@ -199,7 +199,7 @@ class AddResultsTest(TestCase):
         response = self.client.post(self.path,  
                     {'json' : json.dumps(self.data)})
         #print response
-        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.status_code, 400)
         self.assertEquals(response.content, "Environment " + bad_name + " not found")
         data['environment'] = 'bigdog'
 

@@ -788,9 +788,9 @@ def addresults(request):
 
         # Check that Environment exists
         try:
-            e = get_object_or_404(Environment, name=result['environment'])
-        except Http404:
-            return HttpResponseNotFound("Environment " + result["environment"] + " not found")
+            e = Environment.objects.get(name=result['environment'])
+        except Environment.DoesNotExist:
+            return HttpResponseBadRequest("Environment %(environment)s not found" % result)
 
         rev, exe = add_data_to_database(result, e)
 

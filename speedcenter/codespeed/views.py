@@ -700,7 +700,7 @@ def addresult(request):
     rev, exe = add_data_to_database(data, e)
         
     create_report_when_enough_results_were_added(rev, exe, e)
-
+    
     return HttpResponse("Result data saved successfully", status=202)
 
 
@@ -767,18 +767,24 @@ def create_report_when_enough_results_were_added(rev, exe, e):
         # If there is are at least as many results as in the last revision,
         # create new report
         if len(current_results) >= len(last_results):
-            report, created = Report.objects.get_or_create(
+            logging.debug("create_report_when_enough_results_were_added: About to create new report")
+            report, _created = Report.objects.get_or_create(
                 executable=exe, environment=e, revision=rev
             )
-            report.full_clean()
+            #report.full_clean()
             report.save()
+            logging.debug("create_report_when_enough_results_were_added: Created new report.")
 
 def addresults(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed('POST')
     data = json.loads(request.POST['json'])
     
+    logging.info("Addresults request with %d entries." % len(data))
+    
+    i = 1
     for result in data:
+        logging.debug("Addresult: start processing item %d." % i)
         problematic = identify_missing_or_empty_data(result)
         for key, empty in problematic.items():
             if empty:
@@ -793,8 +799,19 @@ def addresults(request):
             return HttpResponseBadRequest("Environment %(environment)s not found" % result)
 
         rev, exe = add_data_to_database(result, e)
+        
+        logging.debug("Addresult: completed processing of item %d." %i)
+        i += 1
 
+    logging.debug("Addresult: done processing all items. Create report if necessary.")
+    
     # after all results are added
-    create_report_when_enough_results_were_added(rev, exe, e)
-
+    try:
+        create_report_when_enough_results_were_added(rev, exe, e)
+    except Exception as e:
+        logging.error("Something went wrong while creating the report: %s", e)
+        raise e
+    
+    logging.debug("Addresult: completed")
+    
     return HttpResponse("Result data saved successfully", status=202)

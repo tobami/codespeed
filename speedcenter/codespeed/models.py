@@ -286,6 +286,9 @@ class Report(models.Model):
                 if not len(resultquery): continue
 
                 resobj = resultquery.filter(benchmark=bench)[0]
+                
+                if resobj.value < 0:
+                    continue
 
                 std_dev = resobj.std_dev
                 if std_dev is not None: has_stddev = True

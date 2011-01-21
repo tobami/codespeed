@@ -67,8 +67,21 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware'
 )
+
+if DEBUG:
+    # Define a class that logs unhandled errors
+    class LogUncatchedErrors:
+        def process_exception(self, request, exception):
+            import traceback
+            import logging
+            logging.error("Unhandled Exception on request for %s\n%s" %
+                                 (request.build_absolute_uri(),
+                                  traceback.format_exc()))
+    # And add it to the middleware classes
+    MIDDLEWARE_CLASSES += ('settings.LogUncatchedErrors',)
+
 
 ROOT_URLCONF = 'speedcenter.urls'
 

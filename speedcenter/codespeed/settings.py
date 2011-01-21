@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 ## General default options ##
-website_name = "MySpeedSite"
+website_name = "MySpeedSite" # This name will be used in the reports RSS feed
 
 def_environment = None #Name of the environment which should be selected as default
 

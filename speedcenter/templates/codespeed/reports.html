@@ -1,6 +1,6 @@
 {% if reports|length %}
 <table class="reports">
-    <caption>Latest runs <a href="/feeds/latest/"><img src="media/images/rss.png" /></a></caption>
+    <caption>Latest Results <a href="/feeds/latest/"><img src="media/images/rss.png" alt="RSS feed" title="Subscribe to the results RSS feed" /></a></caption>
     <tbody>
     {% for report in reports %}  <tr class="status-{{ report.colorcode }}">
         <td><label title="lessisbetter" style="display:none;">rev={{ report.revision.commitid }}&exe= {{ report.executable.id }}&env={{ report.environment.name }}</label>{{ report.revision }}</td><td>{{ report.executable }}@{{ report.environment}}</td>

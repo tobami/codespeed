@@ -55,7 +55,8 @@ def getbaselineexecutables():
     if hasattr(settings, 'def_baseline') and settings.def_baseline != None:
         try:
             for base in baseline:
-                if base['key'] == "none": continue
+                if base['key'] == "none":
+                    continue
                 exename = settings.def_baseline['executable']
                 commitid = settings.def_baseline['revision']
                 if base['executable'].name == exename and base['revision'].commitid == commitid:
@@ -127,7 +128,8 @@ def getcomparisonexes():
     return executables, executablekeys
 
 def getcomparisondata(request):
-    if request.method != 'GET': return HttpResponseNotAllowed('GET')
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
     data = request.GET
 
     executables, exekeys = getcomparisonexes()
@@ -154,12 +156,14 @@ def getcomparisondata(request):
     return HttpResponse(json.dumps( compdata ))
 
 def comparison(request):
-    if request.method != 'GET': return HttpResponseNotAllowed('GET')
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
     data = request.GET
 
     # Configuration of default parameters
     defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment: return no_environment_error()
+    if not defaultenvironment:
+        return no_environment_error()
     if 'env' in data:
         try:
             defaultenvironment = Environment.objects.get(name=data['env'])
@@ -170,7 +174,8 @@ def comparison(request):
     checkedenviros = []
     if 'env' in data:
         for i in data['env'].split(","):
-            if not i: continue
+            if not i:
+                continue
             try:
                 checkedenviros.append(Environment.objects.get(id=int(i)))
             except Environment.DoesNotExist:
@@ -190,11 +195,12 @@ def comparison(request):
     checkedexecutables = []
     if 'exe' in data:
         for i in data['exe'].split(","):
-            if not i: continue
+            if not i:
+                continue
             if i in exekeys:
                 checkedexecutables.append(i)
-    elif hasattr(settings, 'com_executables') and\
-        settings.comp_executables != None:
+    elif hasattr(settings, 'comp_executables') and\
+        settings.comp_executables:
         for exe, rev in settings.comp_executables:
             try:
                 exe = Executable.objects.get(name=exe)
@@ -267,7 +273,11 @@ def comparison(request):
         settings.normalization:
         # Uncheck exe used for normalization when normalization is chosen as default in the settings
         selectedbaseline = exekeys[0]#this is the default baseline
-        checkedexecutables.remove(selectedbaseline)
+        try:
+            checkedexecutables.remove(selectedbaseline)
+        except ValueError:
+            pass#the selected baseline was not checked
+    
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true" or\
         hasattr(settings, 'chart_orientation') and settings.chart_orientation == 'horizontal':
@@ -289,7 +299,8 @@ def comparison(request):
     }, context_instance=RequestContext(request))
 
 def gettimelinedata(request):
-    if request.method != 'GET': return HttpResponseNotAllowed('GET')
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
     data = request.GET
 
     timeline_list = {'error': 'None', 'timelines': []}
@@ -379,12 +390,14 @@ def gettimelinedata(request):
     return HttpResponse(json.dumps( timeline_list ))
 
 def timeline(request):
-    if request.method != 'GET': return HttpResponseNotAllowed('GET')
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
     data = request.GET
 
     # Configuration of default parameters
     defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment: return no_environment_error()
+    if not defaultenvironment:
+        return no_environment_error()
     if 'env' in data:
         try:
             defaultenvironment = Environment.objects.get(name=data['env'])

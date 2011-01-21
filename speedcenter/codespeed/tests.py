@@ -27,7 +27,7 @@ class AddResultTest(TestCase):
         Add result data using default options
         """
         response = self.client.post(self.path, self.data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.status_code, 202)
         self.assertEquals(response.content, "Result data saved succesfully")
         e = Environment.objects.get(name='bigdog')
         b = Benchmark.objects.get(name='Richards')
@@ -58,12 +58,15 @@ class AddResultTest(TestCase):
         modified_data['max'] = 2
         modified_data['min'] = 1.0
         response = self.client.post(self.path, modified_data)
-        self.assertEquals(response.status_code, 200)
+        self.assertEquals(response.status_code, 202)
         self.assertEquals(response.content, "Result data saved succesfully")
         e = Environment.objects.get(name='bigdog')
         p = Project.objects.get(name='pypy')
         r = Revision.objects.get(commitid='23232', project=p)
-        self.assertEquals(r.date, self.cdate)
+
+        # Tweak the resolution down to avoid failing over very slight differences:
+        self.assertEquals(r.date.replace(microsecond=0), self.cdate.replace(microsecond=0))
+
         i = Executable.objects.get(name='pypy-c')
         b = Benchmark.objects.get(name='Richards')
         res = Result.objects.get(
@@ -83,7 +86,7 @@ class AddResultTest(TestCase):
         bad_name = 'bigdog1'
         self.data['environment'] = bad_name
         response = self.client.post(self.path, self.data)
-        self.assertEquals(response.status_code, 404)
+        self.assertEquals(response.status_code, 400)
         self.assertEquals(response.content, "Environment " + bad_name + " not found")
         self.data['environment'] = 'bigdog'
 

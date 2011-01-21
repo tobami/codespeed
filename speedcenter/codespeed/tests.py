@@ -113,6 +113,52 @@ class AddResultTest(TestCase):
             self.assertEquals(response.status_code, 400)
             self.assertEquals(response.content, 'Key "' + key + '" missing from request')
             self.data[key] = backup
+            
+    def test_model_integrity_and_error_handling(self):
+        """
+        Test that violations of the model are handled properly.
+        """
+        # first check that the limits work
+        self.data['project']   = 'MyProject 01234567890123456789'
+        self.data['benchmark'] = 'Benchmark 01234567890123456789'
+        self.data['executable']= 'Executable01234567890123456789'
+        
+        response = self.client.post(self.path, self.data)
+        self.assertEquals(response.status_code, 202)
+        self.assertEquals(response.content, "Result data saved successfully")
+        
+        b = Benchmark.objects.get(name='Benchmark 01234567890123456789')
+        self.assertEquals(b.benchmark_type, "C")
+        self.assertEquals(b.name, self.data['benchmark'])
+        
+        p = Project.objects.get(name='MyProject 01234567890123456789')
+        self.assertEquals(p.name, self.data['project'])
+        
+        # now test that going beyond the limit does produce a reasonable error
+        self.data['commitid'] = '124'
+        self.data['project']   = 'MyProject 01234567890123456789---------more-than-allowed'
+        self.data['benchmark'] = 'Benchmark 01234567890123456789---------more-than-allowed'
+        self.data['executable']= 'Executable01234567890123456789---------more-than-allowed'
+        self.data['result_value']=456456
+        response = self.client.post(self.path, self.data)
+        
+        #self.assertEquals(response.content, "Result data saved successfully")
+        
+        self.data['commitid'] = '125'
+        self.data['result_value']=456456456
+        response = self.client.post(self.path, self.data)
+        
+        self.data['commitid'] = '126'
+        self.data['result_value']=456456456456
+        response = self.client.post(self.path, self.data)
+        
+        self.data['commitid'] = '127'
+        response = self.client.post(self.path, self.data)
+        self.assertEquals(response.content, "Result data saved successfully")
+        
+        self.assertEquals(response.status_code, 400)
+        #self.assertEquals(response.content, "Something reasonable here")
+        
 
 class AddResultsTest(TestCase):
     def setUp(self):

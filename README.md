@@ -155,19 +155,39 @@ The file `speedcenter/codespeed/settings.py` can contain customizations of
 several parameters (the file includes comments with full examples).
 
 General settings:
+* `website_name`: The RSS results feed will use this parameter as the site name
+* `def_baseline`: Defines which baseline option will be chosen as default in
+  the Timeline and Changes views.
+* `def_environment`: Defines which environment should be selected as default
+  in the Changes and Timeline views.
+* `change_threshold`
+* `trend_threshold`
 
 * `defaultexecutable`: in the Changes view, a random executable is chosen as
   default. It that doesn't suite you, you can specify here which one should be
   selected. You need to specify its id (since the name alone is not unique).
 * `defaultbaseline`: Defines which baseline option will be chosen as default in
   the Timeline and Changes views.
-* `defaultenvironment`: Defines which environment should be selected as default in
-  the Changes and Timeline views.
+* `defaultenvironment`: Defines which environment should be selected as
+  default in the Changes and Timeline views.
 
 Comparison view settings:
 
 * `charttype`: Chooses the default chart type (normal bars, stacked bars or
   relative bars)
-* `normalization`: Defines whether normalization should be enabled as default in
-  the Comparison view.
-* `orientation`: `horizontal` or `vertical`
+* `normalization`: Defines whether normalization should be enabled as default
+  in the Comparison view.
+* `orientation`: horizontal or vertical
+* `comp_executables`: per default all executables will be checked. When there
+  are a large number of tags or executables, it is better to only select a few
+  so that the plots are not too cluttered.
+
+## Getting help
+For help regarding the configuration of Codespeed, or to share any ideas or
+suggestions you may have, please post on Codespeed's [discussion
+group](http://groups.google.com/group/codespeed)
+
+## Reporting bugs
+
+If you find any bug in Codespeed please report it on the
+[Github issue tracker](https://github.com/tobami/codespeed/issues)

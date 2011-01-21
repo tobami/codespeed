@@ -1,5 +1,15 @@
 == Change Log ==
 
+=== Version 0.7.0, Jan 20, 2011 ===
+
+Major features:
+* New home page with result Reports: show summary of latest benchmark runs
+* RSS feed showing Reports
+* Support for Netbooks, tablets, and smartphones screen sizes through the use of media query
+* Big performance improvements in the Changes and Timeline views
+* Added settings for change and trend thresholds and default comparison executables
+
+
 === Version 0.6.2, Jul 25, 2010 ===
 
 Bug Fix release

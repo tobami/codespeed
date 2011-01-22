@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.utils import simplejson as json
-from codespeed import settings
+from speedcenter.codespeed import settings
 
 class Project(models.Model):
     REPO_TYPES = (

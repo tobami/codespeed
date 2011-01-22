@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
-from codespeed.models import Project, Revision, Executable, Benchmark
-from codespeed.models import Result, Environment, Report
+from speedcenter.codespeed.models import Project, Revision, Executable, Benchmark
+from speedcenter.codespeed.models import Result, Environment, Report
 from django.contrib import admin
 
 class ProjectAdmin(admin.ModelAdmin):

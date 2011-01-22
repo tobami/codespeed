@@ -9,9 +9,9 @@ from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpRespo
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 
-from codespeed import settings
-from codespeed.models import Environment, Report
-from codespeed.models import Project, Revision, Result, Executable, Benchmark
+from speedcenter.codespeed import settings
+from speedcenter.codespeed.models import Environment, Report
+from speedcenter.codespeed.models import Project, Revision, Result, Executable, Benchmark
 
 
 def no_environment_error():

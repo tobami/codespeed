@@ -2,7 +2,7 @@
 from django.test import TestCase
 from datetime import datetime
 from django.test.client import Client
-from codespeed.models import Project, Benchmark, Revision, Executable, Environment, Result
+from speedcenter.codespeed.models import Project, Benchmark, Revision, Executable, Environment, Result
 from django.core.urlresolvers import reverse
 import copy, json
 

@@ -1,6 +1,6 @@
 from django.contrib.syndication.feeds import Feed
-from codespeed.models import Report
-from codespeed import settings
+from speedcenter.codespeed.models import Report
+from speedcenter.codespeed import settings
 
 
 class LatestEntries(Feed):

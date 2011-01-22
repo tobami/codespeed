@@ -16,6 +16,74 @@
   var seriesColors = ["#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#ff5800", "#0085cc"];
   var seriesindex = new Array();
 
+  
+  /**
+   * A class to parse color values
+   * @author Stoyan Stefanov <sstoo@gmail.com>
+   * @link   http://www.phpied.com/rgb-color-parser-in-javascript/
+   * @license Use it if you like it
+   */
+  function RGBColor(color_string)
+  {
+      this.ok = false;
+
+      // strip any leading #
+      if (color_string.charAt(0) == '#') { // remove # if any
+          color_string = color_string.substr(1,6);
+      }
+
+      color_string = color_string.replace(/ /g,'');
+      color_string = color_string.toLowerCase();
+
+
+      // array of color definition objects
+      var color_defs = [
+          {
+              re: /^(\w{2})(\w{2})(\w{2})$/,
+              example: ['#00ff00', '336699'],
+              process: function (bits){
+                  return [
+                      parseInt(bits[1], 16),
+                      parseInt(bits[2], 16),
+                      parseInt(bits[3], 16)
+                  ];
+              }
+          },
+          {
+              re: /^(\w{1})(\w{1})(\w{1})$/,
+              example: ['#fb0', 'f0f'],
+              process: function (bits){
+                  return [
+                      parseInt(bits[1] + bits[1], 16),
+                      parseInt(bits[2] + bits[2], 16),
+                      parseInt(bits[3] + bits[3], 16)
+                  ];
+              }
+          }
+      ];
+
+      // search through the definitions to find a match
+      for (var i = 0; i < color_defs.length; i++) {
+          var re = color_defs[i].re;
+          var processor = color_defs[i].process;
+          var bits = re.exec(color_string);
+          if (bits) {
+              channels = processor(bits);
+              this.r = channels[0];
+              this.g = channels[1];
+              this.b = channels[2];
+              this.ok = true;
+          }
+
+      }
+
+      // validate/cleanup values
+      this.r = (this.r < 0 || isNaN(this.r)) ? 0 : ((this.r > 255) ? 255 : this.r);
+      this.g = (this.g < 0 || isNaN(this.g)) ? 0 : ((this.g > 255) ? 255 : this.g);
+      this.b = (this.b < 0 || isNaN(this.b)) ? 0 : ((this.b > 255) ? 255 : this.b);
+  }
+
+  
   function getConfiguration() {
     var config = new Object();
 
@@ -42,10 +110,35 @@
   }
 
   function renderPlot(data) {
+	// first sort out all failed runs from the data we got here
+	var seriesWithFailedRuns = new Array();
+	for (id in data['executables']) {
+		// to improve the diagram, make sure the data is sorted
+		var results = data['executables'][id];
+		results = results.sort(function (a,b) {return (a[0] == b[0]) ? 0 : ((a[0] < b[0]) ? -1 : 1);})
+		
+		var previousValue = results[0][1];
+		var filterFailed = function (item) {
+	        if (item[1] == -1) {
+	        	if (!seriesWithFailedRuns[id]) {
+                    seriesWithFailedRuns[id] = new Array();
+                }
+	        	item[1] = previousValue; // set the previous value to have a better position on the chart
+                seriesWithFailedRuns[id].push(item);
+	            return false;
+	        }
+	        previousValue = item[1];
+	        return true;
+	    }
+		data['executables'][id] = results.filter(filterFailed);
+	}
+	  
     var plotdata = new Array();
     var series = new Array();
     var lastvalues = new Array();//hopefully the smallest values for determining significant digits.
     seriesindex = new Array();
+    
+    // first add the benchmark results to the plot
     for (id in data['executables']) {
       var colorid = $("#executable > div.boxbody").find("input[value='"+id+"']").attr('id').slice(10);
       while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
@@ -57,6 +150,22 @@
       plotdata.push(data['executables'][id]);
       lastvalues.push(data['executables'][id][0][1]);
     }
+    
+    // now add all failed runs
+    var i = 0; //STEFAN: perhaps, for that seriesindex should be used 
+    for (id in seriesWithFailedRuns) {
+    	orgColor = new RGBColor(series[i]['color']);
+    	series.push({
+    		"label" : series[i]['label'] + " Failed Runs",
+    		"color" : 'rgb(' + (255 - orgColor.r) + ', ' + (255 - orgColor.g) + ', ' + (255 - orgColor.b) + ')',
+    		showLine:false,
+    		markerOptions:{style:'x', lineWidth:4.0}
+    	});
+    	plotdata.push(seriesWithFailedRuns[id]);
+    	i++;
+    }
+    
+    // add the baseline series
     if (data["baseline"] != "None") {
       series.push({
         "label": $("#baseline option:selected").html(), "color": baselineColor,

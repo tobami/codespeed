@@ -15,6 +15,7 @@ from django.core.cache import cache
 # Import from here on the off-chance someone is using a really old Python:
 from django.utils import simplejson as json
 
+
 GITHUB_URL_RE = re.compile(r'^(?P<proto>\w+)://github.com/(?P<username>[^/]+)/(?P<project>[^/]+)[.]git$')
 
 
@@ -24,20 +25,20 @@ def updaterepo(project, update=True):
 
 def getlogs(endrev, startrev):
     if endrev != startrev:
-        raise NotImplementedError("%s:%s" % (startrev, endrev))
+        commit_ids = endrev.project.revisions.filter(date__lte=endrev.date, date__gte=startrev.date).values_list("commitid", flat=True)
     else:
-        commit_ids = (endrev.commitid, )
-    
+        commit_ids = filter(None, (startrev.commitid, endrev.commitid))
+
     m = GITHUB_URL_RE.match(endrev.project.repo_path)
-    
+
     if not m:
         raise ValueError("Unable to parse Github URL %s" % endrev.project.repo_path)
-        
+
     username = m.group("username")
     project = m.group("project")
-    
+
     logs = []
-    
+
     for commit_id in commit_ids:
         commit_url = 'http://github.com/api/v2/json/commits/show/%s/%s/%s' % (username, project, commit_id)
 
@@ -65,11 +66,11 @@ def getlogs(endrev, startrev):
 
         date = isodate.parse_datetime(commit['committed_date'])
 
-        logs.append({'date': date, 'message': commit['message'], 
+        logs.append({'date': date, 'message': commit['message'],
                         'body': "", # TODO: pretty-print diffs
                         'author': commit['author']['name'],
                         'author_email': commit['author']['email'],
-                        'commitid': commit['id'], 
+                        'commitid': commit['id'],
                         'short_commit_id': commit['id'][0:7],
                         'links': {'Github': 'http://github.com%s' % commit['url']}})
 

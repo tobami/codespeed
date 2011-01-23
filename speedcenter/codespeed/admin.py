@@ -11,23 +11,26 @@ admin.site.register(Project, ProjectAdmin)
 class RevisionAdmin(admin.ModelAdmin):
     list_display = ('commitid', 'project', 'tag', 'date')
     list_filter  = ('project', 'tag', 'date')
-    search_fields = ['commitid']
+    search_fields = ('commitid', 'tag')
 
 admin.site.register(Revision, RevisionAdmin)
 
 class ExecutableAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'id')
+    search_fields = ('name', 'description')
 
 admin.site.register(Executable, ExecutableAdmin)
 
 class BenchmarkAdmin(admin.ModelAdmin):
     list_display = ('name', 'benchmark_type', 'description', 'units_title', 'units', 'lessisbetter')
     ordering = ['name']
+    search_fields = ('name', 'description')
 
 admin.site.register(Benchmark, BenchmarkAdmin)
 
 class EnvironmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'cpu', 'memory', 'os', 'kernel')
+    search_fields = ('name', 'cpu', 'memory', 'os', 'kernel')
 
 admin.site.register(Environment, EnvironmentAdmin)
 

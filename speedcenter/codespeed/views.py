@@ -627,8 +627,10 @@ def displaylogs(request):
             logs = remotelogs
         else:
             error = 'no logs found'
-    except Exception, e:
-        error = str(e)
+    except StandardError, e:
+        logging.error("Unhandled exception displaying logs for %s: %s", rev, e, exc_info=e)
+        error = repr(e)
+
     return render_to_response('codespeed/changes_logs.html',
                                 {'error': error, 'logs': logs },
                                 context_instance=RequestContext(request))

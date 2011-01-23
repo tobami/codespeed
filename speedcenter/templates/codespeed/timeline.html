@@ -110,30 +110,7 @@
   }
 
   function renderPlot(data) {
-	// first sort out all failed runs from the data we got here
-	var seriesWithFailedRuns = new Array();
-	for (id in data['executables']) {
-		// to improve the diagram, make sure the data is sorted
-		var results = data['executables'][id];
-		results = results.sort(function (a,b) {return (a[0] == b[0]) ? 0 : ((a[0] < b[0]) ? -1 : 1);})
-		
-		var previousValue = results[0][1];
-		var filterFailed = function (item) {
-	        if (item[1] == -1) {
-	        	if (!seriesWithFailedRuns[id]) {
-                    seriesWithFailedRuns[id] = new Array();
-                }
-	        	item[1] = previousValue; // set the previous value to have a better position on the chart
-                seriesWithFailedRuns[id].push(item);
-	            return false;
-	        }
-	        previousValue = item[1];
-	        return true;
-	    }
-		data['executables'][id] = results.filter(filterFailed);
-	}
-	  
-    var plotdata = new Array();
+	var plotdata = new Array();
     var series = new Array();
     var lastvalues = new Array();//hopefully the smallest values for determining significant digits.
     seriesindex = new Array();
@@ -153,7 +130,7 @@
     
     // now add all failed runs
     var i = 0; //STEFAN: perhaps, for that seriesindex should be used 
-    for (id in seriesWithFailedRuns) {
+    for (id in data['failed']) {
     	orgColor = new RGBColor(series[i]['color']);
     	series.push({
     		"label" : series[i]['label'] + " Failed Runs",
@@ -161,7 +138,7 @@
     		showLine:false,
     		markerOptions:{style:'x', lineWidth:4.0}
     	});
-    	plotdata.push(seriesWithFailedRuns[id]);
+    	plotdata.push(data['failed'][id]);
     	i++;
     }
     
@@ -255,6 +232,19 @@
       });
       plotdata.push(data["baseline"]);
     }
+    
+    // now add all failed runs
+    var i = 0; //STEFAN: perhaps, for that seriesindex should be used 
+    for (id in data['failed']) {
+        orgColor = new RGBColor(series[i]['color']);
+        series.push({
+            "color" : 'rgb(' + (255 - orgColor.r) + ', ' + (255 - orgColor.g) + ', ' + (255 - orgColor.b) + ')',
+            showLine:false,
+            markerOptions:{style:'x', lineWidth:1.5}
+        });
+        plotdata.push(data['failed'][id]);
+        i++;
+    }
 
     var plotoptions = {
       title: {text: data['benchmark'], fontSize: '1.1em'},
@@ -276,6 +266,32 @@
     };
     plot = $.jqplot(plotid, plotdata, plotoptions);
   }
+  
+  function separateFailedRuns(data) {
+	var seriesWithFailedRuns = new Array();
+    for (id in data['executables']) {
+        // to improve the diagram, make sure the data is sorted
+        var results = data['executables'][id];
+        results = results.sort(function (a,b) {return (a[0] == b[0]) ? 0 : ((a[0] < b[0]) ? -1 : 1);})
+        
+        var previousValue = results[0][1];
+        var filterFailed = function (item) {
+            if (item[1] < 0) {
+                if (!seriesWithFailedRuns[id]) {
+                    seriesWithFailedRuns[id] = new Array();
+                }
+                item[1] = previousValue; // set the previous value to have a better position on the chart
+                seriesWithFailedRuns[id].push(item);
+                return false;
+            }
+            previousValue = item[1];
+            return true;
+        }
+        data['executables'][id] = results.filter(filterFailed);
+        data['failed'] = seriesWithFailedRuns;
+    }
+    return data;
+  }
 
   function render(data) {
     $("#revisions").attr("disabled", false);
@@ -289,7 +305,7 @@
       $("#plotgrid").html(getLoadText("No data available", h, false));
     } else if ($("input[name='benchmark']:checked").val() != "grid") {
       //render single plot when only one benchmark selected
-      renderPlot(data["timelines"][0]);
+      renderPlot(separateFailedRuns(data["timelines"][0]));
       return 1;
     } else {
       //Render Grid of plots
@@ -302,7 +318,7 @@
           $("#benchmark_" + benchid).attr('checked', true);
           refreshContent();
         });
-        renderMiniplot(plotid, data["timelines"][bench]);
+        renderMiniplot(plotid, separateFailedRuns(data["timelines"][bench]));
       }
     }
   }

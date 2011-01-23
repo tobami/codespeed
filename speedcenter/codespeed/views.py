@@ -565,7 +565,7 @@ def changes(request):
         commitid = data['rev']
         try:
             selectedrevision = Revision.objects.get(
-                commitid=commitid, project=defaultexecutable.project
+                commitid__startswith=commitid, project=defaultexecutable.project
             )
             if not selectedrevision in lastrevisions:
                 lastrevisions = list(chain(lastrevisions))

@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import simplejson as json
+
 from speedcenter.codespeed import settings
+
 
 class Project(models.Model):
     REPO_TYPES = (
@@ -43,6 +46,20 @@ class Revision(models.Model):
 
     class Meta:
         unique_together = ("commitid", "project")
+
+    def clean(self):
+        if not self.commitid or self.commitid == "None":
+            raise ValidationError("Invalid commit id %s" % self.commitid)
+
+        if self.project.repo_type == "S":
+            try:
+                long(self.commitid)
+            except ValueError:
+                raise ValidationError("Invalid SVN commit id %s" % self.commitid)
+        elif self.project.repo_type in ("M", "G", "H") and len(self.commitid) != 40:
+            raise ValidationError("Invalid %s commit hash %s" % (
+                                    self.project.get_repo_type_display(),
+                                    self.commitid))
 
 
 class Executable(models.Model):

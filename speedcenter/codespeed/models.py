@@ -65,7 +65,7 @@ class Benchmark(models.Model):
     description = models.CharField(max_length=200, blank=True)
     units_title = models.CharField(max_length=30, default='Time')
     units = models.CharField(max_length=20, default='seconds')
-    lessisbetter = models.BooleanField(default=True)
+    lessisbetter = models.BooleanField("Less is better", default=True)
 
     def __unicode__(self):
         return self.name

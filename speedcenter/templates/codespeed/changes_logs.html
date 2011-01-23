@@ -12,6 +12,15 @@
                 {% endif %}
                 commited
                 <abbr class="commit-id" title="{{ log.commitid }}">{{ log.short_commit_id|default:log.commitid }}</abbr>:
+
+                {% if log.links %}
+                  <ul class="inline">
+                    {% for title, href in log.links.items %}
+                      <li><a href="{{ href }}">{{ title }}</a></li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+
                 <pre class="message">{{ log.message }}</pre>
                 {% if log.body %}
                     <pre class="body">{{ log.body }}</pre>

@@ -7,6 +7,7 @@ class Project(models.Model):
     REPO_TYPES = (
         ('N', 'none'),
         ('G', 'git'),
+        ('H', 'Github.com'),
         ('M', 'mercurial'),
         ('S', 'subversion'),
     )

@@ -642,6 +642,8 @@ def getcommitlogs(rev, startrev, update=False):
         from mercurial import getlogs, updaterepo
     elif rev.project.repo_type == 'G':
         from git import getlogs, updaterepo
+    elif rev.project.repo_type == 'H':
+        from github import getlogs, updaterepo
     else:
         if rev.project.repo_type not in ("N", ""):
             logging.warning("Don't know how to retrieve logs from %s project",

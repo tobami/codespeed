@@ -25,7 +25,7 @@ class Project(models.Model):
 
 class Revision(models.Model):
     commitid = models.CharField(max_length=42)#git and mercurial's SHA-1 length is 40
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, related_name="revisions")
     tag = models.CharField(max_length=20, blank=True)
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
@@ -48,7 +48,7 @@ class Revision(models.Model):
 class Executable(models.Model):
     name = models.CharField(unique=True, max_length=30)
     description = models.CharField(max_length=200, blank=True)
-    project = models.ForeignKey(Project)
+    project = models.ForeignKey(Project, related_name="executables")
 
     def __unicode__(self):
         return self.name
@@ -88,10 +88,12 @@ class Result(models.Model):
     val_min = models.FloatField(blank=True, null=True)
     val_max = models.FloatField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
-    revision = models.ForeignKey(Revision)
-    executable = models.ForeignKey(Executable)
-    benchmark = models.ForeignKey(Benchmark)
-    environment = models.ForeignKey(Environment)
+    revision = models.ForeignKey(Revision, related_name="results")
+    executable = models.ForeignKey(Executable, related_name="results")
+    benchmark = models.ForeignKey(Benchmark, related_name="results")
+    environment = models.ForeignKey(Environment, related_name="results")
+
+    # TODO: Add a benchmark version field
 
     def __unicode__(self):
         return u"%s: %s" % (self.benchmark.name, self.value)
@@ -101,9 +103,9 @@ class Result(models.Model):
 
 
 class Report(models.Model):
-    revision    = models.ForeignKey(Revision)
-    environment = models.ForeignKey(Environment)
-    executable  = models.ForeignKey(Executable)
+    revision    = models.ForeignKey(Revision, related_name="reports")
+    environment = models.ForeignKey(Environment, related_name="reports")
+    executable  = models.ForeignKey(Executable, related_name="reports")
     summary     = models.CharField(max_length=30, blank=True)
     colorcode   = models.CharField(max_length=10, default="none")
     _tablecache = models.TextField(blank=True)

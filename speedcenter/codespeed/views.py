@@ -754,9 +754,9 @@ def addresult(request):
     # Trigger Report creation when there are enough results
     last_revs = Revision.objects.order_by('-date')[:2]
     if len(last_revs) > 1:
-        current_results = rev.result_set.filter(
+        current_results = rev.results.filter(
             executable=exe).filter(environment=e)
-        last_results = last_revs[1].result_set.filter(
+        last_results = last_revs[1].results.filter(
             executable=exe).filter(environment=e)
         # If there is are at least as many results as in the last revision,
         # create new report

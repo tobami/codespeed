@@ -4,6 +4,7 @@
 {{ block.super }}
 <!--[if IE]><script language="javascript" type="text/javascript" src="/media/js/jqplot/excanvas.min.js"></script><![endif]-->
 <link rel="stylesheet" type="text/css" href="../media/js/jqplot/jquery.jqplot.min.css" />
+<script type="text/javascript" src="../media/js/jquery.address-1.3.1.min.js?autoUpdate=0"></script>
 <script type="text/javascript" src="../media/js/jqplot/jquery.jqplot.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.cursor.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.highlighter.min.js"></script>
@@ -82,7 +83,6 @@
       this.g = (this.g < 0 || isNaN(this.g)) ? 0 : ((this.g > 255) ? 255 : this.g);
       this.b = (this.b < 0 || isNaN(this.b)) ? 0 : ((this.b > 255) ? 255 : this.b);
   }
-
   
   function getConfiguration() {
     var config = new Object();
@@ -317,7 +317,7 @@
         $("#" + plotid).click(function() {
           var benchid = $(this).attr("id").slice(5);
           $("#benchmark_" + benchid).attr('checked', true);
-          refreshContent();
+          updateUrl();
         });
         renderMiniplot(plotid, separateFailedRuns(data["timelines"][bench]));
       }
@@ -331,34 +331,51 @@
       $.getJSON("json/", getConfiguration(), render);
     });
   }
+    
+  function updateUrl() {
+	cfg = getConfiguration();
+	for (param in cfg) {
+		$.address.parameter(param, cfg[param])
+	}
+	$.address.update();
+	refreshContent();
+  }
+  
+  function valueOrDefault(obj, defaultObj) {
+	  return (obj) ? obj : defaultObj;
+  }
+  
+  function setValuesOfInputFields(event) {
+	// either set the default value, or the one parsed from the url
 
-  $(function() {
-    $.ajaxSetup ({
-      cache: false
-    });
-    //Set default amount of revisions shown
-    $("#revisions").val({{ defaultlast }});
-    $("#revisions").change(refreshContent);
+	//Set default amount of revisions shown
+    $("#revisions").val(valueOrDefault(event.parameters.rev, {{ defaultlast }}));
+    
 
     //Reset all checkboxes
     $("input:checkbox").removeAttr('checked');
 
     //Set default selected executables
-    $("#baseline").val("{{ defaultbaseline }}");
-    $("#baseline").change(refreshContent);
-
-    {% for checkedexecutable in checkedexecutables %}
-    $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
-    {% endfor %}
-    $("input[name='executable']").change(refreshContent);
-
+    $("#baseline").val(valueOrDefault(event.parameters.base, "{{ defaultbaseline }}"));
+    
+    if (event.parameters.exe) {
+        for (exec in event.parameters.exe) {
+            $("input[name='executable']").filter('[value='+exec+']').attr('checked', true);
+        }
+    }
+    else {
+        {% for checkedexecutable in checkedexecutables %}
+        $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
+        {% endfor %}
+    }
+    
     //Set default selected benchmark
-    $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
-    $("input[name='benchmark']").change(refreshContent);
+    $("input:radio[name='benchmark']").filter('[value=' + valueOrDefault(event.parameters.ben, '{{ defaultbenchmark }}') + ']').attr('checked', true);
+    
 
     //Set default selected environment
-    $("input:radio[name='environments']").filter('[value={{ defaultenvironment.name }}]').attr('checked', true);
-    $("input[name='environments']").change(refreshContent);
+    $("input:radio[name='environments']").filter('[value=' + valueOrDefault(event.parameters.env, '{{ defaultenvironment.name }}') + ']').attr('checked', true);
+    
 
     //Add color legend to executable list
     $("#executable div.boxbody > ul > li > input").each(function() {
@@ -366,10 +383,33 @@
       $(this).parent().find("div.seriescolor").css("background-color", seriesColors[colorid-1]);
     });
     $("#baselinecolor").css("background-color", baselineColor);
+  }
+  
+  function initializeSite(event) {
+	setValuesOfInputFields(event);
+	 
+    $("#revisions").change(updateUrl);
+    $("#baseline").change(updateUrl);
+    $("input[name='executable']").change(updateUrl);
+    $("input[name='benchmark']").change(updateUrl);
+    $("input[name='environments']").change(updateUrl);
+  }
+  
+  function refreshSite(event) {
+	  setValuesOfInputFields(event);
+	  refreshContent();
+  }
+
+  $(function() {
+    $.ajaxSetup ({
+      cache: false
+    });
 
     $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
 
-    refreshContent();
+    
+    // Init and change handlers are set to the refreshContent handler
+    $.address.init(initializeSite).change(refreshSite);
   });
 </script>
 {% endblock %}

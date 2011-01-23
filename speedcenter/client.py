@@ -7,9 +7,9 @@ import urllib
 import sys
 
 
-def save_to_codespeed(url, project, commitid, executable, benchmark,
+def save_to_speedcenter(url, project, commitid, executable, benchmark,
                         result_value, **kwargs):
-    """Save a benchmark result to your codespeed server
+    """Save a benchmark result to your speedcenter server
 
     Mandatory:
 
@@ -112,7 +112,7 @@ if __name__ == "__main__":
         kwargs['url'] = urljoin(kwargs['url'], '/result/add/')
 
     try:
-        save_to_codespeed(**kwargs)
+        save_to_speedcenter(**kwargs)
         sys.exit(0)
     except StandardError, e:
         logging.error("Error saving results: %s", e)

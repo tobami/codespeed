@@ -125,7 +125,8 @@
       });
       seriesindex.push(id);
       plotdata.push(data['executables'][id]);
-      lastvalues.push(data['executables'][id][0][1]);
+      if (data['executables'][id].length > 0)
+    	  lastvalues.push(data['executables'][id][0][1]);
     }
     
     // now add all failed runs

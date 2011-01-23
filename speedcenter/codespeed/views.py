@@ -653,9 +653,7 @@ def getcommitlogs(rev, startrev, update=False):
         return logs
 
     if update:
-        resp = updaterepo(rev.project)[0]
-        if resp.get('error', None):
-            return resp
+        updaterepo(rev.project)
 
     logs = getlogs(rev, startrev)
 

@@ -703,26 +703,21 @@ def addresult(request):
     p, created = Project.objects.get_or_create(name=data["project"])
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
 
-    rev, created = Revision.objects.get_or_create(
-        commitid=data['commitid'],
-        project=p,
-    )
+    try:
+        rev = p.revisions.get(commitid=data['commitid'])
+    except Revision.DoesNotExist:
+        rev = Revision(project=p, commitid=data['commitid'],
+                        date=data.get("revision_date", datetime.now()))
+        rev.full_clean()
+        rev.save()
 
-    if created:
-        if 'revision_date' in data:
-            rev.date = data["revision_date"]
-        else:
+        if not rev.date:
             try:
                 saverevisioninfo(rev)
             except StandardError, e:
                 logging.warning("unable to save revision %s info: %s", rev, e,
                                 exc_info=e)
 
-        if not rev.date:
-            rev.date = datetime.now()
-
-        rev.full_clean()
-        rev.save()
 
     exe, created = Executable.objects.get_or_create(
         name=data['executable'],

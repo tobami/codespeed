@@ -628,7 +628,7 @@ def displaylogs(request):
         else:
             error = 'no logs found'
     except StandardError, e:
-        logging.error("Unhandled exception displaying logs for %s: %s", rev, e, exc_info=e)
+        logging.error("Unhandled exception displaying logs for %s: %s", rev, e, exc_info=True)
         error = repr(e)
 
     return render_to_response('codespeed/changes_logs.html',
@@ -716,7 +716,7 @@ def addresult(request):
                 saverevisioninfo(rev)
             except StandardError, e:
                 logging.warning("unable to save revision %s info: %s", rev, e,
-                                exc_info=e)
+                                exc_info=True)
 
 
     exe, created = Executable.objects.get_or_create(

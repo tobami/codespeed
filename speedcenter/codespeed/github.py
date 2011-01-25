@@ -1,3 +1,4 @@
+# encoding: utf-8
 """
 Specialized Git backend which uses Github.com for all of the heavy work
 
@@ -69,7 +70,10 @@ def getlogs(endrev, startrev):
 
         # Overwrite any existing data we might have for this revision since
         # we never want our records to be out of sync with the actual VCS:
-        revision.date = date
+
+        # We need to convert the timezone-aware date to a naive (i.e.
+        # timezone-less) date in UTC to avoid killing MySQL:
+        revision.date = date.astimezone(isodate.tzinfo.Utc()).replace(tzinfo=None)
         revision.author = commit['author']['name']
         revision.message = commit['message']
         revision.full_clean()

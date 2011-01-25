@@ -16,6 +16,14 @@ a:link, a:visited, a:hover { color: blue; text-decoration: none; }
     font-size: 14px;
 }
 
+.float-right {
+    float: right;
+}
+
+.float-left {
+    float: left;
+}
+
 /* Structural */
 div#container { width: 98%; margin: 0; margin-left: auto; margin-right: auto; }
 

@@ -32,14 +32,16 @@ class Revision(models.Model):
     tag = models.CharField(max_length=20, blank=True)
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
+    # TODO: Replace author with author name/email or just make it larger so we can do "name <email>"?
     author = models.CharField(max_length=30, blank=True)
+    # TODO: Add committer field(s) for DVCSes which make the distinction?
 
     def get_short_commitid(self):
         return self.commitid[:10]
 
     def __unicode__(self):
         if self.date is None:
-            date = "Unknown"
+            date = None
         else:
             date = self.date.isoformat()
         return " - ".join(filter(None, (date, self.commitid, self.tag)))

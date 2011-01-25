@@ -359,13 +359,17 @@ table.tablesorter tbody tr.highlight td, tr.highlight td {
     cursor: pointer;
 }
 
-table.info th, table.revision th { background-color: #F1F1F1; }
-table.info th, table.info td, table.revision th, table.revision td { padding: 0.3em; }
-table.info tbody td.infofirst { width: 10em; text-align: left; }
-
-.revision tbody th {
-    font-weight: inherit;
+table.revision {
+    table-layout: fixed;
 }
+
+table.revision col:first-child, table.info col:first-child {
+    width: 6em;
+}
+
+table.info th, table.revision th { background-color: #F1F1F1; vertical-align: top; }
+table.info th, table.info td, table.revision th, table.revision td { padding: 0.3em; }
+table.info tbody .infofirst { width: 10em; text-align: left; }
 
 .repo-path td, .commit-id td {
     font-family: monospace;
@@ -378,6 +382,12 @@ tbody.commits tr td.date, table.revision tr .infofirst, div.author, span.note, t
     font-size: 92%;
     color: #666666;
 }
+
+.revision tbody th {
+    font-weight: inherit;
+    font:  inherit;
+}
+
 tbody.commits tr td.date {
 	padding: 0.3em;
 	width: 5em;

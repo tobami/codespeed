@@ -3,8 +3,16 @@
 {% else %}
     {% for log in logs %}
         <tr>
-            <td class="date">{{ log.date }}</td>
+            <th class="date infofirst">{{ log.date }}</th>
             <td>
+                {% if log.links %}
+                    <ul class="inline float-right">
+                        {% for title, href in log.links.items %}
+                            <li><a href="{{ href }}">{{ title }}</a></li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+
                 {% if log.author_email %}
                     <a class="author fn" href="mailto:{{ log.author_email }}">{{ log.author }}</a>
                 {% else %}
@@ -13,17 +21,9 @@
                 commited
                 <abbr class="commit-id" title="{{ log.commitid }}">{{ log.short_commit_id|default:log.commitid }}</abbr>:
 
-                {% if log.links %}
-                  <ul class="inline">
-                    {% for title, href in log.links.items %}
-                      <li><a href="{{ href }}">{{ title }}</a></li>
-                    {% endfor %}
-                  </ul>
-                {% endif %}
-
-                <pre class="message">{{ log.message }}</pre>
+                <pre class="message">{{ log.message|linebreaksbr|urlize }}</pre>
                 {% if log.body %}
-                    <pre class="body">{{ log.body }}</pre>
+                    <pre class="body">{{ log.body|linebreaksbr|urlize }}</pre>
                 {% endif %}
             </td>
         </tr>

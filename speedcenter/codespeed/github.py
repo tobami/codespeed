@@ -25,9 +25,10 @@ def updaterepo(project, update=True):
 
 def getlogs(endrev, startrev):
     if endrev != startrev:
-        commit_ids = endrev.project.revisions.filter(date__lte=endrev.date, date__gte=startrev.date).values_list("commitid", flat=True)
+        revisions = endrev.project.revisions.filter(date__lte=endrev.date,
+                                                    date__gte=startrev.date)
     else:
-        commit_ids = filter(None, (startrev.commitid, endrev.commitid))
+        revisions = [i for i in (startrev, endrev) if i.commitid]
 
     m = GITHUB_URL_RE.match(endrev.project.repo_path)
 
@@ -39,8 +40,8 @@ def getlogs(endrev, startrev):
 
     logs = []
 
-    for commit_id in commit_ids:
-        commit_url = 'http://github.com/api/v2/json/commits/show/%s/%s/%s' % (username, project, commit_id)
+    for revision in revisions:
+        commit_url = 'http://github.com/api/v2/json/commits/show/%s/%s/%s' % (username, project, revision.commitid)
 
         commit_json = cache.get(commit_url)
 
@@ -65,6 +66,14 @@ def getlogs(endrev, startrev):
         commit = commit_json['commit']
 
         date = isodate.parse_datetime(commit['committed_date'])
+
+        # Overwrite any existing data we might have for this revision since
+        # we never want our records to be out of sync with the actual VCS:
+        revision.date = date
+        revision.author = commit['author']['name']
+        revision.message = commit['message']
+        revision.full_clean()
+        revision.save()
 
         logs.append({'date': date, 'message': commit['message'],
                         'body': "", # TODO: pretty-print diffs

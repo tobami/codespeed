@@ -599,7 +599,7 @@ def reports(request):
         return HttpResponseNotAllowed('GET')
 
     return render_to_response('codespeed/reports.html', {
-        'reports': Report.objects.order_by('-revision')[:10],
+        'reports': Report.objects.order_by('-revision__date')[:10],
     }, context_instance=RequestContext(request))
 
 def displaylogs(request):

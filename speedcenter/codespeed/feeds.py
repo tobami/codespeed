@@ -9,4 +9,4 @@ class LatestEntries(Feed):
     description = "Last benchmark runs"
 
     def items(self):
-        return Report.objects.order_by('-revision')[:10]
+        return Report.objects.order_by('-revision__date')[:10]

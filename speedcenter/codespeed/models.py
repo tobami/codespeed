@@ -125,7 +125,7 @@ class Report(models.Model):
     revision    = models.ForeignKey(Revision, related_name="reports")
     environment = models.ForeignKey(Environment, related_name="reports")
     executable  = models.ForeignKey(Executable, related_name="reports")
-    summary     = models.CharField(max_length=30, blank=True)
+    summary     = models.CharField(max_length=64, blank=True)
     colorcode   = models.CharField(max_length=10, default="none")
     _tablecache = models.TextField(blank=True)
 

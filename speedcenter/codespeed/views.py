@@ -304,23 +304,26 @@ def gettimelinedata(request):
     data = request.GET
 
     timeline_list = {'error': 'None', 'timelines': []}
-    executables = data['exe'].split(",")
-    if executables[0] == "":
+
+    executables = data.get('exe', "").split(",")
+    if not filter(None, executables):
         timeline_list['error'] = "No executables selected"
         return HttpResponse(json.dumps( timeline_list ))
 
-    environment = Environment.objects.get(name=data['env'])
+    environment = get_object_or_404(Environment, name=data.get('env'))
+
     benchmarks = []
-    number_of_revs = data['revs']
+    number_of_revs = data.get('revs', 10)
+
     if data['ben'] == 'grid':
         benchmarks = Benchmark.objects.all().order_by('name')
         number_of_revs = 15
     else:
-        benchmarks = [Benchmark.objects.get(name=data['ben'])]
+        benchmarks = [get_object_or_404(Benchmark, name=data['ben'])]
 
     baselinerev = None
     baselineexe = None
-    if data['base'] != "none" and data['base'] != 'undefined':
+    if data.get('base') not in (None, 'none', 'undefined'):
         exeid, revid = data['base'].split("+")
         baselinerev = Revision.objects.get(id=revid)
         baselineexe = Executable.objects.get(id=exeid)

@@ -152,6 +152,17 @@
 {% endblock %}
 {% block body %}
 <div id="sidebar">
+<div class="sidebox">
+  <div class="boxhead"><h2>Environments</h2></div>
+  <div class="boxbody">
+    <ul>{% for env in enviros %}
+      <li title="{{ env.os }}, {{ env.cpu }}">
+        <input id="env_{{ env.id }}" type="checkbox" name="environments" value="{{ env.id }}" />
+        <label for="env_{{ env.id }}">{{ env }}</label>
+      </li>{% endfor %}
+    </ul>
+  </div>
+</div>
 <div id="executable" class="sidebox">
   <div class="boxhead"><h2>Executables</h2></div>
   <div class="boxbody">
@@ -175,17 +186,6 @@
       <label for="benchmark_{{ bench.id }}">{{ bench }}</label>
     </li>{% endfor %}
   </ul>{% endfor %}
-  </div>
-</div>
-<div class="sidebox">
-  <div class="boxhead"><h2>Environments</h2></div>
-  <div class="boxbody">
-    <ul>{% for env in enviros %}
-      <li title="{{ env.os }}, {{ env.cpu }}">
-        <input id="env_{{ env.id }}" type="checkbox" name="environments" value="{{ env.id }}" />
-        <label for="env_{{ env.id }}">{{ env }}</label>
-      </li>{% endfor %}
-    </ul>
   </div>
 </div>
 </div>

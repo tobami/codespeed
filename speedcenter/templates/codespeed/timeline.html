@@ -258,6 +258,19 @@
 
 {% block body %}
 <div id="sidebar">
+<div class="sidebox">
+  <div class="boxhead"><h2>Environment</h2></div>
+  <div class="boxbody">
+    <ul>
+    {% for env in environments %}
+      <li title="{{ env.os }}, {{ env.cpu }}">
+        <input id="env{{ env.name }}" type="radio" name="environments" value="{{ env.name }}" />
+        <label for="env{{ env.name }}">{{ env }}</label>
+      </li>
+    {% endfor %}
+    </ul>
+  </div>
+</div>
 <div id="executable" class="sidebox">
   <div class="boxhead"><h2>Executables</h2></div>
   <div class="boxbody">
@@ -292,19 +305,6 @@
     </li>
     {% endfor %}
   </ul>
-  </div>
-</div>
-<div class="sidebox">
-  <div class="boxhead"><h2>Environment</h2></div>
-  <div class="boxbody">
-    <ul>
-    {% for env in environments %}
-      <li title="{{ env.os }}, {{ env.cpu }}">
-        <input id="env{{ env.name }}" type="radio" name="environments" value="{{ env.name }}" />
-        <label for="env{{ env.name }}">{{ env }}</label>
-      </li>
-    {% endfor %}
-    </ul>
   </div>
 </div>
 </div>

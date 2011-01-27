@@ -36,7 +36,7 @@ admin.site.register(Environment, EnvironmentAdmin)
 
 class ResultAdmin(admin.ModelAdmin):
     list_display = ('revision', 'benchmark', 'executable', 'environment', 'value', 'date', 'environment')
-    list_filter  = ('date', 'executable', 'benchmark', 'environment')
+    list_filter  = ('date', 'environment', 'executable', 'benchmark')
 
 admin.site.register(Result, ResultAdmin)
 

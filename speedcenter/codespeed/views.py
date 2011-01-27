@@ -277,7 +277,7 @@ def comparison(request):
             checkedexecutables.remove(selectedbaseline)
         except ValueError:
             pass#the selected baseline was not checked
-    
+
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true" or\
         hasattr(settings, 'chart_orientation') and settings.chart_orientation == 'horizontal':
@@ -471,14 +471,15 @@ def timeline(request):
     }, context_instance=RequestContext(request))
 
 def getchangestable(request):
-    data = request.GET
+    executable = get_object_or_404(Executable, pk=request.GET.get('exe'))
+    environment = get_object_or_404(Environment, name=request.GET.get('env'))
+    try:
+        trendconfig = int(request.GET.get('tre'))
+    except TypeError:
+        raise Http404()
+    selectedrev = get_object_or_404(Revision, commitid=request.GET.get('rev'),
+                                    project=executable.project)
 
-    executable = Executable.objects.get(id=int(data['exe']))
-    environment = Environment.objects.get(name=data['env'])
-    trendconfig = int(data['tre'])
-    selectedrev = Revision.objects.get(
-        commitid=data['rev'], project=executable.project
-    )
     report, created = Report.objects.get_or_create(
         executable=executable, environment=environment, revision=selectedrev
     )
@@ -603,7 +604,7 @@ def reports(request):
     }, context_instance=RequestContext(request))
 
 def displaylogs(request):
-    rev = Revision.objects.get(id=request.GET['revisionid'])
+    rev = get_object_or_404(Revision, pk=request.GET.get('revisionid'))
     logs = []
     logs.append(rev)
     error = False

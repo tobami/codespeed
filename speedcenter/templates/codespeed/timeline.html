@@ -359,7 +359,9 @@
     $("#baseline").val(valueOrDefault(event.parameters.base, "{{ defaultbaseline }}"));
     
     if (event.parameters.exe) {
-        for (exec in event.parameters.exe) {
+        executable_ids = event.parameters.exe.split(',');
+        for (var exec in executable_ids) {
+            exec = executable_ids[exec];
             $("input[name='executable']").filter('[value='+exec+']').attr('checked', true);
         }
     }

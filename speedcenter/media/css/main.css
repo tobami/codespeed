@@ -16,6 +16,14 @@ a:link, a:visited, a:hover { color: blue; text-decoration: none; }
     font-size: 14px;
 }
 
+.float-right {
+    float: right;
+}
+
+.float-left {
+    float: left;
+}
+
 /* Structural */
 div#container { width: 98%; margin: 0; margin-left: auto; margin-right: auto; }
 
@@ -221,7 +229,7 @@ div.about_content { text-align: left; }
 .boxbody input { margin-left: 0; vertical-align: top; }
 #options li { margin-bottom: 0.8em; }
 .seriescolor { float: right; margin-top: 2px; height: 13px; width: 14px; }
-a.checkall, a.uncheckall { font-size: normal; color: #AAAAAA; }
+a.checkall, a.uncheckall { font-size: medium; color: #AAAAAA; }
 a.checkall { margin-left: 0.4em; }
 
 p.errormessage { line-height: 10em; margin-bottom: 10em; }
@@ -351,13 +359,17 @@ table.tablesorter tbody tr.highlight td, tr.highlight td {
     cursor: pointer;
 }
 
-table.info th, table.revision th { background-color: #F1F1F1; }
-table.info th, table.info td, table.revision th, table.revision td { padding: 0.3em; }
-table.info tbody td.infofirst { width: 10em; text-align: left; }
-
-.revision tbody th {
-    font-weight: inherit;
+table.revision {
+    table-layout: fixed;
 }
+
+table.revision col:first-child, table.info col:first-child {
+    width: 6em;
+}
+
+table.info th, table.revision th { background-color: #F1F1F1; vertical-align: top; }
+table.info th, table.info td, table.revision th, table.revision td { padding: 0.3em; }
+table.info tbody .infofirst { width: 10em; text-align: left; }
 
 .repo-path td, .commit-id td {
     font-family: monospace;
@@ -370,6 +382,12 @@ tbody.commits tr td.date, table.revision tr .infofirst, div.author, span.note, t
     font-size: 92%;
     color: #666666;
 }
+
+.revision tbody th {
+    font-weight: inherit;
+    font:  inherit;
+}
+
 tbody.commits tr td.date {
 	padding: 0.3em;
 	width: 5em;

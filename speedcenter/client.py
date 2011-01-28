@@ -7,9 +7,9 @@ import urllib
 import sys
 
 
-def save_to_codespeed(url, project, commitid, executable, benchmark,
-                        result_value, **kwargs):
-    """Save a benchmark result to your codespeed server
+def save_to_speedcenter(url=None, project=None, commitid=None, executable=None,
+                        benchmark=None, result_value=None, **kwargs):
+    """Save a benchmark result to your speedcenter server
 
     Mandatory:
 
@@ -62,14 +62,12 @@ def save_to_codespeed(url, project, commitid, executable, benchmark,
     response = f.read()
     status = f.getcode()
 
-    if status == 200:
-        log_f = logging.debug
-    else:
-        log_f = logging.warning
-
-    log_f("Server %s: HTTP %s: %s", url, status, response)
-
     f.close()
+
+    if status == 202:
+        logging.debug("Server %s: HTTP %s: %s", url, status, response)
+    else:
+        raise IOError("Server %s returned HTTP %s"  % (url, status))
 
 
 if __name__ == "__main__":
@@ -83,10 +81,10 @@ if __name__ == "__main__":
     parser.add_option("--max", type="float")
     parser.add_option("--min", type="float")
     parser.add_option("--project")
-    parser.add_option("--result_date")
+    parser.add_option("--result-date")
     parser.add_option("--result-value", type="float")
     parser.add_option("--revision_date")
-    parser.add_option("--std_dev", type="float")
+    parser.add_option("--std-dev", type="float")
     parser.add_option("--url", help="URL of your Codespeed server (e.g. http://codespeed.example.org)")
 
     (options, args) = parser.parse_args()
@@ -97,7 +95,8 @@ if __name__ == "__main__":
     # Yes, the optparse manpage has a snide comment about "required options"
     # being gramatically dubious. Yes, it's still wrong about not needing to
     # do this.
-    required = ('url', 'project', 'commitid', 'executable', 'benchmark', 'result_value')
+    required = ('url', 'environment', 'project', 'commitid', 'executable',
+                'benchmark', 'result_value')
 
     if not all(getattr(options, i) for i in required):
         parser.error("The following parameters must be provided:\n\t%s" % "\n\t".join(
@@ -112,7 +111,7 @@ if __name__ == "__main__":
         kwargs['url'] = urljoin(kwargs['url'], '/result/add/')
 
     try:
-        save_to_codespeed(**kwargs)
+        save_to_speedcenter(**kwargs)
         sys.exit(0)
     except StandardError, e:
         logging.error("Error saving results: %s", e)

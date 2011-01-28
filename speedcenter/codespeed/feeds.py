@@ -1,6 +1,6 @@
 from django.contrib.syndication.feeds import Feed
-from codespeed.models import Report
-from codespeed import settings
+from speedcenter.codespeed.models import Report
+from speedcenter.codespeed import settings
 
 
 class LatestEntries(Feed):
@@ -9,4 +9,4 @@ class LatestEntries(Feed):
     description = "Last benchmark runs"
 
     def items(self):
-        return Report.objects.order_by('-revision')[:10]
+        return Report.objects.order_by('-revision__date')[:10]

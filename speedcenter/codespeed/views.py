@@ -9,9 +9,9 @@ from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpRespo
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 
-from codespeed import settings
-from codespeed.models import Environment, Report
-from codespeed.models import Project, Revision, Result, Executable, Benchmark
+from speedcenter.codespeed import settings
+from speedcenter.codespeed.models import Environment, Report
+from speedcenter.codespeed.models import Project, Revision, Result, Executable, Benchmark
 
 
 def no_environment_error():
@@ -277,7 +277,7 @@ def comparison(request):
             checkedexecutables.remove(selectedbaseline)
         except ValueError:
             pass#the selected baseline was not checked
-    
+
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true" or\
         hasattr(settings, 'chart_orientation') and settings.chart_orientation == 'horizontal':
@@ -304,23 +304,26 @@ def gettimelinedata(request):
     data = request.GET
 
     timeline_list = {'error': 'None', 'timelines': []}
-    executables = data['exe'].split(",")
-    if executables[0] == "":
+
+    executables = data.get('exe', "").split(",")
+    if not filter(None, executables):
         timeline_list['error'] = "No executables selected"
         return HttpResponse(json.dumps( timeline_list ))
 
-    environment = Environment.objects.get(name=data['env'])
+    environment = get_object_or_404(Environment, name=data.get('env'))
+
     benchmarks = []
-    number_of_revs = data['revs']
+    number_of_revs = data.get('revs', 10)
+
     if data['ben'] == 'grid':
         benchmarks = Benchmark.objects.all().order_by('name')
         number_of_revs = 15
     else:
-        benchmarks = [Benchmark.objects.get(name=data['ben'])]
+        benchmarks = [get_object_or_404(Benchmark, name=data['ben'])]
 
     baselinerev = None
     baselineexe = None
-    if data['base'] != "none" and data['base'] != 'undefined':
+    if data.get('base') not in (None, 'none', 'undefined'):
         exeid, revid = data['base'].split("+")
         baselinerev = Revision.objects.get(id=revid)
         baselineexe = Executable.objects.get(id=exeid)
@@ -471,14 +474,15 @@ def timeline(request):
     }, context_instance=RequestContext(request))
 
 def getchangestable(request):
-    data = request.GET
+    executable = get_object_or_404(Executable, pk=request.GET.get('exe'))
+    environment = get_object_or_404(Environment, name=request.GET.get('env'))
+    try:
+        trendconfig = int(request.GET.get('tre'))
+    except TypeError:
+        raise Http404()
+    selectedrev = get_object_or_404(Revision, commitid=request.GET.get('rev'),
+                                    project=executable.project)
 
-    executable = Executable.objects.get(id=int(data['exe']))
-    environment = Environment.objects.get(name=data['env'])
-    trendconfig = int(data['tre'])
-    selectedrev = Revision.objects.get(
-        commitid=data['rev'], project=executable.project
-    )
     report, created = Report.objects.get_or_create(
         executable=executable, environment=environment, revision=selectedrev
     )
@@ -599,11 +603,11 @@ def reports(request):
         return HttpResponseNotAllowed('GET')
 
     return render_to_response('codespeed/reports.html', {
-        'reports': Report.objects.order_by('-revision')[:10],
+        'reports': Report.objects.order_by('-revision__date')[:10],
     }, context_instance=RequestContext(request))
 
 def displaylogs(request):
-    rev = Revision.objects.get(id=request.GET['revisionid'])
+    rev = get_object_or_404(Revision, pk=request.GET.get('revisionid'))
     logs = []
     logs.append(rev)
     error = False
@@ -627,8 +631,10 @@ def displaylogs(request):
             logs = remotelogs
         else:
             error = 'no logs found'
-    except Exception, e:
-        error = str(e)
+    except StandardError, e:
+        logging.error("Unhandled exception displaying logs for %s: %s", rev, e, exc_info=True)
+        error = repr(e)
+
     return render_to_response('codespeed/changes_logs.html',
                                 {'error': error, 'logs': logs },
                                 context_instance=RequestContext(request))
@@ -642,6 +648,8 @@ def getcommitlogs(rev, startrev, update=False):
         from mercurial import getlogs, updaterepo
     elif rev.project.repo_type == 'G':
         from git import getlogs, updaterepo
+    elif rev.project.repo_type == 'H':
+        from github import getlogs, updaterepo
     else:
         if rev.project.repo_type not in ("N", ""):
             logging.warning("Don't know how to retrieve logs from %s project",
@@ -649,9 +657,7 @@ def getcommitlogs(rev, startrev, update=False):
         return logs
 
     if update:
-        resp = updaterepo(rev.project)[0]
-        if resp.get('error', None):
-            return resp
+        updaterepo(rev.project)
 
     logs = getlogs(rev, startrev)
 
@@ -721,26 +727,21 @@ def add_data_to_database(data, e):
     p, created = Project.objects.get_or_create(name=data["project"])
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
 
-    rev, created = Revision.objects.get_or_create(
-        commitid=data['commitid'],
-        project=p,
-    )
+    try:
+        rev = p.revisions.get(commitid=data['commitid'])
+    except Revision.DoesNotExist:
+        rev = Revision(project=p, commitid=data['commitid'],
+                        date=data.get("revision_date", datetime.now()))
+        rev.full_clean()
+        rev.save()
 
-    if created:
-        if 'revision_date' in data:
-            rev.date = data["revision_date"]
-        else:
+        if not rev.date:
             try:
                 saverevisioninfo(rev)
             except StandardError, e:
                 logging.warning("unable to save revision %s info: %s", rev, e,
-                                exc_info=e)
+                                exc_info=True)
 
-        if not rev.date:
-            rev.date = datetime.now()
-
-        rev.full_clean()
-        rev.save()
 
     exe, created = Executable.objects.get_or_create(
         name=data['executable'],
@@ -773,9 +774,9 @@ def create_report_when_enough_results_were_added(rev, exe, e):
     # Trigger Report creation when there are enough results
     last_revs = Revision.objects.order_by('-date')[:2]
     if len(last_revs) > 1:
-        current_results = rev.result_set.filter(
+        current_results = rev.results.filter(
             executable=exe).filter(environment=e)
-        last_results = last_revs[1].result_set.filter(
+        last_results = last_revs[1].results.filter(
             executable=exe).filter(environment=e)
         # If there is are at least as many results as in the last revision,
         # create new report

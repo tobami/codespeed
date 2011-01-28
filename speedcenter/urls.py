@@ -25,5 +25,5 @@ if settings.DEBUG or settings.SERVE_STATIC:
     )
 
 urlpatterns += patterns('',
-    (r'^', include('codespeed.urls')),
+    (r'^', include('speedcenter.codespeed.urls')),
 )

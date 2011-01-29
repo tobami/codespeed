@@ -4,7 +4,7 @@
 {{ block.super }}
 <!--[if IE]><script language="javascript" type="text/javascript" src="/media/js/jqplot/excanvas.min.js"></script><![endif]-->
 <link rel="stylesheet" type="text/css" href="../media/js/jqplot/jquery.jqplot.min.css" />
-<script type="text/javascript" src="../media/js/jquery.address-1.3.1.min.js?autoUpdate=0"></script>
+<script type="text/javascript" src="../media/js/jquery.address.js?autoUpdate=0"></script>
 <script type="text/javascript" src="../media/js/jqplot/jquery.jqplot.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.cursor.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.highlighter.min.js"></script>
@@ -338,7 +338,6 @@
 		$.address.parameter(param, cfg[param])
 	}
 	$.address.update();
-	refreshContent();
   }
   
   function valueOrDefault(obj, defaultObj) {
@@ -349,7 +348,7 @@
 	// either set the default value, or the one parsed from the url
 
 	//Set default amount of revisions shown
-    $("#revisions").val(valueOrDefault(event.parameters.rev, {{ defaultlast }}));
+    $("#revisions").val(valueOrDefault(event.parameters.revs, {{ defaultlast }}));
     
 
     //Reset all checkboxes

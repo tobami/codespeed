@@ -87,4 +87,4 @@ def getlogs(endrev, startrev):
                         'short_commit_id': commit['id'][0:7],
                         'links': {'Github': 'http://github.com%s' % commit['url']}})
 
-    return logs
+    return sorted(logs, key=lambda i: i['date'], reverse=True)

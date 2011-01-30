@@ -5,9 +5,9 @@
     <meta name="description" content="A performance analysis tool for software projects. It shows performance regresions and allows competing applications or implementations">
     <meta name="keywords" content="performance, test, interpreter, plots, charts">
     <meta http-equiv="content-type" content="text/html;charset=utf-8">
-    <link href="../media/css/main.css" rel="stylesheet" type="text/css">
-    <script type="text/javascript" src="../media/js/codespeed.js"></script>
-    <script type="text/javascript" src="../media/js/jquery-1.3.2.min.js"></script>
+    <link href="{{ MEDIA_URL }}css/main.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/codespeed.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}js/jquery-1.3.2.min.js"></script>
     {% block extra_head %}{% endblock %}
   </head>
   <body>
@@ -16,7 +16,7 @@
       <div id="title" class="clearfix">
         {% block page_header %}
           {% block logo %}
-            <img src="../media/images/logo.png" height="48" alt="logo"/>
+            <img src="{{ MEDIA_URL }}images/logo.png" height="48" alt="logo"/>
           {% endblock logo %}
           <h2>{% block page_title %}SPEED CENTER{% endblock page_title %}</h2>
           {% block top_nav %}

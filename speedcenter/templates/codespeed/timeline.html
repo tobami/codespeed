@@ -3,15 +3,15 @@
 {% block extra_head %}
 {{ block.super }}
 <!--[if IE]><script language="javascript" type="text/javascript" src="/media/js/jqplot/excanvas.min.js"></script><![endif]-->
-<link rel="stylesheet" type="text/css" href="../media/js/jqplot/jquery.jqplot.min.css" />
-<script type="text/javascript" src="../media/js/jquery.address.js?autoUpdate=0"></script>
-<script type="text/javascript" src="../media/js/jqplot/jquery.jqplot.min.js"></script>
-<script type="text/javascript" src="../media/js/jqplot/jqplot.cursor.min.js"></script>
-<script type="text/javascript" src="../media/js/jqplot/jqplot.highlighter.min.js"></script>
-<script type="text/javascript" src="../media/js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
-<script type="text/javascript" src="../media/js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
-<script type="text/javascript" src="../media/js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
-<script type="text/javascript" src="../media/js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}js/jqplot/jquery.jqplot.min.css" />
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.address.js?autoUpdate=0"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jqplot/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jqplot/jqplot.cursor.min.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jqplot/jqplot.highlighter.min.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
 
 <script type="text/javascript">
   var baselineColor = "#d8b83f";
@@ -105,7 +105,7 @@
   }
 
   function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
-    if($("input[name='benchmark']:checked").val() == "grid") { return false; }
+    if($("input[name='benchmark']:checked").val() == "grid") { return; }
     if (neighbor) {
       var commitid = neighbor.data[3];
       var executableid = seriesindex[neighbor.seriesIndex];
@@ -198,12 +198,13 @@
         formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
       },
       cursor:{show:false, zoom:true, showTooltip:false, clickReset:true}
-    }
+    };
+
     if (series.length > 4) {
         // Move legend outside plot area to unclutter
         var labels = new Array();
-        for (l in series) {
-            labels.push(series[l]['label'].length)
+        for (var l in series) {
+            labels.push(series[l]['label'].length);
         }
 
         var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
@@ -261,10 +262,10 @@
           min: 0, autoscale:true, showTicks: false
         },
         xaxis: {
-          renderer:$.jqplot.DateAxisRenderer,
+          renderer: $.jqplot.DateAxisRenderer,
           pad: 1.01,
-          autoscale:true,
-          showTicks: false,
+          autoscale: true,
+          showTicks: false
         }
       },
       highlighter: {show:false},
@@ -303,16 +304,15 @@
     $("#revisions").attr("disabled", false);
     $("#plotgrid").html("");
     if(data["error"] != "None") {
-      h = parseInt($("#content").css("height"));//get height for error message
+      h = parseInt($("#content").css("height"), 10);//get height for error message
       $("#plotgrid").html(getLoadText(data["error"], h, false));
-      return 1;
+      return;
     } else if (data["timelines"].length == 0) {
-      h = parseInt($("#content").css("height"));//get height for error message
+      h = parseInt($("#content").css("height"), 10);//get height for error message
       $("#plotgrid").html(getLoadText("No data available", h, false));
     } else if ($("input[name='benchmark']:checked").val() != "grid") {
       //render single plot when only one benchmark selected
       renderPlot(separateFailedRuns(data["timelines"][0]));
-      return 1;
     } else {
       //Render Grid of plots
       $("#revisions").attr("disabled",true);
@@ -330,7 +330,7 @@
   }
 
   function refreshContent() {
-    var h = parseInt($("#content").css("height"));//get height for loading text
+    var h = parseInt($("#content").css("height"), 10);//get height for loading text
     $("#plotgrid").fadeOut("fast", function() {
       $("#plotgrid").html(getLoadText("Loading...", h, true)).show();
       $.getJSON("json/", getConfiguration(), render);

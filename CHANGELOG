@@ -8,6 +8,7 @@ Major features:
 * Support for Netbooks, tablets, and smartphones screen sizes through the use of media query
 * Big performance improvements in the Changes and Timeline views
 * Added settings for change and trend thresholds and default comparison executables
+* Mercurial support
 
 
 === Version 0.6.2, Jul 25, 2010 ===

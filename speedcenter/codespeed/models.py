@@ -43,7 +43,7 @@ class Revision(models.Model):
         if self.date is None:
             date = None
         else:
-            date = self.date.isoformat()
+            date = self.date.strftime("%h %d, %H:%M")
         return " - ".join(filter(None, (date, self.commitid, self.tag)))
 
     class Meta:

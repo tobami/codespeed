@@ -8,7 +8,7 @@ import copy, json
 
 class AddResultTest(TestCase):
     def setUp(self):
-        self.path = reverse('codespeed.views.addresult')
+        self.path = reverse('speedcenter.codespeed.views.addresult')
         self.client = Client()
         self.e = Environment(name='bigdog', cpu='Core 2 Duo 8200')
         self.e.save()
@@ -65,7 +65,8 @@ class AddResultTest(TestCase):
         r = Revision.objects.get(commitid='23232', project=p)
 
         # Tweak the resolution down to avoid failing over very slight differences:
-        self.assertEquals(r.date.replace(microsecond=0), self.cdate.replace(microsecond=0))
+        self.assertEquals(
+            r.date.replace(microsecond=0), self.cdate.replace(microsecond=0))
 
         i = Executable.objects.get(name='pypy-c')
         b = Benchmark.objects.get(name='Richards')
@@ -111,7 +112,8 @@ class AddResultTest(TestCase):
             del(self.data[key])
             response = self.client.post(self.path, self.data)
             self.assertEquals(response.status_code, 400)
-            self.assertEquals(response.content, 'Key "' + key + '" missing from request')
+            self.assertEquals(
+                response.content, 'Key "' + key + '" missing from request')
             self.data[key] = backup
 
 class Timeline(TestCase):
@@ -123,7 +125,7 @@ class Timeline(TestCase):
     def test_gettimelinedata(self):
         """Test that gettimelinedata returns correct timeline data
         """
-        path = reverse('codespeed.views.gettimelinedata')
+        path = reverse('speedcenter.codespeed.views.gettimelinedata')
         data = {
             "exe": "1,2",
             "base": "2+35",
@@ -133,9 +135,20 @@ class Timeline(TestCase):
         }
         response = self.client.get(path, data)
         responsedata = json.loads(response.content)
-        self.assertEquals(responsedata['error'], "None", "there should be no errors")
-        self.assertEquals(len(responsedata['timelines']), 1, "there should be 1 benchmark")
-        self.assertEquals(len(responsedata['timelines'][0]['executables']), 2, "there should be 2 timelines")
-        self.assertEquals(len(responsedata['timelines'][0]['executables']['1']), 16, "There are 16 datapoints")
-        self.assertEquals(responsedata['timelines'][0]['executables']['1'][4], [u'2010-06-17 18:57:39', 0.404776086807, 0.011496530978, u'75443'], "Wrong data returned: ")
+        self.assertEquals(
+            responsedata['error'], "None", "there should be no errors")
+        self.assertEquals(
+            len(responsedata['timelines']), 1, "there should be 1 benchmark")
+        self.assertEquals(
+            len(responsedata['timelines'][0]['executables']),
+            2,
+            "there should be 2 timelines")
+        self.assertEquals(
+            len(responsedata['timelines'][0]['executables']['1']),
+            16,
+            "There are 16 datapoints")
+        self.assertEquals(
+            responsedata['timelines'][0]['executables']['1'][4],
+            [u'2010-06-17 18:57:39', 0.404776086807, 0.011496530978, u'75443'],
+            "Wrong data returned: ")
 

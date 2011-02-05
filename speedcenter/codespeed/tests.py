@@ -13,7 +13,8 @@ class AddResultTest(TestCase):
         self.e = Environment(name='bigdog', cpu='Core 2 Duo 8200')
         self.e.save()
         temp = datetime.today()
-        self.cdate = datetime(temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
+        self.cdate = datetime(
+            temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
         self.data = {
                 'commitid': '23232',
                 'project': 'pypy',
@@ -23,13 +24,15 @@ class AddResultTest(TestCase):
                 'result_value': 456,
         }
 
-    def test_add_default_result(self):
-        """
-        Add result data using default options
-        """
+    def test_add_correct_result(self):
+        """Add correct result data"""
         response = self.client.post(self.path, self.data)
+        
+        # Check that we get a success response
         self.assertEquals(response.status_code, 202)
         self.assertEquals(response.content, "Result data saved succesfully")
+        
+        # Check that the data was correctly saved
         e = Environment.objects.get(name='bigdog')
         b = Benchmark.objects.get(name='Richards')
         self.assertEquals(b.benchmark_type, "C")
@@ -55,9 +58,9 @@ class AddResultTest(TestCase):
         """
         modified_data = copy.deepcopy(self.data)
         modified_data['result_date'] = self.cdate
-        modified_data['std_dev'] = 1.11111
-        modified_data['max'] = 2
-        modified_data['min'] = 1.0
+        modified_data['std_dev']     = 1.11111
+        modified_data['max']         = 2
+        modified_data['min']         = 1.0
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)
         self.assertEquals(response.content, "Result data saved succesfully")
@@ -133,6 +136,120 @@ class AddResultTest(TestCase):
         self.assertEquals(number_of_reports, 1)
 
 
+class AddJSONResultTest(TestCase):
+    def setUp(self):
+        self.path = reverse('speedcenter.codespeed.views.addjsonresults')
+        self.client = Client()
+        self.e = Environment(name='bigdog', cpu='Core 2 Duo 8200')
+        self.e.save()
+        temp = datetime.today()
+        self.cdate = datetime(
+            temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
+        
+        self.data = [ {'commitid': '123',
+                        'project': 'pypy',
+                        'executable': 'pypy-c',
+                        'benchmark': 'Richards',
+                        'environment': 'bigdog',
+                        'result_value': 456,},
+                       {'commitid': '456',
+                        'project': 'pypy',
+                        'executable': 'pypy-c',
+                        'benchmark': 'Richards',
+                        'environment': 'bigdog',
+                        'result_value': 457,},
+                       {'commitid': '789',
+                        'project': 'pypy',
+                        'executable': 'pypy-c',
+                        'benchmark': 'Richards',
+                        'environment': 'bigdog',
+                        'result_value': 458,}]
+
+    def test_add_correct_results(self):
+        """Should add all results when the request data is valid"""
+        response = self.client.post(self.path, {'json' : json.dumps(self.data)})
+
+        # Check that we get a success response
+        self.assertEquals(response.status_code, 202)
+        self.assertEquals(response.content, "All result data saved successfully")
+        
+        # Check that the data was correctly saved
+        e = Environment.objects.get(name='bigdog')
+        b = Benchmark.objects.get(name='Richards')
+        self.assertEquals(b.benchmark_type, "C")
+        self.assertEquals(b.units, "seconds")
+        self.assertEquals(b.lessisbetter, True)
+        p = Project.objects.get(name='pypy')
+        r = Revision.objects.get(commitid='123', project=p)
+        i = Executable.objects.get(name='pypy-c')
+        res = Result.objects.get(
+            revision=r,
+            executable=i,
+            benchmark=b,
+            environment=e
+        )
+        self.assertTrue(res.value, 456)
+        resdate = res.date.strftime("%Y%m%dT%H%M%S")
+        selfdate = self.cdate.strftime("%Y%m%dT%H%M%S")
+        self.assertTrue(resdate, selfdate)
+        
+        r = Revision.objects.get(commitid='456', project=p)
+        res = Result.objects.get(
+            revision=r,
+            executable=i,
+            benchmark=b,
+            environment=e
+        )
+        self.assertTrue(res.value, 457)
+        
+        r = Revision.objects.get(commitid='789', project=p)
+        res = Result.objects.get(
+            revision=r,
+            executable=i,
+            benchmark=b,
+            environment=e
+        )
+        self.assertTrue(res.value, 458)
+
+    def test_bad_environment(self):
+        """Add result associated with non-existing environment.
+           Only change one item in the list.
+        """
+        data = self.data[0]
+        bad_name = 'bigdog1'
+        data['environment'] = bad_name
+        response = self.client.post(self.path,
+                    {'json' : json.dumps(self.data)})
+        #print response
+        self.assertEquals(response.status_code, 400)
+        self.assertEquals(response.content, "Environment " + bad_name + " not found")
+        data['environment'] = 'bigdog'
+
+    def test_empty_argument(self):
+        '''Should return 400 when making a request with an empty argument'''
+        data = self.data[1]
+        for key in data:
+            backup = data[key]
+            data[key] = ""
+            response = self.client.post(self.path,
+                        {'json' : json.dumps(self.data)})
+            self.assertEquals(response.status_code, 400)
+            self.assertEquals(response.content, 'Value for key "' + key + '" empty in request')
+            data[key] = backup
+
+    def test_missing_argument(self):
+        '''Should return 400 when making a request with a missing argument'''
+        data = self.data[2]
+        for key in data:
+            backup = data[key]
+            del(data[key])
+            response = self.client.post(self.path,
+                        {'json' : json.dumps(self.data)})
+            self.assertEquals(response.status_code, 400)
+            self.assertEquals(response.content, 'Key "' + key + '" missing from request')
+            data[key] = backup
+
+
 class Timeline(TestCase):
     fixtures = ["pypy.json"]
 
@@ -144,10 +261,10 @@ class Timeline(TestCase):
         """
         path = reverse('speedcenter.codespeed.views.gettimelinedata')
         data = {
-            "exe": "1,2",
+            "exe":  "1,2",
             "base": "2+35",
-            "ben": "ai",
-            "env": "tannit",
+            "ben":  "ai",
+            "env":  "tannit",
             "revs": 16
         }
         response = self.client.get(path, data)

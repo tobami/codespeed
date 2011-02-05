@@ -727,14 +727,10 @@ def check_report(rev, exe, e):
             report.full_clean()
             report.save()
 
-def addresult(request):
-    if request.method != 'POST':
-        return HttpResponseNotAllowed('POST')
-    data = request.POST
-
+def save_result(data):
     res, error = validate_result(data)
     if error:
-        return HttpResponseBadRequest(res)
+        return res, True
     else:
         assert(isinstance(res, Environment))
         e = res
@@ -783,4 +779,27 @@ def addresult(request):
     r.save()
     check_report(rev, exe, e)
 
-    return HttpResponse("Result data saved succesfully", status=202)
+    return None, False
+
+def addresult(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed('POST')
+    data = request.POST
+
+    res, error = save_result(data)
+    if error:
+        return HttpResponseBadRequest(res)
+    else:    
+        return HttpResponse("Result data saved succesfully", status=202)
+
+def addjsonresults(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed('POST')
+    data = json.loads(request.POST['json'])
+
+    for result in data:
+        res, error = save_result(result)
+        if error:
+            return HttpResponseBadRequest(res)
+
+    return HttpResponse("All result data saved successfully", status=202)

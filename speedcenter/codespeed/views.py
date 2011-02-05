@@ -678,11 +678,14 @@ def saverevisioninfo(rev):
     else:
         rev.date = datetime.now()
 
-def addresult(request):
-    if request.method != 'POST':
-        return HttpResponseNotAllowed('POST')
-    data = request.POST
+def validate_result(item):
+    '''
+    Validates that a result dictionary has all needed parameters
 
+    It returns a tuple
+        Environment, False  when no errors where found
+        Errormessage, True  when there is an error
+    '''
     mandatory_data = [
         'commitid',
         'project',
@@ -692,17 +695,49 @@ def addresult(request):
         'result_value',
     ]
 
+    response = {}
+    error    = True
+    
     for key in mandatory_data:
-        if not key in data:
-            return HttpResponseBadRequest('Key "' + key + '" missing from request')
-        elif key in data and data[key] == "":
-            return HttpResponseBadRequest('Key "' + key + '" empty in request')
-
-    # Check that Environment exists
+        if not key in item:
+            return 'Key "' + key + '" missing from request', error
+        elif key in item and item[key] == "":
+            return 'Value for key "' + key + '" empty in request', error
+    
+    # Check that the Environment exists
     try:
-        e = Environment.objects.get(name=data['environment'])
+        e = Environment.objects.get(name=item['environment'])
+        error = False
+        return e, error
     except Environment.DoesNotExist:
-        return HttpResponseBadRequest("Environment %(environment)s not found" % data)
+        return "Environment %(environment)s not found" % item, error
+
+def check_report(rev, exe, e):
+    # Trigger Report creation when there are enough results
+    last_revs = Revision.objects.filter(project=rev.project).order_by('-date')[:2]
+    if len(last_revs) > 1:
+        current_results = rev.results.filter(executable=exe, environment=e)
+        last_results = last_revs[1].results.filter(executable=exe,environment=e)
+        # If there is are at least as many results as in the last revision,
+        # create new report
+        if len(current_results) >= len(last_results):
+            report, created = Report.objects.get_or_create(
+                executable=exe, environment=e, revision=rev
+            )
+            report.full_clean()
+            report.save()
+
+def addresult(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed('POST')
+    data = request.POST
+
+    res, error = validate_result(data)
+    if error:
+        return HttpResponseBadRequest(res)
+    else:
+        assert(isinstance(res, Environment))
+        e = res
 
     p, created = Project.objects.get_or_create(name=data["project"])
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
@@ -721,7 +756,6 @@ def addresult(request):
             except StandardError, e:
                 logging.warning("unable to save revision %s info: %s", rev, e,
                                 exc_info=True)
-
 
     exe, created = Executable.objects.get_or_create(
         name=data['executable'],
@@ -747,21 +781,6 @@ def addresult(request):
 
     r.full_clean()
     r.save()
-
-    # Trigger Report creation when there are enough results
-    last_revs = Revision.objects.order_by('-date')[:2]
-    if len(last_revs) > 1:
-        current_results = rev.results.filter(
-            executable=exe).filter(environment=e)
-        last_results = last_revs[1].results.filter(
-            executable=exe).filter(environment=e)
-        # If there is are at least as many results as in the last revision,
-        # create new report
-        if len(current_results) >= len(last_results):
-            report, created = Report.objects.get_or_create(
-                executable=exe, environment=e, revision=rev
-            )
-            report.full_clean()
-            report.save()
+    check_report(rev, exe, e)
 
     return HttpResponse("Result data saved succesfully", status=202)

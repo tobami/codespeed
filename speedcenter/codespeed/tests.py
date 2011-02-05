@@ -2,7 +2,7 @@
 from django.test import TestCase
 from datetime import datetime
 from django.test.client import Client
-from speedcenter.codespeed.models import Project, Benchmark, Revision, Executable, Environment, Result
+from speedcenter.codespeed.models import Project, Benchmark, Revision, Executable, Environment, Result, Report
 from django.core.urlresolvers import reverse
 import copy, json
 
@@ -22,6 +22,7 @@ class AddResultTest(TestCase):
                 'environment': 'bigdog',
                 'result_value': 456,
         }
+
     def test_add_default_result(self):
         """
         Add result data using default options
@@ -92,21 +93,18 @@ class AddResultTest(TestCase):
         self.data['environment'] = 'bigdog'
 
     def test_empty_argument(self):
-        """
-        Make POST request with an empty argument.
-        """
+        """Should respond 400 when a POST request has an empty argument"""
         for key in self.data:
             backup = self.data[key]
             self.data[key] = ""
             response = self.client.post(self.path, self.data)
             self.assertEquals(response.status_code, 400)
-            self.assertEquals(response.content, 'Key "' + key + '" empty in request')
+            self.assertEquals(
+                response.content, 'Value for key "' + key + '" empty in request')
             self.data[key] = backup
 
     def test_missing_argument(self):
-        """
-        Make POST request with a missing argument.
-        """
+        """Should respond 400 when a POST request is missing an argument"""
         for key in self.data:
             backup = self.data[key]
             del(self.data[key])
@@ -115,6 +113,25 @@ class AddResultTest(TestCase):
             self.assertEquals(
                 response.content, 'Key "' + key + '" missing from request')
             self.data[key] = backup
+
+    def test_report_is_not_created(self):
+        '''Should not create a report when adding a single result'''
+        response = self.client.post(self.path, self.data)
+        number_of_reports = len(Report.objects.all())
+        # After adding one result for one revision, there should be no reports
+        self.assertEquals(number_of_reports, 0)
+
+    def test_report_is_created(self):
+        '''Should create a report when adding a result for two revisions'''
+        response = self.client.post(self.path, self.data)
+        
+        modified_data = copy.deepcopy(self.data)
+        modified_data['commitid'] = "23233"
+        response = self.client.post(self.path, modified_data)
+        number_of_reports = len(Report.objects.all())
+        # After adding a result for a second revision, a report should be created
+        self.assertEquals(number_of_reports, 1)
+
 
 class Timeline(TestCase):
     fixtures = ["pypy.json"]

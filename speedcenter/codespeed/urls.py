@@ -26,6 +26,6 @@ urlpatterns += patterns('speedcenter.codespeed.views',
 
 urlpatterns += patterns('speedcenter.codespeed.views',
     # URLs for adding results
-    (r'^result/add/json/$', 'addjsonresults'),
-    (r'^result/add/$',      'addresult'),
+    (r'^result/add/json/$', 'add_json_results'),
+    (r'^result/add/$',      'add_result'),
 )

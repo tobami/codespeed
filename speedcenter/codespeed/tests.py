@@ -8,7 +8,7 @@ import copy, json
 
 class AddResultTest(TestCase):
     def setUp(self):
-        self.path = reverse('speedcenter.codespeed.views.addresult')
+        self.path = reverse('speedcenter.codespeed.views.add_result')
         self.client = Client()
         self.e = Environment(name='bigdog', cpu='Core 2 Duo 8200')
         self.e.save()
@@ -136,7 +136,7 @@ class AddResultTest(TestCase):
 
 class AddJSONResultsTest(TestCase):
     def setUp(self):
-        self.path = reverse('speedcenter.codespeed.views.addjsonresults')
+        self.path = reverse('speedcenter.codespeed.views.add_json_results')
         self.client = Client()
         self.e = Environment(name='bigdog', cpu='Core 2 Duo 8200')
         self.e.save()

@@ -779,7 +779,7 @@ def save_result(data):
 
     return (rev, exe, e), False
 
-def addresult(request):
+def add_result(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed('POST')
     data = request.POST
@@ -791,7 +791,7 @@ def addresult(request):
         create_report_if_enough_data(response[0], response[1], response[2])
         return HttpResponse("Result data saved succesfully", status=202)
 
-def addjsonresults(request):
+def add_json_results(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed('POST')
     data = json.loads(request.POST['json'])
@@ -808,3 +808,4 @@ def addjsonresults(request):
         create_report_if_enough_data(rep[0], rep[1], rep[2])
 
     return HttpResponse("All result data saved successfully", status=202)
+

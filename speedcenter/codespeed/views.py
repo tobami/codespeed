@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from datetime import datetime
 from itertools import chain
 import json
@@ -712,7 +711,7 @@ def validate_result(item):
     except Environment.DoesNotExist:
         return "Environment %(environment)s not found" % item, error
 
-def check_report(rev, exe, e):
+def create_report_if_enough_data(rev, exe, e):
     # Trigger Report creation when there are enough results
     last_revs = Revision.objects.filter(project=rev.project).order_by('-date')[:2]
     if len(last_revs) > 1:
@@ -777,19 +776,19 @@ def save_result(data):
 
     r.full_clean()
     r.save()
-    check_report(rev, exe, e)
 
-    return None, False
+    return (rev, exe, e), False
 
 def addresult(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed('POST')
     data = request.POST
 
-    res, error = save_result(data)
+    response, error = save_result(data)
     if error:
-        return HttpResponseBadRequest(res)
-    else:    
+        return HttpResponseBadRequest(response)
+    else:
+        create_report_if_enough_data(response[0], response[1], response[2])
         return HttpResponse("Result data saved succesfully", status=202)
 
 def addjsonresults(request):
@@ -797,9 +796,15 @@ def addjsonresults(request):
         return HttpResponseNotAllowed('POST')
     data = json.loads(request.POST['json'])
 
+    unique_reports = set()
     for result in data:
-        res, error = save_result(result)
+        response, error = save_result(result)
         if error:
-            return HttpResponseBadRequest(res)
+            return HttpResponseBadRequest(response)
+        else:
+            unique_reports.add(response)
+
+    for rep in unique_reports:
+        create_report_if_enough_data(rep[0], rep[1], rep[2])
 
     return HttpResponse("All result data saved successfully", status=202)

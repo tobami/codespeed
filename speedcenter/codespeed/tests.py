@@ -54,7 +54,7 @@ class AddResultTest(TestCase):
 
     def test_add_non_default_result(self):
         """
-        Add result data with non-default options
+        Add result data with non-mandatory options
         """
         modified_data = copy.deepcopy(self.data)
         modified_data['result_date'] = self.cdate
@@ -85,9 +85,7 @@ class AddResultTest(TestCase):
         self.assertEquals(res.val_min, 1)
 
     def test_bad_environment(self):
-        """
-        Add result associated with non-existing environment
-        """
+        """Should return 400 when environment does not exist"""
         bad_name = 'bigdog1'
         self.data['environment'] = bad_name
         response = self.client.post(self.path, self.data)
@@ -136,7 +134,7 @@ class AddResultTest(TestCase):
         self.assertEquals(number_of_reports, 1)
 
 
-class AddJSONResultTest(TestCase):
+class AddJSONResultsTest(TestCase):
     def setUp(self):
         self.path = reverse('speedcenter.codespeed.views.addjsonresults')
         self.client = Client()
@@ -146,24 +144,32 @@ class AddJSONResultTest(TestCase):
         self.cdate = datetime(
             temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
         
-        self.data = [ {'commitid': '123',
-                        'project': 'pypy',
-                        'executable': 'pypy-c',
-                        'benchmark': 'Richards',
-                        'environment': 'bigdog',
-                        'result_value': 456,},
-                       {'commitid': '456',
-                        'project': 'pypy',
-                        'executable': 'pypy-c',
-                        'benchmark': 'Richards',
-                        'environment': 'bigdog',
-                        'result_value': 457,},
-                       {'commitid': '789',
-                        'project': 'pypy',
-                        'executable': 'pypy-c',
-                        'benchmark': 'Richards',
-                        'environment': 'bigdog',
-                        'result_value': 458,}]
+        self.data = [
+            {'commitid': '123',
+            'project': 'pypy',
+            'executable': 'pypy-c',
+            'benchmark': 'Richards',
+            'environment': 'bigdog',
+            'result_value': 456,},
+            {'commitid': '456',
+            'project': 'pypy',
+            'executable': 'pypy-c',
+            'benchmark': 'Richards',
+            'environment': 'bigdog',
+            'result_value': 457,},
+            {'commitid': '456',
+            'project': 'pypy',
+            'executable': 'pypy-c',
+            'benchmark': 'Richards2',
+            'environment': 'bigdog',
+            'result_value': 34,},
+            {'commitid': '789',
+            'project': 'pypy',
+            'executable': 'pypy-c',
+            'benchmark': 'Richards',
+            'environment': 'bigdog',
+            'result_value': 458,},
+        ]
 
     def test_add_correct_results(self):
         """Should add all results when the request data is valid"""
@@ -172,7 +178,7 @@ class AddJSONResultTest(TestCase):
         # Check that we get a success response
         self.assertEquals(response.status_code, 202)
         self.assertEquals(response.content, "All result data saved successfully")
-        
+
         # Check that the data was correctly saved
         e = Environment.objects.get(name='bigdog')
         b = Benchmark.objects.get(name='Richards')
@@ -201,7 +207,7 @@ class AddJSONResultTest(TestCase):
             environment=e
         )
         self.assertTrue(res.value, 457)
-        
+
         r = Revision.objects.get(commitid='789', project=p)
         res = Result.objects.get(
             revision=r,
@@ -210,6 +216,11 @@ class AddJSONResultTest(TestCase):
             environment=e
         )
         self.assertTrue(res.value, 458)
+
+        number_of_reports = len(Report.objects.all())
+        # After adding 4 result for 3 revisions, only 2 reports should be created
+        # The third revision will need a result for Richards2 in order to trigger report creation
+        self.assertEquals(number_of_reports, 1)
 
     def test_bad_environment(self):
         """Add result associated with non-existing environment.

@@ -229,9 +229,8 @@ class AddJSONResultsTest(TestCase):
         data = self.data[0]
         bad_name = 'bigdog1'
         data['environment'] = bad_name
-        response = self.client.post(self.path,
-                    {'json' : json.dumps(self.data)})
-        #print response
+        response = self.client.post(self.path, {'json' : json.dumps(self.data)})
+
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.content, "Environment " + bad_name + " not found")
         data['environment'] = 'bigdog'

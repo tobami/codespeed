@@ -43,23 +43,32 @@ def getlogs(endrev, startrev):
     repo_name = os.path.splitext(endrev.project.repo_path.split(os.sep)[-1])[0]
     working_copy = os.path.join(settings.REPOSITORY_BASE_PATH, repo_name)
 
-    cmd = "hg log -r %s:%s -b default --template '{rev}:{node|short}\n{author|person} / {author|user}\n{date}\n{desc}\n=newlog=\n'" % (endrev.commitid, startrev.commitid)
-    p = Popen(cmd, shell=True, stdout=PIPE, stderr=PIPE, cwd=working_copy)
+    cmd = ["hg", "log",
+            "-r", "%s:%s" % (endrev.commitid, startrev.commitid),
+            "-b", "default",
+            "--template", "{rev}:{node|short}\n{node}\n{author|user}\n{author|email}\n{date}\n{desc}\n=newlog=\n"]
+
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=working_copy)
     stdout, stderr = p.communicate()
+    print stdout
+    print stderr
     if stderr:
         return [{'error': True, 'message': stderr}]
     else:
+        stdout = stdout.rstrip('\n')#Remove last newline
         logs = []
         for log in stdout.split("=newlog=\n"):
-            commitid, author, date, message = ("","","","")
             elements = []
             elements = log.split('\n')[:-1]
-            if len(elements) < 4:
-                # Don't save "malformed" log
-                continue
+            if len(elements) < 6:
+                # "Malformed" log
+                logs.append(
+                    {'date': '-', 'message': 'error parsing log', 'commitid': '-'})
             else:
-                commitid = elements.pop(0)
-                author = elements.pop(0)
+                short_commit_id = elements.pop(0)
+                commit_id = elements.pop(0)
+                author_name = elements.pop(0)
+                author_email = elements.pop(0)
                 date = elements.pop(0)
                 # All other newlines should belong to the description text. Join.
                 message = '\n'.join(elements)
@@ -70,6 +79,10 @@ def getlogs(endrev, startrev):
 
                 # Add changeset info
                 logs.append({
-                    'date': date, 'author': author,
-                    'message': message,'commitid': commitid})
+                    'date': date, 'author': author_name, 'author_email': author_email,
+                    'message': message,'short_commit_id': short_commit_id,
+                    'commitid': commit_id})
+    # Remove last log here because mercurial saves the short hast as commitid now
+    if len(logs) > 1 and logs[-1].get('short_commit_id') == startrev.commitid:
+        logs.pop()
     return logs

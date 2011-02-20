@@ -720,11 +720,13 @@ def create_report_if_enough_data(rev, exe, e):
         # If there is are at least as many results as in the last revision,
         # create new report
         if len(current_results) >= len(last_results):
+            logging.debug("create_report_if_enough_data: About to create new report")
             report, created = Report.objects.get_or_create(
                 executable=exe, environment=e, revision=rev
             )
             report.full_clean()
             report.save()
+            logging.debug("create_report_if_enough_data: Created new report.")
 
 def save_result(data):
     res, error = validate_result(data)
@@ -789,23 +791,31 @@ def add_result(request):
         return HttpResponseBadRequest(response)
     else:
         create_report_if_enough_data(response[0], response[1], response[2])
+        logging.debug("add_result: completed")
         return HttpResponse("Result data saved succesfully", status=202)
 
 def add_json_results(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed('POST')
     data = json.loads(request.POST['json'])
+    logging.info("add_json_results request with %d entries." % len(data))
 
     unique_reports = set()
+    i = 0
     for result in data:
+        i += 1
+        logging.debug("add_json_results: save item %d." % i)
         response, error = save_result(result)
         if error:
             return HttpResponseBadRequest(response)
         else:
             unique_reports.add(response)
 
+    logging.debug("add_json_results: about to create reports")
     for rep in unique_reports:
         create_report_if_enough_data(rep[0], rep[1], rep[2])
+
+    logging.debug("add_json_results: completed")
 
     return HttpResponse("All result data saved successfully", status=202)
 

@@ -50,8 +50,7 @@ def getlogs(endrev, startrev):
 
     p = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=working_copy)
     stdout, stderr = p.communicate()
-    print stdout
-    print stderr
+
     if stderr:
         return [{'error': True, 'message': stderr}]
     else:

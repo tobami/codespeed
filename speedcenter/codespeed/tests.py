@@ -217,11 +217,6 @@ class AddJSONResultsTest(TestCase):
         )
         self.assertTrue(res.value, 458)
 
-        number_of_reports = len(Report.objects.all())
-        # After adding 4 result for 3 revisions, only 2 reports should be created
-        # The third revision will need a result for Richards2 in order to trigger report creation
-        self.assertEquals(number_of_reports, 1)
-
     def test_bad_environment(self):
         """Add result associated with non-existing environment.
            Only change one item in the list.
@@ -258,6 +253,20 @@ class AddJSONResultsTest(TestCase):
             self.assertEquals(response.status_code, 400)
             self.assertEquals(response.content, 'Key "' + key + '" missing from request')
             data[key] = backup
+
+    def test_report_is_created(self):
+        '''Should create a report when adding json results for two revisions
+        plus a third revision with one result less than the last one'''
+        response = self.client.post(self.path, {'json' : json.dumps(self.data)})
+
+        # Check that we get a success response
+        self.assertEquals(response.status_code, 202)
+
+        number_of_reports = len(Report.objects.all())
+        # After adding 4 result for 3 revisions, only 2 reports should be created
+        # The third revision will need an extra result for Richards2 in order
+        # to trigger report creation
+        self.assertEquals(number_of_reports, 1)
 
 
 class Timeline(TestCase):

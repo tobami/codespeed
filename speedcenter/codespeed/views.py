@@ -807,7 +807,9 @@ def add_json_results(request):
         logging.debug("add_json_results: save item %d." % i)
         response, error = save_result(result)
         if error:
-            logging.debug("could not save item %d because %s" % (i, response))
+            logging.debug(
+                "add_json_results: could not save item %d because %s" % (
+                i, response))
             return HttpResponseBadRequest(response)
         else:
             unique_reports.add(response)

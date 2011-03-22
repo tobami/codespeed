@@ -24,6 +24,7 @@
     config["ben"] = $("input[name='benchmark']:checked").val();
     config["env"] = $("input[name='environments']:checked").val();
     config["revs"] = $("#revisions option:selected").val();
+    config["branch"] = $("#branches option:selected").val();
     return config;
   }
 
@@ -312,7 +313,10 @@
 <div id="configbar">Show the last
   <select id="revisions" title="Last {{ defaultlast }} revisions tested">{% for rev in lastrevisions %}
     <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
-  </select> results<a id="permalink" href="javascript:permalink();">Permalink</a>
+  </select>{% if branches|length %} results for the branch
+  <select id="branches"> {% for branch in branches %}
+    <option value="{{ branch }}">{{ branch }}</option>{% endfor %}
+  </select>{% endif %}<a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content" class="clearfix">
 <div id="plotgrid"></div>

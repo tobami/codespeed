@@ -35,6 +35,7 @@ class Revision(models.Model):
     # TODO: Replace author with author name/email or just make it larger so we can do "name <email>"?
     author = models.CharField(max_length=30, blank=True)
     # TODO: Add committer field(s) for DVCSes which make the distinction?
+    branch = models.CharField(max_length=15, blank=True)
 
     def get_short_commitid(self):
         return self.commitid[:10]
@@ -62,7 +63,7 @@ class Revision(models.Model):
             raise ValidationError("Invalid %s commit hash %s" % (
                                     self.project.get_repo_type_display(),
                                     self.commitid))
-
+    
 
 class Executable(models.Model):
     name = models.CharField(unique=True, max_length=30)

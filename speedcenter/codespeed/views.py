@@ -7,6 +7,7 @@ import logging
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
+from django.db.models import Q
 
 from speedcenter.codespeed import settings
 from speedcenter.codespeed.models import Environment, Report
@@ -427,6 +428,11 @@ def timeline(request):
     if not len(checkedexecutables):
         return no_executables_error()
 
+    branches = {}
+    if settings.timeline_branches:
+        for revision in Revision.objects.all():
+            branches[revision.branch] = branches.get(revision.branch, []) + [revision]
+
     baseline = getbaselineexecutables()
     defaultbaseline = None
     if len(baseline) > 1:
@@ -469,7 +475,8 @@ def timeline(request):
         'defaultlast': defaultlast,
         'executables': executables,
         'benchmarks': benchmarks,
-        'environments': environments
+        'environments': environments,
+        'branches': branches
     }, context_instance=RequestContext(request))
 
 def getchangestable(request):
@@ -558,12 +565,13 @@ def changes(request):
     executables = Executable.objects.filter(project__track=True)
     revlimit = 20
     lastrevisions = Revision.objects.filter(
-        project=defaultexecutable.project
+        Q(project=defaultexecutable.project), Q(branch="trunk") | Q(branch="")
     ).order_by('-date')[:revlimit]
     if not len(lastrevisions):
         return no_data_found()
 
     selectedrevision = lastrevisions[0]
+
     if "rev" in data:
         commitid = data['rev']
         try:
@@ -575,7 +583,6 @@ def changes(request):
                 lastrevisions.append(selectedrevision)
         except Revision.DoesNotExist:
             selectedrevision = lastrevisions[0]
-
     # This variable is used to know when the newly selected executable
     # belongs to another project (project changed) and then trigger the
     # repopulation of the revision selection selectbox
@@ -594,6 +601,7 @@ def changes(request):
         revisionboxes[p.name] = Revision.objects.filter(
             project=p
         ).order_by('-date')[:revlimit]
+        
     return render_to_response('codespeed/changes.html', locals(), context_instance=RequestContext(request))
 
 

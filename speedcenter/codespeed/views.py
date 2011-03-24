@@ -350,6 +350,7 @@ def gettimelinedata(request):
                 ).select_related(
                     "revision"
                 ).order_by('-revision__date')[:number_of_revs]
+            print resultquery
             if not len(resultquery):
                 continue
 
@@ -428,10 +429,19 @@ def timeline(request):
     if not len(checkedexecutables):
         return no_executables_error()
 
-    branches = {}
+    branch_list = []
     if settings.timeline_branches:
         for revision in Revision.objects.all():
-            branches[revision.branch] = branches.get(revision.branch, []) + [revision]
+            if revision.branch not in branch_list:
+                branch_list.append(revision.branch)
+    branch_list.sort()
+    
+    defaultbranch = ""
+    if "trunk" in branch_list:
+        defaultbranch = "trunk"
+    if data.get('branch') in branch_list:
+        print "existing branch"
+        defaultbranch = data.get('branch')
 
     baseline = getbaselineexecutables()
     defaultbaseline = None
@@ -476,7 +486,8 @@ def timeline(request):
         'executables': executables,
         'benchmarks': benchmarks,
         'environments': environments,
-        'branches': branches
+        'branch_list': branch_list,
+        'defaultbranch': defaultbranch
     }, context_instance=RequestContext(request))
 
 def getchangestable(request):

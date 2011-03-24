@@ -24,7 +24,7 @@
     config["ben"] = $("input[name='benchmark']:checked").val();
     config["env"] = $("input[name='environments']:checked").val();
     config["revs"] = $("#revisions option:selected").val();
-    config["branch"] = $("#branches option:selected").val();
+    config["branch_list"] = readCheckbox("input[name='branch']:checked");
     return config;
   }
 
@@ -221,11 +221,16 @@
     //Set default selected executables
     $("#baseline").val("{{ defaultbaseline }}");
     $("#baseline").change(refreshContent);
-
+    
     {% for checkedexecutable in checkedexecutables %}
     $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
     {% endfor %}
     $("input[name='executable']").change(refreshContent);
+    
+    {% for branch in branch_list %}
+    $("input[name='branch']").filter('[value={{ branch }}]').attr('checked', true);
+    {% endfor %}
+    $("input[name='branch']").change(refreshContent);
 
     //Set default selected benchmark
     $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
@@ -241,7 +246,7 @@
       $(this).parent().find("div.seriescolor").css("background-color", seriesColors[colorid-1]);
     });
     $("#baselinecolor").css("background-color", baselineColor);
-
+    
     $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
 
     refreshContent();
@@ -301,11 +306,22 @@
   </ul>{% endifnotequal %}
   <ul>{% for bench in benchmarks|dictsort:"name" %}
     <li title="{{ bench.description }}">
-      <input id="benchmark_{{ bench.id }}" type="radio" name="benchmark" value="{{ bench.name }}" />
+      <input id="benchmark_{{ bench.id }}" type="radio" name="benchmark" value="{{ bench.name }}"/>
       <label for="benchmark_{{ bench.id }}">{{ bench }}</label>
     </li>
     {% endfor %}
   </ul>
+  </div>
+</div>
+<div id="branch" class="sidebox">
+  <div class="boxhead"><h2>Branches</h2></div>
+    <div class="boxbody">
+    <ul class="clearfix">{% for branch in branch_list %}
+      <li>
+        <input id="branch{{ forloop.counter }}" type="checkbox" name="branch" value="{{ branch }}"/>
+        <label for="branch{{ forloop.counter }}">{{ branch }}</label>
+      </li>{% endfor %}
+    </ul>
   </div>
 </div>
 </div>
@@ -313,10 +329,7 @@
 <div id="configbar">Show the last
   <select id="revisions" title="Last {{ defaultlast }} revisions tested">{% for rev in lastrevisions %}
     <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
-  </select>{% if branches|length %} results for the branch
-  <select id="branches"> {% for branch in branches %}
-    <option value="{{ branch }}">{{ branch }}</option>{% endfor %}
-  </select>{% endif %}<a id="permalink" href="javascript:permalink();">Permalink</a>
+  </select><a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content" class="clearfix">
 <div id="plotgrid"></div>

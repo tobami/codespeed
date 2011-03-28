@@ -47,85 +47,85 @@
     var series = new Array();
     var lastvalues = new Array();//hopefully the smallest values for determining significant digits.
     seriesindex = new Array();
-    for (id in data['executables']) {
-      var colorid = $("#executable > div.boxbody").find("input[value='"+id+"']").attr('id').slice(10);
-      while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
-      series.push({
-        "label": $("label[for*='executable" + colorid + "']").html(),
-        "color": seriesColors[colorid-1]
-      });
-      seriesindex.push(id);
-      plotdata.push(data['executables'][id]);
-      lastvalues.push(data['executables'][id][0][1]);
-    }
-    if (data["baseline"] != "None") {
-      series.push({
-        "label": $("#baseline option:selected").html(), "color": baselineColor,
-        showMarker: false,
-        lineWidth: 1.5
-      });
-      plotdata.push(data["baseline"]);
-    }
-    //determine significant digits
-    var digits = 2;
-    var value = Math.min.apply( Math, lastvalues );
-    if (value != 0) {
-      while( value < 1 ) {
-        value *= 10;
-        digits++;
-      }
-    }
-    $("#plotgrid").html('<div id="plot"></div><div id="plotdescription"></div>');
-
-    if (data['benchmark_description']) {
-        $("#plotdescription").html('<p class="note"><i>' + data['benchmark'] + '</i>: ' + data['benchmark_description'] + '</p>');
-    }
-
-	console.log(data)
-    var plotoptions = {
-      title: {text: data['benchmark'], fontSize: '1.1em'},
-      series: series,
-      axes:{
-        yaxis:{
-          label: data['units'] + data['lessisbetter'],
-          labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-          min: 0, autoscale:true,
-          tickOptions:{formatString:'%.' + digits + 'f'}
-        },
-        xaxis:{
-          renderer:$.jqplot.DateAxisRenderer,
-          label: 'Commit date',
-          labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-          tickOptions:{formatString:'%b %d'},
-          pad: 1.01, autoscale:true
-        }
-      },
-      legend: {show: true, location: 'nw'},
-      highlighter: {
-        tooltipLocation: 'nw',
-        yvalues: 3,
-        formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
-      },
-      cursor:{show:false, zoom:true, showTooltip:false, clickReset:true}
-    }
-    if (series.length > 4) {
-        // Move legend outside plot area to unclutter
-        var labels = new Array();
-        for (l in series) {
-            labels.push(series[l]['label'].length)
-        }
-
-        var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
-        plotoptions.legend.location = 'ne';
-        plotoptions.legend.xoffset = -offset;
-        $("#plot").css("margin-right", offset + 10);
-        var w = $("#plot").width();
-        $("#plot").css('width', w - offset);
-    }
-
-    //Render plot
-    console.log(plotdata)
-    plot = $.jqplot('plot',  plotdata, plotoptions);
+    for (branch in data) {
+	    for (id in data[branch]['executables']) {
+	      var colorid = $("#executable > div.boxbody").find("input[value='"+id+"']").attr('id').slice(10);
+	      while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
+	      series.push({
+	        "label": $("label[for*='executable" + colorid + "']").html(),
+	        "color": seriesColors[colorid-1]
+	      });
+	      seriesindex.push(id);
+	      plotdata.push(data[branch]['executables'][id]);
+	      lastvalues.push(data[branch]['executables'][id][0][1]);
+	    }
+	    if (data[branch]["baseline"] != "None") {
+	      series.push({
+	        "label": $("#baseline option:selected").html(), "color": baselineColor,
+	        showMarker: false,
+	        lineWidth: 1.5
+	      });
+	      plotdata.push(data["baseline"]);
+	    }
+	    //determine significant digits
+	    var digits = 2;
+	    var value = Math.min.apply( Math, lastvalues );
+	    if (value != 0) {
+	      while( value < 1 ) {
+	        value *= 10;
+	        digits++;
+	      }
+	    }
+	    $("#plotgrid").html('<div id="plot"></div><div id="plotdescription"></div>');
+	
+	    if (data['benchmark_description']) {
+	        $("#plotdescription").html('<p class="note"><i>' + data['benchmark'] + '</i>: ' + data['benchmark_description'] + '</p>');
+	    }
+	
+	    var plotoptions = {
+	      title: {text: data['benchmark'], fontSize: '1.1em'},
+	      series: series,
+	      axes:{
+	        yaxis:{
+	          label: data['units'] + data['lessisbetter'],
+	          labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+	          min: 0, autoscale:true,
+	          tickOptions:{formatString:'%.' + digits + 'f'}
+	        },
+	        xaxis:{
+	          renderer:$.jqplot.DateAxisRenderer,
+	          label: 'Commit date',
+	          labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
+	          tickOptions:{formatString:'%b %d'},
+	          pad: 1.01, autoscale:true
+	        }
+	      },
+	      legend: {show: true, location: 'nw'},
+	      highlighter: {
+	        tooltipLocation: 'nw',
+	        yvalues: 3,
+	        formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
+	      },
+	      cursor:{show:false, zoom:true, showTooltip:false, clickReset:true}
+	    }
+	    if (series.length > 4) {
+	        // Move legend outside plot area to unclutter
+	        var labels = new Array();
+	        for (l in series) {
+	            labels.push(series[l]['label'].length)
+	        }
+	
+	        var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
+	        plotoptions.legend.location = 'ne';
+	        plotoptions.legend.xoffset = -offset;
+	        $("#plot").css("margin-right", offset + 10);
+	        var w = $("#plot").width();
+	        $("#plot").css('width', w - offset);
+	    }
+	
+	    //Render plot
+	    plot = $.jqplot('plot',  plotdata, plotoptions);
+	}
   }
 
   function renderMiniplot(plotid, data) {
@@ -182,11 +182,10 @@
       $("#plotgrid").html(getLoadText("No data available", h, false));
     } else if ($("input[name='benchmark']:checked").val() != "grid") {
       //render single plot when only one benchmark selected
-      for (branch in data["timelines"][0]["branches"]) {
-      	console.log(branch)
-      	console.log(data["timelines"][0]["branches"][branch])
-	    renderPlot(data["timelines"][0]["branches"][branch]);
-      }
+      //for (branch in data["timelines"][0]["branches"]) {
+	  //  renderPlot(data["timelines"][0]["branches"][branch]);
+      //}
+      renderPlot(data["timelines"][0]["branches"])
       return 1;
     } else {
       //Render Grid of plots

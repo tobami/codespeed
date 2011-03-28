@@ -75,13 +75,13 @@
         digits++;
       }
     }
-
     $("#plotgrid").html('<div id="plot"></div><div id="plotdescription"></div>');
 
     if (data['benchmark_description']) {
         $("#plotdescription").html('<p class="note"><i>' + data['benchmark'] + '</i>: ' + data['benchmark_description'] + '</p>');
     }
 
+	console.log(data)
     var plotoptions = {
       title: {text: data['benchmark'], fontSize: '1.1em'},
       series: series,
@@ -124,6 +124,7 @@
     }
 
     //Render plot
+    console.log(plotdata)
     plot = $.jqplot('plot',  plotdata, plotoptions);
   }
 
@@ -181,7 +182,11 @@
       $("#plotgrid").html(getLoadText("No data available", h, false));
     } else if ($("input[name='benchmark']:checked").val() != "grid") {
       //render single plot when only one benchmark selected
-      renderPlot(data["timelines"][0]);
+      for (branch in data["timelines"][0]["branches"]) {
+      	console.log(branch)
+      	console.log(data["timelines"][0]["branches"][branch])
+	    renderPlot(data["timelines"][0]["branches"][branch]);
+      }
       return 1;
     } else {
       //Render Grid of plots

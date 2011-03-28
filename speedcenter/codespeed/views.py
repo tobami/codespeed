@@ -327,20 +327,20 @@ def gettimelinedata(request):
         exeid, revid = data['base'].split("+")
         baselinerev = Revision.objects.get(id=revid)
         baselineexe = Executable.objects.get(id=exeid)
-    branches = {}
-    for branch in data.get('branch_list', '').split(','):
-        for bench in benchmarks:
+    for bench in benchmarks:
+        lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'
+        timeline = {
+            'benchmark':             bench.name,
+            'benchmark_id':          bench.id,
+            'benchmark_description': bench.description,
+            'units':                 bench.units,
+            'lessisbetter':          lessisbetter,
+            'branches':              {},
+            'baseline':              "None",
+        }
+        for branch in data.get('branch_list', '').split(','):
             append = False
-            lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'
-            timeline = {
-                'benchmark':             bench.name,
-                'benchmark_id':          bench.id,
-                'benchmark_description': bench.description,
-                'units':                 bench.units,
-                'lessisbetter':          lessisbetter,
-                'executables':           {},
-                'baseline':              "None",
-            }
+            timeline['branches'][branch] = {}
             for executable in executables:
                 resultquery = Result.objects.filter(
                         benchmark=bench
@@ -362,9 +362,9 @@ def gettimelinedata(request):
                     if res.std_dev != None:
                         std_dev = res.std_dev
                     results.append(
-                        [str(res.revision.date), res.value, std_dev, res.revision.get_short_commitid()]
+                        [str(res.revision.date), res.value, std_dev, res.revision.get_short_commitid(), branch]
                     )
-                timeline['executables'][executable] = results
+                timeline['branches'][branch][executable] = results
                 append = True
             if baselinerev != None and append:
                 try:
@@ -379,17 +379,16 @@ def gettimelinedata(request):
                 else:
                     # determine start and end revision (x axis) from longest data series
                     results = []
-                    for exe in timeline['executables']:
-                        if len(timeline['executables'][exe]) > len(results):
-                            results = timeline['executables'][exe]
+                    for exe in timeline['branches'][branch]['executables']:
+                        if len(timeline['branches'][branch]['executables'][exe]) > len(results):
+                            results = timeline['branches'][branch]['executables'][exe]
                     end = results[0][0]
                     start = results[len(results)-1][0]
                     timeline['baseline'] = [
                         [str(start), baselinevalue],
                         [str(end), baselinevalue]
                     ]
-            if append: branches[branch] = timeline
-        if len(branches): timeline_list['timelines'].append({'branches': branches})
+        if append: timeline_list['timelines'].append(timeline)
 
     if not len(timeline_list['timelines']):
         response = 'No data found for the selected options'

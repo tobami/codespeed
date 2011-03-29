@@ -2,6 +2,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import simplejson as json
+from django.db.models import Q
 
 from speedcenter.codespeed import settings
 
@@ -269,6 +270,8 @@ class Report(models.Model):
             project=self.executable.project
         ).filter(
             date__lte=self.revision.date
+        ).filter(
+            Q(branch='trunk') | Q(branch='')
         ).order_by('-date')[:trend_depth+1]
         lastrevision = lastrevisions[0]#same as self.revision unless in a different branch
 

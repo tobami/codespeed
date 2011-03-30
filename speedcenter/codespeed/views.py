@@ -12,6 +12,7 @@ from django.db.models import Q
 from speedcenter.codespeed import settings
 from speedcenter.codespeed.models import Environment, Report
 from speedcenter.codespeed.models import Project, Revision, Result, Executable, Benchmark
+from telepathy._generated.errors import DoesNotExist
 
 
 def no_environment_error():
@@ -109,7 +110,10 @@ def getcomparisonexes():
     # add latest revs of tracked projects
     projects = Project.objects.filter(track=True)
     for proj in projects:
-        rev = Revision.objects.filter(project=proj).latest('date')
+        try:
+            rev = Revision.objects.filter(project=proj).latest('date')
+        except Revision.DoesNotExist:
+            continue
         if rev.tag == "":
             for exe in Executable.objects.filter(project=rev.project):
                 exestring = str(exe)

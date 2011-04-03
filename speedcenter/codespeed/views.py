@@ -96,6 +96,14 @@ def getdefaultexecutable():
 
     return default
 
+def getbrancheslist():
+    branches = []
+    for rev in Revision.objects.all():
+        if rev.branch not in branches:
+            branches.append(rev.branch)
+    return branches
+    
+
 def getcomparisonexes():
     executables = []
     executablekeys = []
@@ -109,26 +117,27 @@ def getcomparisonexes():
 
     # add latest revs of tracked projects
     projects = Project.objects.filter(track=True)
+    branches = getbrancheslist()
     for proj in projects:
-        try:
-            rev = Revision.objects.filter(project=proj).latest('date')
-        except Revision.DoesNotExist:
-            continue
-        if rev.tag == "":
-            for exe in Executable.objects.filter(project=rev.project):
-                exestring = str(exe)
-                if len(exestring) > maxlen:
-                    exestring = str(exe)[0:maxlen] + "..."
-                name = exestring + " latest"
-                key = str(exe.id) + "+L"
-                executablekeys.append(key)
-                executables.append({
-                    'key': key,
-                    'executable': exe,
-                    'revision': rev,
-                    'name': name,
-                })
-
+        for branch in branches:
+            try:
+                rev = Revision.objects.filter(project=proj, branch=branch).latest('date')
+            except Revision.DoesNotExist:
+                continue
+            if rev.tag == "":
+                for exe in Executable.objects.filter(project=rev.project):
+                    exestring = str(exe)
+                    if len(exestring) > maxlen:
+                        exestring = str(exe)[0:maxlen] + "..."
+                    name = str(proj) + ":" + exestring + " latest" + ":" + branch
+                    key = str(exe.id) + "+L" + branch
+                    executablekeys.append(key)
+                    executables.append({
+                        'key': key,
+                        'executable': exe,
+                        'revision': rev,
+                        'name': name,
+                    })
     return executables, executablekeys
 
 def getcomparisondata(request):

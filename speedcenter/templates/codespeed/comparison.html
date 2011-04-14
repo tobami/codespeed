@@ -168,13 +168,14 @@
 <div id="executable" class="sidebox">
   <div class="boxhead"><h2>Executables</h2></div>
   <div class="boxbody">
-    <ul><a href="#" class="checkall">All</a>, <a href="#" class="uncheckall">None</a>
-    {% for exe in executables %}
+    {% for proj, executable in executables.items %}
+    <ul>{{ proj }} (<a href="#" class="checkall">All</a>, <a href="#" class="uncheckall">None</a>)
+    {% for exe in executable %}
       <li title="{{ exe.executable }} - {{ exe.revision }}">
         <input id="exe_{{ exe.key }}" type="checkbox" name="executables" value="{{ exe.key }}" />
         <label for="exe_{{ exe.key }}">{{ exe.name }}</label><div class="seriescolor"></div>
       </li>{% endfor %}
-    </ul>
+    </ul>{% endfor %}
   </div>
 </div>
 <div id="benchmark" class="sidebox">

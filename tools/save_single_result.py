@@ -12,6 +12,7 @@ temp = datetime.today()
 
 data = {
     'commitid': '1',
+    'branch': 'trunk',
     'project': 'MyProject',
     'revision_date': '', # Optional. Default is taken
                          # either from VCS integration or from current date

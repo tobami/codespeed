@@ -110,6 +110,7 @@ INSTALLED_APPS = (
     #'django.contrib.sites',
     'django.contrib.admin',
     'speedcenter.codespeed',
+    'south'
 )
 
 #: Control whether to enable local static media serving using

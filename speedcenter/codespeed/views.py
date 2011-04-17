@@ -788,6 +788,7 @@ def add_result(request):
 
     response, error = save_result(data)
     if error:
+        logging.error("Could not save result: " + response)
         return HttpResponseBadRequest(response)
     else:
         create_report_if_enough_data(response[0], response[1], response[2])

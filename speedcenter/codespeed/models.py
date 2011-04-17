@@ -81,7 +81,7 @@ class Benchmark(models.Model):
 
     name = models.CharField(unique=True, max_length=30)
     benchmark_type = models.CharField(max_length=1, choices=B_TYPES, default='C')
-    description = models.CharField(max_length=200, blank=True)
+    description = models.CharField(max_length=300, blank=True)
     units_title = models.CharField(max_length=30, default='Time')
     units = models.CharField(max_length=20, default='seconds')
     lessisbetter = models.BooleanField("Less is better", default=True)

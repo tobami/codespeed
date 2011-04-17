@@ -105,8 +105,9 @@
         yvalues: 3,
         formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
       },
-      cursor:{show:false, zoom:true, showTooltip:false, clickReset:true}
+      cursor:{zoom:true, showTooltip:false, clickReset:true}
     }
+    
     if (series.length > 4) {
         // Move legend outside plot area to unclutter
         var labels = new Array();

@@ -57,6 +57,9 @@ integration, configure the relevant fields.
 **Note**: Only executables associated to projects with a checked "track changes"
 field will be shown in the Changes and Timeline views.
 
+**Note**: Git and Mercurial need to locally clone the repository. That means that your codespeed/speedcenter/repos directory will need to be owned by the server. In the case of a typical Apache installation, you'll need to type:
+    sudo chown www-data:www-data codespeed/speedcenter/repos
+
 # Saving data
 
 Data is saved POSTing to `http://localhost:8000/result/add/`.

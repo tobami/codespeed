@@ -21,8 +21,8 @@ class RevisionAdmin(admin.ModelAdmin):
 admin.site.register(Revision, RevisionAdmin)
 
 class ExecutableAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'id')
-    search_fields = ('name', 'description')
+    list_display = ('name', 'description', 'id', 'project')
+    search_fields = ('name', 'description', 'project')
 
 admin.site.register(Executable, ExecutableAdmin)
 

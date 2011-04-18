@@ -57,7 +57,7 @@ class Revision(models.Model):
             date = None
         else:
             date = self.date.strftime("%h %d, %H:%M")
-        return " - ".join(filter(None, (date, self.commitid, self.tag)))
+        return " - ".join(filter(None, (date, self.commitid, self.tag, self.branch.name)))
 
     class Meta:
         unique_together = ("commitid", "branch")

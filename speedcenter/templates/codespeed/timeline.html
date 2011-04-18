@@ -52,7 +52,7 @@
 	      var colorid = $("#executable > div.boxbody").find("input[value='"+id+"']").attr('id').slice(10);
 	      while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
 	      series.push({
-	        "label": $("label[for*='executable" + colorid + "']").html(),
+	        "label": $("label[for*='executable" + colorid + "']").html() + " - " + branch,
 	        "color": seriesColors[colorid-1]
 	      });
 	      seriesindex.push(id);

@@ -12,7 +12,6 @@ from django.db.models import Q
 from speedcenter.codespeed import settings
 from speedcenter.codespeed.models import Environment, Report
 from speedcenter.codespeed.models import Project, Revision, Result, Executable, Benchmark, Branch
-from telepathy._generated.errors import DoesNotExist
 
 
 def no_environment_error():
@@ -600,7 +599,7 @@ def changes(request):
         commitid = data['rev']
         try:
             selectedrevision = Revision.objects.get(
-                commitid=commitid, project=defaultexecutable.project
+                commitid=commitid, branch__project=defaultexecutable.project
             )
             if not selectedrevision in lastrevisions:
                 lastrevisions = list(chain(lastrevisions))

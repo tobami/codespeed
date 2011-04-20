@@ -40,7 +40,7 @@ def getbaselineexecutables():
     maxlen = 22
     for rev in revs:
         #add executables that correspond to each tagged revision.
-        for exe in Executable.objects.filter(project=rev.project):
+        for exe in Executable.objects.filter(project=rev.branch.project):
             exestring = str(exe)
             if len(exestring) > maxlen: exestring = str(exe)[0:maxlen] + "..."
             name = exestring + " " + rev.tag
@@ -646,7 +646,7 @@ def displaylogs(request):
     error = False
     try:
         startrev = Revision.objects.filter(
-            project=rev.project
+            project=rev.branch.project
         ).filter(date__lt=rev.date).order_by('-date')[:1]
 
         if not len(startrev):
@@ -675,22 +675,22 @@ def displaylogs(request):
 def getcommitlogs(rev, startrev, update=False):
     logs = []
 
-    if rev.project.repo_type == 'S':
+    if rev.branch.project.repo_type == 'S':
         from subversion import getlogs, updaterepo
-    elif rev.project.repo_type == 'M':
+    elif rev.branch.project.repo_type == 'M':
         from mercurial import getlogs, updaterepo
-    elif rev.project.repo_type == 'G':
+    elif rev.branch.project.repo_type == 'G':
         from git import getlogs, updaterepo
-    elif rev.project.repo_type == 'H':
+    elif rev.branch.project.repo_type == 'H':
         from github import getlogs, updaterepo
     else:
-        if rev.project.repo_type not in ("N", ""):
+        if rev.branch.project.repo_type not in ("N", ""):
             logging.warning("Don't know how to retrieve logs from %s project",
-                            rev.project.get_repo_type_display())
+                            rev.branch.project.get_repo_type_display())
         return logs
 
     if update:
-        updaterepo(rev.project)
+        updaterepo(rev.branch.project)
 
     logs = getlogs(rev, startrev)
 

@@ -11,9 +11,6 @@ class Migration(SchemaMigration):
         # Removing unique constraint on 'Revision', fields ['commitid', 'project', 'branch']
         db.delete_unique('codespeed_revision', ['commitid', 'project_id', 'branch_id'])
 
-        # Deleting field 'Revision.project'
-        db.delete_column('codespeed_revision', 'project_id')
-
         # Adding unique constraint on 'Revision', fields ['commitid', 'branch']
         db.create_unique('codespeed_revision', ['commitid', 'branch_id'])
 
@@ -22,9 +19,6 @@ class Migration(SchemaMigration):
         
         # Removing unique constraint on 'Revision', fields ['commitid', 'branch']
         db.delete_unique('codespeed_revision', ['commitid', 'branch_id'])
-
-        # Adding field 'Revision.project'
-        db.add_column('codespeed_revision', 'project', self.gf('django.db.models.fields.related.ForeignKey')(default=None, related_name='revisions', to=orm['codespeed.Project']), keep_default=False)
 
         # Adding unique constraint on 'Revision', fields ['commitid', 'project', 'branch']
         db.create_unique('codespeed_revision', ['commitid', 'project_id', 'branch_id'])
@@ -99,11 +93,12 @@ class Migration(SchemaMigration):
         'codespeed.revision': {
             'Meta': {'unique_together': "(('commitid', 'branch'),)", 'object_name': 'Revision'},
             'author': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'}),
-            'branch': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'branch'", 'to': "orm['codespeed.Branch']"}),
+            'branch': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'revisions'", 'to': "orm['codespeed.Branch']"}),
             'commitid': ('django.db.models.fields.CharField', [], {'max_length': '42'}),
             'date': ('django.db.models.fields.DateTimeField', [], {'null': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'message': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
+            'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'revisions'", 'to': "orm['codespeed.Project']"}),
             'tag': ('django.db.models.fields.CharField', [], {'max_length': '20', 'blank': 'True'})
         }
     }

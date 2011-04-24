@@ -43,6 +43,7 @@ class Revision(models.Model):
     tag = models.CharField(max_length=20, blank=True)
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
+    project = models.ForeignKey(Project, related_name="revisions")
     # TODO: Replace author with author name/email or just make it larger so we can do "name <email>"?
     author = models.CharField(max_length=30, blank=True)
     # TODO: Add committer field(s) for DVCSes which make the distinction?

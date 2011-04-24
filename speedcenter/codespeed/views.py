@@ -351,7 +351,7 @@ def gettimelinedata(request):
             'branches':              {},
             'baseline':              "None",
         }
-        for branch in data.get('branch_list', '').split(','):
+        for branch in data.get('bran', '').split(','):
             append = False
             timeline['branches'][branch] = {}
             for executable in executables:
@@ -444,15 +444,15 @@ def timeline(request):
     if not len(checkedexecutables):
         return no_executables_error()
 
-    branch_list = [branch.name for branch in Branch.objects.filter(project=defaultproject)]
+    branch_list = [
+        branch.name for branch in Branch.objects.filter(project=defaultproject)]
     branch_list.sort()
     
     defaultbranch = ""
     if "trunk" in branch_list:
         defaultbranch = "trunk"
-    if data.get('branch') in branch_list:
-        print "existing branch"
-        defaultbranch = data.get('branch')
+    if data.get('bran') in branch_list:
+        defaultbranch = data.get('bran')
 
     baseline = getbaselineexecutables()
     defaultbaseline = None

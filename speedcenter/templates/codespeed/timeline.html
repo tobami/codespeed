@@ -24,7 +24,7 @@
     config["ben"] = $("input[name='benchmark']:checked").val();
     config["env"] = $("input[name='environments']:checked").val();
     config["revs"] = $("#revisions option:selected").val();
-    config["branch_list"] = readCheckbox("input[name='branch']:checked");
+    config["bran"] = readCheckbox("input[name='branch']:checked");
     return config;
   }
 
@@ -298,6 +298,17 @@
     </ul>
   </div>
 </div>
+<div id="branch" class="sidebox">
+  <div class="boxhead"><h2>Branches</h2></div>
+    <div class="boxbody">
+    <ul class="clearfix">{% for branch in branch_list %}
+      <li>
+        <input id="branch{{ forloop.counter }}" type="checkbox" name="branch" value="{{ branch }}"/>
+        <label for="branch{{ forloop.counter }}">{{ branch }}</label>
+      </li>{% endfor %}
+    </ul>
+  </div>
+</div>
 <div id="benchmark" class="sidebox">
   <div class="boxhead"><h2>Benchmark</h2></div>
   <div class="boxbody">{% ifnotequal benchmarks|length 1 %}
@@ -314,17 +325,6 @@
     </li>
     {% endfor %}
   </ul>
-  </div>
-</div>
-<div id="branch" class="sidebox">
-  <div class="boxhead"><h2>Branches</h2></div>
-    <div class="boxbody">
-    <ul class="clearfix">{% for branch in branch_list %}
-      <li>
-        <input id="branch{{ forloop.counter }}" type="checkbox" name="branch" value="{{ branch }}"/>
-        <label for="branch{{ forloop.counter }}">{{ branch }}</label>
-      </li>{% endfor %}
-    </ul>
   </div>
 </div>
 </div>

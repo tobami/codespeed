@@ -46,7 +46,6 @@ class Revision(models.Model):
     # TODO: Replace author with author name/email or just make it larger so we can do "name <email>"?
     author = models.CharField(max_length=30, blank=True)
     # TODO: Add committer field(s) for DVCSes which make the distinction?
-    #branch = models.CharField(max_length=15, blank=True)
     branch = models.ForeignKey(Branch, related_name="revisions")
 
     def get_short_commitid(self):

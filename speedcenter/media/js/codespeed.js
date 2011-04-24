@@ -80,7 +80,6 @@ function renderComparisonPlot(plotid, benchmark, exes, enviros, baseline, chart,
         for (var i in exes) {
             for (var j in enviros) {
                 var exe = $("label[for='exe_" + exes[i] + "']").text();
-                console.log(exe);
                 var env = $("label[for='env_" + enviros[j] + "']").text();
                 // for relative bars leave out (don't show) the baseline exe
                 if (chart == "relative bars") {

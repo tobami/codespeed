@@ -119,7 +119,10 @@ def getcomparisonexes(proj):
                 exestring = str(exe)
                 if len(exestring) > maxlen:
                     exestring = str(exe)[0:maxlen] + "..."
-                name = exestring + " latest" + ":" + branch.name
+                if branch.name == 'trunk':
+                    name = exestring + " latest trunk"
+                else:
+                    name = exestring + " latest " + branch.name + " branch"
                 key = str(exe.id) + "+L" + branch.name
                 executablekeys.append(key)
                 executables.append({

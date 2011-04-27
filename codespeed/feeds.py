@@ -1,10 +1,10 @@
 from django.contrib.syndication.feeds import Feed
-from speedcenter.codespeed.models import Report
-from speedcenter.codespeed import settings
+from codespeed.models import Report
+from django.conf import settings
 
 
 class LatestEntries(Feed):
-    title = settings.website_name
+    title = settings.WEBSITE_NAME
     link = "/changes/"
     description = "Last benchmark runs"
 

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
 from django.views.generic.simple import direct_to_template
-from speedcenter.codespeed.feeds import LatestEntries
+from codespeed.feeds import LatestEntries
 
 feeds = { 'latest': LatestEntries }
 
@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     (r'^feeds/(?P<url>.*)/$', 'django.contrib.syndication.views.feed', {'feed_dict': feeds}),
 )
 
-urlpatterns += patterns('speedcenter.codespeed.views',
+urlpatterns += patterns('codespeed.views',
     (r'^reports/$',         'reports'),
     (r'^changes/$',         'changes'),
     (r'^changes/table/$',   'getchangestable'),
@@ -24,7 +24,7 @@ urlpatterns += patterns('speedcenter.codespeed.views',
     (r'^comparison/json/$', 'getcomparisondata'),
 )
 
-urlpatterns += patterns('speedcenter.codespeed.views',
+urlpatterns += patterns('codespeed.views',
     # URLs for adding results
     (r'^result/add/json/$', 'add_json_results'),
     (r'^result/add/$',      'add_result'),

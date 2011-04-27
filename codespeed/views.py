@@ -4,14 +4,15 @@ from itertools import chain
 import json
 import logging
 
-from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest
+from django.http import (HttpResponse, Http404, HttpResponseNotAllowed,
+                         HttpResponseBadRequest)
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.core.exceptions import ValidationError
+from django.conf import settings
 
-from speedcenter.codespeed import settings
-from speedcenter.codespeed.models import Environment, Report
-from speedcenter.codespeed.models import Project, Revision, Result, Executable, Benchmark, Branch
+from codespeed.models import (Environment, Report, Project, Revision, Result,
+                              Executable, Benchmark, Branch)
 
 
 def no_environment_error():
@@ -52,20 +53,20 @@ def getbaselineexecutables():
                 'name': name,
             })
     # move default to first place
-    if hasattr(settings, 'def_baseline') and settings.def_baseline != None:
+    if hasattr(settings, 'DEF_BASELINE') and settings.DEF_BASELINE != None:
         try:
             for base in baseline:
                 if base['key'] == "none":
                     continue
-                exename = settings.def_baseline['executable']
-                commitid = settings.def_baseline['revision']
+                exename = settings.DEF_BASELINE['executable']
+                commitid = settings.DEF_BASELINE['revision']
                 if base['executable'].name == exename and base['revision'].commitid == commitid:
                     baseline.remove(base)
                     baseline.insert(1, base)
                     break
         except KeyError:
             # TODO: write to server logs
-            #error in settings.def_baseline
+            #error in settings.DEF_BASELINE
             pass
     return baseline
 
@@ -74,18 +75,18 @@ def getdefaultenvironment():
     if not len(default):
         return 0
     default = default[0]
-    if hasattr(settings, 'def_environment'):
+    if hasattr(settings, 'DEF_ENVIRONMENT'):
         try:
-            default = Environment.objects.get(name=settings.def_environment)
+            default = Environment.objects.get(name=settings.DEF_ENVIRONMENT)
         except Environment.DoesNotExist:
             pass
     return default
 
 def getdefaultexecutable():
     default = None
-    if hasattr(settings, 'def_executable') and settings.def_executable != None:
+    if hasattr(settings, 'DEF_EXECUTABLE') and settings.DEF_EXECUTABLE != None:
         try:
-            default = Executable.objects.get(name=settings.def_executable)
+            default = Executable.objects.get(name=settings.DEF_EXECUTABLE)
         except Executable.DoesNotExist:
             pass
     if default == None:
@@ -211,9 +212,9 @@ def comparison(request):
                 continue
             if i in exekeys:
                 checkedexecutables.append(i)
-    elif hasattr(settings, 'comp_executables') and\
-        settings.comp_executables:
-        for exe, rev in settings.comp_executables:
+    elif hasattr(settings, 'COMP_EXECUTABLES') and\
+        settings.COMP_EXECUTABLES:
+        for exe, rev in settings.COMP_EXECUTABLES:
             try:
                 exe = Executable.objects.get(name=exe)
                 key = str(exe.id) + "+"
@@ -272,8 +273,8 @@ def comparison(request):
     selectedchart = charts[0]
     if 'chart' in data and data['chart'] in charts:
         selectedchart = data['chart']
-    elif hasattr(settings, 'chart_type') and settings.chart_type in charts:
-        selectedchart = settings.chart_type
+    elif hasattr(settings, 'CHART_TYPE') and settings.CHART_TYPE in charts:
+        selectedchart = settings.CHART_TYPE
 
     selectedbaseline = "none"
     if 'bas' in data and data['bas'] in exekeys:
@@ -281,8 +282,8 @@ def comparison(request):
     elif 'bas' in data:
         # bas is present but is none
         pass
-    elif len(exekeys) > 1 and hasattr(settings, 'normalization') and\
-        settings.normalization:
+    elif len(exekeys) > 1 and hasattr(settings, 'NORMALIZATION') and\
+        settings.NORMALIZATION:
         # Uncheck exe used for normalization when normalization is chosen as default in the settings
         selectedbaseline = exekeys[0]#this is the default baseline
         try:
@@ -292,7 +293,7 @@ def comparison(request):
 
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true" or\
-        hasattr(settings, 'chart_orientation') and settings.chart_orientation == 'horizontal':
+        hasattr(settings, 'CHART_ORIENTATION') and settings.CHART_ORIENTATION == 'horizontal':
         selecteddirection = True
 
     return render_to_response('codespeed/comparison.html', {
@@ -539,10 +540,10 @@ def changes(request):
     # Configuration of default parameters
     defaultchangethres = 3.0
     defaulttrendthres = 4.0
-    if hasattr(settings, 'change_threshold') and settings.change_threshold != None:
-        defaultchangethres = settings.change_threshold
-    if hasattr(settings, 'trend_threshold') and settings.trend_threshold != None:
-        defaulttrendthres = settings.trend_threshold
+    if hasattr(settings, 'CHANGE_THRESHOLD') and settings.CHANGE_THRESHOLD != None:
+        defaultchangethres = settings.CHANGE_THRESHOLD
+    if hasattr(settings, 'TREND_THRESHOLD') and settings.TREND_THRESHOLD != None:
+        defaulttrendthres = settings.TREND_THRESHOLD
 
     defaulttrend = 10
     trends = [5, 10, 20, 50, 100]

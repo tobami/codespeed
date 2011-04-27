@@ -5,14 +5,14 @@ import copy, json
 
 from django.test import TestCase
 from django.test.client import Client
-from speedcenter.codespeed.models import (Project, Benchmark, Revision, Branch,
+from codespeed.models import (Project, Benchmark, Revision, Branch,
     Executable, Environment, Result, Report)
 from django.core.urlresolvers import reverse
 
 
 class AddResultTest(TestCase):
     def setUp(self):
-        self.path = reverse('speedcenter.codespeed.views.add_result')
+        self.path = reverse('codespeed.views.add_result')
         self.client = Client()
         self.e = Environment(name='Dual Core', cpu='Core 2 Duo 8200')
         self.e.save()
@@ -140,7 +140,7 @@ class AddResultTest(TestCase):
 
 class AddJSONResultsTest(TestCase):
     def setUp(self):
-        self.path = reverse('speedcenter.codespeed.views.add_json_results')
+        self.path = reverse('codespeed.views.add_json_results')
         self.client = Client()
         self.e = Environment(name='bigdog', cpu='Core 2 Duo 8200')
         self.e.save()
@@ -298,7 +298,7 @@ class Timeline(TestCase):
     def test_gettimelinedata(self):
         """Test that gettimelinedata returns correct timeline data
         """
-        path = reverse('speedcenter.codespeed.views.gettimelinedata')
+        path = reverse('codespeed.views.gettimelinedata')
         data = {
             "exe":  "1,2",
             "base": "2+4",

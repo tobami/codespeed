@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import simplejson as json
 
-from speedcenter.codespeed import settings
+from django.conf import settings
 
 
 class Project(models.Model):
@@ -160,10 +160,10 @@ class Report(models.Model):
         # Get default threshold values
         change_threshold = 3.0
         trend_threshold  = 5.0
-        if hasattr(settings, 'change_threshold') and settings.change_threshold != None:
-            change_threshold = settings.change_threshold
-        if hasattr(settings, 'trend_threshold') and settings.trend_threshold:
-            trend_threshold = settings.trend_threshold
+        if hasattr(settings, 'CHANGE_THRESHOLD') and settings.CHANGE_THRESHOLD != None:
+            change_threshold = settings.CHANGE_THRESHOLD
+        if hasattr(settings, 'TREND_THRESHOLD') and settings.TREND_THRESHOLD:
+            trend_threshold = settings.TREND_THRESHOLD
 
         # Fetch big changes for each unit type and each benchmark
         for units in tablelist:
@@ -272,8 +272,8 @@ class Report(models.Model):
     def get_changes_table(self, trend_depth=10, force_save=False):
         # Determine whether required trend value is the default one
         default_trend = 10
-        if hasattr(settings, 'trend') and settings.trend:
-            default_trend = settings.trend
+        if hasattr(settings, 'TREND') and settings.TREND:
+            default_trend = settings.TREND
         # If the trend is the default and a forced save is not required
         # just return the cached changes table
         if not force_save and trend_depth == default_trend:

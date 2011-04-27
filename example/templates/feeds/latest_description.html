@@ -1,0 +1,8 @@
+{% ifequal obj.colorcode "red" %}Performance regressed: {% else %}
+    {% ifequal obj.colorcode "green" %}Performance improved: {% else %}
+        {% ifequal obj.colorcode "yellow" %}Trend regressed: {% else %}
+            No significant changes.
+        {% endifequal %}
+    {% endifequal %}
+{% endifequal %}
+{{ obj.summary }}

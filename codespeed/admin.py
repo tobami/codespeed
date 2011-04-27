@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
+from codespeed.models import (Project, Revision, Executable, Benchmark, Result,
+                              Environment, Report)
+
 from django.contrib import admin
-from codespeed.models import Project, Revision, Executable, Benchmark, Branch
-from codespeed.models import Result, Environment, Report
+
 
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'repo_type', 'repo_path', 'track')

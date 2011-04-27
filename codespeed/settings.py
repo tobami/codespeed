@@ -1,49 +1,50 @@
 # -*- coding: utf-8 -*-
 ## General default options ##
-website_name = "MySpeedSite" # This name will be used in the reports RSS feed
+WEBSITE_NAME = "MySpeedSite" # This name will be used in the reports RSS feed
 
-def_environment = None #Name of the environment which should be selected as default
+DEF_ENVIRONMENT = None #Name of the environment which should be selected as default
 
 
-def_baseline = None # Which executable + revision should be default as a baseline
+DEF_BASELINE = None # Which executable + revision should be default as a baseline
                     # Given as the name of the executable and commitid of the revision
                     # Example: defaultbaseline = {'executable': 'myexe', 'revision': '21'}
 
-trend = 10 # Default value for the depth of the trend
+TREND = 10 # Default value for the depth of the trend
            # Used by reports for the latest runs and changes view
 
 # Threshold that determines when a performance change over the last result is significant
-change_threshold = 3.0
+CHANGE_THRESHOLD = 3.0
 
 # Threshold that determines when a performance change
 # over a number of revisions is significant
-trend_threshold  = 5.0
+TREND_THRESHOLD  = 5.0
 
 ## Changes view options ##
-def_executable = None # Executable that should be chosen as default in the changes view
+DEF_EXECUTABLE = None # Executable that should be chosen as default in the changes view
                       # Given as the name of the executable.
                       # Example: defaultexecutable = "myexe"
 
 ## Timeline view options ##
-def_benchmark = "grid" # Default selected benchmark. Possible values:
+DEF_BENCHMARK = "grid" # Default selected benchmark. Possible values:
                        #   "grid": will show the grid of plots
                        #   "show_none": will just show a text message
                        #   "mybench": will select benchmark "mybench"
+
 #timeline_branches = True # NOTE: Only the default branch is currently shown 
                          # Get timeline results for specific branches
                          # Set to False if you want timeline plots and results only for trunk.
 
 ## Comparison view options ##
-chart_type = 'normal bars' # The options are 'normal bars', 'stacked bars' and 'relative bars'
+CHART_TYPE = 'normal bars' # The options are 'normal bars', 'stacked bars' and 'relative bars'
 
-normalization = False # True will enable normalization as the default selection
+NORMALIZATION = False # True will enable normalization as the default selection
                       # in the Comparison view. The default normalization can be
                       # chosen in the defaultbaseline setting
 
-chart_orientation = 'vertical' # 'vertical' or 'horizontal can be chosen as
+CHART_ORIENTATION = 'vertical' # 'vertical' or 'horizontal can be chosen as
                               # default chart orientation
 
-comp_executables = None  # Which executable + revision should be checked as default
+COMP_EXECUTABLES = None  # Which executable + revision should be checked as default
                          # Given as a list of tuples containing the
                          # name of an executable + commitid of a revision
                          # An 'L' denotes the last revision
@@ -51,3 +52,4 @@ comp_executables = None  # Which executable + revision should be checked as defa
                          # comp_executables = [
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
+

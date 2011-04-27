@@ -164,3 +164,7 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
                          # COMP_EXECUTABLES = [
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
+
+TIMELINE_BRANCHES = True # Get timeline results for specific branches (beyond trunk).
+                         # Set to False if you want timeline plots and results only for trunk.
+

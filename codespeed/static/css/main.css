@@ -4,7 +4,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: #596A74;
-    background-image: url(/media/images/vgradient.png);
+    background-image: url(/static/images/vgradient.png);
     background-repeat: repeat-x;
     font-size: 16px;
     margin-bottom: 0.8em;
@@ -111,7 +111,7 @@ div#presentation div {
     vertical-align: middle;
 }
 div#presentation div.menubox {
-    background-image: url(/media/images/vgradient.png);
+    background-image: url(/static/images/vgradient.png);
     background-repeat: repeat-x;
     background-color: #FFFFFF;
     color: white;
@@ -131,13 +131,13 @@ div#presentation div.menubox:hover { border: 5px solid #FFCE9C; }
 div#presentation p { height: 5em; padding-left: 120px; }
 
 div#presentation div#changes p {
-    background: url(/media/images/changes.png) no-repeat;
+    background: url(/static/images/changes.png) no-repeat;
 }
 div#presentation div#timeline p {
-    background: url(/media/images/timeline.png) no-repeat;
+    background: url(/static/images/timeline.png) no-repeat;
 }
 div#presentation div#comparison p {
-    background: url(/media/images/comparison.png) no-repeat;
+    background: url(/static/images/comparison.png) no-repeat;
 }
 
 div#presentation div#reports { margin-top: 0.8em; }
@@ -311,7 +311,7 @@ table.tablesorter thead tr th {
     font-size: 8pt;
 }
 table.tablesorter thead tr th.header {
-    background-image: url(/media/images/bg.gif);
+    background-image: url(/static/images/bg.gif);
     background-repeat: no-repeat;
     background-position: center right;
     cursor: pointer;
@@ -337,10 +337,10 @@ table.tablesorter tbody tr.odd td {
     background-color:#F0F0F6;
 }
 table.tablesorter thead tr .headerSortUp {
-    background-image: url(/media/images/asc.gif);
+    background-image: url(/static/images/asc.gif);
 }
 table.tablesorter thead tr .headerSortDown {
-    background-image: url(/media/images/desc.gif);
+    background-image: url(/static/images/desc.gif);
 }
 table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
     background-color: #8dbdd8;
@@ -463,7 +463,7 @@ p.note, p.warning {
 }
 p.warning {
     padding-left: 42px;
-    background-image: url(/media/images/warning.png);
+    background-image: url(/static/images/warning.png);
 }
 p.note {
     margin-top: 20px;
@@ -473,7 +473,7 @@ p.note {
     -moz-box-shadow: 3px 3px 3px #888;
     -webkit-box-shadow: 3px 3px 3px #888;
     box-shadow: 3px 3px 3px #888;
-    background-image: url(/media/images/note.png);
+    background-image: url(/static/images/note.png);
 }
 
 div.footer {

@@ -15,25 +15,25 @@ from codespeed.models import (Environment, Report, Project, Revision, Result,
                               Executable, Benchmark, Branch)
 
 
-def no_environment_error():
+def no_environment_error(request):
     return render_to_response('codespeed/nodata.html', {
         'message': 'You need to configure at least one Environment. Please go to the <a href="../admin/codespeed/environment/">admin interface</a>'
-    })
+    }, context_instance=RequestContext(request))
 
-def no_default_project_error():
+def no_default_project_error(request):
     return render_to_response('codespeed/nodata.html', {
         'message': 'You need to configure at least one one Project as default (checked "Track changes" field).<br />Please go to the <a href="../admin/codespeed/project/">admin interface</a>'
-    })
+    }, context_instance=RequestContext(request))
 
-def no_executables_error():
+def no_executables_error(request):
     return render_to_response('codespeed/nodata.html', {
         'message': 'There needs to be at least one executable'
-    })
+    }, context_instance=RequestContext(request))
 
-def no_data_found():
+def no_data_found(request):
     return render_to_response('codespeed/nodata.html', {
         'message': 'No data found'
-    })
+    }, context_instance=RequestContext(request))
 
 def getbaselineexecutables():
     baseline = [{'key': "none", 'name': "None", 'executable': "none", 'revision': "none"}]
@@ -175,7 +175,7 @@ def comparison(request):
     # Configuration of default parameters
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment:
-        return no_environment_error()
+        return no_environment_error(request)
     if 'env' in data:
         try:
             defaultenvironment = Environment.objects.get(name=data['env'])
@@ -196,7 +196,7 @@ def comparison(request):
         checkedenviros = enviros
 
     if not len(Project.objects.all()):
-        return no_default_project_error()
+        return no_default_project_error(request)
 
     # Check whether there exist appropiate executables
     if not getdefaultexecutable():
@@ -424,7 +424,7 @@ def timeline(request):
     # Configuration of default parameters
     defaultenvironment = getdefaultenvironment()
     if not defaultenvironment:
-        return no_environment_error()
+        return no_environment_error(request)
     if 'env' in data:
         try:
             defaultenvironment = Environment.objects.get(name=data['env'])
@@ -433,7 +433,7 @@ def timeline(request):
 
     defaultproject = Project.objects.filter(track=True)
     if not len(defaultproject):
-        return no_default_project_error()
+        return no_default_project_error(request)
     else:
         defaultproject = defaultproject[0]
 
@@ -450,7 +450,7 @@ def timeline(request):
         checkedexecutables = Executable.objects.filter(project__track=True)
 
     if not len(checkedexecutables):
-        return no_executables_error()
+        return no_executables_error(request)
 
     branch_list = [
         branch.name for branch in Branch.objects.filter(project=defaultproject)]
@@ -484,18 +484,18 @@ def timeline(request):
     grid_limit = 30
     defaultbenchmark = "grid"
     if not len(benchmarks):
-        return no_data_found()
+        return no_data_found(request)
     elif len(benchmarks) == 1:
         defaultbenchmark = benchmarks[0]
     elif len(benchmarks) >= grid_limit:
         defaultbenchmark = 'show_none'
-    elif hasattr(settings, 'def_benchmark') and settings.def_benchmark != None:
-        if settings.def_benchmark in ['grid', 'show_none']:
-            defaultbenchmark = settings.def_benchmark
+    elif hasattr(settings, 'DEF_BENCHMARK') and settings.DEF_BENCHMARK != None:
+        if settings.DEF_BENCHMARK in ['grid', 'show_none']:
+            defaultbenchmark = settings.DEF_BENCHMARK
         else:
             try:
                 defaultbenchmark = Benchmark.objects.get(
-                                                name=settings.def_benchmark)
+                                                name=settings.DEF_BENCHMARK)
             except Benchmark.DoesNotExist:
                 pass
 

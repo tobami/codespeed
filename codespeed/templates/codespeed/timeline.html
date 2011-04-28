@@ -2,16 +2,16 @@
 {% block title %}{{ block.super }}: Timeline{% endblock %}
 {% block extra_head %}
 {{ block.super }}
-<!--[if IE]><script language="javascript" type="text/javascript" src="/media/js/jqplot/excanvas.min.js"></script><![endif]-->
-<link rel="stylesheet" type="text/css" href="../media/js/jqplot/jquery.jqplot.min.css" />
-<script type="text/javascript" src="../media/js/jquery.address-1.4.min.js?autoUpdate=0"></script>
-<script type="text/javascript" src="../media/js/jqplot/jquery.jqplot.min.js"></script>
-<script type="text/javascript" src="../media/js/jqplot/jqplot.cursor.min.js"></script>
-<script type="text/javascript" src="../media/js/jqplot/jqplot.highlighter.min.js"></script>
-<script type="text/javascript" src="../media/js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
-<script type="text/javascript" src="../media/js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
-<script type="text/javascript" src="../media/js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
-<script type="text/javascript" src="../media/js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<!--[if IE]><script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqplot/excanvas.min.js"></script><![endif]-->
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/jqplot/jquery.jqplot.min.css" />
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.address-1.4.min.js?autoUpdate=0"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.cursor.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.highlighter.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
 
 <script type="text/javascript">
   var baselineColor = "#d8b83f";

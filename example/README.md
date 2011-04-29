@@ -8,7 +8,7 @@ This file is written in Markdown.
 
 ## For the impatient
 
-Warning: It is recommended to use [virtualenv]() to not install
+Warning: It is recommended to use [virtualenv](http://pypi.python.org/pypi/virtualenv) to not install
 stuff on the root path of your operating system.
 However, it works also this way and might be desired in production
 environments.

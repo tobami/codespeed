@@ -21,7 +21,7 @@
     }
 
     function permalinkToTimeline(benchmark, environment) {
-        window.location="../timeline/?ben=" + benchmark + "&env=" + environment;
+        window.location="{% url timeline %}?ben=" + benchmark + "&env=" + environment;
     }
 
     function colorTable() {

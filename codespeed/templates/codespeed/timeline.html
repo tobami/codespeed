@@ -36,7 +36,7 @@
   }
 
   function permalinkToChanges(commitid, executableid, environment) {
-    window.location="../changes/?rev=" + commitid + "&" + "exe=" + executableid + "&env=" + environment;
+    window.location="{% url changes %}?rev=" + commitid + "&" + "exe=" + executableid + "&env=" + environment;
   }
 
   function myClickHandler(ev, gridpos, datapos, neighbor, plot) {

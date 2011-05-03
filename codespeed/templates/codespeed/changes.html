@@ -118,12 +118,9 @@
 {% endblock %}
 
 {% block navigation %}
-    <ul class="inline">
-      <li class="current"><a href="../changes/">Changes</a></li>
-      <li><a href="../timeline/">Timeline</a></li>
-      <li><a href="../comparison/">Comparison</a></li>
-    </ul>
+    {{ block.super }}
 {% endblock %}
+{% block nav-changes %}class="current"><a href="{% url changes %}">Changes</a>{% endblock %}
 
 {% block body %}
 <div id="sidebar">

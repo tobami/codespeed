@@ -336,12 +336,9 @@
 {% endblock %}
 
 {% block navigation %}
-    <ul class="inline">
-      <li><a href="../changes/">Changes</a></li>
-      <li class="current"><a href="../timeline/">Timeline</a></li>
-      <li><a href="../comparison/">Comparison</a></li>
-    </ul>
+    {{ block.super }}
 {% endblock %}
+{% block nav-timeline %}class="current"><a href="{% url timeline %}">Timeline</a>{% endblock %}
 
 {% block body %}
 <div id="sidebar">

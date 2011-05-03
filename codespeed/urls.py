@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
+from django.core.urlresolvers import reverse
 from django.views.generic.simple import direct_to_template
 from codespeed.feeds import LatestEntries
 
@@ -14,14 +15,14 @@ urlpatterns = patterns('',
 )
 
 urlpatterns += patterns('codespeed.views',
-    (r'^reports/$',         'reports'),
-    (r'^changes/$',         'changes'),
-    (r'^changes/table/$',   'getchangestable'),
-    (r'^changes/logs/$',    'displaylogs'),
-    (r'^timeline/$',        'timeline'),
-    (r'^timeline/json/$',   'gettimelinedata'),
-    (r'^comparison/$',      'comparison'),
-    (r'^comparison/json/$', 'getcomparisondata'),
+    url(r'^reports/$', 'reports', name='reports'),
+    url(r'^changes/$', 'changes', name='changes'),
+    url(r'^changes/table/$', 'getchangestable', name='getchangestable'),
+    url(r'^changes/logs/$', 'displaylogs', name='displaylogs'),
+    url(r'^timeline/$', 'timeline', name='timeline'),
+    url(r'^timeline/json/$', 'gettimelinedata', name='gettimelinedata'),
+    url(r'^comparison/$', 'comparison', name='comparsion'),
+    url(r'^comparison/json/$', 'getcomparisondata', name='getcomparisondata'),
 )
 
 urlpatterns += patterns('codespeed.views',

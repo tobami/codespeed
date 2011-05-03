@@ -143,13 +143,10 @@
 </script>
 {% endblock %}
 {% block navigation %}
-    <ul class="inline">
-
-      <li><a href="/changes/">Changes</a></li>
-      <li><a href="/timeline/">Timeline</a></li>
-      <li class="current"><a href="/comparison/">Comparison</a></li>
-    </ul>
+    {{ block.super }}
 {% endblock %}
+{% block nav-comparsion %}class="current"><a href="{% url comparsion %}">Comparsion</a>{% endblock %}
+
 {% block body %}
 <div id="sidebar">
 <div class="sidebox">

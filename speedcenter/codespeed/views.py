@@ -395,9 +395,9 @@ def gettimelinedata(request):
                 else:
                     # determine start and end revision (x axis) from longest data series
                     results = []
-                    for exe in timeline['branches'][branch]['executables']:
-                        if len(timeline['branches'][branch]['executables'][exe]) > len(results):
-                            results = timeline['branches'][branch]['executables'][exe]
+                    for exe in timeline['branches'][branch]:
+                        if len(timeline['branches'][branch][exe]) > len(results):
+                            results = timeline['branches'][branch][exe]
                     end = results[0][0]
                     start = results[len(results)-1][0]
                     timeline['baseline'] = [

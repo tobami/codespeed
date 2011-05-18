@@ -106,8 +106,7 @@ def getcomparisonexes(proj):
         executablekeys.append(exe['key'])
         executables.append(exe)
 
-    # add latest revs of tracked projects
-    #projects = Project.objects.filter(track=True)
+    # add latest revs of the project
     branches = Branch.objects.filter(project=proj)
     for branch in branches:
         try:
@@ -344,6 +343,7 @@ def gettimelinedata(request):
         baselinerev = Revision.objects.get(id=revid)
         baselineexe = Executable.objects.get(id=exeid)
     for bench in benchmarks:
+        append = False
         lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'
         timeline = {
             'benchmark':             bench.name,
@@ -351,59 +351,55 @@ def gettimelinedata(request):
             'benchmark_description': bench.description,
             'units':                 bench.units,
             'lessisbetter':          lessisbetter,
-            'branches':              {},
+            'executables':           {},
             'baseline':              "None",
         }
-        for branch in data.get('bran', '').split(','):
-            append = False
-            timeline['branches'][branch] = {}
-            for executable in executables:
-                resultquery = Result.objects.filter(
-                        benchmark=bench
-                    ).filter(
-                        environment=environment
-                    ).filter(
-                        executable=executable
-                    ).filter(
-                        revision__branch__name=branch
-                    ).select_related(
-                        "revision"
-                    ).order_by('-revision__date')[:number_of_revs]
-                if not len(resultquery):
-                    continue
-    
+
+        for executable in executables:
+            resultquery = Result.objects.filter(
+                    benchmark=bench
+                ).filter(
+                    environment=environment
+                ).filter(
+                    executable=executable
+                ).select_related(
+                    "revision"
+                ).order_by('-revision__date')[:number_of_revs]
+            if not len(resultquery):
+                continue
+
+            results = []
+            for res in resultquery:
+                std_dev = ""
+                if res.std_dev != None:
+                    std_dev = res.std_dev
+                results.append(
+                    [str(res.revision.date), res.value, std_dev, res.revision.get_short_commitid()]
+                )
+            timeline['executables'][executable] = results
+            append = True
+        if baselinerev != None and append:
+            try:
+                baselinevalue = Result.objects.get(
+                    executable=baselineexe,
+                    benchmark=bench,
+                    revision=baselinerev,
+                    environment=environment
+                ).value
+            except Result.DoesNotExist:
+                timeline['baseline'] = "None"
+            else:
+                # determine start and end revision (x axis) from longest data series
                 results = []
-                for res in resultquery:
-                    std_dev = ""
-                    if res.std_dev != None:
-                        std_dev = res.std_dev
-                    results.append(
-                        [str(res.revision.date), res.value, std_dev, res.revision.get_short_commitid(), branch]
-                    )
-                timeline['branches'][branch][executable] = results
-                append = True
-            if baselinerev != None and append:
-                try:
-                    baselinevalue = Result.objects.get(
-                        executable=baselineexe,
-                        benchmark=bench,
-                        revision=baselinerev,
-                        environment=environment
-                    ).value
-                except Result.DoesNotExist:
-                    timeline['baseline'] = "None"
-                else:
-                    # determine start and end revision (x axis) from longest data series
-                    results = []
-                    for exe in timeline['branches'][branch]:
-                        if len(timeline['branches'][branch][exe]) > len(results):
-                            results = timeline['branches'][branch][exe]
-                    end = results[0][0]
-                    start = results[len(results)-1][0]
-                    timeline['baseline'] = [
-                        [str(start), baselinevalue],
-                        [str(end), baselinevalue]
-                    ]
+                for exe in timeline['executables']:
+                    if len(timeline['executables'][exe]) > len(results):
+                        results = timeline['executables'][exe]
+                end = results[0][0]
+                start = results[len(results)-1][0]
+                timeline['baseline'] = [
+                    [str(start), baselinevalue],
+                    [str(end), baselinevalue]
+                ]
         if append: timeline_list['timelines'].append(timeline)
 
     if not len(timeline_list['timelines']):
@@ -447,16 +443,6 @@ def timeline(request):
     if not len(checkedexecutables):
         return no_executables_error()
 
-    branch_list = [
-        branch.name for branch in Branch.objects.filter(project=defaultproject)]
-    branch_list.sort()
-    
-    defaultbranch = ""
-    if "trunk" in branch_list:
-        defaultbranch = "trunk"
-    if data.get('bran') in branch_list:
-        defaultbranch = data.get('bran')
-
     baseline = getbaselineexecutables()
     defaultbaseline = None
     if len(baseline) > 1:
@@ -499,9 +485,7 @@ def timeline(request):
         'defaultlast': defaultlast,
         'executables': executables,
         'benchmarks': benchmarks,
-        'environments': environments,
-        'branch_list': branch_list,
-        'defaultbranch': defaultbranch
+        'environments': environments
     }, context_instance=RequestContext(request))
 
 def getchangestable(request):

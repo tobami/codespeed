@@ -65,12 +65,10 @@
         }
         if (benchmarks.length == 0) { continue; }
 
-		for (ben in benchmarks) {
-	      var plotid = "plot" + plotcounter;
-	      $("#plotwrapper").append('<div id="' + plotid + '" class="compplot"></div>');
-	      plotcounter++;
-	      renderComparisonPlot(plotid, benchmarks[ben], exes, enviros, conf['bas'], conf['chart'], conf['hor']);
-      	}
+        var plotid = "plot" + plotcounter;
+        $("#plotwrapper").append('<div id="' + plotid + '" class="compplot"></div>');
+        plotcounter++;
+        renderComparisonPlot(plotid, benchmarks, exes, enviros, conf['bas'], conf['chart'], conf['hor']);
       }
     });
   }

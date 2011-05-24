@@ -184,7 +184,7 @@
       $("#plotgrid").html(getLoadText("No data available", h, false));
     } else if ($("input[name='benchmark']:checked").val() != "grid") {
       //render single plot when only one benchmark selected
-      renderPlot(data["timelines"][0])
+      renderPlot(data["timelines"][0]);
       return 1;
     } else {
       //Render Grid of plots
@@ -255,6 +255,14 @@
     refreshContent();
   });
 </script>
+{% endblock %}
+
+{% block navigation %}
+    <ul class="inline">
+      <li><a href="../changes/">Changes</a></li>
+      <li class="current"><a href="../timeline/">Timeline</a></li>
+      <li><a href="../comparison/">Comparison</a></li>
+    </ul>
 {% endblock %}
 
 {% block body %}

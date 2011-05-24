@@ -95,53 +95,55 @@ def getdefaultexecutable():
 
     return default
 
-def getcomparisonexes(proj):
-    executables = []
-    executablekeys = []
-    maxlen = 20
-    # add all tagged revs for any project
-    for exe in getbaselineexecutables():
-        if exe['key'] == "none":
-            continue
-        executablekeys.append(exe['key'])
-        executables.append(exe)
+def getcomparisonexes():
+    all_executables = {}
+    exekeys = []
+    baselines = getbaselineexecutables()
+    for proj in Project.objects.filter(track=True):
+        executables = []
+        executablekeys = []
+        maxlen = 20
+        # add all tagged revs for any project
+        for exe in baselines:
+            if exe['key'] == "none" or exe['executable'].project != proj:
+                continue
+            executablekeys.append(exe['key'])
+            executables.append(exe)
 
-    # add latest revs of the project
-    branches = Branch.objects.filter(project=proj)
-    for branch in branches:
-        try:
-            rev = Revision.objects.filter(branch=branch).latest('date')
-        except Revision.DoesNotExist:
-            continue
-        if rev.tag == "":
-            for exe in Executable.objects.filter(project=proj):
-                exestring = str(exe)
-                if len(exestring) > maxlen:
-                    exestring = str(exe)[0:maxlen] + "..."
-                if branch.name == 'trunk':
-                    name = exestring + " latest trunk"
-                else:
-                    name = exestring + " latest " + branch.name + " branch"
-                key = str(exe.id) + "+L" + branch.name
-                executablekeys.append(key)
-                executables.append({
-                    'key': key,
-                    'executable': exe,
-                    'revision': rev,
-                    'name': name,
-                })
-    return executables, executablekeys
+        # add latest revs of the project
+        branches = Branch.objects.filter(project=proj)
+        for branch in branches:
+            try:
+                rev = Revision.objects.filter(branch=branch).latest('date')
+            except Revision.DoesNotExist:
+                continue
+            if rev.tag == "":
+                for exe in Executable.objects.filter(project=proj):
+                    exestring = str(exe)
+                    if len(exestring) > maxlen:
+                        exestring = str(exe)[0:maxlen] + "..."
+                    if branch.name == 'trunk':
+                        name = exestring + " latest trunk"
+                    else:
+                        name = exestring + " latest " + branch.name + " branch"
+                    key = str(exe.id) + "+L" + branch.name
+                    executablekeys.append(key)
+                    executables.append({
+                        'key': key,
+                        'executable': exe,
+                        'revision': rev,
+                        'name': name,
+                    })
+        all_executables[proj] = executables
+        exekeys += executablekeys
+    return all_executables, exekeys
 
 def getcomparisondata(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
     data = request.GET
 
-    executables = {}
-    exekeys = []
-    for project in Project.objects.filter(track=True):
-        executables[project], exekeys_project = getcomparisonexes(project)
-        exekeys += exekeys_project
+    executables, exekeys = getcomparisonexes()
         
     compdata = {}
     compdata['error'] = "Unknown error"
@@ -201,11 +203,7 @@ def comparison(request):
     if not defaultexecutable:
         return no_executables_error()
 
-    executables = {}
-    exekeys = []
-    for project in Project.objects.filter(track=True):
-        executables[project], exekeys_project = getcomparisonexes(project)
-        exekeys += exekeys_project
+    executables, exekeys = getcomparisonexes()
 
     checkedexecutables = []
     if 'exe' in data:

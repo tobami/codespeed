@@ -127,19 +127,6 @@
 
 {% block body %}
 <div id="sidebar">
-<div id="executable" class="sidebox">
-  <div class="boxhead"><h2>Executable</h2></div>
-  <div class="boxbody">
-    <ul>
-    {% for exec in executables|dictsort:"id" %}
-      <li title="{{ exec.description }}">
-        <input id="executable{{ exec.id }}" type="radio" name="executable" value="{{ exec.id }}" />
-        <label for="executable{{ exec.id }}">{{ exec }}</label>
-      </li>
-    {% endfor %}
-    </ul>
-  </div>
-</div>
 <div class="sidebox">
   <div class="boxhead"><h2>Environment</h2></div>
   <div class="boxbody">
@@ -153,6 +140,21 @@
     </ul>
   </div>
 </div>
+
+<div id="executable" class="sidebox">
+  <div class="boxhead"><h2>Executable</h2></div>
+  <div class="boxbody">
+    <ul>
+    {% for exec in executables|dictsort:"id" %}
+      <li title="{{ exec.description }}">
+        <input id="executable{{ exec.id }}" type="radio" name="executable" value="{{ exec.id }}" />
+        <label for="executable{{ exec.id }}">{{ exec }}</label>
+      </li>
+    {% endfor %}
+    </ul>
+  </div>
+</div>
+
 <div id="options" class="sidebox">
   <div class="boxhead"><h2>Options</h2></div>
   <div class="boxbody">

@@ -199,10 +199,10 @@
   </span>
   <span class="options">Normalization:
     <select id="baseline" title="Select baseline for normalization">
-      <option value="none">None</option>{% ifnotequal executables|length 1 %}{% for proj, exes in executables.items %}
+      <option value="none">None</option>{% for proj, exes in executables.items %}
       {% for exe in exes %}
       <option value="{{ exe.key }}">{{ exe.name }}</option>{% endfor %}
-      {% endfor %}{% endifnotequal %}
+      {% endfor %}
     </select>
   </span>
   <span class="options">

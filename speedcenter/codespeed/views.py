@@ -99,16 +99,15 @@ def getcomparisonexes():
     all_executables = {}
     exekeys = []
     baselines = getbaselineexecutables()
-    for proj in Project.objects.filter(track=True):
+    for proj in Project.objects.all():
         executables = []
         executablekeys = []
         maxlen = 20
         # add all tagged revs for any project
         for exe in baselines:
-            if exe['key'] == "none" or exe['executable'].project != proj:
-                continue
-            executablekeys.append(exe['key'])
-            executables.append(exe)
+            if exe['key'] != "none" and exe['executable'].project == proj:
+                executablekeys.append(exe['key'])
+                executables.append(exe)
 
         # add latest revs of the project
         branches = Branch.objects.filter(project=proj)
@@ -122,10 +121,9 @@ def getcomparisonexes():
                     exestring = str(exe)
                     if len(exestring) > maxlen:
                         exestring = str(exe)[0:maxlen] + "..."
-                    if branch.name == 'trunk':
-                        name = exestring + " latest trunk"
-                    else:
-                        name = exestring + " latest " + branch.name + " branch"
+                    name = exestring + " latest"
+                    if branch.name != 'default':
+                        name += " in branch '" + branch.name + "'"
                     key = str(exe.id) + "+L" + branch.name
                     executablekeys.append(key)
                     executables.append({
@@ -353,11 +351,10 @@ def gettimelinedata(request):
         }
         # Temporary
         trunks = []
-        if Branch.objects.filter(name=''):
-            trunks.append('')
-        if Branch.objects.filter(name='trunk'):
-            trunks.append('trunk')
+        if Branch.objects.filter(name='default'):
+            trunks.append('default')
         #for branch in data2.get('bran', '').split(','): #-- For now, we'll only work with trunk branches
+        append = False
         for branch in trunks:
             append = False
             timeline['branches'][branch] = {}
@@ -456,8 +453,8 @@ def timeline(request):
     branch_list.sort()
     
     defaultbranch = ""
-    if "trunk" in branch_list:
-        defaultbranch = "trunk"
+    if "default" in branch_list:
+        defaultbranch = "default"
     if data.get('bran') in branch_list:
         defaultbranch = data.get('bran')
 
@@ -595,7 +592,7 @@ def changes(request):
     revlimit = 20
     lastrevisions = Revision.objects.filter(
         Q(branch__project=defaultexecutable.project),
-        Q(branch__name="trunk") | Q(branch__name="")
+        Q(branch__name="default")
     ).order_by('-date')[:revlimit]
     if not len(lastrevisions):
         return no_data_found()
@@ -641,9 +638,8 @@ def reports(request):
 
     return render_to_response('codespeed/reports.html', {
         'reports': Report.objects.filter(
-                                     Q(revision__branch__name='trunk') |
-                                     Q(revision__branch__name='')
-                                     ).order_by('-revision__date')[:10],
+            Q(revision__branch__name='default')
+        ).order_by('-revision__date')[:10],
     }, context_instance=RequestContext(request))
 
 def displaylogs(request):

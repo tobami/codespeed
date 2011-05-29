@@ -32,7 +32,7 @@ class Branch(models.Model):
     project = models.ForeignKey(Project, related_name="branches")
     
     def __unicode__(self):
-        return self.name + ":" + self.project.name
+        return self.project.name + ":" + self.name
     
     class Meta:
         unique_together = ("name", "project")
@@ -57,7 +57,10 @@ class Revision(models.Model):
             date = None
         else:
             date = self.date.strftime("%h %d, %H:%M")
-        return " - ".join(filter(None, (date, self.commitid, self.tag, self.branch.name)))
+        string = " - ".join(filter(None, (date, self.commitid, self.tag)))
+        if self.branch.name != "default":
+            string += " - " + self.branch.name
+        return string
 
     class Meta:
         unique_together = ("commitid", "branch")
@@ -282,7 +285,7 @@ class Report(models.Model):
         ).filter(
             date__lte=self.revision.date
         ).filter(
-            Q(branch__name='trunk') | Q(branch__name='')
+            Q(branch__name='default')
         ).order_by('-date')[:trend_depth+1]
         lastrevision = lastrevisions[0]#same as self.revision unless in a different branch
 

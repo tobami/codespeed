@@ -11,7 +11,7 @@ setup_environ(settings)
 
 from django.db.models import Q
 
-branches = Branch.objects.filter(Q(name='trunk') | Q(name=''))
+branches = Branch.objects.filter(name='default')
 
 for branch in branches:
     for rev in Revision.objects.filter(project=branch.project):

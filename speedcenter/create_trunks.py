@@ -12,5 +12,6 @@ setup_environ(settings)
 projects = Project.objects.all()
 
 for proj in projects:
-    trunk = Branch(name='trunk', project = proj)
+    trunk = Branch(name='default', project = proj)
     trunk.save()
+    print "Created branch 'default' for project {0}".format(proj)

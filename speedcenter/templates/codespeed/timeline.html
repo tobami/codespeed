@@ -47,49 +47,48 @@
     var series = new Array();
     var lastvalues = new Array();//hopefully the smallest values for determining significant digits.
     for (branch in data["branches"]) {
-    	seriesindex = new Array();
-	    for (id in data["branches"][branch]) {
-	      var colorid = $("#executable > div.boxbody").find("input[value='"+id+"']").attr('id').slice(10);
-	      while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
-	      series.push({
-	        "label": $("label[for*='executable" + colorid + "']").html() + " - " + branch,
-	        "color": seriesColors[colorid-1]
-	      });
-	      seriesindex.push(id);
-	      plotdata.push(data["branches"][branch][id]);
-	      lastvalues.push(data["branches"][branch][id][0][1]);
-	    }
-	    //determine significant digits
-	    var digits = 2;
-	    var value = Math.min.apply( Math, lastvalues );
-	    if (value != 0) {
-	      while( value < 1 ) {
-	        value *= 10;
-	        digits++;
-	      }
-	    }
-	    $("#plotgrid").html('<div id="plot"></div><div id="plotdescription"></div>');
-	
-	    if (data['benchmark_description']) {
-	        $("#plotdescription").html('<p class="note"><i>' + data['benchmark'] + '</i>: ' + data['benchmark_description'] + '</p>');
-	    }
-	
-	    if (series.length > 4) {
-	        // Move legend outside plot area to unclutter
-	        var labels = new Array();
-	        for (l in series) {
-	            labels.push(series[l]['label'].length)
-	        }
-	
-	        var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
-	        plotoptions.legend.location = 'ne';
-	        plotoptions.legend.xoffset = -offset;
-	        $("#plot").css("margin-right", offset + 10);
-	        var w = $("#plot").width();
-	        $("#plot").css('width', w - offset);
-	    }
-	
-	}
+      // NOTE: Currently, only the "default" branch is shown in the timeline
+      seriesindex = new Array();
+      for (exe_id in data["branches"][branch]) {
+        var color_id = $("#executable > div.boxbody").find("input[value='"+exe_id+"']").attr('id').slice(10);
+        while (color_id > seriesColors.length) { color_id -= seriesColors.length; }
+        var label = $("label[for*='executable" + color_id + "']").html();
+        if (branch != "default") { label += " - " + branch; }
+        series.push({"label":  label, "color": seriesColors[color_id-1]});
+        seriesindex.push(exe_id);
+        plotdata.push(data["branches"][branch][exe_id]);
+        lastvalues.push(data["branches"][branch][exe_id][0][1]);
+      }
+      //determine significant digits
+      var digits = 2;
+      var value = Math.min.apply( Math, lastvalues );
+      if (value != 0) {
+        while( value < 1 ) {
+          value *= 10;
+          digits++;
+        }
+      }
+      $("#plotgrid").html('<div id="plot"></div><div id="plotdescription"></div>');
+
+      if (data['benchmark_description']) {
+        $("#plotdescription").html('<p class="note"><i>' + data['benchmark'] + '</i>: ' + data['benchmark_description'] + '</p>');
+      }
+
+      if (series.length > 4) {
+        // Move legend outside plot area to unclutter
+        var labels = new Array();
+        for (l in series) {
+          labels.push(series[l]['label'].length)
+        }
+        // offset ammount depends on the maximum label length
+        var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
+        plotoptions.legend.location = 'ne';
+        plotoptions.legend.xoffset = -offset;
+        $("#plot").css("margin-right", offset + 10);
+        var w = $("#plot").width();
+        $("#plot").css('width', w - offset);
+      }
+    }
     if (data["baseline"] != "None") {
       series.push({
         "label": $("#baseline option:selected").html(), "color": baselineColor,
@@ -120,9 +119,9 @@
       highlighter: {
         tooltipLocation: 'nw',
         yvalues: 4,
-        formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr><tr><td>branch:</td><td>%s</td></tr></table>'
+        formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
       },
-      cursor:{show:false, zoom:true, showTooltip:false, clickReset:true}
+      cursor:{zoom:true, showTooltip:false, clickReset:true}
     }
     //Render plot
 	plot = $.jqplot('plot',  plotdata, plotoptions);
@@ -284,7 +283,7 @@
   <div class="boxhead"><h2>Executables</h2></div>
   <div class="boxbody">
     <ul class="clearfix">{% for exec in executables|dictsort:"id" %}
-      <li title="{{ exec.description }}"><!-- the input id != value. It is used for exeutable color order       -->
+      <li title="{{ exec.description }}"><!-- the input id != value. It is used for exeutable color order -->
         <input id="executable{{ forloop.counter }}" type="checkbox" name="executable" value="{{ exec.id }}" />
         <label for="executable{{ forloop.counter }}">{{ exec }}</label><div class="seriescolor"></div>
       </li>{% endfor %}

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from speedcenter.codespeed.models import Project, Revision, Executable, Benchmark
+from speedcenter.codespeed.models import Project, Revision, Executable, Benchmark, Branch
 from speedcenter.codespeed.models import Result, Environment, Report
 from django.contrib import admin
 
@@ -8,16 +8,21 @@ class ProjectAdmin(admin.ModelAdmin):
 
 admin.site.register(Project, ProjectAdmin)
 
+class BranchAdmin(admin.ModelAdmin):
+    list_display = ('name', 'project')
+
+admin.site.register(Branch, BranchAdmin)
+
 class RevisionAdmin(admin.ModelAdmin):
-    list_display = ('commitid', 'project', 'tag', 'date')
-    list_filter  = ('project', 'tag', 'date')
+    list_display = ('commitid', 'branch', 'tag', 'date')
+    list_filter  = ('branch', 'tag', 'date')
     search_fields = ('commitid', 'tag')
 
 admin.site.register(Revision, RevisionAdmin)
 
 class ExecutableAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'id')
-    search_fields = ('name', 'description')
+    list_display = ('name', 'description', 'id', 'project')
+    search_fields = ('name', 'description', 'project')
 
 admin.site.register(Executable, ExecutableAdmin)
 

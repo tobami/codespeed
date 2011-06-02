@@ -2,25 +2,28 @@
 from django.test import TestCase
 from datetime import datetime
 from django.test.client import Client
-from speedcenter.codespeed.models import Project, Benchmark, Revision, Executable, Environment, Result, Report
+from speedcenter.codespeed.models import (Project, Benchmark, Revision, Branch,
+    Executable, Environment, Result, Report)
 from django.core.urlresolvers import reverse
 import copy, json
+
 
 class AddResultTest(TestCase):
     def setUp(self):
         self.path = reverse('speedcenter.codespeed.views.add_result')
         self.client = Client()
-        self.e = Environment(name='bigdog', cpu='Core 2 Duo 8200')
+        self.e = Environment(name='Dual Core', cpu='Core 2 Duo 8200')
         self.e.save()
         temp = datetime.today()
         self.cdate = datetime(
             temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
         self.data = {
-                'commitid': '23232',
-                'project': 'pypy',
-                'executable': 'pypy-c',
-                'benchmark': 'Richards',
-                'environment': 'bigdog',
+                'commitid': '23',
+                'branch': 'default',
+                'project': 'MyProject',
+                'executable': 'myexe O3 64bits',
+                'benchmark': 'float',
+                'environment': 'Dual Core',
                 'result_value': 456,
         }
 
@@ -33,14 +36,15 @@ class AddResultTest(TestCase):
         self.assertEquals(response.content, "Result data saved succesfully")
         
         # Check that the data was correctly saved
-        e = Environment.objects.get(name='bigdog')
-        b = Benchmark.objects.get(name='Richards')
+        e = Environment.objects.get(name='Dual Core')
+        b = Benchmark.objects.get(name='float')
         self.assertEquals(b.benchmark_type, "C")
         self.assertEquals(b.units, "seconds")
         self.assertEquals(b.lessisbetter, True)
-        p = Project.objects.get(name='pypy')
-        r = Revision.objects.get(commitid='23232', project=p)
-        i = Executable.objects.get(name='pypy-c')
+        p = Project.objects.get(name='MyProject')
+        branch = Branch.objects.get(name='default', project=p)
+        r = Revision.objects.get(commitid='23', branch=branch)
+        i = Executable.objects.get(name='myexe O3 64bits')
         res = Result.objects.get(
             revision=r,
             executable=i,
@@ -48,9 +52,6 @@ class AddResultTest(TestCase):
             environment=e
         )
         self.assertTrue(res.value, 456)
-        resdate = res.date.strftime("%Y%m%dT%H%M%S")
-        selfdate = self.cdate.strftime("%Y%m%dT%H%M%S")
-        self.assertTrue(resdate, selfdate)
 
     def test_add_non_default_result(self):
         """

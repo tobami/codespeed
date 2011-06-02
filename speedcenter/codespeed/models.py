@@ -2,6 +2,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import simplejson as json
+from django.db.models import Q
 
 from speedcenter.codespeed import settings
 
@@ -26,15 +27,27 @@ class Project(models.Model):
         return self.name
 
 
+class Branch(models.Model):
+    name = models.CharField(max_length=20)
+    project = models.ForeignKey(Project, related_name="branches")
+    
+    def __unicode__(self):
+        return self.project.name + ":" + self.name
+    
+    class Meta:
+        unique_together = ("name", "project")
+
+
 class Revision(models.Model):
     commitid = models.CharField(max_length=42)#git and mercurial's SHA-1 length is 40
-    project = models.ForeignKey(Project, related_name="revisions")
     tag = models.CharField(max_length=20, blank=True)
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
+    project = models.ForeignKey(Project, related_name="revisions", blank=True)
     # TODO: Replace author with author name/email or just make it larger so we can do "name <email>"?
     author = models.CharField(max_length=30, blank=True)
     # TODO: Add committer field(s) for DVCSes which make the distinction?
+    branch = models.ForeignKey(Branch, related_name="revisions")
 
     def get_short_commitid(self):
         return self.commitid[:10]
@@ -44,25 +57,28 @@ class Revision(models.Model):
             date = None
         else:
             date = self.date.strftime("%h %d, %H:%M")
-        return " - ".join(filter(None, (date, self.commitid, self.tag)))
+        string = " - ".join(filter(None, (date, self.commitid, self.tag)))
+        if self.branch.name != "default":
+            string += " - " + self.branch.name
+        return string
 
     class Meta:
-        unique_together = ("commitid", "project")
+        unique_together = ("commitid", "branch")
 
     def clean(self):
         if not self.commitid or self.commitid == "None":
             raise ValidationError("Invalid commit id %s" % self.commitid)
 
-        if self.project.repo_type == "S":
+        if self.branch.project.repo_type == "S":
             try:
                 long(self.commitid)
             except ValueError:
                 raise ValidationError("Invalid SVN commit id %s" % self.commitid)
-        elif self.project.repo_type in ("M", "G", "H") and len(self.commitid) != 40:
+        elif self.branch.project.repo_type in ("M", "G", "H") and len(self.commitid) != 40:
             raise ValidationError("Invalid %s commit hash %s" % (
                                     self.project.get_repo_type_display(),
                                     self.commitid))
-
+    
 
 class Executable(models.Model):
     name = models.CharField(unique=True, max_length=30)
@@ -265,9 +281,11 @@ class Report(models.Model):
             return self._get_tablecache()
 
         lastrevisions = Revision.objects.filter(
-            project=self.executable.project
+            branch__project=self.executable.project
         ).filter(
             date__lte=self.revision.date
+        ).filter(
+            Q(branch__name='default')
         ).order_by('-date')[:trend_depth+1]
         lastrevision = lastrevisions[0]#same as self.revision unless in a different branch
 

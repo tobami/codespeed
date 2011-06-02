@@ -12,9 +12,10 @@ temp = datetime.today()
 
 data = {
     'commitid': '1',
+    'branch': 'default',#Always use default for trunk/master/tip
     'project': 'MyProject',
-    'revision_date': '', # Optional. Default is taken
-                         # either from VCS integration or from current date
+    'revision_date': '', # Optional. Default is taken either
+                         # from VCS integration or from current date
     'executable': 'myexe O3 64bits',
     'benchmark': 'float',
     'environment': "Dual Core",

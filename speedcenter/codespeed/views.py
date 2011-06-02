@@ -7,10 +7,11 @@ import logging
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
+from django.db.models import Q
 
 from speedcenter.codespeed import settings
 from speedcenter.codespeed.models import Environment, Report
-from speedcenter.codespeed.models import Project, Revision, Result, Executable, Benchmark
+from speedcenter.codespeed.models import Project, Revision, Result, Executable, Benchmark, Branch
 
 
 def no_environment_error():
@@ -39,7 +40,7 @@ def getbaselineexecutables():
     maxlen = 22
     for rev in revs:
         #add executables that correspond to each tagged revision.
-        for exe in Executable.objects.filter(project=rev.project):
+        for exe in Executable.objects.filter(project=rev.branch.project):
             exestring = str(exe)
             if len(exestring) > maxlen: exestring = str(exe)[0:maxlen] + "..."
             name = exestring + " " + rev.tag
@@ -95,36 +96,45 @@ def getdefaultexecutable():
     return default
 
 def getcomparisonexes():
-    executables = []
-    executablekeys = []
-    maxlen = 20
-    # add all tagged revs for any project
-    for exe in getbaselineexecutables():
-        if exe['key'] == "none":
-            continue
-        executablekeys.append(exe['key'])
-        executables.append(exe)
+    all_executables = {}
+    exekeys = []
+    baselines = getbaselineexecutables()
+    for proj in Project.objects.all():
+        executables = []
+        executablekeys = []
+        maxlen = 20
+        # add all tagged revs for any project
+        for exe in baselines:
+            if exe['key'] != "none" and exe['executable'].project == proj:
+                executablekeys.append(exe['key'])
+                executables.append(exe)
 
-    # add latest revs of tracked projects
-    projects = Project.objects.filter(track=True)
-    for proj in projects:
-        rev = Revision.objects.filter(project=proj).latest('date')
-        if rev.tag == "":
-            for exe in Executable.objects.filter(project=rev.project):
-                exestring = str(exe)
-                if len(exestring) > maxlen:
-                    exestring = str(exe)[0:maxlen] + "..."
-                name = exestring + " latest"
-                key = str(exe.id) + "+L"
-                executablekeys.append(key)
-                executables.append({
-                    'key': key,
-                    'executable': exe,
-                    'revision': rev,
-                    'name': name,
-                })
-
-    return executables, executablekeys
+        # add latest revs of the project
+        branches = Branch.objects.filter(project=proj)
+        for branch in branches:
+            try:
+                rev = Revision.objects.filter(branch=branch).latest('date')
+            except Revision.DoesNotExist:
+                continue
+            if rev.tag == "":
+                for exe in Executable.objects.filter(project=proj):
+                    exestring = str(exe)
+                    if len(exestring) > maxlen:
+                        exestring = str(exe)[0:maxlen] + "..."
+                    name = exestring + " latest"
+                    if branch.name != 'default':
+                        name += " in branch '" + branch.name + "'"
+                    key = str(exe.id) + "+L" + branch.name
+                    executablekeys.append(key)
+                    executables.append({
+                        'key': key,
+                        'executable': exe,
+                        'revision': rev,
+                        'name': name,
+                    })
+        all_executables[proj] = executables
+        exekeys += executablekeys
+    return all_executables, exekeys
 
 def getcomparisondata(request):
     if request.method != 'GET':
@@ -132,24 +142,25 @@ def getcomparisondata(request):
     data = request.GET
 
     executables, exekeys = getcomparisonexes()
-
+        
     compdata = {}
     compdata['error'] = "Unknown error"
-    for exe in executables:
-        compdata[exe['key']] = {}
-        for env in Environment.objects.all():
-            compdata[exe['key']][env.id] = {}
-            for bench in Benchmark.objects.all().order_by('name'):
-                try:
-                    value = Result.objects.get(
-                        environment=env,
-                        executable=exe['executable'],
-                        revision=exe['revision'],
-                        benchmark=bench
-                    ).value
-                except Result.DoesNotExist:
-                    value = None
-                compdata[exe['key']][env.id][bench.id] = value
+    for proj in executables:
+        for exe in executables[proj]:
+            compdata[exe['key']] = {}
+            for env in Environment.objects.all():
+                compdata[exe['key']][env.id] = {}
+                for bench in Benchmark.objects.all().order_by('name'):
+                    try:
+                        value = Result.objects.get(
+                            environment=env,
+                            executable=exe['executable'],
+                            revision=exe['revision'],
+                            benchmark=bench
+                        ).value
+                    except Result.DoesNotExist:
+                        value = None
+                    compdata[exe['key']][env.id][bench.id] = value
     compdata['error'] = "None"
 
     return HttpResponse(json.dumps( compdata ))
@@ -191,6 +202,7 @@ def comparison(request):
         return no_executables_error()
 
     executables, exekeys = getcomparisonexes()
+
     checkedexecutables = []
     if 'exe' in data:
         for i in data['exe'].split(","):
@@ -327,7 +339,6 @@ def gettimelinedata(request):
         baselinerev = Revision.objects.get(id=revid)
         baselineexe = Executable.objects.get(id=exeid)
     for bench in benchmarks:
-        append = False
         lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'
         timeline = {
             'benchmark':             bench.name,
@@ -335,55 +346,65 @@ def gettimelinedata(request):
             'benchmark_description': bench.description,
             'units':                 bench.units,
             'lessisbetter':          lessisbetter,
-            'executables':           {},
+            'branches':              {},
             'baseline':              "None",
         }
-
-        for executable in executables:
-            resultquery = Result.objects.filter(
-                    benchmark=bench
-                ).filter(
-                    environment=environment
-                ).filter(
-                    executable=executable
-                ).select_related(
-                    "revision"
-                ).order_by('-revision__date')[:number_of_revs]
-            if not len(resultquery):
-                continue
-
-            results = []
-            for res in resultquery:
-                std_dev = ""
-                if res.std_dev != None:
-                    std_dev = res.std_dev
-                results.append(
-                    [str(res.revision.date), res.value, std_dev, res.revision.get_short_commitid()]
-                )
-            timeline['executables'][executable] = results
-            append = True
-        if baselinerev != None and append:
-            try:
-                baselinevalue = Result.objects.get(
-                    executable=baselineexe,
-                    benchmark=bench,
-                    revision=baselinerev,
-                    environment=environment
-                ).value
-            except Result.DoesNotExist:
-                timeline['baseline'] = "None"
-            else:
-                # determine start and end revision (x axis) from longest data series
+        # Temporary
+        trunks = []
+        if Branch.objects.filter(name='default'):
+            trunks.append('default')
+        #for branch in data2.get('bran', '').split(','): #-- For now, we'll only work with trunk branches
+        append = False
+        for branch in trunks:
+            append = False
+            timeline['branches'][branch] = {}
+            for executable in executables:
+                resultquery = Result.objects.filter(
+                        benchmark=bench
+                    ).filter(
+                        environment=environment
+                    ).filter(
+                        executable=executable
+                    ).filter(
+                        revision__branch__name=branch
+                    ).select_related(
+                        "revision"
+                    ).order_by('-revision__date')[:number_of_revs]
+                if not len(resultquery):
+                    continue
+    
                 results = []
-                for exe in timeline['executables']:
-                    if len(timeline['executables'][exe]) > len(results):
-                        results = timeline['executables'][exe]
-                end = results[0][0]
-                start = results[len(results)-1][0]
-                timeline['baseline'] = [
-                    [str(start), baselinevalue],
-                    [str(end), baselinevalue]
-                ]
+                for res in resultquery:
+                    std_dev = ""
+                    if res.std_dev != None:
+                        std_dev = res.std_dev
+                    results.append(
+                        [str(res.revision.date), res.value, std_dev, res.revision.get_short_commitid(), branch]
+                    )
+                timeline['branches'][branch][executable] = results
+                append = True
+            if baselinerev != None and append:
+                try:
+                    baselinevalue = Result.objects.get(
+                        executable=baselineexe,
+                        benchmark=bench,
+                        revision=baselinerev,
+                        environment=environment
+                    ).value
+                except Result.DoesNotExist:
+                    timeline['baseline'] = "None"
+                else:
+                    # determine start and end revision (x axis) from longest data series
+                    results = []
+                    for exe in timeline['branches'][branch]:
+                        if len(timeline['branches'][branch][exe]) > len(results):
+                            results = timeline['branches'][branch][exe]
+                    end = results[0][0]
+                    start = results[len(results)-1][0]
+                    timeline['baseline'] = [
+                        [str(start), baselinevalue],
+                        [str(end), baselinevalue]
+                    ]
         if append: timeline_list['timelines'].append(timeline)
 
     if not len(timeline_list['timelines']):
@@ -427,6 +448,16 @@ def timeline(request):
     if not len(checkedexecutables):
         return no_executables_error()
 
+    branch_list = [
+        branch.name for branch in Branch.objects.filter(project=defaultproject)]
+    branch_list.sort()
+    
+    defaultbranch = ""
+    if "default" in branch_list:
+        defaultbranch = "default"
+    if data.get('bran') in branch_list:
+        defaultbranch = data.get('bran')
+
     baseline = getbaselineexecutables()
     defaultbaseline = None
     if len(baseline) > 1:
@@ -469,7 +500,9 @@ def timeline(request):
         'defaultlast': defaultlast,
         'executables': executables,
         'benchmarks': benchmarks,
-        'environments': environments
+        'environments': environments,
+        'branch_list': branch_list,
+        'defaultbranch': defaultbranch
     }, context_instance=RequestContext(request))
 
 def getchangestable(request):
@@ -480,7 +513,7 @@ def getchangestable(request):
     except TypeError:
         raise Http404()
     selectedrev = get_object_or_404(Revision, commitid=request.GET.get('rev'),
-                                    project=executable.project)
+                                    branch__project=executable.project)
 
     report, created = Report.objects.get_or_create(
         executable=executable, environment=environment, revision=selectedrev
@@ -558,24 +591,25 @@ def changes(request):
     executables = Executable.objects.filter(project__track=True)
     revlimit = 20
     lastrevisions = Revision.objects.filter(
-        project=defaultexecutable.project
+        Q(branch__project=defaultexecutable.project),
+        Q(branch__name="default")
     ).order_by('-date')[:revlimit]
     if not len(lastrevisions):
         return no_data_found()
 
     selectedrevision = lastrevisions[0]
+
     if "rev" in data:
         commitid = data['rev']
         try:
             selectedrevision = Revision.objects.get(
-                commitid=commitid, project=defaultexecutable.project
+                commitid=commitid, branch__project=defaultexecutable.project
             )
             if not selectedrevision in lastrevisions:
                 lastrevisions = list(chain(lastrevisions))
                 lastrevisions.append(selectedrevision)
         except Revision.DoesNotExist:
             selectedrevision = lastrevisions[0]
-
     # This variable is used to know when the newly selected executable
     # belongs to another project (project changed) and then trigger the
     # repopulation of the revision selection selectbox
@@ -592,8 +626,9 @@ def changes(request):
     revisionboxes = { defaultexecutable.project.name: lastrevisions }
     for p in projectlist:
         revisionboxes[p.name] = Revision.objects.filter(
-            project=p
+            branch__project=p
         ).order_by('-date')[:revlimit]
+        
     return render_to_response('codespeed/changes.html', locals(), context_instance=RequestContext(request))
 
 
@@ -602,7 +637,9 @@ def reports(request):
         return HttpResponseNotAllowed('GET')
 
     return render_to_response('codespeed/reports.html', {
-        'reports': Report.objects.order_by('-revision__date')[:10],
+        'reports': Report.objects.filter(
+            Q(revision__branch__name='default')
+        ).order_by('-revision__date')[:10],
     }, context_instance=RequestContext(request))
 
 def displaylogs(request):
@@ -612,7 +649,7 @@ def displaylogs(request):
     error = False
     try:
         startrev = Revision.objects.filter(
-            project=rev.project
+            project=rev.branch.project
         ).filter(date__lt=rev.date).order_by('-date')[:1]
 
         if not len(startrev):
@@ -641,22 +678,22 @@ def displaylogs(request):
 def getcommitlogs(rev, startrev, update=False):
     logs = []
 
-    if rev.project.repo_type == 'S':
+    if rev.branch.project.repo_type == 'S':
         from subversion import getlogs, updaterepo
-    elif rev.project.repo_type == 'M':
+    elif rev.branch.project.repo_type == 'M':
         from mercurial import getlogs, updaterepo
-    elif rev.project.repo_type == 'G':
+    elif rev.branch.project.repo_type == 'G':
         from git import getlogs, updaterepo
-    elif rev.project.repo_type == 'H':
+    elif rev.branch.project.repo_type == 'H':
         from github import getlogs, updaterepo
     else:
-        if rev.project.repo_type not in ("N", ""):
+        if rev.branch.project.repo_type not in ("N", ""):
             logging.warning("Don't know how to retrieve logs from %s project",
-                            rev.project.get_repo_type_display())
+                            rev.branch.project.get_repo_type_display())
         return logs
 
     if update:
-        updaterepo(rev.project)
+        updaterepo(rev.branch.project)
 
     logs = getlogs(rev, startrev)
 
@@ -713,7 +750,7 @@ def validate_result(item):
 
 def create_report_if_enough_data(rev, exe, e):
     # Trigger Report creation when there are enough results
-    last_revs = Revision.objects.filter(project=rev.project).order_by('-date')[:2]
+    last_revs = Revision.objects.filter(branch__project=rev.branch.project).order_by('-date')[:2]
     if len(last_revs) > 1:
         current_results = rev.results.filter(executable=exe, environment=e)
         last_results = last_revs[1].results.filter(executable=exe,environment=e)
@@ -737,12 +774,14 @@ def save_result(data):
         e = res
 
     p, created = Project.objects.get_or_create(name=data["project"])
+    branch, created = Branch.objects.get_or_create(name=data["branch"],
+                                                   project=p)
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
 
     try:
-        rev = p.revisions.get(commitid=data['commitid'])
+        rev = branch.revisions.get(commitid=data['commitid'])
     except Revision.DoesNotExist:
-        rev = Revision(project=p, commitid=data['commitid'],
+        rev = Revision(branch=branch, commitid=data['commitid'],
                         date=data.get("revision_date", datetime.now()))
         rev.full_clean()
         rev.save()

@@ -714,16 +714,19 @@ def saverevisioninfo(rev):
     else:
         rev.date = datetime.now()
 
+
 def validate_result(item):
-    '''
+    """
     Validates that a result dictionary has all needed parameters
 
     It returns a tuple
         Environment, False  when no errors where found
         Errormessage, True  when there is an error
-    '''
+    """
+    print item
     mandatory_data = [
         'commitid',
+        'branch',
         'project',
         'executable',
         'benchmark',
@@ -733,13 +736,12 @@ def validate_result(item):
 
     response = {}
     error    = True
-    
     for key in mandatory_data:
         if not key in item:
             return 'Key "' + key + '" missing from request', error
         elif key in item and item[key] == "":
             return 'Value for key "' + key + '" empty in request', error
-    
+
     # Check that the Environment exists
     try:
         e = Environment.objects.get(name=item['environment'])
@@ -748,8 +750,9 @@ def validate_result(item):
     except Environment.DoesNotExist:
         return "Environment %(environment)s not found" % item, error
 
+
 def create_report_if_enough_data(rev, exe, e):
-    # Trigger Report creation when there are enough results
+    """Trigger Report creation when there are enough results"""
     last_revs = Revision.objects.filter(branch__project=rev.branch.project).order_by('-date')[:2]
     if len(last_revs) > 1:
         current_results = rev.results.filter(executable=exe, environment=e)

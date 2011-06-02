@@ -65,16 +65,17 @@ class AddResultTest(TestCase):
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)
         self.assertEquals(response.content, "Result data saved succesfully")
-        e = Environment.objects.get(name='bigdog')
-        p = Project.objects.get(name='pypy')
-        r = Revision.objects.get(commitid='23232', project=p)
+        e = Environment.objects.get(name='Dual Core')
+        p = Project.objects.get(name='MyProject')
+        branch = Branch.objects.get(name='default', project=p)
+        r = Revision.objects.get(commitid='23', branch=branch)
 
         # Tweak the resolution down to avoid failing over very slight differences:
         self.assertEquals(
             r.date.replace(microsecond=0), self.cdate.replace(microsecond=0))
 
-        i = Executable.objects.get(name='pypy-c')
-        b = Benchmark.objects.get(name='Richards')
+        i = Executable.objects.get(name='myexe O3 64bits')
+        b = Benchmark.objects.get(name='float')
         res = Result.objects.get(
             revision=r,
             executable=i,
@@ -87,12 +88,12 @@ class AddResultTest(TestCase):
 
     def test_bad_environment(self):
         """Should return 400 when environment does not exist"""
-        bad_name = 'bigdog1'
+        bad_name = '10 Core'
         self.data['environment'] = bad_name
         response = self.client.post(self.path, self.data)
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.content, "Environment " + bad_name + " not found")
-        self.data['environment'] = 'bigdog'
+        self.data['environment'] = 'Dual Core'
 
     def test_empty_argument(self):
         """Should respond 400 when a POST request has an empty argument"""
@@ -148,24 +149,28 @@ class AddJSONResultsTest(TestCase):
         self.data = [
             {'commitid': '123',
             'project': 'pypy',
+            'branch': 'default',
             'executable': 'pypy-c',
             'benchmark': 'Richards',
             'environment': 'bigdog',
             'result_value': 456,},
             {'commitid': '456',
             'project': 'pypy',
+            'branch': 'default',
             'executable': 'pypy-c',
             'benchmark': 'Richards',
             'environment': 'bigdog',
             'result_value': 457,},
             {'commitid': '456',
             'project': 'pypy',
+            'branch': 'default',
             'executable': 'pypy-c',
             'benchmark': 'Richards2',
             'environment': 'bigdog',
             'result_value': 34,},
             {'commitid': '789',
             'project': 'pypy',
+            'branch': 'default',
             'executable': 'pypy-c',
             'benchmark': 'Richards',
             'environment': 'bigdog',
@@ -187,7 +192,8 @@ class AddJSONResultsTest(TestCase):
         self.assertEquals(b.units, "seconds")
         self.assertEquals(b.lessisbetter, True)
         p = Project.objects.get(name='pypy')
-        r = Revision.objects.get(commitid='123', project=p)
+        branch = Branch.objects.get(name='default', project=p)
+        r = Revision.objects.get(commitid='123', branch=branch)
         i = Executable.objects.get(name='pypy-c')
         res = Result.objects.get(
             revision=r,
@@ -200,7 +206,7 @@ class AddJSONResultsTest(TestCase):
         selfdate = self.cdate.strftime("%Y%m%dT%H%M%S")
         self.assertTrue(resdate, selfdate)
         
-        r = Revision.objects.get(commitid='456', project=p)
+        r = Revision.objects.get(commitid='456', branch=branch)
         res = Result.objects.get(
             revision=r,
             executable=i,
@@ -209,7 +215,7 @@ class AddJSONResultsTest(TestCase):
         )
         self.assertTrue(res.value, 457)
 
-        r = Revision.objects.get(commitid='789', project=p)
+        r = Revision.objects.get(commitid='789', branch=branch)
         res = Result.objects.get(
             revision=r,
             executable=i,
@@ -271,7 +277,7 @@ class AddJSONResultsTest(TestCase):
 
 
 class Timeline(TestCase):
-    fixtures = ["pypy.json"]
+    fixtures = ["testdata.json"]
 
     def setUp(self):
         self.client = Client()
@@ -283,9 +289,9 @@ class Timeline(TestCase):
         data = {
             "exe":  "1,2",
             "base": "2+35",
-            "ben":  "ai",
-            "env":  "tannit",
-            "revs": 16
+            "ben":  "float",
+            "env":  "Dual Core",
+            "revs": 2
         }
         response = self.client.get(path, data)
         responsedata = json.loads(response.content)

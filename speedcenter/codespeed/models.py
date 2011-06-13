@@ -68,7 +68,6 @@ class Revision(models.Model):
     def clean(self):
         if not self.commitid or self.commitid == "None":
             raise ValidationError("Invalid commit id %s" % self.commitid)
-
         if self.branch.project.repo_type == "S":
             try:
                 long(self.commitid)

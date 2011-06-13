@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-from django.test import TestCase
 from datetime import datetime
+from time import sleep
+import copy, json
+
+from django.test import TestCase
 from django.test.client import Client
 from speedcenter.codespeed.models import (Project, Benchmark, Revision, Branch,
     Executable, Environment, Result, Report)
 from django.core.urlresolvers import reverse
-import copy, json
 
 
 class AddResultTest(TestCase):
@@ -54,11 +56,11 @@ class AddResultTest(TestCase):
         self.assertTrue(res.value, 456)
 
     def test_add_non_default_result(self):
-        """
-        Add result data with non-mandatory options
-        """
+        """Add result data with non-mandatory options"""
         modified_data = copy.deepcopy(self.data)
         modified_data['result_date'] = self.cdate
+        modified_data['revision_date'] = self.cdate
+        sleep(1.5)#ensure current date changes
         modified_data['std_dev']     = 1.11111
         modified_data['max']         = 2
         modified_data['min']         = 1.0
@@ -288,12 +290,13 @@ class Timeline(TestCase):
         path = reverse('speedcenter.codespeed.views.gettimelinedata')
         data = {
             "exe":  "1,2",
-            "base": "2+35",
+            "base": "2+444",
             "ben":  "float",
             "env":  "Dual Core",
             "revs": 2
         }
         response = self.client.get(path, data)
+        self.assertEquals(response.status_code, 200)
         responsedata = json.loads(response.content)
         self.assertEquals(
             responsedata['error'], "None", "there should be no errors")

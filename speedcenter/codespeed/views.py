@@ -8,6 +8,7 @@ from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpRespo
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.db.models import Q
+from django.core.exceptions import ValidationError
 
 from speedcenter.codespeed import settings
 from speedcenter.codespeed.models import Environment, Report
@@ -723,7 +724,6 @@ def validate_result(item):
         Environment, False  when no errors where found
         Errormessage, True  when there is an error
     """
-    print item
     mandatory_data = [
         'commitid',
         'branch',
@@ -752,7 +752,7 @@ def validate_result(item):
 
 
 def create_report_if_enough_data(rev, exe, e):
-    """Trigger Report creation when there are enough results"""
+    """Triggers Report creation when there are enough results"""
     last_revs = Revision.objects.filter(branch__project=rev.branch.project).order_by('-date')[:2]
     if len(last_revs) > 1:
         current_results = rev.results.filter(executable=exe, environment=e)
@@ -780,22 +780,24 @@ def save_result(data):
     branch, created = Branch.objects.get_or_create(name=data["branch"],
                                                    project=p)
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
-
     try:
         rev = branch.revisions.get(commitid=data['commitid'])
     except Revision.DoesNotExist:
-        rev = Revision(branch=branch, commitid=data['commitid'],
-                        date=data.get("revision_date", datetime.now()))
-        rev.full_clean()
-        rev.save()
-
-        if not rev.date:
+        rev_date = data.get("revision_date")
+        if not rev_date or rev_date == "":
+            rev_date = datetime.today()
+        rev = Revision(branch=branch, commitid=data['commitid'], date=rev_date)
+        try:
+            rev.full_clean()
+        except ValidationError as e:
+            return str(e), True
+        if rev.branch.project.repo_type not in ("N", ""):
             try:
                 saverevisioninfo(rev)
             except StandardError, e:
                 logging.warning("unable to save revision %s info: %s", rev, e,
                                 exc_info=True)
-
+        rev.save()
     exe, created = Executable.objects.get_or_create(
         name=data['executable'],
         project=p

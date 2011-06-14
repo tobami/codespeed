@@ -112,6 +112,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles',
     'codespeed',
+    'south'
 )
 
 STATIC_URL = '/static/'

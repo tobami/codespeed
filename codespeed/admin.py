@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from codespeed.models import (Project, Revision, Executable, Benchmark, Result,
-                              Environment, Report)
+from codespeed.models import (Project, Revision, Executable, Benchmark, Branch,
+                              Result, Environment, Report)
 
 from django.contrib import admin
 

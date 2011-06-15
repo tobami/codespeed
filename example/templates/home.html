@@ -28,7 +28,7 @@
         $("#timeline").click(function () { window.location="{% url timeline %}"; });
         $("#comparison").click(function () { window.location="{% url comparison %}"; });
         $("#reports").html(getLoadText("Loading...", 0, true))
-            .load("reports/", function(responseText) { updateTable(); });
+            .load("{% url reports %}", function(responseText) { updateTable(); });
   });
 </script>
 {% endblock %}

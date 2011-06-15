@@ -4,7 +4,7 @@
 {{ block.super }}
 <script type="text/javascript">
     function permalinkToChanges(permalink) {
-        window.location="changes/?" + permalink;
+        window.location="{% url changes %}?" + permalink;
     }
 
     function updateTable() {
@@ -24,9 +24,9 @@
     }
 
     $(function() {
-        $("#changes").click(function () { window.location="/changes/"; });
-        $("#timeline").click(function () { window.location="/timeline/"; });
-        $("#comparison").click(function () { window.location="/comparison/"; });
+        $("#changes").click(function () { window.location="{% url changes %}"; });
+        $("#timeline").click(function () { window.location="{% url timeline %}"; });
+        $("#comparison").click(function () { window.location="{% url comparison %}"; });
         $("#reports").html(getLoadText("Loading...", 0, true))
             .load("reports/", function(responseText) { updateTable(); });
   });

@@ -1,4 +1,4 @@
-from django.contrib.syndication.feeds import Feed
+from django.contrib.syndication.views import Feed
 from codespeed.models import Report
 from django.conf import settings
 

@@ -11,9 +11,8 @@ urlpatterns = patterns('',
     (r'^$', direct_to_template, {'template': 'home.html'}),
     (r'^about/$', direct_to_template, {'template': 'about.html'}),
     # RSS for reports
-    url(r'^feeds/(?P<url>.*)/$', 'django.contrib.syndication.views.feed',
-            {'feed_dict': feeds}, name='feeds'),
-    )
+    (r'^feeds/(?P<url>.*)/$', LatestEntries()),
+)
 
 urlpatterns += patterns('codespeed.views',
     url(r'^reports/$', 'reports', name='reports'),

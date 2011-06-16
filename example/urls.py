@@ -8,7 +8,6 @@ from django.views.generic.simple import redirect_to
 from django.core.urlresolvers import reverse
 from django.contrib import admin
 
-
 admin.autodiscover()
 
 urlpatterns = patterns('',
@@ -26,11 +25,7 @@ urlpatterns += patterns(
     #(r'^speed/', include('codespeed.urls')),
 )
 
-if settings.DEBUG or settings.SERVE_STATIC:
-    urlpatterns += patterns('',
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve',
-            {'document_root': settings.MEDIA_ROOT}),
-        (r'^admin_media/(?P<path>.*)$', 'django.views.static.serve',
-            {'document_root': os.path.join(os.path.dirname(admin.__file__),
-                                            'media')}),
-    )
+if settings.DEBUG:
+    # needed for development server
+    from django.contrib.staticfiles.urls import staticfiles_urlpatterns
+    urlpatterns += staticfiles_urlpatterns()

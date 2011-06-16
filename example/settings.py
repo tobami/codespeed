@@ -115,10 +115,6 @@ INSTALLED_APPS = (
 
 STATIC_URL = '/static/'
 
-#: Control whether to enable local static media serving using
-#: :function:`django.views.static.serve`
-SERVE_STATIC = False
-
 STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
 
 # Codespeed

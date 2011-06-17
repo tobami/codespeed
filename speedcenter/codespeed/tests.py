@@ -295,13 +295,13 @@ class Timeline(TestCase):
         results = benchmarks[0].results.all()
         self.assertEquals(len(results), 8)
 
-    def xtest_gettimelinedata(self):
+    def test_gettimelinedata(self):
         """Test that gettimelinedata returns correct timeline data
         """
         path = reverse('speedcenter.codespeed.views.gettimelinedata')
         data = {
             "exe":  "1,2",
-            "base": "2+444",
+            "base": "2+4",
             "ben":  "float",
             "env":  "Dual Core",
             "revs": 2
@@ -314,15 +314,15 @@ class Timeline(TestCase):
         self.assertEquals(
             len(responsedata['timelines']), 1, "there should be 1 benchmark")
         self.assertEquals(
-            len(responsedata['timelines'][0]['executables']),
+            len(responsedata['timelines'][0]['branches']['default']),
             2,
             "there should be 2 timelines")
         self.assertEquals(
-            len(responsedata['timelines'][0]['executables']['1']),
-            16,
-            "There are 16 datapoints")
+            len(responsedata['timelines'][0]['branches']['default']['1']),
+            2,
+            "There are 2 datapoints")
         self.assertEquals(
-            responsedata['timelines'][0]['executables']['1'][4],
-            [u'2010-06-17 18:57:39', 0.404776086807, 0.011496530978, u'75443'],
+            responsedata['timelines'][0]['branches']['default']['1'][1],
+            [u'2011-04-13 17:04:22', 2000.0, 1.11111, u'2', u'default'],
             "Wrong data returned: ")
 

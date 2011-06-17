@@ -54,11 +54,22 @@
         while (color_id > seriesColors.length) { color_id -= seriesColors.length; }
         var label = $("label[for*='executable" + color_id + "']").html();
         if (branch != "default") { label += " - " + branch; }
-        series.push({"label":  label, "color": seriesColors[color_id-1]});
+        series.push({showMarker: false, "label":  label, "color": seriesColors[color_id-1]});
         seriesindex.push(exe_id);
         plotdata.push(data["branches"][branch][exe_id]);
         lastvalues.push(data["branches"][branch][exe_id][0][1]);
+        for (res in data["branches"][branch][exe_id]) {
+          var date = data["branches"][branch][exe_id][res][0];
+          var value = data["branches"][branch][exe_id][res][1];
+          var std_dev = data["branches"][branch][exe_id][res][2];
+          var error = new Array();
+          error.push([date, value - std_dev, std_dev, data["branches"][branch][exe_id][res][3], data["branches"][branch][exe_id][res][4]]);
+          error.push([date, value + std_dev, std_dev, data["branches"][branch][exe_id][res][3], data["branches"][branch][exe_id][res][4]]);
+          plotdata.push(error);
+          series.push({showMarker: false, "label": "error", showLabel: false, color: "#999999"});
+        }
       }
+      console.log(plotdata);
       //determine significant digits
       var digits = 2;
       var value = Math.min.apply( Math, lastvalues );
@@ -82,8 +93,8 @@
         }
         // offset ammount depends on the maximum label length
         var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
-        plotoptions.legend.location = 'ne';
-        plotoptions.legend.xoffset = -offset;
+        //plotoptions.legend.location = 'ne';
+        //plotoptions.legend.xoffset = -offset;
         $("#plot").css("margin-right", offset + 10);
         var w = $("#plot").width();
         $("#plot").css('width', w - offset);

@@ -279,12 +279,23 @@ class AddJSONResultsTest(TestCase):
 
 
 class Timeline(TestCase):
-    fixtures = ["testdata.json"]
+    fixtures = ["gettimeline_unittest.json"]
 
     def setUp(self):
         self.client = Client()
 
-    def test_gettimelinedata(self):
+    def test_fixture(self):
+        """Test the loaded fixture data
+        """
+        env = Environment.objects.filter(name="Dual Core")
+        self.assertEquals(len(env), 1)
+        benchmarks = Benchmark.objects.filter(name="float")
+        self.assertEquals(len(benchmarks), 1)
+        self.assertEquals(benchmarks[0].units, "seconds")
+        results = benchmarks[0].results.all()
+        self.assertEquals(len(results), 8)
+
+    def xtest_gettimelinedata(self):
         """Test that gettimelinedata returns correct timeline data
         """
         path = reverse('speedcenter.codespeed.views.gettimelinedata')

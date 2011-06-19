@@ -13,9 +13,16 @@ In Ubuntu, they can be installed with:
 
     sudo apt-get install python-django
 
-If you need SVN integration, pysvn is also required:
+If you want version control integration, there are additional requirements:
 
-    sudo apt-get install python-svn
+* Subversion needs pysvn: `sudo apt-get install python-svn`
+* mercurial needs hg to clone the repo locally
+* git needs the git package
+* For Github the isodate package is required, but not git: `pip install isodate`
+
+**Note**: For git or mercurial repos, the first time the changes view is accessed,
+Codespeed will try to clone the repo, which depending on the size of the project
+can take a long time. Please be pacient.
 
 # Installation
 
@@ -58,10 +65,6 @@ integration, configure the relevant fields.
 field will be shown in the Changes and Timeline views.
 
 **Note**: Git and Mercurial need to locally clone the repository. That means that your codespeed/speedcenter/repos directory will need to be owned by the server. In the case of a typical Apache installation, you'll need to type `sudo chown www-data:www-data codespeed/speedcenter/repos`
-
-**Note**: The Github backend is still experimental. It doesn't show all commits
-since the last tested revision, but only logs for those commits present in the
-Codespeed DB. It also requires the package isodat (`pip install isodate`)
 
 # Saving data
 

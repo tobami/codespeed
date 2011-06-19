@@ -4,8 +4,9 @@ from datetime import datetime
 
 
 def updaterepo():
-    '''Not needed for a remote subversion repo'''
+    """Not needed for a remote subversion repo"""
     return [{'error': False}]
+
 
 def getlogs(newrev, startrev):
     import pysvn
@@ -15,16 +16,16 @@ def getlogs(newrev, startrev):
     loglimit = 200
 
     def get_login(realm, username, may_save):
-        return True, newrev.project.repo_user, newrev.project.repo_pass, False
+        return True, newrev.branch.project.repo_user, newrev.branch.project.repo_pass, False
 
     client = pysvn.Client()
-    if newrev.project.repo_user != "":
+    if newrev.branch.project.repo_user != "":
         client.callback_get_login = get_login
 
     try:
         log_messages = \
             client.log(
-                newrev.project.repo_path,
+                newrev.branch.project.repo_path,
                 revision_start=pysvn.Revision(
                         pysvn.opt_revision_kind.number, startrev.commitid
                 ),
@@ -35,7 +36,7 @@ def getlogs(newrev, startrev):
     except pysvn.ClientError:
         return [
             {'error': True,
-            'message': "Could not resolve '" + newrev.project.repo_path + "'"}]
+            'message': "Could not resolve '" + newrev.branch.project.repo_path + "'"}]
     except ValueError:
         return [{
             'error': True,

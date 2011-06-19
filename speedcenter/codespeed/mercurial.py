@@ -26,7 +26,8 @@ def updaterepo(project, update=True):
 
         p = Popen(cmd, stdout=PIPE, stderr=PIPE,
                     cwd=settings.REPOSITORY_BASE_PATH)
-
+        logging.debug('Cloning Mercurial repo {0}for project {1}'.format(
+            project.repo_path, project))
         stdout, stderr = p.communicate()
 
         if p.returncode != 0:
@@ -37,10 +38,10 @@ def updaterepo(project, update=True):
             return [{'error': False}]
 
 def getlogs(endrev, startrev):
-    updaterepo(endrev.project, update=False)
+    updaterepo(endrev.branch.project, update=False)
 
     # TODO: Move all of this onto the model so we can avoid needing to repeat it:
-    repo_name = os.path.splitext(endrev.project.repo_path.split(os.sep)[-1])[0]
+    repo_name = os.path.splitext(endrev.branch.project.repo_path.split(os.sep)[-1])[0]
     working_copy = os.path.join(settings.REPOSITORY_BASE_PATH, repo_name)
 
     cmd = ["hg", "log",

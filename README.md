@@ -59,6 +59,10 @@ field will be shown in the Changes and Timeline views.
 
 **Note**: Git and Mercurial need to locally clone the repository. That means that your codespeed/speedcenter/repos directory will need to be owned by the server. In the case of a typical Apache installation, you'll need to type `sudo chown www-data:www-data codespeed/speedcenter/repos`
 
+**Note**: The Github backend is still experimental. It doesn't show all commits
+since the last tested revision, but only logs for those commits present in the
+Codespeed DB. It also requires the package isodat (`pip install isodate`)
+
 # Saving data
 
 Data is saved POSTing to `http://localhost:8000/result/add/`.

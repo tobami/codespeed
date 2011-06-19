@@ -137,6 +137,7 @@ def getcomparisonexes():
         exekeys += executablekeys
     return all_executables, exekeys
 
+
 def getcomparisondata(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
@@ -615,22 +616,23 @@ def changes(request):
     # belongs to another project (project changed) and then trigger the
     # repopulation of the revision selection selectbox
     projectmatrix = {}
-    for e in executables: projectmatrix[e.id] = e.project.name
+    for e in executables:
+        projectmatrix[e.id] = e.project.name
     projectmatrix = json.dumps(projectmatrix)
     projectlist = []
     for p in Project.objects.filter(
             track=True
         ).exclude(
-            id=defaultexecutable.project.id
-        ):
+            id=defaultexecutable.project.id):
         projectlist.append(p)
     revisionboxes = { defaultexecutable.project.name: lastrevisions }
     for p in projectlist:
         revisionboxes[p.name] = Revision.objects.filter(
             branch__project=p
         ).order_by('-date')[:revlimit]
-        
-    return render_to_response('codespeed/changes.html', locals(), context_instance=RequestContext(request))
+
+    return render_to_response('codespeed/changes.html',
+        locals(), context_instance=RequestContext(request))
 
 
 def reports(request):
@@ -650,9 +652,8 @@ def displaylogs(request):
     error = False
     try:
         startrev = Revision.objects.filter(
-            project=rev.branch.project
+            branch=rev.branch.project
         ).filter(date__lt=rev.date).order_by('-date')[:1]
-
         if not len(startrev):
             startrev = rev
         else:
@@ -690,7 +691,7 @@ def getcommitlogs(rev, startrev, update=False):
     else:
         if rev.branch.project.repo_type not in ("N", ""):
             logging.warning("Don't know how to retrieve logs from %s project",
-                            rev.branch.project.get_repo_type_display())
+                                rev.branch.project.get_repo_type_display())
         return logs
 
     if update:

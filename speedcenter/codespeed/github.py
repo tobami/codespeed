@@ -5,7 +5,6 @@ Specialized Git backend which uses Github.com for all of the heavy work
 Among other things, this means that the codespeed server doesn't need to have
 git installed, the ability to write files, etc.
 """
-
 import logging
 import urllib
 import re
@@ -26,23 +25,26 @@ def updaterepo(project, update=True):
 
 def getlogs(endrev, startrev):
     if endrev != startrev:
-        revisions = endrev.project.revisions.filter(date__lte=endrev.date,
-                                                    date__gte=startrev.date)
+        revisions = endrev.branch.revisions.filter(
+                        date__lte=endrev.date, date__gte=startrev.date)
     else:
         revisions = [i for i in (startrev, endrev) if i.commitid]
 
-    m = GITHUB_URL_RE.match(endrev.project.repo_path)
+    m = GITHUB_URL_RE.match(endrev.branch.project.repo_path)
 
     if not m:
-        raise ValueError("Unable to parse Github URL %s" % endrev.project.repo_path)
+        raise ValueError(
+            "Unable to parse Github URL %s" % endrev.branch.project.repo_path)
 
     username = m.group("username")
     project = m.group("project")
 
     logs = []
-
+    #TODO: get all revisions between endrev and startrev,
+    # not only those present in the Codespeed DB
     for revision in revisions:
-        commit_url = 'http://github.com/api/v2/json/commits/show/%s/%s/%s' % (username, project, revision.commitid)
+        commit_url = 'http://github.com/api/v2/json/commits/show/%s/%s/%s' % (
+            username, project, revision.commitid)
 
         commit_json = cache.get(commit_url)
 
@@ -50,7 +52,8 @@ def getlogs(endrev, startrev):
             try:
                 commit_json = json.load(urllib.urlopen(commit_url))
             except IOError, e:
-                logging.exception("Unable to load %s: %s", commit_url, e, exc_info=True)
+                logging.exception("Unable to load %s: %s",
+                    commit_url, e, exc_info=True)
                 raise e
 
             if 'error' in commit_json:
@@ -86,5 +89,4 @@ def getlogs(endrev, startrev):
                         'commitid': commit['id'],
                         'short_commit_id': commit['id'][0:7],
                         'links': {'Github': 'http://github.com%s' % commit['url']}})
-
     return logs

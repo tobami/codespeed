@@ -17,7 +17,8 @@ class Project(models.Model):
     )
 
     name = models.CharField(unique=True, max_length=30)
-    repo_type = models.CharField("Repository type", max_length=1, choices=REPO_TYPES, default='N')
+    repo_type = models.CharField(
+        "Repository type", max_length=1, choices=REPO_TYPES, default='N')
     repo_path = models.CharField("Repository URL", blank=True, max_length=200)
     repo_user = models.CharField("Repository username", blank=True, max_length=100)
     repo_pass = models.CharField("Repository password", blank=True, max_length=100)
@@ -30,10 +31,10 @@ class Project(models.Model):
 class Branch(models.Model):
     name = models.CharField(max_length=20)
     project = models.ForeignKey(Project, related_name="branches")
-    
+
     def __unicode__(self):
         return self.project.name + ":" + self.name
-    
+
     class Meta:
         unique_together = ("name", "project")
 
@@ -43,7 +44,7 @@ class Revision(models.Model):
     tag = models.CharField(max_length=20, blank=True)
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
-    project = models.ForeignKey(Project, related_name="revisions", blank=True)
+    project = models.ForeignKey(Project, related_name="revisions", null=True, blank=True)
     # TODO: Replace author with author name/email or just make it larger so we can do "name <email>"?
     author = models.CharField(max_length=30, blank=True)
     # TODO: Add committer field(s) for DVCSes which make the distinction?
@@ -75,7 +76,7 @@ class Revision(models.Model):
                 raise ValidationError("Invalid SVN commit id %s" % self.commitid)
         elif self.branch.project.repo_type in ("M", "G", "H") and len(self.commitid) != 40:
             raise ValidationError("Invalid %s commit hash %s" % (
-                                    self.project.get_repo_type_display(),
+                                    self.branch.project.get_repo_type_display(),
                                     self.commitid))
     
 

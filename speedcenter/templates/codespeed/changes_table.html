@@ -75,8 +75,8 @@
 <tbody>
   <tr class="commit-id"><th class="infofirst">Commit</td><td>{{ rev.commitid }}</td></tr>
   <tr class="date"><th class="infofirst">Date</td><td>{{ rev.date }}</td></tr>
-  {% ifnotequal rev.project.repo_type "N" %}
-    <tr class="repo-path"><th class="infofirst">Repo</th><td>{{ rev.project.repo_path }}</td></tr>
+  {% ifnotequal rev.branch.project.repo_type "N" %}
+    <tr class="repo-path"><th class="infofirst">Repo</th><td>{{ rev.branch.project.repo_path }}</td></tr>
   {% endifnotequal %}
 </tbody>
 </table>

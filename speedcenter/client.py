@@ -81,6 +81,7 @@ if __name__ == "__main__":
     parser.add_option("--max", type="float")
     parser.add_option("--min", type="float")
     parser.add_option("--project")
+    parser.add_option("--branch")
     parser.add_option("--result-date")
     parser.add_option("--result-value", type="float")
     parser.add_option("--revision_date")
@@ -106,6 +107,7 @@ if __name__ == "__main__":
     for k, v in options.__dict__.items():
         if v is not None:
             kwargs[k] = v
+    kwargs.setdefault('branch', 'default')
 
     if not kwargs['url'].endswith("/result/add/"):
         kwargs['url'] = urljoin(kwargs['url'], '/result/add/')

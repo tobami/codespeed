@@ -2,16 +2,24 @@
 
 A web application to monitor and analyze the performance of your code.
 
-It is known to be used by [PyPy](http://speed.pypy.org) and
+Known to be used by [PyPy](http://speed.pypy.org),
 [Twisted](http://speed.twistedmatrix.com).
+and many more.
+
+For an overview of some application concepts see the [wiki page](https://github.com/tobami/codespeed/wiki/Overview)
 
 # Requirements
 
-You will need Python 2.6+ and Django 1.1+.
+You will need Python 2.6+ and Django 1.1+ with South.
 
 In Ubuntu, they can be installed with:
 
-    sudo apt-get install python-django
+    sudo apt-get install python-django python-django-south
+
+Instead of using distro packages, you can use pip:
+
+    sudo pip install django
+    sudo pip install South
 
 If you want version control integration, there are additional requirements:
 
@@ -36,6 +44,9 @@ can take a long time. Please be pacient.
         python manage.py syncdb
 
 * Create an admin user in the process.
+* Migrate to the new DB Schema:
+
+        python manage.py migrate
 
 * For testing purposes, you can now start the development server:
 

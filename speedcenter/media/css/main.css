@@ -236,7 +236,7 @@ p.errormessage { line-height: 10em; margin-bottom: 10em; }
 /* Changes table layout */
 div#contentwrap { display: table; table-layout: fixed; width: 100%; }
 div#contentwrap div { display: table-cell; }
-div#contentwrap div.leftcolumn { width: 30em; }
+div#contentwrap div.leftcolumn { width: 32em; }
 div#contentwrap div.rightcolumn { padding-left: 0.8em; }
 
 div#contentwrap div div { display: block; }

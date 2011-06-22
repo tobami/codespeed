@@ -31,7 +31,6 @@ def updaterepo(project, update=True):
 def retrieve_revision(commit_id, username, project, revision = None):
     commit_url = 'http://github.com/api/v2/json/commits/show/%s/%s/%s' % (
         username, project, commit_id)
-    print commit_url
 
     commit_json = cache.get(commit_url)
 

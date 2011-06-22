@@ -322,7 +322,7 @@ class Report(models.Model):
             for bench in Benchmark.objects.filter(units=units['units']):
                 units_title = bench.units_title
                 lessisbetter = bench.lessisbetter
-                resultquery = result_list.filter(benchmark=bench)
+                resultquery = result_list.filter(benchmark=bench, value__gt=0)
                 if not len(resultquery): continue
 
                 resobj = resultquery.filter(benchmark=bench)[0]

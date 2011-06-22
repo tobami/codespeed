@@ -8,12 +8,14 @@ This file is written in Markdown.
 
 ## For the impatient
 
-Warning: It is recommended to use [virtualenv](http://pypi.python.org/pypi/virtualenv) to not install
+Warning: It is recommended to use [virtualenv](http://pypi.python.org/pypi/virtualenv) to avoid installing
 stuff on the root path of your operating system.
 However, it works also this way and might be desired in production
 environments.
-Further, that will give you *just* the Django development server version. Please
-refer to *Installing for Production* for serious installations.
+
+### Testing with the built-in Development Server
+That will give you *just* the Django development server version. Please
+refer to *Installing for Production* for serious installations. You have been warned!
 
 It is assumed you are in the root directory of the Codespeed software.
 
@@ -31,10 +33,65 @@ It is assumed you are in the root directory of the Codespeed software.
 5. Initialise the Django Database
    python manage.py syncdb
    (Yes, add a superuser.)
+   python manage.py migrate
 6. Finally, start the Django development server.
    `python manage.py runserver`
 7. Enjoy.
    `python -m webbrowser -n http://localhost:8000`
+
+## Installing for production
+There are many choices to get Django Web apps served. It all depends on
+your preferences and existing set up. Two options are shown. Please do
+not hesitate to consult a search engine to tune your set-up.
+
+### NGINX + GUNICORN: Easy as manage.py runserver
+Assumed you have a [Debian](http://www.debian.org) like system.
+
+1. Follow the steps from the development server set-up
+2. Install nginx and gunicorn
+   sudo apt-get install nginx gunicorn
+3. Tune /etc/nginx/sites-enabled/default to match
+   deploy/nginx.default-site.conf
+   (Hint: See diff /etc/nginx/sites-enabled/default deploy/nginx.default-site.conf
+   for changes)
+   Note, the sitestatic dir needs to point to your speedcenter/sitestatic dir!
+4. Restart nginx
+   /etc/init.d/nginx restart
+5. Prepare static files
+   cd /path/to/speedcenter/
+   python ./manage.py collectstatic
+6. Run speedcenter by
+   python ./manage.py run_gunicorn
+7. Check your new speedcenter site! Great! But wait, who runs gunicorn after the
+   terminal exits?
+   There are several options like upstart, runit, or supervisor.
+   Let's go with supervisor:
+   1. <Ctrl>+<c> to exit gunicorn
+   2. apt-get install supervisor
+   3. cp deploy/supervisor-speedcenter.conf /etc/supervisor/conf.d/speedcenter.conf
+   4. $EDITOR /etc/supervisor/conf.d/speedcenter.conf  #adjust the path
+   5. supervisorctl update
+   6. supervisorctl status
+       speedcenter                      RUNNING    pid 2036, uptime 0:00:05
+
+### Good old Apache + mod_wsgi
+If you don't like suprises and are not into experimenting go with the old work horse.
+Assumed you have a [Debian](http://www.debian.org) like system.
+
+1. Follow the steps from the development server set-up
+2. Prepare static files
+   cd /path/to/speedcenter/
+   python ./manage.py collectstatic
+3. Install apache and mod_wsgi
+   apt-get install apache2 libapache2-mod-wsgi
+4. Copy deploy/apache-speedcenter.conf
+   cp deploy/apache-speedcenter.conf /etc/apache2/sites-available/speedcenter.conf
+5. Edit /etc/apache2/sites-available/speedcenter.conf to match your needs
+6. Enable the new vhost
+   a2ensite speedcenter.conf
+7. Restart apache
+   /etc/init.d/apache2 restart
+8. Check your new vhost.
 
 ## Customisations
 

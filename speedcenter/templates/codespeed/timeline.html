@@ -8,6 +8,7 @@
 <script type="text/javascript" src="../media/js/jqplot/jqplot.cursor.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.highlighter.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
+<script type="text/javascript" src="../media/js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
 
@@ -15,6 +16,10 @@
   var baselineColor = "#d8b83f";
   var seriesColors = ["#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#ff5800", "#0085cc"];
   var seriesindex = new Array();
+
+  function shouldPlotEquidistant() {
+	  return $("#equidistant").attr('checked');
+  }
 
   function getConfiguration() {
     var config = new Object();
@@ -25,6 +30,7 @@
     config["env"] = $("input[name='environments']:checked").val();
     config["revs"] = $("#revisions option:selected").val();
     config["bran"] = readCheckbox("input[name='branch']:checked");
+    config["eq"] = $("#equidistant").attr('checked');
     return config;
   }
 
@@ -108,7 +114,7 @@
           tickOptions:{formatString:'%.' + digits + 'f'}
         },
         xaxis:{
-          renderer:$.jqplot.DateAxisRenderer,
+          renderer: (shouldPlotEquidistant()) ? $.jqplot.CategoryAxisRenderer : $.jqplot.DateAxisRenderer,
           label: 'Commit date',
           labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
           tickOptions:{formatString:'%b %d'},
@@ -262,7 +268,10 @@
       $(this).parent().find("div.seriescolor").css("background-color", seriesColors[colorid-1]);
     });
     $("#baselinecolor").css("background-color", baselineColor);
-    
+
+    $("#equidistant").attr('checked', false);
+    $("#equidistant").change(refreshContent);
+
     $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
 
     refreshContent();
@@ -334,7 +343,12 @@
 <div id="configbar">Show the last
   <select id="revisions" title="Last {{ defaultlast }} revisions tested">{% for rev in lastrevisions %}
     <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
-  </select> results<a id="permalink" href="javascript:permalink();">Permalink</a>
+  </select> results
+  
+  <input id="equidistant" name="equidistant" type="checkbox" />
+  <label for="equidistant">Equal distance between results</label>
+  
+  <a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content" class="clearfix">
 <div id="plotgrid"></div>

@@ -236,15 +236,15 @@ p.errormessage { line-height: 10em; margin-bottom: 10em; }
 /* Changes table layout */
 div#contentwrap { display: table; table-layout: fixed; width: 100%; }
 div#contentwrap div { display: table-cell; }
-div#contentwrap div.leftcolumn { width: 32em; }
-div#contentwrap div.rightcolumn { padding-left: 0.8em; }
+div#contentwrap div.leftcolumn { width: 65%; }
+div#contentwrap div.rightcolumn { padding-left: 0.8em; width: 35%; }
 
 div#contentwrap div div { display: block; }
 
 /* 1024px wide screen Tablet, Netbook */
 /* Remove outher margins so that it comfortably fits */
 @media only screen and (max-width:1100px)  {
-    div#contentwrap div.leftcolumn { width: 28.2em; }
+    div#contentwrap div.leftcolumn { width: 65%; }
     div#container { width: 100%; margin: 0; }
     div#workarea { padding-left: 0.3em; }
     div#sidebar { width: 12.5em; }

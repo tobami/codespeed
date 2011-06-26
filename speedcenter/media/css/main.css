@@ -170,7 +170,8 @@ div#configbar span {
     border-radius: 5px;
 }
 
-div#configbar span.options { padding-right: 1.8em; font-size: 90%; white-space: nowrap; }
+div#configbar span.options {
+    padding-right: 1.8em; font-size: 90%; white-space: nowrap; }
 div#configbar input { margin-right: 0; vertical-align: middle; }
 
 div#content, div.about_content {
@@ -187,6 +188,7 @@ div.about_content { text-align: left; }
 
 .sidebox {
     overflow: hidden;
+    text-overflow: ellipsis;
     margin: 0;
     margin-bottom: 1em;
     font-size: 90%;
@@ -363,7 +365,7 @@ table.revision {
 }
 
 table.revision col:first-child, table.info col:first-child {
-    width: 6em;
+    width: 5.3em;
 }
 
 table.info th, table.revision th { background-color: #F1F1F1; vertical-align: top; }
@@ -373,6 +375,8 @@ table.info tbody .infofirst { width: 10em; text-align: left; }
 .repo-path td, .commit-id td {
     font-family: monospace;
     white-space: pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 tbody.commits tr td { border-bottom: 1px solid #CDCDCD; vertical-align: top; }

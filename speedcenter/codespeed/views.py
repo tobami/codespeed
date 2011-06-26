@@ -7,7 +7,6 @@ import logging
 from django.http import HttpResponse, Http404, HttpResponseNotAllowed, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
-from django.db.models import Q
 from django.core.exceptions import ValidationError
 
 from speedcenter.codespeed import settings
@@ -593,8 +592,8 @@ def changes(request):
     executables = Executable.objects.filter(project__track=True)
     revlimit = 20
     lastrevisions = Revision.objects.filter(
-        Q(branch__project=defaultexecutable.project),
-        Q(branch__name="default")
+        branch__project=defaultexecutable.project,
+        branch__name="default"
     ).order_by('-date')[:revlimit]
     if not len(lastrevisions):
         return no_data_found()
@@ -641,7 +640,7 @@ def reports(request):
 
     return render_to_response('codespeed/reports.html', {
         'reports': Report.objects.filter(
-            Q(revision__branch__name='default')
+            revision__branch__name='default'
         ).order_by('-revision__date')[:10],
     }, context_instance=RequestContext(request))
 

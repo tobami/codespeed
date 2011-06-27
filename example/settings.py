@@ -72,7 +72,7 @@ MIDDLEWARE_CLASSES = (
 if DEBUG:
     import traceback
     import logging
-    
+
     # Define a class that logs unhandled errors
     class LogUncatchedErrors:
         def process_exception(self, request, exception):
@@ -81,7 +81,7 @@ if DEBUG:
                                   traceback.format_exc()))
     # And add it to the middleware classes
     MIDDLEWARE_CLASSES += ('settings.LogUncatchedErrors',)
-    
+
     # set shown level of logging output to debug
     logging.basicConfig(level=logging.DEBUG)
 

@@ -4,6 +4,7 @@
 {{ block.super }}
 <!--[if IE]><script language="javascript" type="text/javascript" src="/media/js/jqplot/excanvas.min.js"></script><![endif]-->
 <link rel="stylesheet" type="text/css" href="../media/js/jqplot/jquery.jqplot.min.css" />
+<script type="text/javascript" src="../media/js/jquery.address-1.4.min.js?autoUpdate=0"></script>
 <script type="text/javascript" src="../media/js/jqplot/jquery.jqplot.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.cursor.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.highlighter.min.js"></script>
@@ -214,7 +215,7 @@
         $("#" + plotid).click(function() {
           var benchid = $(this).attr("id").slice(5);
           $("#benchmark_" + benchid).attr('checked', true);
-          refreshContent();
+          updateUrl();
         });
         renderMiniplot(plotid, data["timelines"][bench]);
       }
@@ -229,38 +230,67 @@
     });
   }
 
-  $(function() {
-    $.ajaxSetup ({
-      cache: false
-    });
+  function updateUrl() {
+    cfg = getConfiguration();
+    for (param in cfg) {
+      $.address.parameter(param, cfg[param])
+    }
+    $.address.update();
+  }
+
+  function valueOrDefault(obj, defaultObj) {
+    return (obj) ? obj : defaultObj;
+  }
+
+  function setValuesOfInputFields(event) {
+    // either set the default value, or the one parsed from the url
+
     //Set default amount of revisions shown
-    $("#revisions").val({{ defaultlast }});
-    $("#revisions").change(refreshContent);
+    $("#revisions").val(valueOrDefault(event.parameters.revs, {{ defaultlast }}));
 
     //Reset all checkboxes
     $("input:checkbox").removeAttr('checked');
 
     //Set default selected executables
-    $("#baseline").val("{{ defaultbaseline }}");
-    $("#baseline").change(refreshContent);
+    $("#baseline").val(valueOrDefault(event.parameters.base, "{{ defaultbaseline }}"));
     
-    {% for checkedexecutable in checkedexecutables %}
-    $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
-    {% endfor %}
-    $("input[name='executable']").change(refreshContent);
-    
-    {% for branch in branch_list %}
-    $("input[name='branch']").filter('[value={{ branch }}]').attr('checked', true);
-    {% endfor %}
-    $("input[name='branch']").change(refreshContent);
+    if (event.parameters.exe) {
+        executable_ids = event.parameters.exe.split(',');
+        for (var exec in executable_ids) {
+            exec = executable_ids[exec];
+            $("input[name='executable']").filter('[value='+exec+']').attr('checked', true);
+        }
+    }
+    else {
+      {% for checkedexecutable in checkedexecutables %}
+      $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
+      {% endfor %}
+    }
+
+    if (event.parameters.bran) {
+      branch_ids = event.parameters.bran.split(',');
+      for (var bran in branch_ids) {
+          branch = branch_ids[bran];
+          $("input[name='branch']").filter('[value='+branch+']').attr('checked', true);
+      }
+    }
+    else {
+      {% for branch in branch_list %}
+      $("input[name='branch']").filter('[value={{ branch }}]').attr('checked', true);
+      {% endfor %}
+    }
 
     //Set default selected benchmark
-    $("input:radio[name='benchmark']").filter('[value={{ defaultbenchmark }}]').attr('checked', true);
-    $("input[name='benchmark']").change(refreshContent);
+    $("input:radio[name='benchmark']")
+        .filter('[value=' + valueOrDefault(event.parameters.ben,
+                                           '{{ defaultbenchmark }}') + ']')
+        .attr('checked', true);
 
     //Set default selected environment
-    $("input:radio[name='environments']").filter('[value={{ defaultenvironment.name }}]').attr('checked', true);
-    $("input[name='environments']").change(refreshContent);
+    $("input:radio[name='environments']")
+        .filter('[value=' + valueOrDefault(event.parameters.env,
+                                           '{{ defaultenvironment.name }}') + ']')
+        .attr('checked', true);
 
     //Add color legend to executable list
     $("#executable div.boxbody > ul > li > input").each(function() {
@@ -269,12 +299,35 @@
     });
     $("#baselinecolor").css("background-color", baselineColor);
 
-    $("#equidistant").attr('checked', false);
-    $("#equidistant").change(refreshContent);
+    $("#equidistant").attr('checked', event.parameters.eq);
+  }
+
+  function initializeSite(event) {
+    setValuesOfInputFields(event);
+    
+    $("#revisions"                ).change(updateUrl);
+    $("#baseline"                 ).change(updateUrl);
+    $("input[name='executable']"  ).change(updateUrl);
+    $("input[name='branch']"      ).change(updateUrl);
+    $("input[name='benchmark']"   ).change(updateUrl);
+    $("input[name='environments']").change(updateUrl);
+    $("#equidistant"              ).change(updateUrl);
+  }
+
+  function refreshSite(event) {
+    setValuesOfInputFields(event);
+    refreshContent();
+  }
+
+  $(function() {
+    $.ajaxSetup ({
+      cache: false
+    });
 
     $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
-
-    refreshContent();
+    
+    // Init and change handlers are set to the refreshContent handler
+    $.address.init(initializeSite).change(refreshSite);
   });
 </script>
 {% endblock %}

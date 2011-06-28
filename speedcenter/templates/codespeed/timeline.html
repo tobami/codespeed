@@ -21,6 +21,72 @@
   function shouldPlotEquidistant() {
 	  return $("#equidistant").attr('checked');
   }
+  
+  /**
+   * A class to parse color values
+   * @author Stoyan Stefanov <sstoo@gmail.com>
+   * @link   http://www.phpied.com/rgb-color-parser-in-javascript/
+   * @license Use it if you like it
+   */
+  function RGBColor(color_string)
+  {
+      this.ok = false;
+
+      // strip any leading #
+      if (color_string.charAt(0) == '#') { // remove # if any
+          color_string = color_string.substr(1,6);
+      }
+
+      color_string = color_string.replace(/ /g,'');
+      color_string = color_string.toLowerCase();
+
+
+      // array of color definition objects
+      var color_defs = [
+          {
+              re: /^(\w{2})(\w{2})(\w{2})$/,
+              example: ['#00ff00', '336699'],
+              process: function (bits){
+                  return [
+                      parseInt(bits[1], 16),
+                      parseInt(bits[2], 16),
+                      parseInt(bits[3], 16)
+                  ];
+              }
+          },
+          {
+              re: /^(\w{1})(\w{1})(\w{1})$/,
+              example: ['#fb0', 'f0f'],
+              process: function (bits){
+                  return [
+                      parseInt(bits[1] + bits[1], 16),
+                      parseInt(bits[2] + bits[2], 16),
+                      parseInt(bits[3] + bits[3], 16)
+                  ];
+              }
+          }
+      ];
+
+      // search through the definitions to find a match
+      for (var i = 0; i < color_defs.length; i++) {
+          var re = color_defs[i].re;
+          var processor = color_defs[i].process;
+          var bits = re.exec(color_string);
+          if (bits) {
+              channels = processor(bits);
+              this.r = channels[0];
+              this.g = channels[1];
+              this.b = channels[2];
+              this.ok = true;
+          }
+
+      }
+
+      // validate/cleanup values
+      this.r = (this.r < 0 || isNaN(this.r)) ? 0 : ((this.r > 255) ? 255 : this.r);
+      this.g = (this.g < 0 || isNaN(this.g)) ? 0 : ((this.g > 255) ? 255 : this.g);
+      this.b = (this.b < 0 || isNaN(this.b)) ? 0 : ((this.b > 255) ? 255 : this.b);
+  }
 
   function getConfiguration() {
     var config = new Object();
@@ -56,6 +122,8 @@
     for (branch in data["branches"]) {
       // NOTE: Currently, only the "default" branch is shown in the timeline
       seriesindex = new Array();
+
+      // first add the benchmark results to the plot
       for (exe_id in data["branches"][branch]) {
         var color_id = $("#executable > div.boxbody").find("input[value='"+exe_id+"']").attr('id').slice(10);
         while (color_id > seriesColors.length) { color_id -= seriesColors.length; }
@@ -64,8 +132,27 @@
         series.push({"label":  label, "color": seriesColors[color_id-1]});
         seriesindex.push(exe_id);
         plotdata.push(data["branches"][branch][exe_id]);
-        lastvalues.push(data["branches"][branch][exe_id][0][1]);
+        if (data["branches"][branch][exe_id].length > 0)
+          lastvalues.push(data["branches"][branch][exe_id][0][1]);
       }
+
+      // now add all failed runs
+      var i = 0; //STEFAN: perhaps, for that the `seriesindex` should be used 
+      for (exe_id in data['failed'][branch]) {
+        var orgColor = new RGBColor(series[i]['color']);
+        var color = 'rgb(' + (255 - orgColor.r) + ', ' + (255 - orgColor.g)
+                           + ', ' + (255 - orgColor.b) + ')';
+        var label = series[i]['label'] + " Invalid Runs";
+        series.push({
+          "label" : label,
+          "color" : color,
+          showLine:false,
+          markerOptions:{style:'x', lineWidth:4.0}
+        });
+        plotdata.push(data['failed'][branch][exe_id]);
+        i++;
+      }
+    
       //determine significant digits
       var digits = 2;
       var value = Math.min.apply( Math, lastvalues );
@@ -96,6 +183,8 @@
         $("#plot").css('width', w - offset);
       }
     }
+
+	// add the baseline series
     if (data["baseline"] != "None") {
       series.push({
         "label": $("#baseline option:selected").html(), "color": baselineColor,
@@ -133,8 +222,8 @@
     if (series.length > 4) {
         // Move legend outside plot area to unclutter
         var labels = new Array();
-        for (l in series) {
-            labels.push(series[l]['label'].length)
+        for (var l in series) {
+            labels.push(series[l]['label'].length);
         }
 
         var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
@@ -152,7 +241,7 @@
     var plotdata = new Array();
     for (branch in data['branches']) {
 	    var series = new Array();
-	    for (id in data['branches'][branch]) {
+	    for (var id in data['branches'][branch]) {
 	      var colorid = $("#executable > div.boxbody").find("input[value='"+id+"']").attr('id').slice(10);
 	      while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
 	      series.push({
@@ -170,6 +259,19 @@
       });
       plotdata.push(data["baseline"]);
     }
+    
+    // now add all failed runs
+    var i = 0; //STEFAN: perhaps, for that the `seriesindex` should be used 
+    for (var id in data['failed'][branch]) {
+        orgColor = new RGBColor(series[i]['color']);
+        series.push({
+            "color" : 'rgb(' + (255 - orgColor.r) + ', ' + (255 - orgColor.g) + ', ' + (255 - orgColor.b) + ')',
+            showLine:false,
+            markerOptions:{style:'x', lineWidth:1.5}
+        });
+        plotdata.push(data['failed'][branch][id]);
+        i++;
+    }
 
     var plotoptions = {
       title: {text: data['benchmark'], fontSize: '1.1em'},
@@ -183,13 +285,44 @@
           renderer:$.jqplot.DateAxisRenderer,
           pad: 1.01,
           autoscale:true,
-          showTicks: false,
+          showTicks: false
         }
       },
       highlighter: {show:false},
       cursor:{showTooltip: false, style: 'pointer'}
     };
     plot = $.jqplot(plotid, plotdata, plotoptions);
+  }
+
+  function separateFailedRuns(data) {
+    var seriesWithFailedRuns = new Array();
+    for (branch in data["branches"]) {
+      seriesWithFailedRuns[branch] = new Array();
+      for (exe_id in data["branches"][branch]) {
+        seriesWithFailedRuns[branch][exe_id] = new Array();
+        // to improve the diagram, make sure the data is sorted
+        var results = data["branches"][branch][exe_id];
+        results = results.sort(function (a,b) {return (a[0] == b[0]) ? 0 : ((a[0] < b[0]) ? -1 : 1);})
+        
+        var previousValue = results[0][1];
+        var filterFailed = function (item) {
+          if (item[1] <= 0) {
+              if (!seriesWithFailedRuns[branch][exe_id]) {
+                  seriesWithFailedRuns[branch][exe_id] = new Array();
+              }
+              item[1] = previousValue; // set the previous value to have a better position on the chart
+              seriesWithFailedRuns[branch][exe_id].push(item);
+              return shouldPlotEquidistant(); // include dummy in case we plot with fixed distances between commits
+          }
+          previousValue = item[1];
+          return true;
+        }
+        data["branches"][branch][exe_id] = results.filter(filterFailed);
+      }
+    }
+    
+    data['failed'] = seriesWithFailedRuns;
+    return data;
   }
 
   function render(data) {
@@ -204,7 +337,7 @@
       $("#plotgrid").html(getLoadText("No data available", h, false));
     } else if ($("input[name='benchmark']:checked").val() != "grid") {
       //render single plot when only one benchmark selected
-      renderPlot(data["timelines"][0]);
+      renderPlot(separateFailedRuns(data["timelines"][0]));
       return 1;
     } else {
       //Render Grid of plots
@@ -217,7 +350,7 @@
           $("#benchmark_" + benchid).attr('checked', true);
           updateUrl();
         });
-        renderMiniplot(plotid, data["timelines"][bench]);
+        renderMiniplot(plotid, separateFailedRuns(data["timelines"][bench]));
       }
     }
   }

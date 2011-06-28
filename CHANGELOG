@@ -1,5 +1,10 @@
 == Change Log ==
 
+=== Version 0.8.1, June 29, 2011 ===
+
+* Added save_multiple_results, an example script that saves data using JSON
+
+
 === Version 0.8.0, June 20, 2011 ===
 
 This release involved big refactorings. The addition of branches, particularly, changes the DB schema, so that old DBs will need to be migrated. See instructions of how to migrate in the Wiki pages.

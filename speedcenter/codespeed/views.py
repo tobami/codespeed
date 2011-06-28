@@ -842,6 +842,8 @@ def add_result(request):
 def add_json_results(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed('POST')
+    if not request.POST.get('json'):
+        return HttpResponseBadRequest("No key 'json' in POST payload")
     data = json.loads(request.POST['json'])
     logging.info("add_json_results request with %d entries." % len(data))
 
@@ -866,4 +868,3 @@ def add_json_results(request):
     logging.debug("add_json_results: completed")
 
     return HttpResponse("All result data saved successfully", status=202)
-

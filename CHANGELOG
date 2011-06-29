@@ -2,7 +2,14 @@
 
 === Version 0.8.1, June 29, 2011 ===
 
-* Added save_multiple_results, an example script that saves data using JSON
+* NEW: Settings option to select the default benchmark in the timeline view
+* NEW: Added save_multiple_results, an example script that saves data using JSON
+* NEW: Stefan Marr added support for browser-button navigation on timeline
+* FIX: Stefan Marr improved the GitHub plugin
+* FIX: Improvements in the Changes View layout that prevent overlapping in some cases
+* FIX: Stefan Marr fixed a bug where links to a changes view revision from the 
+    timeline view would not work because they used short commit ids
+* FIX: Stefan Marr prevented some infinite loops caused when results were equal or less than 0
 
 
 === Version 0.8.0, June 20, 2011 ===

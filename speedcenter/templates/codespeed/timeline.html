@@ -199,14 +199,13 @@
       h = parseInt($("#content").css("height"));//get height for error message
       $("#plotgrid").html(getLoadText(data["error"], h, false));
       return 1;
+    } else if ($("input[name='benchmark']:checked").val() == "show_none") {
+      h = parseInt($("#content").css("height"));//get height for error message
+      $("#plotgrid").html(getLoadText("Please select a benchmark on the left", h, false));
     } else if (data["timelines"].length == 0) {
       h = parseInt($("#content").css("height"));//get height for error message
       $("#plotgrid").html(getLoadText("No data available", h, false));
-    } else if ($("input[name='benchmark']:checked").val() != "grid") {
-      //render single plot when only one benchmark selected
-      renderPlot(data["timelines"][0]);
-      return 1;
-    } else {
+    } else if ($("input[name='benchmark']:checked").val() == "grid"){
       //Render Grid of plots
       $("#revisions").attr("disabled",true);
       for (bench in data["timelines"]) {
@@ -219,6 +218,10 @@
         });
         renderMiniplot(plotid, data["timelines"][bench]);
       }
+    } else {
+      //render single plot when one benchmark is selected
+      renderPlot(data["timelines"][0]);
+      return 1;
     }
   }
 
@@ -380,6 +383,10 @@
     <li>
       <input id="benchmarkgrid" type="radio" name="benchmark" value="grid" />
       <label for="benchmarkgrid">Display all in a grid</label>
+    </li>
+    <li>
+      <input id="b_show_none" type="radio" name="benchmark" value="show_none" />
+      <label for="b_show_none">Display none</label>
     </li>
   </ul>{% endifnotequal %}
   <ul>{% for bench in benchmarks|dictsort:"name" %}

@@ -197,9 +197,8 @@ def comparison(request):
     if not len(Project.objects.all()):
         return no_default_project_error()
 
-    defaultexecutable = getdefaultexecutable()
-
-    if not defaultexecutable:
+    # Check whether there exist appropiate executables
+    if not getdefaultexecutable():
         return no_executables_error()
 
     executables, exekeys = getcomparisonexes()
@@ -330,6 +329,8 @@ def gettimelinedata(request):
     if data['ben'] == 'grid':
         benchmarks = Benchmark.objects.all().order_by('name')
         number_of_revs = 15
+    elif data['ben'] == 'show_none':
+        benchmarks = []
     else:
         benchmarks = [get_object_or_404(Benchmark, name=data['ben'])]
 
@@ -406,9 +407,10 @@ def gettimelinedata(request):
                         [str(start), baselinevalue],
                         [str(end), baselinevalue]
                     ]
-        if append: timeline_list['timelines'].append(timeline)
+        if append:
+            timeline_list['timelines'].append(timeline)
 
-    if not len(timeline_list['timelines']):
+    if not len(timeline_list['timelines']) and data['ben'] != 'show_none':
         response = 'No data found for the selected options'
         timeline_list['error'] = response
     return HttpResponse(json.dumps( timeline_list ))
@@ -478,15 +480,29 @@ def timeline(request):
         defaultlast = data['revs']
 
     benchmarks = Benchmark.objects.all()
+    grid_limit = 30
+    defaultbenchmark = "grid"
     if not len(benchmarks):
         return no_data_found()
     elif len(benchmarks) == 1:
         defaultbenchmark = benchmarks[0]
-    else:
-        defaultbenchmark = "grid"
+    elif len(benchmarks) >= grid_limit:
+        defaultbenchmark = 'show_none'
+    elif hasattr(settings, 'def_benchmark') and settings.def_benchmark != None:
+        if settings.def_benchmark in ['grid', 'show_none']:
+            defaultbenchmark = settings.def_benchmark
+        else:
+            try:
+                defaultbenchmark = Benchmark.objects.get(
+                                                name=settings.def_benchmark)
+            except Benchmark.DoesNotExist:
+                pass
 
     if 'ben' in data and data['ben'] != defaultbenchmark:
-        defaultbenchmark = get_object_or_404(Benchmark, name=data['ben'])
+        if data['ben'] == "show_none":
+            defaultbenchmark = data['ben']
+        else:
+            defaultbenchmark = get_object_or_404(Benchmark, name=data['ben'])
 
     # Information for template
     executables = Executable.objects.filter(project__track=True)

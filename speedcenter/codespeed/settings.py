@@ -19,10 +19,19 @@ change_threshold = 3.0
 # over a number of revisions is significant
 trend_threshold  = 5.0
 
-# Changes view options ##
+## Changes view options ##
 def_executable = None # Executable that should be chosen as default in the changes view
-                      # Given as the id of the executable.
+                      # Given as the name of the executable.
                       # Example: defaultexecutable = "myexe"
+
+## Timeline view options ##
+def_benchmark = "grid" # Default selected benchmark. Possible values:
+                       #   "grid": will show the grid of plots
+                       #   "show_none": will just show a text message
+                       #   "mybench": will select benchmark "mybench"
+#timeline_branches = True # NOTE: Only the default branch is currently shown 
+                         # Get timeline results for specific branches
+                         # Set to False if you want timeline plots and results only for trunk.
 
 ## Comparison view options ##
 chart_type = 'normal bars' # The options are 'normal bars', 'stacked bars' and 'relative bars'
@@ -42,7 +51,3 @@ comp_executables = None  # Which executable + revision should be checked as defa
                          # comp_executables = [
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
-
-
-timeline_branches = True # Get timeline results for specific branches (beyond trunk).
-                         # Set to False if you want timeline plots and results only for trunk.

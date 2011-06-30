@@ -490,6 +490,9 @@ def timeline(request):
     # Information for template
     executables = Executable.objects.filter(project__track=True)
     environments = Environment.objects.all()
+    use_error_bars = hasattr(settings, 'use_error_bars') and \
+    settings.use_error_bars
+    
     return render_to_response('codespeed/timeline.html', {
         'checkedexecutables': checkedexecutables,
         'defaultbaseline': defaultbaseline,
@@ -502,7 +505,8 @@ def timeline(request):
         'benchmarks': benchmarks,
         'environments': environments,
         'branch_list': branch_list,
-        'defaultbranch': defaultbranch
+        'defaultbranch': defaultbranch,
+        'use_error_bars': use_error_bars
     }, context_instance=RequestContext(request))
 
 def getchangestable(request):

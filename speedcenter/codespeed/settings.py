@@ -46,3 +46,5 @@ comp_executables = None  # Which executable + revision should be checked as defa
 
 timeline_branches = True # Get timeline results for specific branches (beyond trunk).
                          # Set to False if you want timeline plots and results only for trunk.
+
+use_error_bars = True # True to enable error bars on Timeline view

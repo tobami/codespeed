@@ -10,6 +10,7 @@
 <script type="text/javascript" src="../media/js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
 <script type="text/javascript" src="../media/js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<script type="text/javascript" src="../media/js/jqplot/jqplot.ohlcRendererWithErrorBars.min.js"></script>
 
 <script type="text/javascript">
   var baselineColor = "#d8b83f";
@@ -50,6 +51,7 @@
       // NOTE: Currently, only the "default" branch is shown in the timeline
       seriesindex = new Array();
       for (exe_id in data["branches"][branch]) {
+        var error = new Array();
         var color_id = $("#executable > div.boxbody").find("input[value='"+exe_id+"']").attr('id').slice(10);
         while (color_id > seriesColors.length) { color_id -= seriesColors.length; }
         var label = $("label[for*='executable" + color_id + "']").html();
@@ -58,18 +60,17 @@
         seriesindex.push(exe_id);
         plotdata.push(data["branches"][branch][exe_id]);
         lastvalues.push(data["branches"][branch][exe_id][0][1]);
+        {% if use_error_bars %}
         for (res in data["branches"][branch][exe_id]) {
           var date = data["branches"][branch][exe_id][res][0];
           var value = data["branches"][branch][exe_id][res][1];
           var std_dev = data["branches"][branch][exe_id][res][2];
-          var error = new Array();
-          error.push([date, value - std_dev, std_dev, data["branches"][branch][exe_id][res][3], data["branches"][branch][exe_id][res][4]]);
-          error.push([date, value + std_dev, std_dev, data["branches"][branch][exe_id][res][3], data["branches"][branch][exe_id][res][4]]);
-          plotdata.push(error);
-          series.push({showMarker: false, "label": "error", showLabel: false, color: "#999999"});
+          error.push([date, value - std_dev, value + std_dev, data["branches"][branch][exe_id][res][3]]);
         }
+        plotdata.push(error);
+        series.push({renderer:$.jqplot.OHLCRenderer, rendererOptions:{errorBar:true}, showMarker: true, "label": "error", color: "#999999"});
+        {% endif %}
       }
-      console.log(plotdata);
       //determine significant digits
       var digits = 2;
       var value = Math.min.apply( Math, lastvalues );
@@ -127,12 +128,12 @@
         }
       },
       legend: {show: true, location: 'nw'},
-      highlighter: {
+      highlighter: { show:true,
         tooltipLocation: 'nw',
         yvalues: 4,
         formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
       },
-      cursor:{zoom:true, showTooltip:false, clickReset:true}
+      cursor:{show: true, zoom:true, showTooltip:false}
     }
     //Render plot
 	plot = $.jqplot('plot',  plotdata, plotoptions);

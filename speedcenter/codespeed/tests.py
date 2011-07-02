@@ -128,9 +128,9 @@ class AddResultTest(TestCase):
         self.assertEquals(number_of_reports, 0)
 
     def test_report_is_created(self):
-        '''Should create a report when adding a result for two revisions'''
+        """Should create a report when adding a result for two revisions"""
         response = self.client.post(self.path, self.data)
-        
+
         modified_data = copy.deepcopy(self.data)
         modified_data['commitid'] = "23233"
         response = self.client.post(self.path, modified_data)
@@ -138,12 +138,17 @@ class AddResultTest(TestCase):
         # After adding a result for a second revision, a report should be created
         self.assertEquals(number_of_reports, 1)
 
-    def test_submit_data_with_none_timestamp(self):
-        """Test that add/result adds the result if date is set to the
-        string u"None". That happens while urlencode({'date': None})
-        """
+    def test_submit_data_with_none_string_timestamp(self):
+        """Should add a default revision date when timestamp is string 'None'"""
         modified_data = copy.deepcopy(self.data)
         modified_data['revision_date'] = u"None"
+        response = self.client.post(self.path, modified_data)
+        self.assertEquals(response.status_code, 202)
+
+    def test_submit_data_with_none_timestamp(self):
+        """Should add a default revision date when timestamp is None"""
+        modified_data = copy.deepcopy(self.data)
+        modified_data['revision_date'] = None
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)
 

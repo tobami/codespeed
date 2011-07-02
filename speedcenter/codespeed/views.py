@@ -800,6 +800,7 @@ def save_result(data):
         rev = branch.revisions.get(commitid=data['commitid'])
     except Revision.DoesNotExist:
         rev_date = data.get("revision_date")
+        # "None" (as string) can happen when we urlencode the POST data
         if not rev_date or rev_date in ["", "None"]:
             rev_date = datetime.today()
         rev = Revision(branch=branch, commitid=data['commitid'], date=rev_date)

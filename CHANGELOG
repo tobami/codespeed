@@ -1,5 +1,11 @@
 == Change Log ==
 
+
+=== Version next, to be released ===
+* FIX: Frank added a check for revision_date = "None" (as string), caused by the 
+    save_single_result.py sample script
+
+
 === Version 0.8.1, June 29, 2011 ===
 
 * NEW: Settings option to select the default benchmark in the timeline view

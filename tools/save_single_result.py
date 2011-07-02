@@ -13,7 +13,7 @@ current_date = datetime.today()
 # Mandatory fields
 data = {
     'commitid': '14',
-    'branch': 'default',#Always use default for trunk/master/tip
+    'branch': 'default', # Always use default for trunk/master/tip
     'project': 'MyProject',
     'executable': 'myexe O3 64bits',
     'benchmark': 'float',
@@ -23,8 +23,8 @@ data = {
 
 # Optional fields
 data.update({
-    'revision_date': None, # Optional. Default is taken either
-                           # from VCS integration or from current date
+    'revision_date': current_date, # Optional. Default is taken either
+                                   # from VCS integration or from current date
     'result_date': current_date, # Optional, default is current date
     'std_dev': 1.11111, # Optional. Default is blank
     'max': 4001.6, # Optional. Default is blank

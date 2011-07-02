@@ -11,6 +11,7 @@ from django.core.urlresolvers import reverse
 
 
 class AddResultTest(TestCase):
+
     def setUp(self):
         self.path = reverse('speedcenter.codespeed.views.add_result')
         self.client = Client()
@@ -137,6 +138,14 @@ class AddResultTest(TestCase):
         # After adding a result for a second revision, a report should be created
         self.assertEquals(number_of_reports, 1)
 
+    def test_submit_data_with_none_timestamp(self):
+        """Test that add/result adds the result if date is set to the
+        string u"None". That happens while urlencode({'date': None})
+        """
+        modified_data = copy.deepcopy(self.data)
+        modified_data['revision_date'] = u"None"
+        response = self.client.post(self.path, modified_data)
+        self.assertEquals(response.status_code, 202)
 
 class AddJSONResultsTest(TestCase):
     def setUp(self):

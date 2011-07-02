@@ -138,16 +138,10 @@ class AddResultTest(TestCase):
         # After adding a result for a second revision, a report should be created
         self.assertEquals(number_of_reports, 1)
 
-    def test_submit_data_with_none_string_timestamp(self):
-        """Should add a default revision date when timestamp is string 'None'"""
-        modified_data = copy.deepcopy(self.data)
-        modified_data['revision_date'] = u"None"
-        response = self.client.post(self.path, modified_data)
-        self.assertEquals(response.status_code, 202)
-
     def test_submit_data_with_none_timestamp(self):
         """Should add a default revision date when timestamp is None"""
         modified_data = copy.deepcopy(self.data)
+        # The value None will get urlencoded and converted to a "None" string
         modified_data['revision_date'] = None
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)

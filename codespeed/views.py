@@ -335,8 +335,11 @@ def gettimelinedata(request):
     if not filter(None, executables):
         timeline_list['error'] = "No executables selected"
         return HttpResponse(json.dumps( timeline_list ))
-
-    environment = get_object_or_404(Environment, id=data.get('env'))
+    environment = None
+    try:
+        environment = get_object_or_404(Environment, id=data.get('env'))
+    except ValueError:
+        Http404()
 
     benchmarks = []
     number_of_revs = data.get('revs', 10)

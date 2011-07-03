@@ -292,7 +292,7 @@
     //Set default selected environment
     $("input:radio[name='environments']")
         .filter('[value=' + valueOrDefault(event.parameters.env,
-                                           '{{ defaultenvironment.name }}') + ']')
+                                           '{{ defaultenvironment.id }}') + ']')
         .attr('checked', true);
 
     //Add color legend to executable list
@@ -348,7 +348,7 @@
     <ul>
     {% for env in environments %}
       <li title="{{ env.os }}, {{ env.cpu }}">
-        <input id="env{{ env.name }}" type="radio" name="environments" value="{{ env.name }}" />
+        <input id="env{{ env.name }}" type="radio" name="environments" value="{{ env.id }}" />
         <label for="env{{ env.name }}">{{ env }}</label>
       </li>
     {% endfor %}

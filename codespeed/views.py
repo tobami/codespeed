@@ -144,7 +144,7 @@ def getcomparisondata(request):
     data = request.GET
 
     executables, exekeys = getcomparisonexes()
-        
+
     compdata = {}
     compdata['error'] = "Unknown error"
     for proj in executables:
@@ -182,8 +182,7 @@ def comparison(request):
                 for env in enviros:
                     try:
                         if int(env_id) == env.id:
-                            checkedenviros.append(
-                                    Environment.objects.get(id=int(env_id)))
+                            checkedenviros.append(env)
                             break
                     except ValueError:
                         # Not an int
@@ -317,7 +316,7 @@ def gettimelinedata(request):
         timeline_list['error'] = "No executables selected"
         return HttpResponse(json.dumps( timeline_list ))
 
-    environment = get_object_or_404(Environment, name=data.get('env'))
+    environment = get_object_or_404(Environment, id=data.get('env'))
 
     benchmarks = []
     number_of_revs = data.get('revs', 10)
@@ -370,7 +369,7 @@ def gettimelinedata(request):
                     ).order_by('-revision__date')[:number_of_revs]
                 if not len(resultquery):
                     continue
-    
+
                 results = []
                 for res in resultquery:
                     std_dev = ""
@@ -411,21 +410,38 @@ def gettimelinedata(request):
         timeline_list['error'] = response
     return HttpResponse(json.dumps( timeline_list ))
 
+
 def timeline(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
     data = request.GET
 
-    # Configuration of default parameters
-    defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment:
+    ## Configuration of default parameters ##
+    # Default Environment
+    enviros = Environment.objects.all()
+    if not enviros:
         return no_environment_error(request)
-    if 'env' in data:
-        try:
-            defaultenvironment = Environment.objects.get(name=data['env'])
-        except Environment.DoesNotExist:
-            pass
-
+    defaultenviro = None
+    try:
+        env_id = int(data['env'])
+        for env in enviros:
+            if env_id == env.id:
+                defaultenviro = env
+                break
+    except (ValueError, KeyError):
+        # Not present or not an int
+        pass
+    if not defaultenviro:
+        if hasattr(settings, 'DEF_ENVIRONMENT') and \
+            settings.DEF_ENVIRONMENT != None:
+            try:
+                defaultenviro = Environment.objects.get(
+                                            name=settings.DEF_ENVIRONMENT)
+            except Environment.DoesNotExist:
+                pass
+    if not defaultenviro:
+        defaultenviro = enviros[0]
+    # Default Project
     defaultproject = Project.objects.filter(track=True)
     if not len(defaultproject):
         return no_default_project_error(request)
@@ -450,7 +466,7 @@ def timeline(request):
     branch_list = [
         branch.name for branch in Branch.objects.filter(project=defaultproject)]
     branch_list.sort()
-    
+
     defaultbranch = ""
     if "default" in branch_list:
         defaultbranch = "default"
@@ -502,18 +518,17 @@ def timeline(request):
 
     # Information for template
     executables = Executable.objects.filter(project__track=True)
-    environments = Environment.objects.all()
     return render_to_response('codespeed/timeline.html', {
         'checkedexecutables': checkedexecutables,
         'defaultbaseline': defaultbaseline,
         'baseline': baseline,
         'defaultbenchmark': defaultbenchmark,
-        'defaultenvironment': defaultenvironment,
+        'defaultenvironment': defaultenviro,
         'lastrevisions': lastrevisions,
         'defaultlast': defaultlast,
         'executables': executables,
         'benchmarks': benchmarks,
-        'environments': environments,
+        'environments': enviros,
         'branch_list': branch_list,
         'defaultbranch': defaultbranch
     }, context_instance=RequestContext(request))

@@ -119,7 +119,10 @@
           label: 'Commit date',
           labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
           tickOptions:{formatString:'%b %d'},
-          pad: 1.01, autoscale:true
+          pad: 1.01,
+          autoscale:true,
+          rendererOptions:{sortMergedLabels:true} /* only relevant when
+                                  $.jqplot.CategoryAxisRenderer is used */ 
         }
       },
       legend: {show: true, location: 'nw'},
@@ -191,6 +194,18 @@
     };
     plot = $.jqplot(plotid, plotdata, plotoptions);
   }
+  
+  // to improve the diagram, make sure the data is sorted
+  function sortData(data) {
+    for (branch in data["branches"]) {
+      for (exe_id in data["branches"][branch]) {
+        var results = data["branches"][branch][exe_id];
+        results = results.sort(function (a,b) {return (a[0] == b[0]) ? 0 : ((a[0] < b[0]) ? -1 : 1);})
+        data["branches"][branch][exe_id] = results;
+      }
+    }
+    return data;
+  }
 
   function render(data) {
     $("#revisions").attr("disabled", false);
@@ -216,11 +231,11 @@
           $("#benchmark_" + benchid).attr('checked', true);
           updateUrl();
         });
-        renderMiniplot(plotid, data["timelines"][bench]);
+        renderMiniplot(plotid, sortData(data["timelines"][bench]));
       }
     } else {
       //render single plot when one benchmark is selected
-      renderPlot(data["timelines"][0]);
+      renderPlot(sortData(data["timelines"][0]));
       return 1;
     }
   }

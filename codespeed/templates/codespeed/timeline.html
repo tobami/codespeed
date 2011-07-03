@@ -231,11 +231,15 @@
           $("#benchmark_" + benchid).attr('checked', true);
           updateUrl();
         });
-        renderMiniplot(plotid, sortData(data["timelines"][bench]));
+        renderMiniplot(plotid, data["timelines"][bench]);
       }
     } else {
-      //render single plot when one benchmark is selected
-      renderPlot(sortData(data["timelines"][0]));
+      // render single plot when one benchmark is selected
+      // make sure the data is sorted for the equidistant plots
+      var benchmarkData = (shouldPlotEquidistant())
+                            ? sortData(data["timelines"][0])
+                            : data["timelines"][0];
+      renderPlot(benchmarkData);
       return 1;
     }
   }

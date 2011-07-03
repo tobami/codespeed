@@ -35,6 +35,7 @@ def no_data_found(request):
         'message': 'No data found'
     }, context_instance=RequestContext(request))
 
+
 def getbaselineexecutables():
     baseline = [{'key': "none", 'name': "None", 'executable': "none", 'revision': "none"}]
     revs = Revision.objects.exclude(tag="")
@@ -70,17 +71,45 @@ def getbaselineexecutables():
             pass
     return baseline
 
-def getdefaultenvironment():
-    default = Environment.objects.all()
-    if not len(default):
-        return 0
-    default = default[0]
-    if hasattr(settings, 'DEF_ENVIRONMENT'):
-        try:
-            default = Environment.objects.get(name=settings.DEF_ENVIRONMENT)
-        except Environment.DoesNotExist:
-            pass
-    return default
+
+def get_default_environment(enviros, data, multi=False):
+    """Returns the default environment. Preference level is:
+        * Present in URL parameters (permalinks)
+        * Value in settings.py
+        * First Environment ID
+
+    """
+    defaultenviros = []
+    # Use permalink values
+    if 'env' in data:
+        for env_value in data['env'].split(","):
+            for env in enviros:
+                try:
+                    env_id = int(env_value)
+                except ValueError:
+                    # Not an int
+                    continue
+                for env in enviros:
+                    if env_id == env.id:
+                        defaultenviros.append(env)
+            if not multi:
+                break
+    # Use settings.py value
+    if not defaultenviros and not multi:
+        if hasattr(settings, 'DEF_ENVIRONMENT') and \
+            settings.DEF_ENVIRONMENT != None:
+            for env in enviros:
+                if settings.DEF_ENVIRONMENT == env.name:
+                    defaultenviros.append(env)
+                    break
+    # Last fallback
+    if not defaultenviros:
+        defaultenviros = enviros
+    if multi:
+        return defaultenviros
+    else:
+        return defaultenviros[0]
+
 
 def getdefaultexecutable():
     default = None
@@ -95,6 +124,7 @@ def getdefaultexecutable():
             default = execquery[0]
 
     return default
+
 
 def getcomparisonexes():
     all_executables = {}
@@ -167,6 +197,7 @@ def getcomparisondata(request):
 
     return HttpResponse(json.dumps( compdata ))
 
+
 def comparison(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
@@ -176,19 +207,7 @@ def comparison(request):
     enviros = Environment.objects.all()
     if not enviros:
         return no_environment_error(request)
-    checkedenviros = []
-    if 'env' in data:
-        for env_id in data['env'].split(","):
-                for env in enviros:
-                    try:
-                        if int(env_id) == env.id:
-                            checkedenviros.append(env)
-                            break
-                    except ValueError:
-                        # Not an int
-                        pass
-    if not checkedenviros:
-        checkedenviros = enviros
+    checkedenviros = get_default_environment(enviros, data, multi=True)
 
     if not len(Project.objects.all()):
         return no_default_project_error(request)
@@ -303,6 +322,7 @@ def comparison(request):
         'selectedchart': selectedchart,
         'selecteddirection': selecteddirection
     }, context_instance=RequestContext(request))
+
 
 def gettimelinedata(request):
     if request.method != 'GET':
@@ -421,26 +441,8 @@ def timeline(request):
     enviros = Environment.objects.all()
     if not enviros:
         return no_environment_error(request)
-    defaultenviro = None
-    try:
-        env_id = int(data['env'])
-        for env in enviros:
-            if env_id == env.id:
-                defaultenviro = env
-                break
-    except (ValueError, KeyError):
-        # Not present or not an int
-        pass
-    if not defaultenviro:
-        if hasattr(settings, 'DEF_ENVIRONMENT') and \
-            settings.DEF_ENVIRONMENT != None:
-            try:
-                defaultenviro = Environment.objects.get(
-                                            name=settings.DEF_ENVIRONMENT)
-            except Environment.DoesNotExist:
-                pass
-    if not defaultenviro:
-        defaultenviro = enviros[0]
+    defaultenviro = get_default_environment(enviros, data)
+
     # Default Project
     defaultproject = Project.objects.filter(track=True)
     if not len(defaultproject):
@@ -463,6 +465,7 @@ def timeline(request):
     if not len(checkedexecutables):
         return no_executables_error(request)
 
+    # TODO: we need branches for all tracked projects
     branch_list = [
         branch.name for branch in Branch.objects.filter(project=defaultproject)]
     branch_list.sort()
@@ -533,9 +536,10 @@ def timeline(request):
         'defaultbranch': defaultbranch
     }, context_instance=RequestContext(request))
 
+
 def getchangestable(request):
     executable = get_object_or_404(Executable, pk=request.GET.get('exe'))
-    environment = get_object_or_404(Environment, name=request.GET.get('env'))
+    environment = get_object_or_404(Environment, pk=request.GET.get('env'))
     try:
         trendconfig = int(request.GET.get('tre'))
     except TypeError:
@@ -559,6 +563,7 @@ def getchangestable(request):
         'env': environment,
     }, context_instance=RequestContext(request))
 
+
 def changes(request):
     if request.method != 'GET': return HttpResponseNotAllowed('GET')
     data = request.GET
@@ -576,21 +581,16 @@ def changes(request):
     if 'tre' in data and int(data['tre']) in trends:
         defaulttrend = int(data['tre'])
 
-    defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment:
+    enviros = Environment.objects.all()
+    if not enviros:
         return no_environment_error()
-    if 'env' in data:
-        try:
-            defaultenvironment = Environment.objects.get(name=data['env'])
-        except Environment.DoesNotExist:
-            pass
-    environments = Environment.objects.all()
+    defaultenv = get_default_environment(enviros, data)
 
-    defaultproject = Project.objects.filter(track=True)
-    if not len(defaultproject):
-        return no_default_project_error()
-    else:
-        defaultproject = defaultproject[0]
+    #defaultproject = Project.objects.filter(track=True)
+    #if not len(defaultproject):
+        #return no_default_project_error()
+    #else:
+        #defaultproject = defaultproject[0]
 
     defaultexecutable = getdefaultexecutable()
     if not defaultexecutable:
@@ -657,8 +657,19 @@ def changes(request):
             branch__project=p
         ).order_by('-date')[:revlimit]
 
-    return render_to_response('codespeed/changes.html',
-        locals(), context_instance=RequestContext(request))
+    return render_to_response('codespeed/changes.html', {
+        'defaultenvironment': defaultenv,
+        'defaultexecutable': defaultexecutable,
+        'selectedrevision': selectedrevision,
+        'defaulttrend': defaulttrend,
+        'defaultchangethres': defaultchangethres,
+        'defaulttrendthres': defaulttrendthres,
+        'environments': enviros,
+        'executables': executables,
+        'projectmatrix': projectmatrix,
+        'revisionboxes': revisionboxes,
+        'trends': trends,
+    }, context_instance=RequestContext(request))
 
 
 def reports(request):
@@ -670,6 +681,7 @@ def reports(request):
             revision__branch__name='default'
         ).order_by('-revision__date')[:10],
     }, context_instance=RequestContext(request))
+
 
 def displaylogs(request):
     rev = get_object_or_404(Revision, pk=request.GET.get('revisionid'))
@@ -703,6 +715,7 @@ def displaylogs(request):
                                 {'error': error, 'logs': logs },
                                 context_instance=RequestContext(request))
 
+
 def getcommitlogs(rev, startrev, update=False):
     logs = []
 
@@ -730,6 +743,7 @@ def getcommitlogs(rev, startrev, update=False):
         logs.pop()
 
     return logs
+
 
 def saverevisioninfo(rev):
     log = getcommitlogs(rev, rev, update=True)
@@ -795,6 +809,7 @@ def create_report_if_enough_data(rev, exe, e):
             report.save()
             logging.debug("create_report_if_enough_data: Created new report.")
 
+
 def save_result(data):
     res, error = validate_result(data)
     if error:
@@ -853,6 +868,7 @@ def save_result(data):
 
     return (rev, exe, e), False
 
+
 def add_result(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed('POST')
@@ -866,6 +882,7 @@ def add_result(request):
         create_report_if_enough_data(response[0], response[1], response[2])
         logging.debug("add_result: completed")
         return HttpResponse("Result data saved succesfully", status=202)
+
 
 def add_json_results(request):
     if request.method != 'POST':

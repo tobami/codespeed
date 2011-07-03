@@ -104,7 +104,7 @@
         $("input:radio[name=executable]").filter('[value="{{ defaultexecutable.id }}"]').attr('checked', true);
         $("input[name='executable']").change(changerevisions);
 
-        $("input:radio[name='environment']").filter('[value="{{ defaultenvironment.name }}"]').attr('checked', true);
+        $("input:radio[name='environment']").filter('[value="{{ defaultenvironment.id }}"]').attr('checked', true);
         $("input[name='environment']").change(refreshContent);
 
         //repopulate revision select box if the project has changed
@@ -130,7 +130,7 @@
     <ul>
     {% for env in environments %}
       <li title="{{ env.os }}, {{ env.cpu }}">
-        <input id="env{{ env.name }}" type="radio" name="environment" value="{{ env.name }}" />
+        <input id="env{{ env.name }}" type="radio" name="environment" value="{{ env.id }}" />
         <label for="env{{ env.name }}">{{ env }}</label>
       </li>
     {% endfor %}

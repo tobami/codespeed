@@ -173,25 +173,21 @@ def comparison(request):
     data = request.GET
 
     # Configuration of default parameters
-    defaultenvironment = getdefaultenvironment()
-    if not defaultenvironment:
-        return no_environment_error(request)
-    if 'env' in data:
-        try:
-            defaultenvironment = Environment.objects.get(name=data['env'])
-        except Environment.DoesNotExist:
-            pass
-
     enviros = Environment.objects.all()
+    if not enviros:
+        return no_environment_error(request)
     checkedenviros = []
     if 'env' in data:
-        for i in data['env'].split(","):
-            if not i:
-                continue
-            try:
-                checkedenviros.append(Environment.objects.get(id=int(i)))
-            except Environment.DoesNotExist:
-                pass
+        for env_id in data['env'].split(","):
+                for env in enviros:
+                    try:
+                        if int(env_id) == env.id:
+                            checkedenviros.append(
+                                    Environment.objects.get(id=int(env_id)))
+                            break
+                    except ValueError:
+                        # Not an int
+                        pass
     if not checkedenviros:
         checkedenviros = enviros
 
@@ -299,7 +295,6 @@ def comparison(request):
         'checkedexecutables': checkedexecutables,
         'checkedbenchmarks': checkedbenchmarks,
         'checkedenviros': checkedenviros,
-        'defaultenvironment': defaultenvironment,
         'executables': executables,
         'benchmarks': benchmarks,
         'bench_units': json.dumps(bench_units),

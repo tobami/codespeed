@@ -39,7 +39,7 @@
     window.location="{% url changes %}?rev=" + commitid + "&" + "exe=" + executableid + "&env=" + environment;
   }
 
-  function myClickHandler(ev, gridpos, datapos, neighbor, plot) {
+  function OnMarkerClickHandler(ev, gridpos, datapos, neighbor, plot) {
     if($("input[name='benchmark']:checked").val() == "grid") { return false; }
     if (neighbor) {
       var commitid = neighbor.data[3];
@@ -246,7 +246,7 @@
   }
 
   function setValuesOfInputFields(event) {
-    // either set the default value, or the one parsed from the url
+    // Either set the default value, or the one parsed from the url
 
     //Set default amount of revisions shown
     $("#revisions").val(valueOrDefault(event.parameters.revs, {{ defaultlast }}));
@@ -256,7 +256,7 @@
 
     //Set default selected executables
     $("#baseline").val(valueOrDefault(event.parameters.base, "{{ defaultbaseline }}"));
-    
+
     if (event.parameters.exe) {
         executable_ids = event.parameters.exe.split(',');
         for (var exec in executable_ids) {
@@ -307,7 +307,6 @@
 
   function initializeSite(event) {
     setValuesOfInputFields(event);
-    
     $("#revisions"                ).change(updateUrl);
     $("#baseline"                 ).change(updateUrl);
     $("input[name='executable']"  ).change(updateUrl);
@@ -327,8 +326,9 @@
       cache: false
     });
 
-    $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
-    
+    // Even listener for clicks on plot markers
+    $.jqplot.eventListenerHooks.push(['jqplotClick', OnMarkerClickHandler]);
+
     // Init and change handlers are set to the refreshContent handler
     $.address.init(initializeSite).change(refreshSite);
   });

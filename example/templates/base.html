@@ -7,7 +7,7 @@
     <meta http-equiv="content-type" content="text/html;charset=utf-8">
     <link href="{{ STATIC_URL }}css/main.css" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="{{ STATIC_URL }}js/codespeed.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.3.2.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.6.2.min.js"></script>
     {% block extra_head %}{% endblock %}
   </head>
   <body>
@@ -33,7 +33,7 @@
 <ul class="inline">
   <li {% block nav-changes %}><a href=" {% url changes %}">Changes</a>{% endblock %}</li>
   <li {% block nav-timeline %}><a href=" {% url timeline %}">Timeline</a>{% endblock %}</li>
-  <li {% block nav-comparsion %}><a href=" {% url comparison %}">Comparison</a>{% endblock %}</li>
+  <li {% block nav-comparison %}><a href=" {% url comparison %}">Comparison</a>{% endblock %}</li>
 </ul>
 {% endblock %}
 </div>

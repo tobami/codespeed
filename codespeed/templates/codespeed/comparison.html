@@ -104,17 +104,17 @@
 
     //set default selected executables
     {% for checkedexecutable in checkedexecutables %}
-    $("input[name='executables']").filter('[value={{ checkedexecutable }}]').attr('checked', true);{% endfor %}
+    $("input[name='executables']").filter('[value="{{ checkedexecutable }}"]').attr('checked', true);{% endfor %}
     $("input[name='executables']").change(refreshContent);
 
     //set default selected benchmarks
     {% for checkedbenchmark in checkedbenchmarks %}
-    $("input:checkbox[name='benchmarks']").filter('[value={{ checkedbenchmark.id }}]').attr('checked', true);{% endfor %}
+    $("input:checkbox[name='benchmarks']").filter('[value="{{ checkedbenchmark.id }}"]').attr('checked', true);{% endfor %}
     $("input[name='benchmarks']").change(refreshContent);
 
     //set default selected environments
     {% for checkedenv in checkedenviros %}
-    $("input:checkbox[name='environments']").filter('[value={{ checkedenv.id }}]').attr('checked', true);{% endfor %}
+    $("input:checkbox[name='environments']").filter('[value="{{ checkedenv.id }}"]').attr('checked', true);{% endfor %}
     $("input[name='environments']").change(refreshContent);
 
     // Check all and none links
@@ -145,7 +145,7 @@
 {% block navigation %}
     {{ block.super }}
 {% endblock %}
-{% block nav-comparsion %}class="current"><a href="{% url comparison %}">Comparison</a>{% endblock %}
+{% block nav-comparison %}class="current"><a href="{% url comparison %}">Comparison</a>{% endblock %}
 
 {% block body %}
 <div id="sidebar">

@@ -16,7 +16,7 @@ In Ubuntu, they can be installed with:
 
     sudo apt-get install python-django python-django-south
 
-Instead of using distro packages, you can use pip:
+Instead of using distribution packages, you can use pip:
 
     sudo pip install django
     sudo pip install South
@@ -37,9 +37,10 @@ can take a long time. Please be pacient.
 * Download the last stable release from
   [http://github.com/tobami/codespeed/downloads](http://github.com/tobami/codespeed/downloads)
   and unpack it
+* To get started, you can use the `example` directory as a starting point for your Django Project
 * For simplicity, you can use the default sqlite configuration, which will save
-  the data to a database named `speedcenter/data.db`.
-* Create the DB by changing to the `speedcenter/` directory and running:
+  the data to a database named `example/data.db`
+* Create the DB by changing to the `example/` directory and running:
 
         python manage.py syncdb
 

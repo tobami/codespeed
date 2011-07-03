@@ -35,7 +35,7 @@ DEF_BENCHMARK = "grid" # Default selected benchmark. Possible values:
                        #   "show_none": will just show a text message
                        #   "mybench": will select benchmark "mybench"
 
-#timeline_branches = True # NOTE: Only the default branch is currently shown 
+#timeline_branches = True # NOTE: Only the default branch is currently shown
                          # Get timeline results for specific branches
                          # Set to False if you want timeline plots and results only for trunk.
 

@@ -194,18 +194,6 @@
     };
     plot = $.jqplot(plotid, plotdata, plotoptions);
   }
-  
-  // to improve the diagram, make sure the data is sorted
-  function sortData(data) {
-    for (branch in data["branches"]) {
-      for (exe_id in data["branches"][branch]) {
-        var results = data["branches"][branch][exe_id];
-        results = results.sort(function (a,b) {return (a[0] == b[0]) ? 0 : ((a[0] < b[0]) ? -1 : 1);})
-        data["branches"][branch][exe_id] = results;
-      }
-    }
-    return data;
-  }
 
   function render(data) {
     $("#revisions").attr("disabled", false);
@@ -237,11 +225,7 @@
       }
     } else {
       // render single plot when one benchmark is selected
-      // make sure the data is sorted for the equidistant plots
-      var benchmarkData = (shouldPlotEquidistant())
-                            ? sortData(data["timelines"][0])
-                            : data["timelines"][0];
-      renderPlot(benchmarkData);
+      renderPlot(data["timelines"][0]);
       return 1;
     }
   }

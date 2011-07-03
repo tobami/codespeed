@@ -209,6 +209,7 @@
 
   function render(data) {
     $("#revisions").attr("disabled", false);
+    $("#equidistant").attr("disabled", false);
     $("#plotgrid").html("");
     if(data["error"] != "None") {
       h = parseInt($("#content").css("height"));//get height for error message
@@ -223,6 +224,7 @@
     } else if ($("input[name='benchmark']:checked").val() == "grid"){
       //Render Grid of plots
       $("#revisions").attr("disabled",true);
+      $("#equidistant").attr("disabled", true);
       for (bench in data["timelines"]) {
         plotid = "plot_" + data["timelines"][bench]["benchmark_id"];
         $("#plotgrid").append('<div id="' + plotid + '" class="miniplot"></div>');

@@ -7,7 +7,7 @@ setup(
     version='0.8.1',
     url='https://github.com/tobami/codespeed',
     license='GNU Lesser General Public License version 2.1',
-    requires=['django', 'isodate'],
+    install_requires=['django>=1.3', 'isodate', 'south'],
     packages=find_packages(exclude=['ez_setup']),
     description='A web application to monitor and analyze the performance of your code',
     include_package_data=True,

@@ -1,5 +1,6 @@
 include README.md
 include LICENSE
-recursive-include override *
-recursive-include speedcenter/media *
-recursive-include speedcenter/templates * 
+recursive-include codespeed/templates/codespeed/ *
+#recursive-include override *
+#recursive-include speedcenter/media *
+#recursive-include speedcenter/templates * 

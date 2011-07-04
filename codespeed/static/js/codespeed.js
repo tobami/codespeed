@@ -4,10 +4,12 @@ function permalink() {
 }
 
 function readCheckbox(el) {
+    /* Builds a string that holds all checked values in an input form */
     config = "";
     $(el).each(function() {
         config += $(this).val() + ",";
     });
+    // Remove last comma
     config = config.slice(0, -1);
     return config;
 }

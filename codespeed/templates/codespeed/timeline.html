@@ -19,7 +19,7 @@
   var seriesindex = new Array();
 
   function shouldPlotEquidistant() {
-	  return $("#equidistant").attr('checked');
+	  return $("#equidistant").is(':checked');
   }
 
   function getConfiguration() {
@@ -31,7 +31,7 @@
     config["env"] = $("input[name='environments']:checked").val();
     config["revs"] = $("#revisions option:selected").val();
     config["bran"] = readCheckbox("input[name='branch']:checked");
-    config["eq"] = $("#equidistant").attr('checked');
+    config["eq"] = $("#equidistant").is(':checked');
     return config;
   }
 
@@ -306,8 +306,7 @@
       $(this).parent().find("div.seriescolor").css("background-color", seriesColors[colorid-1]);
     });
     $("#baselinecolor").css("background-color", baselineColor);
-
-    $("#equidistant").attr('checked', event.parameters.eq);
+    $("#equidistant").attr('checked', valueOrDefault(event.parameters.eq, false));
   }
 
   function initializeSite(event) {

@@ -278,16 +278,18 @@ class Report(models.Model):
         # just return the cached changes table
         if not force_save and trend_depth == default_trend:
             return self._get_tablecache()
-
+        # Otherwise generate a new changes table
+        # Get latest revisions for this branch (which also sets the project)
         lastrevisions = Revision.objects.filter(
-            branch__project=self.executable.project
+            branch=self.revision.branch
         ).filter(
             date__lte=self.revision.date
-        ).filter(
-            branch__name='default'
         ).order_by('-date')[:trend_depth+1]
-        lastrevision = lastrevisions[0]#same as self.revision unless in a different branch
-
+        try:
+            # Same as self.revision unless in a different branch
+            lastrevision = lastrevisions[0]
+        except IndexError:
+            return []
         change_list = []
         pastrevisions = []
         if len(lastrevisions) > 1:

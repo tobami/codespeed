@@ -574,9 +574,11 @@ def changes(request):
     # Configuration of default parameters
     defaultchangethres = 3.0
     defaulttrendthres = 4.0
-    if hasattr(settings, 'CHANGE_THRESHOLD') and settings.CHANGE_THRESHOLD != None:
+    if hasattr(settings, 'CHANGE_THRESHOLD') and \
+                                        settings.CHANGE_THRESHOLD != None:
         defaultchangethres = settings.CHANGE_THRESHOLD
-    if hasattr(settings, 'TREND_THRESHOLD') and settings.TREND_THRESHOLD != None:
+    if hasattr(settings, 'TREND_THRESHOLD') and \
+                                        settings.TREND_THRESHOLD != None:
         defaulttrendthres = settings.TREND_THRESHOLD
 
     defaulttrend = 10
@@ -588,12 +590,6 @@ def changes(request):
     if not enviros:
         return no_environment_error()
     defaultenv = get_default_environment(enviros, data)
-
-    #defaultproject = Project.objects.filter(track=True)
-    #if not len(defaultproject):
-        #return no_default_project_error()
-    #else:
-        #defaultproject = defaultproject[0]
 
     defaultexecutable = getdefaultexecutable()
     if not defaultexecutable:
@@ -621,6 +617,7 @@ def changes(request):
     # Information for template
     executables = Executable.objects.filter(project__track=True)
     revlimit = 20
+    # Get lastest revisions for this project and it's "default" branch
     lastrevisions = Revision.objects.filter(
         branch__project=defaultexecutable.project,
         branch__name="default"
@@ -797,7 +794,9 @@ def validate_result(item):
 
 def create_report_if_enough_data(rev, exe, e):
     """Triggers Report creation when there are enough results"""
-    last_revs = Revision.objects.filter(branch__project=rev.branch.project).order_by('-date')[:2]
+    last_revs = Revision.objects.filter(
+        branch=rev.branch
+    ).order_by('-date')[:2]
     if len(last_revs) > 1:
         current_results = rev.results.filter(executable=exe, environment=e)
         last_results = last_revs[1].results.filter(executable=exe,environment=e)
@@ -823,7 +822,7 @@ def save_result(data):
 
     p, created = Project.objects.get_or_create(name=data["project"])
     branch, created = Branch.objects.get_or_create(name=data["branch"],
-                                                   project=p)
+                                                    project=p)
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
     try:
         rev = branch.revisions.get(commitid=data['commitid'])
@@ -837,7 +836,7 @@ def save_result(data):
             rev.full_clean()
         except ValidationError as e:
             return str(e), True
-        if rev.branch.project.repo_type not in ("N", ""):
+        if p.repo_type not in ("N", ""):
             try:
                 saverevisioninfo(rev)
             except StandardError, e:
@@ -850,7 +849,8 @@ def save_result(data):
     )
 
     try:
-        r = Result.objects.get(revision=rev,executable=exe,benchmark=b,environment=e)
+        r = Result.objects.get(
+            revision=rev,executable=exe,benchmark=b,environment=e)
     except Result.DoesNotExist:
         r = Result(revision=rev,executable=exe,benchmark=b,environment=e)
 

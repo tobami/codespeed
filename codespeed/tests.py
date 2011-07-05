@@ -217,7 +217,7 @@ class AddJSONResultsTest(TestCase):
         resdate = res.date.strftime("%Y%m%dT%H%M%S")
         selfdate = self.cdate.strftime("%Y%m%dT%H%M%S")
         self.assertTrue(resdate, selfdate)
-        
+
         r = Revision.objects.get(commitid='456', branch=branch)
         res = Result.objects.get(
             revision=r,

@@ -61,16 +61,17 @@
         plotdata.push(data["branches"][branch][exe_id]);
         lastvalues.push(data["branches"][branch][exe_id][0][1]);
         {% if use_error_bars %}
-        for (res in data["branches"][branch][exe_id]) {
-          var date = data["branches"][branch][exe_id][res][0];
-          var value = data["branches"][branch][exe_id][res][1];
-          var std_dev = data["branches"][branch][exe_id][res][2];
-          error.push([date, value - std_dev, value + std_dev, data["branches"][branch][exe_id][res][3]]);
-        }
-        plotdata.push(error);
-        series.push({renderer:$.jqplot.OHLCRenderer, rendererOptions:{errorBar:true}, showMarker: true,
+        if (readCheckbox("input[name='show_error_bars']:checked")) {
+          for (res in data["branches"][branch][exe_id]) {
+            var date = data["branches"][branch][exe_id][res][0];
+            var value = data["branches"][branch][exe_id][res][1];
+            var std_dev = data["branches"][branch][exe_id][res][2];
+            error.push([date, value - std_dev, value + std_dev, data["branches"][branch][exe_id][res][3]]);
+          }
+          plotdata.push(error);
+          series.push({renderer:$.jqplot.OHLCRenderer, rendererOptions:{errorBar:true}, showLabel: false, showMarker: true,
                      "label": $("label[for*='executable" + color_id + "']").html() + " error", color: "#C0C0C0"});
-
+        }
         {% endif %}
       }
       //determine significant digits
@@ -187,6 +188,7 @@
 
   function render(data) {
     $("#revisions").attr("disabled", false);
+    $("#show_error_bars").attr("disabled",false);
     $("#plotgrid").html("");
     if(data["error"] != "None") {
       h = parseInt($("#content").css("height"));//get height for error message
@@ -202,6 +204,7 @@
     } else {
       //Render Grid of plots
       $("#revisions").attr("disabled",true);
+      $("#show_error_bars").attr("disabled",true);
       for (bench in data["timelines"]) {
         plotid = "plot_" + data["timelines"][bench]["benchmark_id"];
         $("#plotgrid").append('<div id="' + plotid + '" class="miniplot"></div>');
@@ -264,6 +267,8 @@
     $("#baselinecolor").css("background-color", baselineColor);
     
     $.jqplot.eventListenerHooks.push(['jqplotClick', myClickHandler]);
+    
+    $("input[name='show_error_bars']").change(refreshContent);
 
     refreshContent();
   });
@@ -335,6 +340,10 @@
   <select id="revisions" title="Last {{ defaultlast }} revisions tested">{% for rev in lastrevisions %}
     <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
   </select> results<a id="permalink" href="javascript:permalink();">Permalink</a>
+  {% if use_error_bars %}
+  <input id="show_error_bars" type="checkbox" name="show_error_bars" />
+  <label for="show_error_bars"> Show error bars</label>
+  {% endif %}
 </div>
 <div id="content" class="clearfix">
 <div id="plotgrid"></div>

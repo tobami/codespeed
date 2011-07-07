@@ -68,7 +68,9 @@
           error.push([date, value - std_dev, value + std_dev, data["branches"][branch][exe_id][res][3]]);
         }
         plotdata.push(error);
-        series.push({renderer:$.jqplot.OHLCRenderer, rendererOptions:{errorBar:true}, showMarker: true, "label": "error", color: "#999999"});
+        series.push({renderer:$.jqplot.OHLCRenderer, rendererOptions:{errorBar:true}, showMarker: true,
+                     "label": $("label[for*='executable" + color_id + "']").html() + " error", color: "#C0C0C0"});
+
         {% endif %}
       }
       //determine significant digits

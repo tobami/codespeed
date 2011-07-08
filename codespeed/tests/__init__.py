@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from tests import *
-from tests_api import *
+from codespeed.tests.tests import *
+from codespeed.tests.tests_api import *
 

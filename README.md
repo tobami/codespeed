@@ -30,7 +30,7 @@ If you want version control integration, there are additional requirements:
 
 **Note**: For git or mercurial repos, the first time the changes view is accessed,
 Codespeed will try to clone the repo, which depending on the size of the project
-can take a long time. Please be pacient.
+can take a long time. Please be patient.
 
 # Installation
 

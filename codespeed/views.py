@@ -521,6 +521,11 @@ def timeline(request):
             defaultbenchmark = data['ben']
         else:
             defaultbenchmark = get_object_or_404(Benchmark, name=data['ben'])
+    
+    if 'equid' in data:
+        defaultequid = data['equid']
+    else:
+        defaultequid = "off"
 
     # Information for template
     executables = Executable.objects.filter(project__track=True)
@@ -536,7 +541,8 @@ def timeline(request):
         'benchmarks': benchmarks,
         'environments': enviros,
         'branch_list': branch_list,
-        'defaultbranch': defaultbranch
+        'defaultbranch': defaultbranch,
+        'defaultequid' : defaultequid
     }, context_instance=RequestContext(request))
 
 

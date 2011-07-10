@@ -623,7 +623,7 @@ def changes(request):
         branch__name="default"
     ).order_by('-date')[:revlimit]
     if not len(lastrevisions):
-        return no_data_found()
+        return no_data_found(request)
 
     selectedrevision = lastrevisions[0]
 

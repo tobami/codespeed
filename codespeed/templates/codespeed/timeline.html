@@ -30,8 +30,12 @@
     config["ben"] = $("input[name='benchmark']:checked").val();
     config["env"] = $("input[name='environments']:checked").val();
     config["revs"] = $("#revisions option:selected").val();
-    config["bran"] = readCheckbox("input[name='branch']:checked");
-    config["eq"] = $("#equidistant").is(':checked');
+    
+    var branch = readCheckbox("input[name='branch']:checked");
+    if (branch)
+      config["bran"] = branch;
+    
+    config["equid"] = $("#equidistant").is(':checked') ? "on" : "off";
     return config;
   }
 
@@ -254,16 +258,16 @@
     // Either set the default value, or the one parsed from the url
 
     //Set default amount of revisions shown
-    $("#revisions").val(valueOrDefault(event.parameters.revs, {{ defaultlast }}));
+    $("#revisions").val(valueOrDefault(event.parameters['revs'], {{ defaultlast }}));
 
     //Reset all checkboxes
     $("input:checkbox").removeAttr('checked');
 
     //Set default selected executables
-    $("#baseline").val(valueOrDefault(event.parameters.base, "{{ defaultbaseline }}"));
+    $("#baseline").val(valueOrDefault(event.parameters['base'], "{{ defaultbaseline }}"));
 
-    if (event.parameters.exe) {
-        executable_ids = event.parameters.exe.split(',');
+    if (event.parameters['exe']) {
+        executable_ids = event.parameters['exe'].split(',');
         for (var exec in executable_ids) {
             exec = executable_ids[exec];
             $("input[name='executable']").filter('[value='+exec+']').attr('checked', true);
@@ -275,8 +279,8 @@
       {% endfor %}
     }
 
-    if (event.parameters.bran) {
-      branch_ids = event.parameters.bran.split(',');
+    if (event.parameters['bran']) {
+      branch_ids = event.parameters['bran'].split(',');
       for (var bran in branch_ids) {
           branch = branch_ids[bran];
           $("input[name='branch']").filter('[value='+branch+']').attr('checked', true);
@@ -290,13 +294,13 @@
 
     //Set default selected benchmark
     $("input:radio[name='benchmark']")
-        .filter('[value=' + valueOrDefault(event.parameters.ben,
+        .filter('[value=' + valueOrDefault(event.parameters['ben'],
                                            '{{ defaultbenchmark }}') + ']')
         .attr('checked', true);
 
     //Set default selected environment
     $("input:radio[name='environments']")
-        .filter('[value=' + valueOrDefault(event.parameters.env,
+        .filter('[value=' + valueOrDefault(event.parameters['env'],
                                            '{{ defaultenvironment.id }}') + ']')
         .attr('checked', true);
 
@@ -306,7 +310,7 @@
       $(this).parent().find("div.seriescolor").css("background-color", seriesColors[colorid-1]);
     });
     $("#baselinecolor").css("background-color", baselineColor);
-    $("#equidistant").attr('checked', valueOrDefault(event.parameters.eq, false));
+    $("#equidistant").attr('checked', valueOrDefault(event.parameters['equid'], '{{ defaultequid }}') == "on");
   }
 
   function initializeSite(event) {

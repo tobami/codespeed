@@ -294,8 +294,8 @@
 
     //Set default selected benchmark
     $("input:radio[name='benchmark']")
-        .filter('[value=' + valueOrDefault(event.parameters['ben'],
-                                           '{{ defaultbenchmark }}') + ']')
+        .filter('[value=\"' + valueOrDefault(event.parameters['ben'],
+                                           '{{ defaultbenchmark }}') + '\"]')
         .attr('checked', true);
 
     //Set default selected environment

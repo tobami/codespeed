@@ -25,7 +25,7 @@ function getLoadText(text, h, showloader) {
     }
     loadtext += '<p' + pstyle + '>'+ text;
     if (showloader) {
-        loadtext += ' <img src="/static/images/ajax-loader.gif" align="bottom">';
+        loadtext += ' <img src="' + window.STATIC_URL +'images/ajax-loader.gif" align="bottom">';
     }
     loadtext += '</p></div>';
     return loadtext;

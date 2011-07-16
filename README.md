@@ -180,35 +180,41 @@ The file `speedcenter/codespeed/settings.py` can contain customizations of
 several parameters (the file includes comments with full examples).
 
 ### General settings:
-* `website_name`: The RSS results feed will use this parameter as the site name
-* `def_baseline`: Defines which baseline option will be chosen as default in
+* `WEBSITE_NAME`: The RSS results feed will use this parameter as the site name
+* `DEF_BASELINE`: Defines which baseline option will be chosen as default in
   the Timeline and Changes views.
-* `def_environment`: Defines which environment should be selected as default
+* `DEF_ENVIRONMENT`: Defines which environment should be selected as default
   in the Changes and Timeline views.
-* `change_threshold`
-* `trend_threshold`
-* `def_baseline`: Defines which baseline option will be chosen as default in
-  the Timeline and Changes views.
-* `def_environment`: Defines which environment should be selected as
-  default in the Changes and Timeline views.
+* `CHANGE_THRESHOLD`
+* `TREND_THRESHOLD`
 
 ### Changes View
-* `def_executable`: in the Changes view, a random executable is chosen as
+* `DEF_EXECUTABLE`: in the Changes view, a random executable is chosen as
   default. It that doesn't suite you, you can specify here which one should be
   selected. You need to specify its id (since the name alone is not unique).
 
 ### Timeline View
-* `def_benchmark`: Defines the default timeline view: 'grid', 'show_none', or a benchmark name
+* `DEF_BENCHMARK`: Defines the default timeline view. Possible values:
+** `None`: will show a grid of plot thumbnails, or a text message when the number of plots exceeds 30
+** `grid`: will always show as default the grid of plots
+** `show_none`: will show a text message (better default when there are lots of benchmarks)
+** `mybench`: will select benchmark named "mybench"
 
 ### Comparison View
-* `chart_type`: Chooses the default chart type (normal bars, stacked bars or
+* `CHART_TYPE`: Chooses the default chart type (normal bars, stacked bars or
   relative bars)
-* `normalization`: Defines whether normalization should be enabled as default
+* `NORMALIZATION`: Defines whether normalization should be enabled as default
   in the Comparison view.
-* `chart_orientation`: horizontal or vertical
-* `comp_executables`: per default all executables will be checked. When there
+* `CHART_ORIENTATION`: horizontal or vertical
+* `COMP_EXECUTABLES`: per default all executables will be checked. When there
   are a large number of tags or executables, it is better to only select a few
   so that the plots are not too cluttered.
+  Given as a list of tuples containing the name of an executable + commitid of a revision. An 'L' denotes the last revision. Example:
+```python
+    COMP_EXECUTABLES = [
+        ('myexe', '21df2423ra'),
+        ('myexe', 'L'),]
+```
 
 ## Getting help
 For help regarding the configuration of Codespeed, or to share any ideas or

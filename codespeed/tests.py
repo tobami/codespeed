@@ -12,7 +12,7 @@ from codespeed.models import (Project, Benchmark, Revision, Branch,
 from codespeed import settings as default_settings
 
 
-class AddResultTest(TestCase):
+class AddResult(TestCase):
 
     def setUp(self):
         self.path = reverse('codespeed.views.add_result')
@@ -149,7 +149,7 @@ class AddResultTest(TestCase):
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)
 
-class AddJSONResultsTest(TestCase):
+class AddJSONResults(TestCase):
     def setUp(self):
         self.path = reverse('codespeed.views.add_json_results')
         self.client = Client()

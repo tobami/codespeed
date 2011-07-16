@@ -504,8 +504,6 @@ def timeline(request):
         return no_data_found(request)
     elif len(benchmarks) == 1:
         defaultbenchmark = benchmarks[0]
-    elif len(benchmarks) >= grid_limit:
-        defaultbenchmark = 'show_none'
     elif hasattr(settings, 'DEF_BENCHMARK') and settings.DEF_BENCHMARK != None:
         if settings.DEF_BENCHMARK in ['grid', 'show_none']:
             defaultbenchmark = settings.DEF_BENCHMARK
@@ -515,6 +513,8 @@ def timeline(request):
                                                 name=settings.DEF_BENCHMARK)
             except Benchmark.DoesNotExist:
                 pass
+    elif len(benchmarks) >= grid_limit:
+        defaultbenchmark = 'show_none'
 
     if 'ben' in data and data['ben'] != defaultbenchmark:
         if data['ben'] == "show_none":

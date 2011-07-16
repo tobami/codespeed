@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+from datetime import datetime, timedelta
 from time import sleep
 import copy, json
 
@@ -61,9 +61,10 @@ class AddResultTest(TestCase):
     def test_add_non_default_result(self):
         """Add result data with non-mandatory options"""
         modified_data = copy.deepcopy(self.data)
-        modified_data['result_date'] = self.cdate
-        modified_data['revision_date'] = self.cdate
-        sleep(1.5)#ensure current date changes
+        revision_date = self.cdate - timedelta(minutes=2)
+        modified_data['revision_date'] = revision_date
+        result_date = self.cdate + timedelta(minutes=2)
+        modified_data['result_date'] = result_date
         modified_data['std_dev']     = 1.11111
         modified_data['max']         = 2
         modified_data['min']         = 1.0
@@ -76,8 +77,7 @@ class AddResultTest(TestCase):
         r = Revision.objects.get(commitid='23', branch=branch)
 
         # Tweak the resolution down to avoid failing over very slight differences:
-        self.assertEquals(
-            r.date.replace(microsecond=0), self.cdate.replace(microsecond=0))
+        self.assertEquals(r.date, revision_date)
 
         i = Executable.objects.get(name='myexe O3 64bits')
         b = Benchmark.objects.get(name='float')
@@ -87,6 +87,7 @@ class AddResultTest(TestCase):
             benchmark=b,
             environment=e
         )
+        self.assertEquals(res.date, result_date)
         self.assertEquals(res.std_dev, 1.11111)
         self.assertEquals(res.val_max, 2)
         self.assertEquals(res.val_min, 1)

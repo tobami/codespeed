@@ -3,7 +3,7 @@
 from datetime import datetime
 
 
-def updaterepo():
+def updaterepo(project):
     """Not needed for a remote subversion repo"""
     return [{'error': False}]
 

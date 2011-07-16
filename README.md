@@ -107,11 +107,10 @@ You may override any of the default settings by creating the file
 settings you need by importing the default settings and replacing only the
 values needed for your customizations:
 
-        from speedcenter.settings import *
+    from speedcenter.settings import *
 
-        DATABASES = {"default": … standard Django db config …}
-
-        ADMINS = (…)
+    DATABASES = {"default": … standard Django db config …}
+    ADMINS = (…)
 
 ## Templates and images
 
@@ -195,10 +194,10 @@ several parameters (the file includes comments with full examples).
 
 ### Timeline View
 * `DEF_BENCHMARK`: Defines the default timeline view. Possible values:
-** `None`: will show a grid of plot thumbnails, or a text message when the number of plots exceeds 30
-** `grid`: will always show as default the grid of plots
-** `show_none`: will show a text message (better default when there are lots of benchmarks)
-** `mybench`: will select benchmark named "mybench"
+    * `None`: will show a grid of plot thumbnails, or a text message when the number of plots exceeds 30
+    * `grid`: will always show as default the grid of plots
+    * `show_none`: will show a text message (better default when there are lots of benchmarks)
+    * `mybench`: will select benchmark named "mybench"
 
 ### Comparison View
 * `CHART_TYPE`: Chooses the default chart type (normal bars, stacked bars or
@@ -211,9 +210,9 @@ several parameters (the file includes comments with full examples).
   so that the plots are not too cluttered.
   Given as a list of tuples containing the name of an executable + commitid of a revision. An 'L' denotes the last revision. Example:
 ```python
-    COMP_EXECUTABLES = [
-        ('myexe', '21df2423ra'),
-        ('myexe', 'L'),]
+COMP_EXECUTABLES = [
+    ('myexe', '21df2423ra'),
+    ('myexe', 'L'),]
 ```
 
 ## Getting help

@@ -298,13 +298,17 @@ def comparison(request):
         pass
     elif len(exekeys) > 1 and hasattr(settings, 'NORMALIZATION') and\
         settings.NORMALIZATION:
-        # Uncheck exe used for normalization when normalization is chosen as default in the settings
-        selectedbaseline = exekeys[0]#this is the default baseline
         try:
-            checkedexecutables.remove(selectedbaseline)
-        except ValueError:
-            pass#the selected baseline was not checked
-
+            # TODO: Avoid calling twice getbaselineexecutables
+            selectedbaseline = getbaselineexecutables()[1]['key']
+            # Uncheck exe used for normalization 
+            try:
+                checkedexecutables.remove(selectedbaseline)
+            except ValueError:
+                pass  # The selected baseline was not checked
+        except:
+            pass  # Keep "none" as default baseline
+    print selectedbaseline
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true" or\
         hasattr(settings, 'CHART_ORIENTATION') and settings.CHART_ORIENTATION == 'horizontal':

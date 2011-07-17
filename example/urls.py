@@ -19,8 +19,8 @@ urlpatterns += patterns(
     #('^$', redirect_to, {'url': '/speed/'}),
 )
 
-urlpatterns += patterns(
-    '',
+urlpatterns += patterns('',
+    (r'^json/$', 'codespeed.views.get_home_data'),
     (r'^', include('codespeed.urls')),
     #(r'^speed/', include('codespeed.urls')),
 )

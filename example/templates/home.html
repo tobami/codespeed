@@ -2,7 +2,137 @@
 
 {% block extra_head %}
 {{ block.super }}
+<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/jqplot/jquery.jqplot.min.css" />
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.barRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisTickRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.pointLabels.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
+
 <script type="text/javascript">
+    function numOrd(a, b){ return (a-b); }
+
+    function renderplot(data) {
+        var plotoptions = {};
+        var plotdata = [new Array(), new Array()];
+        var labels = new Array();
+        var benchmarks = new Array();
+        if (data === null || data.length === 0) {
+            $("#cpythonplot").html(getLoadText('Error retrieving data', 0));
+            return 1;
+        }
+        var trunk_geomean = 1;
+        var tagged_data = new Array();
+        for (i in data['tagged_revs']) {
+           tagged_data[i] = new Array();
+        }
+        for (var bench in data['benchmarks']) {
+            var relative_value = 0;
+            benchname = data['benchmarks'][bench];
+            var add_to_tagged_data = true;
+            for (var i in data['tagged_revs']) {
+                var rev = data['tagged_revs'][i];
+                if (data['results'][benchname][rev] === 0) {
+                    add_to_tagged_data = false;
+                }
+                if (add_to_tagged_data === false) { break; }
+                relative_value = data['results'][benchname][rev]/data['results'][benchname]['CPython 2.6.2'];
+                tagged_data[i].push(relative_value)
+            }
+            // Only add benchmark if there are no 0 values
+            if (add_to_tagged_data === false) { continue; }
+            // First add benchmark
+            benchmarks.push(benchname);
+            // Add PyPy trunk and CPython's 1.0 value
+            relative_value = data['results'][benchname]['PyPy trunk']/data['results'][benchname]['CPython 2.6.2'];
+            plotdata[0].push(relative_value);
+            plotdata[1].push(1.0);
+            labels.push(relative_value.toFixed(2));
+            trunk_geomean *= relative_value;
+        }
+        trunk_geomean = Math.pow(trunk_geomean, 1/plotdata[0].length);
+        var geofaster = 1/trunk_geomean;
+        $('#geomean').html((100*trunk_geomean).toFixed(1));
+        $('#geofaster').html(geofaster.toFixed(1));
+        // Render first plot
+        plotoptions1 = {
+            seriesDefaults: {
+                showMarker: false,
+                rendererOptions:{barPadding: 2, barMargin:5}
+            },
+            axesDefaults: {
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer
+            },
+            series:[
+                {
+                    renderer:$.jqplot.BarRenderer,
+                    pointLabels:{labels:labels}
+                },
+                {pointLabels:{show:false}}
+            ],
+            axes: {
+                xaxis: {
+                    renderer: $.jqplot.CategoryAxisRenderer,
+                    ticks: benchmarks,
+                    tickOptions: {angle: -40}
+                },
+                yaxis:{
+                    ticks: [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5],
+                    tickOptions:{formatString:'%.2f'}
+                }
+            }
+        };
+        plot1 = $.jqplot("cpythonplot", plotdata, plotoptions1);
+
+        // Prepare and render second plot
+        var geomeans = [1.0];
+        var num_of_benchs = 0;
+        for (var i in data['tagged_revs']) {
+            num_of_benchs = tagged_data[i].length;
+            var tempgeo = 1;
+            for (var j in tagged_data[i]) {
+                tempgeo *= tagged_data[i][j];
+            }
+            tempgeo = Math.pow(tempgeo, 1/tagged_data[i].length);
+            geomeans.push(tempgeo);
+        }
+        geomeans.push(trunk_geomean);
+        var ticks = ['CPython 2.6.2'];
+        for (var i in data['tagged_revs']) {
+            ticks.push(data['tagged_revs'][i]);
+        }
+        ticks.push('PyPy trunk');
+        var geolabels = new Array();
+        for (var i in geomeans) { 
+            geolabels.push(geomeans[i].toFixed(2) + " (" + (1/geomeans[i]).toFixed(1) + "x)");
+        }
+        $('#num_of_benchs').html(num_of_benchs)
+        plotoptions2 = {
+            seriesDefaults: {
+                renderer:$.jqplot.BarRenderer,
+                showMarker: false
+            },
+            series:[
+                {
+                    pointLabels:{labels:geolabels}
+                }
+            ],
+            axes: {
+                xaxis: {
+                    renderer: $.jqplot.CategoryAxisRenderer,
+                    ticks: ticks
+                },
+                yaxis:{
+                    ticks: [0.0, 0.25, 0.5, 0.75, 1.0, 1.25],
+                    tickOptions:{formatString:'%.2f'}
+                }
+            }
+        };
+        plot2 = $.jqplot("cpythonplot2", [geomeans], plotoptions2);
+    }
+
     function permalinkToChanges(permalink) {
         window.location="{% url changes %}?" + permalink;
     }
@@ -27,8 +157,9 @@
         $("#changes").click(function () { window.location="{% url changes %}"; });
         $("#timeline").click(function () { window.location="{% url timeline %}"; });
         $("#comparison").click(function () { window.location="{% url comparison %}"; });
-        $("#reports").html(getLoadText("Loading...", 0, true))
-            .load("{% url reports %}", function(responseText) { updateTable(); });
+        $.getJSON("json/", renderplot);
+//         $("#reports").html(getLoadText("Loading...", 0, true))
+//             .load("{% url reports %}", function(responseText) { updateTable(); });
   });
 </script>
 {% endblock %}
@@ -50,6 +181,15 @@
       <p>Compare different executables and revisions</p>
     </div>
     <br />
-    <div id="reports"></div>
+<!--     <div id="reports"></div> -->
+    <div id="cpython_comp"  style="width:800px;;margin: 0 auto;">
+        <h3>How fast is PyPy?</h3>
+        <div id="cpythonplot" style="width:750px;height:400px;margin: 0 auto;"></div>
+        <p style="font-size:smaller;">Plot 1: The above plot represents PyPy trunk (with JIT) benchmark times normalized to CPython. Smaller is better.</p>
+        <p>While it depends greately on the type of taks being performed, currently PyPy takes <em id="geomean"></em>% of the time that CPython needs to complete an average given task (represented by the geometric mean of all benchmarks), which means that PyPy is about <strong id="geofaster"></strong> times <em>faster</em> than CPython</p>
+        <h3>How has PyPy performance evolved over time?</h3>
+        <div id="cpythonplot2" style="width:500px;height:400px;margin: 0 auto;"></div>
+        <p style="font-size:smaller;">Plot 2: Geometric averages of normalized times, out of <span id="num_of_benchs"></span> benchmarks. Smaller is better. "times faster" inside parenthesis</p>
+    </div>
 </div>
 {% endblock body %}

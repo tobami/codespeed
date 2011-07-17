@@ -119,7 +119,7 @@ STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
 
 # Codespeed settings that can be overwritten here.
 ## General default options ##
-#WEBSITE_NAME = "MySpeedSite" # This name will be used in the reports RSS feed
+WEBSITE_NAME = "PyPy Speed Center" # This name will be used in the reports RSS feed
 
 #DEF_ENVIRONMENT = None #Name of the environment which should be selected as default
 

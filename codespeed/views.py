@@ -147,6 +147,8 @@ def getcomparisonexes():
                 rev = Revision.objects.filter(branch=branch).latest('date')
             except Revision.DoesNotExist:
                 continue
+            # Now only append when tag == "",
+            # because we already added tagged revisions
             if rev.tag == "":
                 for exe in Executable.objects.filter(project=proj):
                     exestring = str(exe)
@@ -155,7 +157,7 @@ def getcomparisonexes():
                     name = exestring + " latest"
                     if branch.name != 'default':
                         name += " in branch '" + branch.name + "'"
-                    key = str(exe.id) + "+L" + branch.name
+                    key = str(exe.id) + "+L+" + branch.name
                     executablekeys.append(key)
                     executables.append({
                         'key': key,
@@ -217,7 +219,6 @@ def comparison(request):
         return no_executables_error()
 
     executables, exekeys = getcomparisonexes()
-
     checkedexecutables = []
     if 'exe' in data:
         for i in data['exe'].split(","):
@@ -226,7 +227,7 @@ def comparison(request):
             if i in exekeys:
                 checkedexecutables.append(i)
     elif hasattr(settings, 'COMP_EXECUTABLES') and\
-        settings.COMP_EXECUTABLES:
+        len(settings.COMP_EXECUTABLES):
         for exe, rev in settings.COMP_EXECUTABLES:
             try:
                 exe = Executable.objects.get(name=exe)
@@ -236,6 +237,7 @@ def comparison(request):
                 else:
                     rev = Revision.objects.get(commitid=rev)
                     key += str(rev.id)
+                key += "+default"
                 if key in exekeys:
                     checkedexecutables.append(key)
                 else:
@@ -247,7 +249,6 @@ def comparison(request):
             except Revision.DoesNotExist:
                 #TODO: log
                 pass
-
     if not checkedexecutables:
         checkedexecutables = exekeys
 

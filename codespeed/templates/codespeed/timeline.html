@@ -405,14 +405,17 @@
 </div>
 </div>
 
-<div id="configbar">Show the last
-  <select id="revisions" title="Last {{ defaultlast }} revisions tested">{% for rev in lastrevisions %}
-    <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
-  </select> results
-  
-  <input id="equidistant" name="equidistant" type="checkbox" />
-  <label for="equidistant">Equal distance between results</label>
-  
+<div id="configbar">
+  <span class="options" title="Last {{ defaultlast }} revisions tested">
+    Show the last
+    <select id="revisions">{% for rev in lastrevisions %}
+      <option value="{{ rev }}">{{ rev }}</option>{% endfor %}
+    </select> results
+  </span>
+  <span class="options" title="Equal distance between results">
+    <input id="equidistant" name="equidistant" type="checkbox" />
+    <label for="equidistant">Equidistant</label>
+  </span>
   <a id="permalink" href="javascript:permalink();">Permalink</a>
 </div>
 <div id="content" class="clearfix">

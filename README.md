@@ -12,7 +12,7 @@ For an overview of some application concepts see the [wiki page](https://github.
 
 You will need Python 2.6+ and Django 1.1+ with South.
 
-In Ubuntu, they can be installed with:
+In Debian and Ubuntu, they can be installed with:
 
     sudo apt-get install python-django python-django-south
 
@@ -23,9 +23,9 @@ Instead of using distribution packages, you can use pip:
 
 If you want version control integration, there are additional requirements:
 
-* Subversion needs pysvn: `sudo apt-get install python-svn`
-* mercurial needs hg to clone the repo locally
-* git needs the git package
+* Subversion needs pysvn: `python-svn`
+* Mercurial needs the package `mercurial` to clone the repo locally
+* git needs the `git` package to clone the repo
 * For Github the isodate package is required, but not git: `pip install isodate`
 
 **Note**: For git or mercurial repos, the first time the changes view is accessed,
@@ -37,7 +37,7 @@ can take a long time. Please be patient.
 * Download the last stable release from
   [http://github.com/tobami/codespeed/downloads](http://github.com/tobami/codespeed/downloads)
   and unpack it
-* To get started, you can use the `example` directory as a starting point for your Django Project
+* To get started, you can use the `example` directory as a starting point for your Django project, which can be normally configured by editing `example/settings.py`.
 * For simplicity, you can use the default sqlite configuration, which will save
   the data to a database named `example/data.db`
 * Create the DB by changing to the `example/` directory and running:
@@ -55,10 +55,8 @@ can take a long time. Please be patient.
 
 The codespeed installation can now be accessed by navigating to `http://localhost:8000/`.
 
-**Note**: for production, you should configure a real server like Apache,
-lighttpd, etc... (refer to the Django docs:
-`http://docs.djangoproject.com/en/dev/howto/deployment/`). You should also
-modify `speedcenter/settings.py` and set `DEBUG = False`.
+**Note**: for production, you should configure a real server like Apache or nginx (refer to the [Django docs](http://docs.djangoproject.com/en/dev/howto/deployment/)). You should also
+modify `example/settings.py` and set `DEBUG = False`.
 
 # Codespeed configuration
 
@@ -76,7 +74,7 @@ integration, configure the relevant fields.
 **Note**: Only executables associated to projects with a checked "track changes"
 field will be shown in the Changes and Timeline views.
 
-**Note**: Git and Mercurial need to locally clone the repository. That means that your codespeed/speedcenter/repos directory will need to be owned by the server. In the case of a typical Apache installation, you'll need to type `sudo chown www-data:www-data codespeed/speedcenter/repos`
+**Note**: Git and Mercurial need to locally clone the repository. That means that your `example/repos` directory will need to be owned by the server. In the case of a typical Apache installation, you'll need to type `sudo chown www-data:www-data example/repos`
 
 # Saving data
 
@@ -97,33 +95,21 @@ section).
 
 # Further customization
 
-You may customize many of the speed center settings by creating files within
-an `override` directory at the same level as `speedcenter`.
-
 ## Custom Settings
 
 You may override any of the default settings by creating the file
-`override/settings.py`. It is strongly recommended that you only override the
+`example/override/settings.py`. It is strongly recommended that you only override the
 settings you need by importing the default settings and replacing only the
 values needed for your customizations:
 
-        from speedcenter.settings import *
+    from codespeed.settings import *
 
-        DATABASES = {"default": … standard Django db config …}
-
-        ADMINS = (…)
-
-## Templates and images
-
-Many details may be changed for every speedcenter using standard Django
-template override techniques. All of the templates mentioned below should be
-contained in the `override/templates` directory.
+    DEF_ENVIRONMENT = "Dual Core 64 bits"
 
 ### Site-wide Changes
 
-All of the speedcenter pages inherit from the `site_base.html` template, which
-extends `base.html`. To change every page on the site simply create a new file
-(`override/templates/site_base.html`) which extends `base.html` and override
+All pages inherit from the `site_base.html` template, which
+extends `base.html`. To change every page on the site simply edit (`example/templates/site_base.html`) which extends `base.html` and override
 the appropriate block:
 
 * Custom title: you may replace the default "My Speed Center" for the title
@@ -133,7 +119,7 @@ the appropriate block:
             My Project's Speed Center
         {% endblock %}
 
-* Custom logo: Place your logo in `override/media/img` and add a block like
+* Custom logo: Place your logo in `example/override/media/img` and add a block like
   this:
 
         {% block logo %}
@@ -143,7 +129,7 @@ the appropriate block:
   n.b. the layout will stay exactly the same for any image with a height of
   48px (any width will do)
 
-* Custom JavaScript or CSS: add your files to the `override/media` directory
+* Custom JavaScript or CSS: add your files to the `example/override/media` directory
   and extend the `extra_head` template block:
 
         {% block extra_head %}
@@ -153,11 +139,11 @@ the appropriate block:
 
 ### Specific Pages
 
-Since `override/templates` is the first entry in `settings.TEMPLATE_DIRS` you
+Since `example/override/templates` is the first entry in `settings.TEMPLATE_DIRS` you
 may override any template on the site simply by creating a new one with the
 same name.
 
-* About page: create `override/templates/speedcenter/about.html`:
+* About page: create `example/override/templates/about.html`:
 
         {% extends "site_base.html" %}
         {% block title %}{{ block.super }}: About this project{% endblock %}
@@ -176,39 +162,45 @@ same name.
   of projects being tracked as an executable as well.
 
 ## Defaults
-The file `speedcenter/codespeed/settings.py` can contain customizations of
+The file `example/settings.py` can contain customizations of
 several parameters (the file includes comments with full examples).
 
 ### General settings:
-* `website_name`: The RSS results feed will use this parameter as the site name
-* `def_baseline`: Defines which baseline option will be chosen as default in
+* `WEBSITE_NAME`: The RSS results feed will use this parameter as the site name
+* `DEF_BASELINE`: Defines which baseline option will be chosen as default in
   the Timeline and Changes views.
-* `def_environment`: Defines which environment should be selected as default
+* `DEF_ENVIRONMENT`: Defines which environment should be selected as default
   in the Changes and Timeline views.
-* `change_threshold`
-* `trend_threshold`
-* `def_baseline`: Defines which baseline option will be chosen as default in
-  the Timeline and Changes views.
-* `def_environment`: Defines which environment should be selected as
-  default in the Changes and Timeline views.
+* `CHANGE_THRESHOLD`
+* `TREND_THRESHOLD`
 
 ### Changes View
-* `def_executable`: in the Changes view, a random executable is chosen as
+* `DEF_EXECUTABLE`: in the Changes view, a random executable is chosen as
   default. It that doesn't suite you, you can specify here which one should be
   selected. You need to specify its id (since the name alone is not unique).
 
 ### Timeline View
-* `def_benchmark`: Defines the default timeline view: 'grid', 'show_none', or a benchmark name
+* `DEF_BENCHMARK`: Defines the default timeline view. Possible values:
+    * `None`: will show a grid of plot thumbnails, or a text message when the number of plots exceeds 30
+    * `grid`: will always show as default the grid of plots
+    * `show_none`: will show a text message (better default when there are lots of benchmarks)
+    * `mybench`: will select benchmark named "mybench"
 
 ### Comparison View
-* `chart_type`: Chooses the default chart type (normal bars, stacked bars or
+* `CHART_TYPE`: Chooses the default chart type (normal bars, stacked bars or
   relative bars)
-* `normalization`: Defines whether normalization should be enabled as default
+* `NORMALIZATION`: Defines whether normalization should be enabled as default
   in the Comparison view.
-* `chart_orientation`: horizontal or vertical
-* `comp_executables`: per default all executables will be checked. When there
+* `CHART_ORIENTATION`: horizontal or vertical
+* `COMP_EXECUTABLES`: per default all executables will be checked. When there
   are a large number of tags or executables, it is better to only select a few
   so that the plots are not too cluttered.
+  Given as a list of tuples containing the name of an executable + commitid of a revision. An 'L' denotes the last revision. Example:
+```python
+COMP_EXECUTABLES = [
+    ('myexe', '21df2423ra'),
+    ('myexe', 'L'),]
+```
 
 ## Getting help
 For help regarding the configuration of Codespeed, or to share any ideas or

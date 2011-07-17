@@ -189,13 +189,13 @@
 </div>
 
 <div id="configbar">
-  <span class="options">Chart type:
-    <select id="chart_type" title="Select chart type">{% for chart in charts %}
+  <span class="options" title="Select chart type">Chart type:
+    <select id="chart_type">{% for chart in charts %}
       <option value="{{ chart }}">{{ chart }}</option>{% endfor %}
     </select>
   </span>
-  <span class="options">Normalization:
-    <select id="baseline" title="Select baseline for normalization">
+  <span class="options" title="Select baseline for normalization">Normalization:
+    <select id="baseline">
       <option value="none">None</option>{% for proj, exes in executables.items %}
       {% for exe in exes %}
       <option value="{{ exe.key }}">{{ exe.name }}</option>{% endfor %}

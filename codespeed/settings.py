@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-
-"""
-Default settings for Codespeed
-"""
+"""Default settings for Codespeed"""
 
 ## General default options ##
 WEBSITE_NAME = "MySpeedSite" # This name will be used in the reports RSS feed
@@ -30,10 +27,13 @@ DEF_EXECUTABLE = None # Executable that should be chosen as default in the chang
                       # Example: defaultexecutable = "myexe"
 
 ## Timeline view options ##
-DEF_BENCHMARK = "grid" # Default selected benchmark. Possible values:
-                       #   "grid": will show the grid of plots
-                       #   "show_none": will just show a text message
-                       #   "mybench": will select benchmark "mybench"
+DEF_BENCHMARK = None   # Default selected benchmark. Possible values:
+                       #   None: will show a grid of plot thumbnails, or a
+                       #       text message when the number of plots exceeds 30
+                       #   "grid": will always show as default the grid of plots
+                       #   "show_none": will show a text message (better
+                       #       default when there are lots of benchmarks)
+                       #   "mybench": will select benchmark named "mybench"
 
 #timeline_branches = True # NOTE: Only the default branch is currently shown
                          # Get timeline results for specific branches
@@ -57,4 +57,3 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
                          # COMP_EXECUTABLES = [
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
-

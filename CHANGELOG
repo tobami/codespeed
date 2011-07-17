@@ -1,7 +1,11 @@
 == Change Log ==
 
 
-=== Version next, to be released ===
+=== Version 0.9.0, July 17, 2011 ===
+* NEW: Frank refactored the Django project and app. Now Codespeed is a proper, installable Django app, and there is a sample project in the "example" dir
+* NEW: Upgraded to jQuery 1.6
+* NEW #44: Stefan added an option to the timeline view for equidistant data point plotting
+* NEW: Permalinks are now id based for Environment, to shorten the length and avoid problems related to url encoding, as well as to allow changing the name without beaking the permalink
 * FIX: Frank added a check for revision_date = "None" (as string), caused by the 
     save_single_result.py sample script
 
@@ -10,7 +14,7 @@
 
 * NEW: Settings option to select the default benchmark in the timeline view
 * NEW: Added save_multiple_results, an example script that saves data using JSON
-* NEW: Stefan Marr added support for browser-button navigation on timeline
+* NEW #45: Stefan Marr added support for browser-button navigation on timeline
 * FIX: Stefan Marr improved the GitHub plugin
 * FIX: Improvements in the Changes View layout that prevent overlapping in some cases
 * FIX: Stefan Marr fixed a bug where links to a changes view revision from the 

@@ -77,7 +77,7 @@ class Revision(models.Model):
             raise ValidationError("Invalid %s commit hash %s" % (
                                     self.branch.project.get_repo_type_display(),
                                     self.commitid))
-    
+
 
 class Executable(models.Model):
     name = models.CharField(unique=True, max_length=30)

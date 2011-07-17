@@ -54,10 +54,11 @@
         }
         trunk_geomean = Math.pow(trunk_geomean, 1/plotdata[0].length);
         var geofaster = 1/trunk_geomean;
-        $('#geomean').html((100*trunk_geomean).toFixed(1));
+        $('#geomean').html(trunk_geomean.toFixed(2));
         $('#geofaster').html(geofaster.toFixed(1));
         // Render first plot
         plotoptions1 = {
+            legend:{show:true},
             seriesDefaults: {
                 showMarker: false,
                 rendererOptions:{barPadding: 2, barMargin:5}
@@ -67,10 +68,14 @@
             },
             series:[
                 {
+                    label: 'PyPy trunk',
                     renderer:$.jqplot.BarRenderer,
                     pointLabels:{labels:labels}
                 },
-                {pointLabels:{show:false}}
+                {
+                    label: 'CPython',
+                    pointLabels:{show:false}
+                }
             ],
             axes: {
                 xaxis: {
@@ -85,7 +90,7 @@
             }
         };
         plot1 = $.jqplot("cpythonplot", plotdata, plotoptions1);
-
+        
         // Prepare and render second plot
         var geomeans = [1.0];
         var num_of_benchs = 0;
@@ -109,6 +114,7 @@
             geolabels.push(geomeans[i].toFixed(2) + " (" + (1/geomeans[i]).toFixed(1) + "x)");
         }
         $('#num_of_benchs').html(num_of_benchs)
+        
         plotoptions2 = {
             seriesDefaults: {
                 renderer:$.jqplot.BarRenderer,
@@ -182,12 +188,13 @@
     </div>
     <br />
 <!--     <div id="reports"></div> -->
-    <div id="cpython_comp"  style="width:800px;;margin: 0 auto;">
+    <div id="cpython_comp" style="width:800px;;margin: 0 auto;">
         <h3>How fast is PyPy?</h3>
         <div id="cpythonplot" style="width:750px;height:400px;margin: 0 auto;"></div>
         <p style="font-size:smaller;">Plot 1: The above plot represents PyPy trunk (with JIT) benchmark times normalized to CPython. Smaller is better.</p>
-        <p>While it depends greately on the type of taks being performed, currently PyPy takes <em id="geomean"></em>% of the time that CPython needs to complete an average given task (represented by the geometric mean of all benchmarks), which means that PyPy is about <strong id="geofaster"></strong> times <em>faster</em> than CPython</p>
+        <p>It depends greatly on the type of task being performed. The geometric average of all benchmarks is <span id="geomean"></span> or <strong id="geofaster"></strong> times <em>faster</em> than CPython</p>
         <h3>How has PyPy performance evolved over time?</h3>
+
         <div id="cpythonplot2" style="width:500px;height:400px;margin: 0 auto;"></div>
         <p style="font-size:smaller;">Plot 2: Geometric averages of normalized times, out of <span id="num_of_benchs"></span> benchmarks. Smaller is better. "times faster" inside parenthesis</p>
     </div>

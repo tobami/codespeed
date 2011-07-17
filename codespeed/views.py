@@ -227,7 +227,7 @@ def comparison(request):
             if i in exekeys:
                 checkedexecutables.append(i)
     elif hasattr(settings, 'COMP_EXECUTABLES') and\
-        len(settings.COMP_EXECUTABLES):
+        settings.COMP_EXECUTABLES:
         for exe, rev in settings.COMP_EXECUTABLES:
             try:
                 exe = Executable.objects.get(name=exe)

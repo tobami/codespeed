@@ -39,11 +39,15 @@ from django.core.management import setup_environ
 setup_environ(settings)
 from codespeed.models import Branch, Project
 
-projects = Project.objects.all()
+def main():
+    """Add Branch default to projects if not there"""
+    projects = Project.objects.all()
 
-for proj in projects:
-    if not proj.branches.get(name='default'):
-        trunk = Branch(name='default', project = proj)
-        trunk.save()
-        print "Created branch 'default' for project {0}".format(proj)
+    for proj in projects:
+        if not proj.branches.get(name='default'):
+            trunk = Branch(name='default', project = proj)
+            trunk.save()
+            print "Created branch 'default' for project {0}".format(proj)
 
+if __name__ == '__main__':
+    main()

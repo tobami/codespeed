@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
-
-"""
-Default settings for Codespeed
-"""
+"""Default settings for Codespeed"""
 
 ## General default options ##
 WEBSITE_NAME = "MySpeedSite" # This name will be used in the reports RSS feed
@@ -60,4 +57,3 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
                          # COMP_EXECUTABLES = [
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
-

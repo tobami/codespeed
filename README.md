@@ -12,7 +12,7 @@ For an overview of some application concepts see the [wiki page](https://github.
 
 You will need Python 2.6+ and Django 1.1+ with South.
 
-In Ubuntu, they can be installed with:
+In Debian and Ubuntu, they can be installed with:
 
     sudo apt-get install python-django python-django-south
 
@@ -23,9 +23,9 @@ Instead of using distribution packages, you can use pip:
 
 If you want version control integration, there are additional requirements:
 
-* Subversion needs pysvn: `sudo apt-get install python-svn`
-* mercurial needs hg to clone the repo locally
-* git needs the git package
+* Subversion needs pysvn: `python-svn`
+* Mercurial needs the package `mercurial` to clone the repo locally
+* git needs the `git` package to clone the repo
 * For Github the isodate package is required, but not git: `pip install isodate`
 
 **Note**: For git or mercurial repos, the first time the changes view is accessed,
@@ -37,7 +37,7 @@ can take a long time. Please be pacient.
 * Download the last stable release from
   [http://github.com/tobami/codespeed/downloads](http://github.com/tobami/codespeed/downloads)
   and unpack it
-* To get started, you can use the `example` directory as a starting point for your Django Project
+* To get started, you can use the `example` directory as a starting point for your Django project, which can be normally configured by editing `example/settings.py`.
 * For simplicity, you can use the default sqlite configuration, which will save
   the data to a database named `example/data.db`
 * Create the DB by changing to the `example/` directory and running:
@@ -55,10 +55,8 @@ can take a long time. Please be pacient.
 
 The codespeed installation can now be accessed by navigating to `http://localhost:8000/`.
 
-**Note**: for production, you should configure a real server like Apache,
-lighttpd, etc... (refer to the Django docs:
-`http://docs.djangoproject.com/en/dev/howto/deployment/`). You should also
-modify `speedcenter/settings.py` and set `DEBUG = False`.
+**Note**: for production, you should configure a real server like Apache or nginx (refer to the [Django docs](http://docs.djangoproject.com/en/dev/howto/deployment/)). You should also
+modify `example/settings.py` and set `DEBUG = False`.
 
 # Codespeed configuration
 
@@ -76,7 +74,7 @@ integration, configure the relevant fields.
 **Note**: Only executables associated to projects with a checked "track changes"
 field will be shown in the Changes and Timeline views.
 
-**Note**: Git and Mercurial need to locally clone the repository. That means that your codespeed/speedcenter/repos directory will need to be owned by the server. In the case of a typical Apache installation, you'll need to type `sudo chown www-data:www-data codespeed/speedcenter/repos`
+**Note**: Git and Mercurial need to locally clone the repository. That means that your `example/repos` directory will need to be owned by the server. In the case of a typical Apache installation, you'll need to type `sudo chown www-data:www-data example/repos`
 
 # Saving data
 
@@ -97,32 +95,21 @@ section).
 
 # Further customization
 
-You may customize many of the speed center settings by creating files within
-an `override` directory at the same level as `speedcenter`.
-
 ## Custom Settings
 
 You may override any of the default settings by creating the file
-`override/settings.py`. It is strongly recommended that you only override the
+`example/override/settings.py`. It is strongly recommended that you only override the
 settings you need by importing the default settings and replacing only the
 values needed for your customizations:
 
-    from speedcenter.settings import *
+    from codespeed.settings import *
 
-    DATABASES = {"default": … standard Django db config …}
-    ADMINS = (…)
-
-## Templates and images
-
-Many details may be changed for every speedcenter using standard Django
-template override techniques. All of the templates mentioned below should be
-contained in the `override/templates` directory.
+    DEF_ENVIRONMENT = "Dual Core 64 bits"
 
 ### Site-wide Changes
 
-All of the speedcenter pages inherit from the `site_base.html` template, which
-extends `base.html`. To change every page on the site simply create a new file
-(`override/templates/site_base.html`) which extends `base.html` and override
+All pages inherit from the `site_base.html` template, which
+extends `base.html`. To change every page on the site simply edit (`example/templates/site_base.html`) which extends `base.html` and override
 the appropriate block:
 
 * Custom title: you may replace the default "My Speed Center" for the title
@@ -132,7 +119,7 @@ the appropriate block:
             My Project's Speed Center
         {% endblock %}
 
-* Custom logo: Place your logo in `override/media/img` and add a block like
+* Custom logo: Place your logo in `example/override/media/img` and add a block like
   this:
 
         {% block logo %}
@@ -142,7 +129,7 @@ the appropriate block:
   n.b. the layout will stay exactly the same for any image with a height of
   48px (any width will do)
 
-* Custom JavaScript or CSS: add your files to the `override/media` directory
+* Custom JavaScript or CSS: add your files to the `example/override/media` directory
   and extend the `extra_head` template block:
 
         {% block extra_head %}
@@ -152,11 +139,11 @@ the appropriate block:
 
 ### Specific Pages
 
-Since `override/templates` is the first entry in `settings.TEMPLATE_DIRS` you
+Since `example/override/templates` is the first entry in `settings.TEMPLATE_DIRS` you
 may override any template on the site simply by creating a new one with the
 same name.
 
-* About page: create `override/templates/speedcenter/about.html`:
+* About page: create `example/override/templates/about.html`:
 
         {% extends "site_base.html" %}
         {% block title %}{{ block.super }}: About this project{% endblock %}
@@ -175,7 +162,7 @@ same name.
   of projects being tracked as an executable as well.
 
 ## Defaults
-The file `speedcenter/codespeed/settings.py` can contain customizations of
+The file `example/settings.py` can contain customizations of
 several parameters (the file includes comments with full examples).
 
 ### General settings:

@@ -172,3 +172,7 @@ STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
 
+DEF_BRANCH = "default" # Defines the default branch to be used.
+                       # In git projects, this branch is usually be calles
+                       # "master"
+DEF_BRANCH = "master"

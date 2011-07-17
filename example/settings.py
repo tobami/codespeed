@@ -124,7 +124,7 @@ STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
 #DEF_ENVIRONMENT = None #Name of the environment which should be selected as default
 
 
-#DEF_BASELINE = None # Which executable + revision should be default as a baseline
+DEF_BASELINE = {'executable': 'cpython', 'revision': '100'} # Which executable + revision should be default as a baseline
                     # Given as the name of the executable and commitid of the revision
                     # Example: defaultbaseline = {'executable': 'myexe', 'revision': '21'}
 
@@ -132,11 +132,11 @@ STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
            # Used by reports for the latest runs and changes view
 
 # Threshold that determines when a performance change over the last result is significant
-#CHANGE_THRESHOLD = 3.0
+CHANGE_THRESHOLD = 5.0
 
 # Threshold that determines when a performance change
 # over a number of revisions is significant
-#TREND_THRESHOLD  = 5.0
+TREND_THRESHOLD  = 6.0
 
 ## Changes view options ##
 #DEF_EXECUTABLE = None # Executable that should be chosen as default in the changes view
@@ -156,14 +156,14 @@ STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
 ## Comparison view options ##
 #CHART_TYPE = 'normal bars' # The options are 'normal bars', 'stacked bars' and 'relative bars'
 
-#NORMALIZATION = False # True will enable normalization as the default selection
+NORMALIZATION = True # True will enable normalization as the default selection
                       # in the Comparison view. The default normalization can be
                       # chosen in the defaultbaseline setting
 
 #CHART_ORIENTATION = 'vertical' # 'vertical' or 'horizontal can be chosen as
                               # default chart orientation
 
-#COMP_EXECUTABLES = None  # Which executable + revision should be checked as default
+COMP_EXECUTABLES = [('pypy-c-jit', 'L'), ('pypy-c', 'L')]  # Which executable + revision should be checked as default
                          # Given as a list of tuples containing the
                          # name of an executable + commitid of a revision
                          # An 'L' denotes the last revision

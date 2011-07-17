@@ -841,6 +841,7 @@ def add_json_results(request):
     return HttpResponse("All result data saved successfully", status=202)
 
 
+<<<<<<< HEAD
 def django_has_content_type():
     return (django.VERSION[0] > 1 or
             (django.VERSION[0] == 1 and django.VERSION[1] >= 6))
@@ -874,3 +875,46 @@ def makeimage(request):
     response['Content-Disposition'] = 'attachment; filename=image.png'
 
     return response
+def get_home_data(request):
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
+    data = {'results': {}, 'benchmarks': []}
+    env = Environment.objects.get(name='tannit')
+    # Fetch CPython data
+    cp_exe = Executable.objects.get(name="cpython")
+    cp_lastrev = Revision.objects.filter(
+        branch__project=cp_exe.project).order_by('-date')[0]
+    cp_results = Result.objects.filter(
+        executable=cp_exe, revision=cp_lastrev, environment=env)
+    # Fetch PyPy trunk data
+    pp_exe = Executable.objects.get(name="pypy-c-jit")
+    pp_branch = Branch.objects.get(name="default", project=pp_exe.project)
+    pp_lastrev = Revision.objects.filter(branch=pp_branch).order_by('-date')[0]
+    pp_results = Result.objects.filter(
+        executable=pp_exe, revision=pp_lastrev, environment=env)
+    # Fetch PyPy tagged revisions
+    pp_taggedrevs = Revision.objects.filter(
+        project=pp_exe.project
+    ).exclude(tag="").order_by('date')
+    data['tagged_revs'] = [rev.tag for rev in pp_taggedrevs]
+    pp_results = {'PyPy trunk': pp_results}
+    for rev in pp_taggedrevs:
+        pp_results[rev.tag] = Result.objects.filter(
+            executable=pp_exe, revision=rev, environment=env)
+    # Save data
+    benchmarks = []
+    for res in cp_results:
+        if res == 0:
+            continue
+        benchmarks.append(res.benchmark.name)
+        key = 'CPython ' + cp_lastrev.tag
+        data['results'][res.benchmark.name] = {key: res.value}
+        for rev_name in pp_results:
+            val = 0
+            for pp_res in pp_results[rev_name]:
+                if pp_res.benchmark.name == res.benchmark.name:
+                    val = pp_res.value
+            data['results'][res.benchmark.name][rev_name] = val
+    benchmarks.sort()
+    data['benchmarks'] = benchmarks
+    return HttpResponse(json.dumps( data ))

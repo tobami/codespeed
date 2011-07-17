@@ -14,7 +14,7 @@
 </thead>
 <tfoot>
   <tr>
-    <td class="text" title="Arithmetic mean">Average</td>
+    <td title="Arithmetic mean">Average</td>
     <td></td>
     {% if units.hasmin %}<td></td>
     {% endif%}{% if units.has_stddev %}<td>{{ units.totals.min }}</td>
@@ -25,8 +25,8 @@
 </tfoot>
 <tbody>
 {% for row in units.rows|dictsort:"bench_name" %}  <tr>
-    <td class="text" title="{{ row.bench_description }}">{{ row.bench_name }}</td>
-    <td class="fixed">{{ row.result|floatformat:units.precission }}</td>
+    <td title="{{ row.bench_description }}">{{ row.bench_name }}</td>
+    <td>{{ row.result|floatformat:units.precission }}</td>
     {% if units.has_stddev %}<td>{{ row.std_dev|floatformat:units.precission }}</td>
     {% endif%}{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>
     {% endif%}{% if units.hasmax %}<td>{{ row.val_max|floatformat:units.precission }}</td>

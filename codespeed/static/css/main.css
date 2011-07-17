@@ -11,11 +11,6 @@ body {
 }
 a:link, a:visited, a:hover { color: blue; text-decoration: none; }
 
-.fixed {
-    font-family: "Menlo", "ProFont", "Inconsolata", "Lucida Sans Console", monospace;
-    font-size: 14px;
-}
-
 .float-right {
     float: right;
 }
@@ -323,7 +318,6 @@ table.tablesorter tfoot tr td {
     vertical-align: top;
     text-align: right;
 }
-table.tablesorter tfoot tr td.text { text-align: left; }
 table.tablesorter tbody td {
     color: #3D3D3D;
     padding: 4px 5px 3px 5px;
@@ -345,8 +339,13 @@ table.tablesorter thead tr .headerSortDown {
 table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
     background-color: #8dbdd8;
 }
-
-table.tablesorter tbody td.text {text-align: left; width: 8.5em; }
+table.tablesorter tbody td:not(:first-child),
+table.tablesorter tfoot td:not(:first-child) {
+    font-family: "Menlo", "ProFont", "Inconsolata", "Lucida Sans Console", monospace;
+    font-size: 14px;
+}
+table.tablesorter tbody td:first-child,
+table.tablesorter tfoot td:first-child {text-align: left; }
 
 table.tablesorter tbody tr td.status-red, td.status-red { background-color: #FF5640; }
 .reports tr.status-red td.summary { color: #FF5640; font-weight: bold; }

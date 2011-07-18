@@ -308,7 +308,7 @@ def comparison(request):
                 pass  # The selected baseline was not checked
         except:
             pass  # Keep "none" as default baseline
-    print selectedbaseline
+
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true" or\
         hasattr(settings, 'CHART_ORIENTATION') and settings.CHART_ORIENTATION == 'horizontal':

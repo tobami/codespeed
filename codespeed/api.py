@@ -24,9 +24,26 @@ DELETE Environment() data:
 See http://django-tastypie.readthedocs.org/en/latest/interacting.html
 """
 
+from django.contrib.auth.models import User
+from django.db import models
 from tastypie.resources import ModelResource
-from tastypie.authorization import Authorization
+from tastypie.authorization import Authorization, DjangoAuthorization
+from tastypie.authentication import ApiKeyAuthentication
+from tastypie.models import create_api_key
 from codespeed.models import Environment
+
+
+models.signals.post_save.connect(create_api_key, sender=User)
+
+
+class UserResource(ModelResource):
+    class Meta:
+        queryset = User.objects.filter(is_active=True)
+        resource_name = 'auth/user'
+        excludes = ['email', 'password', 'is_superuser']
+        # Add it here.
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication() 
 
 
 class EnvironmentResource(ModelResource):

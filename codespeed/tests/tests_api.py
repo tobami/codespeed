@@ -12,6 +12,7 @@ from django import test
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.contrib.auth.models import User
 from codespeed.models import (Project, Benchmark, Revision, Branch,
                               Executable, Environment, Result, Report)
 from codespeed import settings as default_settings
@@ -92,4 +93,16 @@ class EnvironmentTest(FixtureTestCase):
 #    suite = unittest.TestSuite()
 #    suite.addTest(EnvironmentTest())
 #    return suite
+
+
+class UserTest(FixtureTestCase):
+    """Test api user related stuff
+    """
+    def setUp(self):
+        self.api_user = User.objects.create_user(
+            'api', 'api@null.com', 'password')
+        self.api_user.save()
+
+    def test_has_apikey(self):
+        self.assertTrue(hasattr(self.api_user, 'api_key'))
 

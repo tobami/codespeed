@@ -886,21 +886,32 @@ def get_home_data(request):
         branch__project=cp_exe.project).order_by('-date')[0]
     cp_results = Result.objects.filter(
         executable=cp_exe, revision=cp_lastrev, environment=env)
-    # Fetch PyPy trunk data
+
     pp_exe = Executable.objects.get(name="pypy-c-jit")
     pp_branch = Branch.objects.get(name="default", project=pp_exe.project)
-    pp_lastrev = Revision.objects.filter(branch=pp_branch).order_by('-date')[0]
-    pp_results = Result.objects.filter(
-        executable=pp_exe, revision=pp_lastrev, environment=env)
     # Fetch PyPy tagged revisions
     pp_taggedrevs = Revision.objects.filter(
         project=pp_exe.project
     ).exclude(tag="").order_by('date')
     data['tagged_revs'] = [rev.tag for rev in pp_taggedrevs]
-    pp_results = {'PyPy trunk': pp_results}
+    pp_results = {}
     for rev in pp_taggedrevs:
         pp_results[rev.tag] = Result.objects.filter(
             executable=pp_exe, revision=rev, environment=env)
+
+    # Fetch PyPy trunk data
+    revs = Revision.objects.filter(branch=pp_branch).order_by('-date')[:5]
+    pp_lastrev = None
+    for i in range(4):
+        pp_lastrev = revs[i]
+        if pp_lastrev.results.filter(executable=pp_exe):
+            break
+        pp_lastrev = None
+    if pp_lastrev is None:
+        return HttpResponse(json.dumps( data ))
+    pp_results['PyPy trunk'] = Result.objects.filter(
+        executable=pp_exe, revision=pp_lastrev, environment=env)
+
     # Save data
     benchmarks = []
     for res in cp_results:

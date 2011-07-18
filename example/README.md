@@ -92,7 +92,7 @@ Assumed you have a [Debian](http://www.debian.org) like system.
    virtualenv by `python $(which gunicorn_django)`
 
 ### Good old Apache + mod_wsgi
-If you don't like suprises and are not into experimenting go with the old work horse.
+If you don't like surprises and are not into experimenting go with the old work horse.
 Assumed you have a [Debian](http://www.debian.org) like system.
 
 1. Follow the steps from the development server set-up
@@ -127,7 +127,7 @@ Please, also refer to the [Django template docu]
 If you don't want to have your speedcenter in the root url you can change urls.py.
 Comment (add a '#' at the beginning) line number 25 `(r'^', include('cod...`
 and uncomment the next line `(r'^speed/', include('cod...` (Note, Python is
-picky about identation).
+picky about indentation).
 Please, also refer to the [Django URL dispatcher docu]
 (http://docs.djangoproject.com/en/1.3/topics/http/urls/).
 

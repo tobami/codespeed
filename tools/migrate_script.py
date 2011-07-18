@@ -1,16 +1,14 @@
 # -*- coding: utf-8 -*-
+import sys
+import os
 
 """
-Create the default branch for all existing projects
-Starting v 0.8.0 that is mandatory.
+Add the default branch to all existing revisions
 
 Note: This file is assumed to be in the same directory
 as the project settings.py. Otherwise you have to set the
 shell environment DJANGO_SETTINGS_MODULE
 """
-
-import sys
-import os
 
 ## Setup to import models from Django app ##
 def import_from_string(name):
@@ -37,17 +35,19 @@ else:
 
 from django.core.management import setup_environ
 setup_environ(settings)
-from codespeed.models import Branch, Project
+
+from codespeed.models import Revision, Branch
+
 
 def main():
-    """Add Branch default to projects if not there"""
-    projects = Project.objects.all()
+    """add default branch to revisions"""
+    branches = Branch.objects.filter(name='default')
 
-    for proj in projects:
-        if not proj.branches.get(name='default'):
-            trunk = Branch(name='default', project = proj)
-            trunk.save()
-            print "Created branch 'default' for project {0}".format(proj)
+    for branch in branches:
+        for rev in Revision.objects.filter(project=branch.project):
+            rev.branch = branch
+            rev.save()
 
 if __name__ == '__main__':
     main()
+

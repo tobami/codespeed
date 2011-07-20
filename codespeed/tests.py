@@ -149,6 +149,23 @@ class AddResult(TestCase):
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)
 
+    def test_submit_result_with_new_project(self):
+        """Add correct result data if project is new"""
+        modified_data = copy.deepcopy(self.data)
+        response = self.client.post(self.path, modified_data)
+        modified_data['project'] = "My new Project"
+        modified_data['commitid'] = "4242"
+        modified_data['executable'] = 'my new exe'
+        response = self.client.post(self.path, modified_data)
+
+        # Check that we get a success response
+        self.assertEquals(response.status_code, 202)
+        self.assertEquals(response.content, "Result data saved succesfully")
+
+        # Check that the data was correctly saved
+        p = Project.objects.get(name=modified_data['project'])
+        self.assertEqual(p.name, modified_data['project'])
+
 class AddJSONResults(TestCase):
     def setUp(self):
         self.path = reverse('codespeed.views.add_json_results')

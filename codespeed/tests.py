@@ -149,6 +149,16 @@ class AddResult(TestCase):
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)
 
+    def test_add_result_with_no_project(self):
+        """Should add a revision with the project"""
+        modified_data = copy.deepcopy(self.data)
+        modified_data['project'] = "My new project"
+        modified_data['executable'] = "My new executable"
+        response = self.client.post(self.path, modified_data)
+        self.assertEquals(response.status_code, 202)
+        self.assertEquals(response.content, "Result data saved succesfully")
+
+
 class AddJSONResults(TestCase):
     def setUp(self):
         self.path = reverse('codespeed.views.add_json_results')

@@ -1,0 +1,21 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+
+{% block title %}{{ title }} | {% trans 'Codespeed admin' %}{% endblock %}
+
+{% block extrastyle %}
+<style>
+#header{ background-color: #596A74; border-bottom: solid 3px #999; }
+
+#branding h1{ color: white; }
+.module h2, .module caption, .inline-group h2 { background:#ccc url("/admin_media/img/admin/nav-bg.gif") bottom left repeat-x; color: #333940; }
+a.section:link, a.section:visited { color: #666666; }
+</style>
+{% endblock %}
+
+
+{% block branding %}
+<h1 id="site-name">{% trans 'Codespeed administration' %}</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}

@@ -1,0 +1,500 @@
+/* Global styles */
+body {
+    min-width: 650px;
+    margin: 0;
+    padding: 0;
+    background-color: #596A74;
+    background-image: url(../images/vgradient.png);
+    background-repeat: repeat-x;
+    font-size: 16px;
+    margin-bottom: 0.8em;
+}
+a:link, a:visited, a:hover { color: blue; text-decoration: none; }
+
+.float-right {
+    float: right;
+}
+
+.float-left {
+    float: left;
+}
+
+/* Structural */
+div#container { width: 98%; margin: 0; margin-left: auto; margin-right: auto; }
+
+div#title {
+    height: 55px;
+    margin-bottom: 0.8em;
+    background-color: #F1F1F1;
+    color: #000000;
+    -moz-border-radius-bottomleft: 10px;
+    -moz-border-radius-bottomright: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+    -webkit-border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+div#title img { float: left; padding: 0.2em; margin: 0; }
+div#title h2 { float: left; margin: 0 0 0 0.4em; font-style: italic; margin-top: 0.55em; }
+
+ul.inline { margin: 0; padding: 0; }
+ul.inline li {
+    display: inline-block;
+    list-style: none;
+    zoom: 1; /* IE7 (hasLayout)*/
+    *display: inline; /* IE */
+}
+
+ul#links {
+    position: relative;
+    margin-top: 0.6em;
+    float: right;
+    padding: 0.7em;
+    padding-bottom: 0.5em;
+    font-size: large;
+}
+ul#links li { margin-left: 0.8em; }
+ul#links li a:link, ul#links li a:visited { color: #000000; }
+ul#links li a:hover { text-decoration: underline; }
+
+div#wrapper { margin: 0; }
+
+div#nav ul {
+    padding-left: 15.3em;
+    font-family: Verdana, sans-serif;
+}
+div#nav ul li {
+    background-color: #DADADA;
+    -moz-border-radius-topleft: 16px;
+    -moz-border-radius-topright: 16px;
+    -webkit-border-top-left-radius: 16px;
+    -webkit-border-top-right-radius: 16px;
+    border-top-left-radius: 16px;
+    border-top-right-radius: 16px;
+}
+div#nav ul li a {
+    display: block;
+    width: 8.5em;
+    text-decoration: none;
+    text-align: center;
+    color: #888888;
+    padding-top: 0.4em;
+    padding-bottom: 0.25em;
+}
+
+div#nav ul li.current { background-color: #F1F1F1; font-weight: bold; }
+div#nav ul li.current a { color: #000000; }
+div#nav ul li:hover { background-color: #F1F1F1; }
+div#nav ul li:hover a { color: #2D2F32; }
+
+div#workarea {
+    background-color: #F1F1F1;
+    padding: 0.8em;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+
+div#presentation {
+    text-align: center;
+}
+div#presentation h2, div#presentation h4 { margin-top: 0.2em; margin-bottom: 0.2em; }
+
+div#presentation div {
+    position: relative;
+    display: inline-block;
+    vertical-align: middle;
+}
+div#presentation div.menubox {
+    background-image: url(../images/vgradient.png);
+    background-repeat: repeat-x;
+    background-color: #FFFFFF;
+    color: white;
+    width: 220px;
+    cursor: pointer;
+    text-align: center;
+    font-size: small;
+    margin: 0.8em;
+    padding: 0.8em;
+    border: 5px solid #F1F1F1;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+}
+div#presentation div.menubox:hover { border: 5px solid #FFCE9C; }
+
+div#presentation p { height: 5em; padding-left: 120px; }
+
+div#presentation div#changes p {
+    background: url(../images/changes.png) no-repeat;
+}
+div#presentation div#timeline p {
+    background: url(../images/timeline.png) no-repeat;
+}
+div#presentation div#comparison p {
+    background: url(../images/comparison.png) no-repeat;
+}
+
+div#presentation div#reports { margin-top: 0.8em; }
+
+/* Navigation elements */
+div#sidebar {
+    width: 13.7em;
+    float: left;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+
+div#configbar {
+    position: relative;
+    margin-left: 14.5em;
+    background-color: #FFFFFF;
+    margin-bottom: 0.8em;
+    padding: 0.8em;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+
+div#configbar span {
+    padding: 2px;
+    padding-bottom: 3px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+}
+
+div#configbar span.options {
+    padding-right: 1.8em; font-size: 90%; white-space: nowrap; }
+div#configbar input { margin-right: 0; vertical-align: middle; }
+
+div#content, div.about_content {
+    margin-left: 14.5em;
+    text-align: center;
+    padding: 0.8em;
+    background-color: #FFFFFF;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+
+div.about_content { text-align: left; }
+
+.sidebox {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+    margin-bottom: 1em;
+    font-size: 90%;
+}
+.boxhead {
+    background-color: #9DADC6;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+.boxhead h2 {
+    margin: 0;
+    padding: 0.5em 0.8em 0.3em;
+    color: white;
+    font-weight: bold;
+    font-size: 1.1em;
+    line-height: 1em;
+}
+.boxbody {
+    -moz-border-radius-bottomleft: 10px;
+    -moz-border-radius-bottomright: 10px;
+    -webkit-border-bottom-left-radius: 10px;
+    -webkit-border-bottom-right-radius: 10px;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    margin: 0;
+    padding: 0.5em 0.5em 0.5em;
+/*     padding: 5px 30px 31px; */
+}
+.boxbody ul {
+  list-style: none;
+  margin: 0;
+  padding: 0.2em;
+  margin-bottom: 0.5em;
+}
+.boxbody ul li { padding-left: 0.3em; }
+.boxbody input { margin-left: 0; vertical-align: top; }
+#options li { margin-bottom: 0.8em; }
+.seriescolor { float: right; margin-top: 2px; height: 13px; width: 14px; }
+a.checkall, a.uncheckall { font-size: small; color: #AAAAAA; }
+
+p.errormessage { line-height: 10em; margin-bottom: 10em; }
+
+/* Changes table layout */
+div#contentwrap { display: table; table-layout: fixed; width: 100%; }
+div#contentwrap div { display: table-cell; }
+div#contentwrap div.leftcolumn { width: 65%; }
+div#contentwrap div.rightcolumn { padding-left: 0.8em; width: 35%; }
+
+div#contentwrap div div { display: block; }
+
+/* 1024px wide screen Tablet, Netbook */
+/* Remove outher margins so that it comfortably fits */
+@media only screen and (max-width:1100px)  {
+    div#contentwrap div.leftcolumn { width: 65%; }
+    div#container { width: 100%; margin: 0; }
+    div#workarea { padding-left: 0.3em; }
+    div#sidebar { width: 12.5em; }
+    div#configbar { margin-left: 12.8em; }
+    div#content { margin-left: 12.8em; }
+    div#title { margin-bottom: 0.4em; }
+    div#nav ul { padding-left: 13.2em; }
+}
+
+/* Less than 1024px wide screens (Smartphones) */
+/* The changes view should only show one colunm */
+@media only screen and (max-width:1005px)  {
+    ul#links { margin-top: 0; }
+    div#contentwrap div { display: table-row!important; }
+    table.info { margin-bottom: 0.8em; }
+    div#title { margin-bottom: -35px; background-color: transparent; }
+    div#title h2 { margin-top: 0.1em; margin-right: 2px; font-size: 90%; float: none; }
+    div#title ul {
+        position: absolute;
+        font-size: 90%;
+        float: none;
+        top: 0; right: 0;
+        padding-top: 2px;
+    }
+    div#title img {
+        padding: 0;
+    }
+    div#nav { height: 2em; }
+}
+
+/* tables */
+table.tablesorter, table.info, table.revision, table.reports {
+    width: 100%;
+    font-family:arial;
+    font-size: 11pt;
+    text-align: left;
+    border-collapse: collapse;
+    border-spacing: 0px;
+    border: 1px solid #CDCDCD;
+    background-color: #fafafa;
+}
+
+/*table.reports {
+    border-width: 2px;
+}*/
+table.reports caption { font-size: 100%; font-weight: bold; margin-bottom: 2px; }
+table.reports caption a { color: black; }
+table.reports caption a img {
+    border: 0; vertical-align: middle; height: 14px; margin-bottom: 1px; }
+table.reports td { padding: 0.4em; }
+table.reports td span { opacity: 0.4; }
+
+table.tablesorter { margin-right: 0.8em; margin-bottom: 0.8em; }
+
+table.tablesorter thead tr th {
+    padding: 4px;
+    padding-right: 14px;
+    width: 5em;
+    text-align: center;
+    background-color: #9DADC6;
+    border: 1px solid #CDCDCD;
+    font-size: 8pt;
+}
+table.tablesorter thead tr th.header {
+    background-image: url(../images/bg.gif);
+    background-repeat: no-repeat;
+    background-position: center right;
+    cursor: pointer;
+}
+table.tablesorter tfoot tr td {
+    border: 2px solid #CDCDCD;
+    border-right: 1px solid #CDCDCD;
+    padding: 4px 5px 3px 5px;
+    vertical-align: top;
+    text-align: right;
+}
+table.tablesorter tbody td {
+    color: #3D3D3D;
+    padding: 4px 5px 3px 5px;
+    background-color: #FFF;
+    border: 1px solid #CDCDCD;
+    vertical-align: top;
+    text-align: right;
+    white-space: nowrap;
+}
+table.tablesorter tbody tr.odd td {
+    background-color:#F0F0F6;
+}
+table.tablesorter thead tr .headerSortUp {
+    background-image: url(../images/asc.gif);
+}
+table.tablesorter thead tr .headerSortDown {
+    background-image: url(../images/desc.gif);
+}
+table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
+    background-color: #8dbdd8;
+}
+table.tablesorter tbody td:not(:first-child),
+table.tablesorter tfoot td:not(:first-child) {
+    font-family: "Menlo", "ProFont", "Inconsolata", "Lucida Sans Console", monospace;
+    font-size: 14px;
+}
+table.tablesorter tbody td:first-child,
+table.tablesorter tfoot td:first-child {text-align: left; }
+
+table.tablesorter tbody tr td.status-red, td.status-red { background-color: #FF5640; }
+.reports tr.status-red td.summary { color: #FF5640; font-weight: bold; }
+table.tablesorter tbody tr td.status-green, td.status-green { background-color: #9FD54D; }
+tr.status-green td.summary { color: #9FD54D; font-weight: bold; }
+table.tablesorter tbody tr td.status-yellow, td.status-yellow { background-color: #FFD843; }
+tr.status-yellow td.summary { color: #FFD843; font-weight: bold; }
+
+table.tablesorter tbody tr.highlight td, tr.highlight td {
+    background-color: #9DADC6 !important;
+    cursor: pointer;
+}
+
+table.revision {
+    table-layout: fixed;
+}
+
+table.revision col:first-child, table.info col:first-child {
+    width: 5.3em;
+}
+
+table.info th, table.revision th { background-color: #F1F1F1; vertical-align: top; }
+table.info th, table.info td, table.revision th, table.revision td { padding: 0.3em; }
+table.info tbody .infofirst { width: 10em; text-align: left; }
+
+.repo-path td, .commit-id td {
+    font-family: monospace;
+    white-space: pre;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+tbody.commits tr td { border-bottom: 1px solid #CDCDCD; vertical-align: top; }
+tbody.commits tr > td:first-child { padding-right: 20px; }
+tbody.commits tr td.date, table.revision tr .infofirst, div.author, span.note, table.info tbody .infofirst {
+    font-size: 92%;
+    color: #666666;
+}
+
+.revision tbody th {
+    font-weight: inherit;
+    font:  inherit;
+}
+
+tbody.commits tr td.date {
+	padding: 0.3em;
+	width: 5em;
+	text-align: right;
+}
+
+.commits pre {
+	display: block;
+	margin: 2px;
+	white-space: pre-wrap;
+	overflow: auto;
+}
+
+a#permalink { float: right; font-size: small; }
+a#permalink:hover { text-decoration: underline; }
+
+/* Plot styles */
+div#plot { text-align: left; height: 500px; width: 100%; }
+
+div.miniplot {
+    cursor: pointer;
+    margin: 0.5em;
+    text-align: left;
+    float: left;
+    height: 130px;
+    width: 23%;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+div.miniplot:hover { background-color: #F1F1F1; }
+.jqplot-highlighter-tooltip {
+    -moz-border-radius: 10px; -webkit-border-radius: 10px; border-radius: 10px;
+}
+
+div.compplot {
+    text-align: left;
+    height: 450px;
+    float: left;
+    margin-right: 0.8em;
+    margin-bottom: 2em;
+}
+
+/* 1024px wide screen (Tablet, Netbook) */
+/* Reduce plot hight */
+@media only screen and (max-width:1090px)  {
+    div#plot { height: 450px; }
+    div.miniplot { height: 120px; }
+}
+
+/* Less than 1024px wide screens (Smartphones) */
+/* Reduce plot hight */
+@media only screen and (max-width:1010px)  {
+    div#plot { height: 400px; }
+    div.miniplot { height: 100px; }
+    div.compplot { height: 400px; }
+}
+
+p.note, p.warning {
+    margin-top: 0;
+    padding: 1.2em;
+    text-align: left;
+    font-size: small;
+    background-color: #F1F1F1;
+    background-repeat: no-repeat;
+    background-position: 3px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+}
+p.warning {
+    padding-left: 42px;
+    background-image: url(../images/warning.png);
+}
+p.note {
+    margin-top: 20px;
+    margin-left: 2.4em;
+    margin-right: 2.4em;
+    padding-left: 55px;
+    -moz-box-shadow: 3px 3px 3px #888;
+    -webkit-box-shadow: 3px 3px 3px #888;
+    box-shadow: 3px 3px 3px #888;
+    background-image: url(../images/note.png);
+}
+
+div.footer {
+    font-size: small;
+    margin-top: 0.6em;
+    margin-left: auto; margin-right: auto;
+    text-align: center;
+}
+
+div.footer a {
+    color: black;
+    text-decoration: underline;
+}
+
+/* new clearfix */
+.clearfix:after {
+    visibility: hidden;
+    display: block;
+    font-size: 0;
+    content: " ";
+    clear: both;
+    height: 0;
+}
+* html .clearfix             { zoom: 1; } /* IE6 */
+*:first-child+html .clearfix { zoom: 1; } /* IE7 */

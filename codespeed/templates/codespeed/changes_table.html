@@ -1,0 +1,103 @@
+<div class="leftcolumn">
+{% for units in tablelist %}
+<table class="tablesorter">
+<thead>
+  <tr>
+    <th>Benchmark</th>
+    <th>{{ units.units_title }} in {{ units.units }}<label title="lessisbetter" style="display:none;">{{ units.lessisbetter }}</label></th>
+    {% if units.has_stddev %}<th>Std dev</th>{% endif%}
+    {% if units.hasmin %}<th>Min</th>{% endif%}
+    {% if units.hasmax %}<th>Max</th>{% endif%}
+    <th title="Current change">Change</th>
+    <th title="Trend for the last {{ trendconfig }} revisions">Trend</th>
+  </tr>
+</thead>
+<tfoot>
+  <tr>
+    <td title="Arithmetic mean">Average</td>
+    <td></td>
+    {% if units.hasmin %}<td></td>
+    {% endif%}{% if units.has_stddev %}<td>{{ units.totals.min }}</td>
+    {% endif%}{% if units.hasmax %}<td>{{ units.totals.max }}</td>
+    {% endif%}<td>{% ifnotequal units.totals.change "-" %}{{ units.totals.change|floatformat:2 }}%{% else %}{{ units.totals.change }}{% endifnotequal %}</td>
+    <td>{% ifnotequal units.totals.trend "-" %}{{ units.totals.trend|floatformat:2 }}%{% else %}{{ units.totals.trend }}{% endifnotequal %}</td>
+  </tr>
+</tfoot>
+<tbody>
+{% for row in units.rows|dictsort:"bench_name" %}  <tr>
+    <td title="{{ row.bench_description }}">{{ row.bench_name }}</td>
+    <td>{{ row.result|floatformat:units.precission }}</td>
+    {% if units.has_stddev %}<td>{{ row.std_dev|floatformat:units.precission }}</td>
+    {% endif%}{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>
+    {% endif%}{% if units.hasmax %}<td>{{ row.val_max|floatformat:units.precission }}</td>
+    {% endif%}<td>{% ifequal row.change "-" %}-{% else %}{{ row.change|floatformat:2 }}%{% endifequal %}</td>
+    <td>{% ifequal row.trend "-" %}-{% else %}{{ row.trend|floatformat:2 }}%{% endifequal %}</td>
+  </tr>{% endfor %}
+</tbody>
+</table>{% endfor %}
+
+<table class="info">
+  <thead>
+    <tr>
+      <th colspan="2">Executable</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="infofirst">Name</td><td>{{ exe }}</td></tr>
+    <tr><td class="infofirst">Description</td><td>{{ exe.description }}</td></tr>
+  </tbody>
+</table>
+<table class="info">
+  <thead>
+    <tr>
+      <th colspan="2">Environment</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr><td class="infofirst">Name</td><td>{{ env.name }}</td></tr>
+    <tr><td class="infofirst">CPU</td><td>{{ env.cpu }}</td></tr>
+    <tr><td class="infofirst">Memory</td><td>{{ env.memory }}</td></tr>
+    <tr><td class="infofirst">OS</td><td>{{ env.os }}</td></tr>
+    <tr><td class="infofirst">Kernel</td><td>{{ env.kernel }}</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="rightcolumn">
+<table class="revision">
+    <col/>
+    <col/>
+<thead>
+  <tr>
+    <th colspan="2">Revision</th>
+  </tr>
+</thead>
+<tbody>
+  <tr class="commit-id"><th class="infofirst">Commit</td><td>{{ rev.commitid }}</td></tr>
+  <tr class="date"><th class="infofirst">Date</td><td>{{ rev.date }}</td></tr>
+  {% ifnotequal rev.branch.project.repo_type "N" %}
+    <tr class="repo-path"><th class="infofirst">Repo</th><td>{{ rev.branch.project.repo_path }}</td></tr>
+  {% endifnotequal %}
+</tbody>
+</table>
+
+{% ifnotequal exe.project.repo_type 'N' %}
+  <table class="revision">
+      <col/>
+      <col/>
+    <thead class="commits">
+      <tr>
+        <th colspan="2">Commit logs</th>
+      </tr>
+    </thead>
+    <tbody class="commits" id="commitid__{{ rev.id }}">
+      <tr><td colspan="2" style="text-align:center;">Loading... <img src="{{ STATIC_URL}}images/ajax-loader.gif" align="bottom"></td></tr>
+    </tbody>
+    <script type="text/javascript">
+      var revisionid = $("tbody.commits").attr("id");
+      loadoption = "revisionid=" + revisionid.split('__')[1];
+      $("#" + revisionid).load("logs/", loadoption);
+    </script>
+</table>
+{% endifnotequal %}
+</div>

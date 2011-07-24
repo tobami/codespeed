@@ -57,3 +57,7 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
                          # COMP_EXECUTABLES = [
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
+
+DEF_BRANCH = "default" # Defines the default branch to be used.
+                       # In git projects, this branch is usually be calles
+                       # "master"

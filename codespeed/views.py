@@ -147,6 +147,8 @@ def getcomparisonexes():
                 rev = Revision.objects.filter(branch=branch).latest('date')
             except Revision.DoesNotExist:
                 continue
+            # Now only append when tag == "",
+            # because we already added tagged revisions
             if rev.tag == "":
                 for exe in Executable.objects.filter(project=proj):
                     exestring = str(exe)
@@ -155,7 +157,7 @@ def getcomparisonexes():
                     name = exestring + " latest"
                     if branch.name != 'default':
                         name += " in branch '" + branch.name + "'"
-                    key = str(exe.id) + "+L" + branch.name
+                    key = str(exe.id) + "+L+" + branch.name
                     executablekeys.append(key)
                     executables.append({
                         'key': key,
@@ -217,7 +219,6 @@ def comparison(request):
         return no_executables_error()
 
     executables, exekeys = getcomparisonexes()
-
     checkedexecutables = []
     if 'exe' in data:
         for i in data['exe'].split(","):
@@ -236,6 +237,7 @@ def comparison(request):
                 else:
                     rev = Revision.objects.get(commitid=rev)
                     key += str(rev.id)
+                key += "+default"
                 if key in exekeys:
                     checkedexecutables.append(key)
                 else:
@@ -247,7 +249,6 @@ def comparison(request):
             except Revision.DoesNotExist:
                 #TODO: log
                 pass
-
     if not checkedexecutables:
         checkedexecutables = exekeys
 
@@ -297,12 +298,16 @@ def comparison(request):
         pass
     elif len(exekeys) > 1 and hasattr(settings, 'NORMALIZATION') and\
         settings.NORMALIZATION:
-        # Uncheck exe used for normalization when normalization is chosen as default in the settings
-        selectedbaseline = exekeys[0]#this is the default baseline
         try:
-            checkedexecutables.remove(selectedbaseline)
-        except ValueError:
-            pass#the selected baseline was not checked
+            # TODO: Avoid calling twice getbaselineexecutables
+            selectedbaseline = getbaselineexecutables()[1]['key']
+            # Uncheck exe used for normalization 
+            try:
+                checkedexecutables.remove(selectedbaseline)
+            except ValueError:
+                pass  # The selected baseline was not checked
+        except:
+            pass  # Keep "none" as default baseline
 
     selecteddirection = False
     if 'hor' in data and data['hor'] == "true" or\
@@ -594,7 +599,7 @@ def changes(request):
 
     enviros = Environment.objects.all()
     if not enviros:
-        return no_environment_error()
+        return no_environment_error(request)
     defaultenv = get_default_environment(enviros, data)
 
     defaultexecutable = getdefaultexecutable()
@@ -684,7 +689,7 @@ def reports(request):
 
     return render_to_response('codespeed/reports.html', {
         'reports': Report.objects.filter(
-            revision__branch__name=settings.DEF_BENCHMARK
+            revision__branch__name=settings.DEF_BRANCH
         ).order_by('-revision__date')[:10],
     }, context_instance=RequestContext(request))
 
@@ -837,7 +842,8 @@ def save_result(data):
         # "None" (as string) can happen when we urlencode the POST data
         if not rev_date or rev_date in ["", "None"]:
             rev_date = datetime.today()
-        rev = Revision(branch=branch, commitid=data['commitid'], date=rev_date)
+        rev = Revision(branch=branch, project=p, commitid=data['commitid'],
+                       date=rev_date)
         try:
             rev.full_clean()
         except ValidationError as e:

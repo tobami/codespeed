@@ -376,8 +376,8 @@ def gettimelinedata(request):
         }
         # Temporary
         trunks = []
-        if Branch.objects.filter(name='default'):
-            trunks.append('default')
+        if Branch.objects.filter(name=settings.DEF_BRANCH):
+            trunks.append(settings.DEF_BRANCH)
         #for branch in data2.get('bran', '').split(','): #-- For now, we'll only work with trunk branches
         append = False
         for branch in trunks:
@@ -480,7 +480,7 @@ def timeline(request):
 
     defaultbranch = ""
     if "default" in branch_list:
-        defaultbranch = "default"
+        defaultbranch = settings.DEF_BRANCH
     if data.get('bran') in branch_list:
         defaultbranch = data.get('bran')
 
@@ -631,7 +631,7 @@ def changes(request):
     # Get lastest revisions for this project and it's "default" branch
     lastrevisions = Revision.objects.filter(
         branch__project=defaultexecutable.project,
-        branch__name="default"
+        branch__name=settings.DEF_BRANCH
     ).order_by('-date')[:revlimit]
     if not len(lastrevisions):
         return no_data_found(request)
@@ -689,7 +689,7 @@ def reports(request):
 
     return render_to_response('codespeed/reports.html', {
         'reports': Report.objects.filter(
-            revision__branch__name='default'
+            revision__branch__name=settings.DEF_BENCHMARK
         ).order_by('-revision__date')[:10],
     }, context_instance=RequestContext(request))
 

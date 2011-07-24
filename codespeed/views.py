@@ -599,7 +599,7 @@ def changes(request):
 
     enviros = Environment.objects.all()
     if not enviros:
-        return no_environment_error()
+        return no_environment_error(request)
     defaultenv = get_default_environment(enviros, data)
 
     defaultexecutable = getdefaultexecutable()
@@ -689,7 +689,7 @@ def reports(request):
 
     return render_to_response('codespeed/reports.html', {
         'reports': Report.objects.filter(
-            revision__branch__name=settings.DEF_BENCHMARK
+            revision__branch__name=settings.DEF_BRANCH
         ).order_by('-revision__date')[:10],
     }, context_instance=RequestContext(request))
 

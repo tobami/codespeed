@@ -27,6 +27,7 @@ See http://django-tastypie.readthedocs.org/en/latest/interacting.html
 from django.contrib.auth.models import User
 from django.db import models
 from tastypie.resources import ModelResource
+from tastypie import fields
 from tastypie.authorization import Authorization, DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.models import create_api_key
@@ -39,14 +40,17 @@ models.signals.post_save.connect(create_api_key, sender=User)
 class UserResource(ModelResource):
     class Meta:
         queryset = User.objects.filter(is_active=True)
-        resource_name = 'auth/user'
-        excludes = ['email', 'password', 'is_superuser']
+        resource_name = 'user'
+        fields = ['username', 'first_name', 'last_name', 'last_login']
+        #excludes = ['email', 'password', 'is_superuser']
         # Add it here.
-        authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication() 
+        #authorization = DjangoAuthorization()
+        authorization= Authorization()
+        #authentication = ApiKeyAuthentication() 
 
 
 class EnvironmentResource(ModelResource):
+
     class Meta:
         queryset = Environment.objects.all()
         resource_name = 'environment'

@@ -10,9 +10,13 @@ import unittest
 
 from django import test
 from django.test.client import Client
+from django.http import HttpRequest
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
+from tastypie.models import ApiKey, create_api_key
+from tastypie.http import HttpUnauthorized
+from tastypie.authentication import Authentication, ApiKeyAuthentication
 from codespeed.models import (Project, Benchmark, Revision, Branch,
                               Executable, Environment, Result, Report)
 from codespeed import settings as default_settings
@@ -20,6 +24,11 @@ from codespeed import settings as default_settings
 
 class FixtureTestCase(test.TestCase):
     fixtures = ["gettimeline_unittest.json"]
+
+    def setUp(self):
+        self.api_user = User.objects.create_user(
+            username='apiuser', email='api@foo.bar', password='password')
+        self.api_user.save()
 
 
 class EnvironmentTest(FixtureTestCase):
@@ -44,7 +53,7 @@ class EnvironmentTest(FixtureTestCase):
             kernel="2.6.32"
         )
         self.client = Client()
-        super(FixtureTestCase, self).setUp()
+        super(EnvironmentTest, self).setUp()
 
     def test_dual_core(self):
         response = self.client.get('/api/v1/environment/1/')
@@ -89,20 +98,55 @@ class EnvironmentTest(FixtureTestCase):
         response = self.client.get('/api/v1/environment/3/')
         self.assertEquals(response.status_code, 410)
 
+
+class UserTest(FixtureTestCase):
+    """Test api user related stuff
+    """
+
+    def test_has_apikey(self):
+        self.assertTrue(hasattr(self.api_user, 'api_key'))
+
+
+class ApiKeyAuthenticationTestCase(FixtureTestCase):
+
+    def setUp(self):
+        super(ApiKeyAuthenticationTestCase, self).setUp()
+        ApiKey.objects.all().delete()
+
+    def test_is_authenticated(self):
+        auth = ApiKeyAuthentication()
+        request = HttpRequest()
+
+        # Simulate sending the signal.
+        user = User.objects.get(username='apiuser')
+        create_api_key(User, instance=user, created=True)
+
+        # No username/api_key details should fail.
+        self.assertEqual(isinstance(auth.is_authenticated(request), HttpUnauthorized), True)
+
+        # Wrong username details.
+        request.GET['username'] = 'foo'
+        self.assertEqual(isinstance(auth.is_authenticated(request), HttpUnauthorized), True)
+
+        # No api_key.
+        request.GET['username'] = 'daniel'
+        self.assertEqual(isinstance(auth.is_authenticated(request), HttpUnauthorized), True)
+
+        # Wrong user/api_key.
+        request.GET['username'] = 'daniel'
+        request.GET['api_key'] = 'foo'
+        self.assertEqual(isinstance(auth.is_authenticated(request), HttpUnauthorized), True)
+
+        # Correct user/api_key.
+        user = User.objects.get(username='apiuser')
+        request.GET['username'] = 'apiuser'
+        request.GET['api_key'] = user.api_key.key
+        self.assertEqual(auth.is_authenticated(request), True)
+
+
 #def suite():
 #    suite = unittest.TestSuite()
 #    suite.addTest(EnvironmentTest())
 #    return suite
 
-
-class UserTest(FixtureTestCase):
-    """Test api user related stuff
-    """
-    def setUp(self):
-        self.api_user = User.objects.create_user(
-            'api', 'api@null.com', 'password')
-        self.api_user.save()
-
-    def test_has_apikey(self):
-        self.assertTrue(hasattr(self.api_user, 'api_key'))
 

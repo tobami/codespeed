@@ -4,12 +4,13 @@ from django.core.urlresolvers import reverse
 from django.views.generic.simple import direct_to_template
 from tastypie.api import Api
 from codespeed.feeds import LatestEntries
-from codespeed.api import EnvironmentResource
+from codespeed.api import UserResource, EnvironmentResource
 
 feeds = { 'latest': LatestEntries }
 
 rest_api = Api(api_name='v1')
 rest_api.register(EnvironmentResource())
+rest_api.register(UserResource())
 
 urlpatterns = patterns('',
     (r'^$', direct_to_template, {'template': 'home.html'}),

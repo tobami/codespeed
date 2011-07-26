@@ -280,15 +280,15 @@ class Report(models.Model):
             return self._get_tablecache()
         # Otherwise generate a new changes table
         # Get latest revisions for this branch (which also sets the project)
-        lastrevisions = Revision.objects.filter(
-            branch=self.revision.branch
-        ).filter(
-            date__lte=self.revision.date
-        ).order_by('-date')[:trend_depth+1]
         try:
+            lastrevisions = Revision.objects.filter(
+                branch=self.revision.branch
+            ).filter(
+                date__lte=self.revision.date
+            ).order_by('-date')[:trend_depth+1]
             # Same as self.revision unless in a different branch
             lastrevision = lastrevisions[0]
-        except IndexError:
+        except IndexError, Exception, e:
             return []
         change_list = []
         pastrevisions = []

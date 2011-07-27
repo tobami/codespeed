@@ -288,7 +288,7 @@ class Report(models.Model):
             ).order_by('-date')[:trend_depth+1]
             # Same as self.revision unless in a different branch
             lastrevision = lastrevisions[0]
-        except IndexError, Exception, e:
+        except:
             return []
         change_list = []
         pastrevisions = []

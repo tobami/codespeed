@@ -216,7 +216,7 @@ def comparison(request):
 
     # Check whether there exist appropiate executables
     if not getdefaultexecutable():
-        return no_executables_error()
+        return no_executables_error(request)
 
     executables, exekeys = getcomparisonexes()
     checkedexecutables = []
@@ -606,7 +606,7 @@ def changes(request):
 
     defaultexecutable = getdefaultexecutable()
     if not defaultexecutable:
-        return no_executables_error()
+        return no_executables_error(request)
 
     if "exe" in data:
         try:

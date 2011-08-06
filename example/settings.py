@@ -172,4 +172,4 @@ STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
 
-USE_ERROR_BARS = True # True to enable error bars on Timeline view
+#USE_ERROR_BARS = True # True to enable error bars on Timeline view

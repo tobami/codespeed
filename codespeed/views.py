@@ -532,7 +532,9 @@ def timeline(request):
         defaultequid = "off"
 
     # Information for template
-    executables = Executable.objects.filter(project__track=True)
+    executables = {}
+    for proj in Project.objects.filter(track=True):
+        executables[proj] = Executable.objects.filter(project=proj)
     use_error_bars = hasattr(settings, 'USE_ERROR_BARS') and settings.USE_ERROR_BARS
     return render_to_response('codespeed/timeline.html', {
         'checkedexecutables': checkedexecutables,

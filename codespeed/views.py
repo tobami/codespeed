@@ -701,7 +701,7 @@ def displaylogs(request):
     error = False
     try:
         startrev = Revision.objects.filter(
-            branch=rev.branch.project
+            branch=rev.branch
         ).filter(date__lt=rev.date).order_by('-date')[:1]
         if not len(startrev):
             startrev = rev

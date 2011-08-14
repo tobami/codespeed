@@ -141,12 +141,13 @@
 <div id="executable" class="sidebox">
   <div class="boxhead"><h2>Executable</h2></div>
   <div class="boxbody">
-    <ul>
-    {% for exec in executables|dictsort:"id" %}
-      <li title="{{ exec.description }}">
-        <input id="executable{{ exec.id }}" type="radio" name="executable" value="{{ exec.id }}" />
-        <label for="executable{{ exec.id }}">{{ exec }}</label>
-      </li>
+    <ul>{% for proj, execs in executables.items %}
+      <ul>{{ proj }}{% for exec in execs|dictsort:"id" %}
+        <li title="{{ exec.description }}"><!-- the input id != value. It is used for exeutable color order -->
+          <input id="executable{{ forloop.counter }}" type="radio" name="executable" value="{{ exec.id }}" />
+          <label for="executable{{ forloop.counter }}">{{ exec }}</label><div class="seriescolor"></div>
+        </li>{% endfor %}
+      </ul>
     {% endfor %}
     </ul>
   </div>

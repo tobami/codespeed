@@ -628,7 +628,9 @@ def changes(request):
             pass
 
     # Information for template
-    executables = Executable.objects.filter(project__track=True)
+    executables = {}
+    for proj in Project.objects.filter(track=True):
+        executables[proj] = Executable.objects.filter(project=proj)
     revlimit = 20
     # Get lastest revisions for this project and it's "default" branch
     lastrevisions = Revision.objects.filter(
@@ -655,8 +657,9 @@ def changes(request):
     # belongs to another project (project changed) and then trigger the
     # repopulation of the revision selection selectbox
     projectmatrix = {}
-    for e in executables:
-        projectmatrix[e.id] = e.project.name
+    for proj in executables:
+        for e in executables[proj]:
+            projectmatrix[e.id] = e.project.name
     projectmatrix = json.dumps(projectmatrix)
     projectlist = []
     for p in Project.objects.filter(

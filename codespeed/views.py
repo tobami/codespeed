@@ -533,7 +533,9 @@ def timeline(request):
         defaultequid = "off"
 
     # Information for template
-    executables = Executable.objects.filter(project__track=True)
+    executables = {}
+    for proj in Project.objects.filter(track=True):
+        executables[proj] = Executable.objects.filter(project=proj)
     return render_to_response('codespeed/timeline.html', {
         'checkedexecutables': checkedexecutables,
         'defaultbaseline': defaultbaseline,

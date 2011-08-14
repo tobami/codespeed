@@ -20,7 +20,7 @@
   var seriesindex = new Array();
 
   function shouldPlotEquidistant() {
-	  return $("#equidistant").is(':checked');
+      return $("#equidistant").is(':checked');
   }
 
   function getConfiguration() {
@@ -58,6 +58,7 @@
   function renderPlot(data) {
     var plotdata = new Array();
     var series = new Array();
+    var marker = true;
     var lastvalues = new Array();//hopefully the smallest values for determining significant digits.
     for (branch in data["branches"]) {
       // NOTE: Currently, only the "default" branch is shown in the timeline
@@ -65,6 +66,7 @@
       for (exe_id in data["branches"][branch]) {
         {% if use_error_bars %}
         if (readCheckbox("input[name='show_error_bars']:checked")) {
+          marker = false;
           var error = new Array();
           for (res in data["branches"][branch][exe_id]) {
             var date = data["branches"][branch][exe_id][res][0];
@@ -80,7 +82,7 @@
         while (color_id > seriesColors.length) { color_id -= seriesColors.length; }
         var label = $("label[for*='executable" + color_id + "']").html();
         if (branch != "default") { label += " - " + branch; }
-        series.push({"label":  label, "color": seriesColors[color_id-1], showMarker: false});
+        series.push({"label":  label, "color": seriesColors[color_id-1], showMarker: marker});
         seriesindex.push(exe_id);
         plotdata.push(data["branches"][branch][exe_id]);
         lastvalues.push(data["branches"][branch][exe_id][0][1]);
@@ -167,22 +169,22 @@
         $("#plot").css('width', w - offset);
     }
     //Render plot
-	plot = $.jqplot('plot',  plotdata, plotoptions);
+    plot = $.jqplot('plot',  plotdata, plotoptions);
   }
 
   function renderMiniplot(plotid, data) {
     var plotdata = new Array();
     for (branch in data['branches']) {
-	    var series = new Array();
-	    for (id in data['branches'][branch]) {
-	      var colorid = $("#executable > div.boxbody").find("input[value='"+id+"']").attr('id').slice(10);
-	      while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
-	      series.push({
-	        "label": $("label[for*='executable" + colorid + "']").html(),
-	        "color": seriesColors[colorid-1]
-	      });
-	      plotdata.push(data['branches'][branch][id]);
-	    }
+        var series = new Array();
+        for (id in data['branches'][branch]) {
+          var colorid = $("#executable > div.boxbody").find("input[value='"+id+"']").attr('id').slice(10);
+          while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
+          series.push({
+            "label": $("label[for*='executable" + colorid + "']").html(),
+            "color": seriesColors[colorid-1]
+          });
+          plotdata.push(data['branches'][branch][id]);
+        }
     }
     if (data["baseline"] != "None") {
       series.push({
@@ -322,7 +324,7 @@
         .attr('checked', true);
 
     //Add color legend to executable list
-    $("#executable div.boxbody > ul > ul > li > input").each(function() {
+    $("#executable div.boxbody > ul > li > input").each(function() {
       var colorid = $(this).attr("id").slice(10);
       $(this).parent().find("div.seriescolor").css("background-color", seriesColors[colorid-1]);
     });
@@ -402,15 +404,11 @@
 <div id="executable" class="sidebox">
   <div class="boxhead"><h2>Executables</h2></div>
   <div class="boxbody">
-    <ul class="clearfix">{% for proj, execs in executables.items %}
-      <ul>{{ proj }} (<a href="#" class="checkall">All</a>, <a href="#" class="uncheckall">None</a>)
-      {% for exec in execs|dictsort:"id" %}
-        <li title="{{ exec.description }}"><!-- the input id != value. It is used for exeutable color order -->
-          <input id="executable{{ forloop.counter }}" type="checkbox" name="executable" value="{{ exec.id }}" />
-          <label for="executable{{ forloop.counter }}">{{ exec }}</label><div class="seriescolor"></div>
-        </li>{% endfor %}
-      </ul>
-    {% endfor %}
+    <ul class="clearfix">{% for exec in executables|dictsort:"id" %}
+      <li title="{{ exec.description }}"><!-- the input id != value. It is used for exeutable color order -->
+        <input id="executable{{ forloop.counter }}" type="checkbox" name="executable" value="{{ exec.id }}" />
+        <label for="executable{{ forloop.counter }}">{{ exec }}</label><div class="seriescolor"></div>
+      </li>{% endfor %}
     </ul>
     <ul>
       <li title="Select baseline">Baseline:<div id="baselinecolor" class="seriescolor"></div><br/>

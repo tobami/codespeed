@@ -687,10 +687,14 @@ def reports(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
 
-    return render_to_response('codespeed/reports.html', {
-        'reports': Report.objects.filter(
+    reports = {}
+    for proj in Project.objects.filter(track=True):
+        reports[proj] = Report.objects.filter(
             revision__branch__name='default'
-        ).order_by('-revision__date')[:10],
+            ).filter(revision__branch__project=proj
+            ).order_by('-revision__date')[:10]
+    return render_to_response('codespeed/reports.html', {
+        'reports': reports
     }, context_instance=RequestContext(request))
 
 

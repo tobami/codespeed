@@ -164,7 +164,7 @@
   <div class="boxhead"><h2>Executables</h2></div>
   <div class="boxbody">
     {% for proj, executable in executables.items %}
-    <ul>{{ proj }} (<a href="#" class="checkall">All</a>, <a href="#" class="uncheckall">None</a>)
+    <ul>{{ proj }} <a href="#" class="checkall">(All</a>, <a href="#" class="uncheckall">None)</a>
     {% for exe in executable %}
       <li title="{{ exe.executable }} - {{ exe.revision }}">
         <input id="exe_{{ exe.key }}" type="checkbox" name="executables" value="{{ exe.key }}" />
@@ -177,7 +177,7 @@
   <div class="boxhead"><h2>Benchmarks</h2></div>
   <div class="boxbody">
   {% for key,benchlist in benchmarks.items %}
-  <ul>{{ key }} (<a href="#" class="checkall">All</a>, <a href="#" class="uncheckall">None</a>)
+  <ul>{{ key }} <a href="#" class="checkall">(All</a>, <a href="#" class="uncheckall">None)</a>
     {% for bench in benchlist|dictsort:"name" %}
     <li title="{{ bench.description }}">
       <input id="benchmark_{{ bench.id }}" type="checkbox" name="benchmarks" value="{{ bench.id }}" />

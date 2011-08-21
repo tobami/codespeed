@@ -155,9 +155,8 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                                 var benchlabel = $("label[for='benchmark_" + benchmarks[b] + "']").text();
                                 var baselinelabel = $("label[for='exe_" + baseline + "']").text();
                                 var msg = "<strong>"+ title + "</strong>" + "<br><br>";
-                                msg += "Could not render plot because baseline "+baselinelabel+" has empty results for benchmark " + benchlabel;
+                                msg += "Could not render plot because the chosen baseline has empty results for benchmark " + benchlabel;
                                 return abortRender(plotid, msg);
-                                val = 0.0001;
                             } else {
                                 baseline_is_empty = false;
                                 val = val / baseval;
@@ -181,7 +180,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     if (baseline_is_empty) {
         var baselinelabel = $("label[for='exe_" + baseline + "']").text();
         var msg = "<strong>"+ title + "</strong>" + "<br><br>";
-        msg += "Could not render plot because baseline "+baselinelabel+" is empty";
+        msg += "Could not render plot because the chosen baseline is empty";
         return abortRender(plotid, msg);
         return -1;
     }

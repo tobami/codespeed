@@ -629,9 +629,10 @@ def changes(request):
     executables = Executable.objects.filter(project__track=True)
     revlimit = 20
     # Get lastest revisions for this project and it's "default" branch
+    branch = Branch.objects.get(
+                name="default", project=defaultexecutable.project)
     lastrevisions = Revision.objects.filter(
-        branch__project=defaultexecutable.project,
-        branch__name=settings.DEF_BRANCH
+        branch__project=branch,
     ).order_by('-date')[:revlimit]
     if not len(lastrevisions):
         return no_data_found(request)
@@ -642,7 +643,7 @@ def changes(request):
         commitid = data['rev']
         try:
             selectedrevision = Revision.objects.get(
-                commitid__startswith=commitid, branch__project=defaultexecutable.project
+                commitid__startswith=commitid, branch=branch
             )
             if not selectedrevision in lastrevisions:
                 lastrevisions = list(chain(lastrevisions))

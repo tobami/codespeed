@@ -73,10 +73,6 @@ class Revision(models.Model):
                 long(self.commitid)
             except ValueError:
                 raise ValidationError("Invalid SVN commit id %s" % self.commitid)
-        elif self.branch.project.repo_type in ("M", "G", "H") and len(self.commitid) != 40:
-            raise ValidationError("Invalid %s commit hash %s" % (
-                                    self.branch.project.get_repo_type_display(),
-                                    self.commitid))
 
 
 class Executable(models.Model):

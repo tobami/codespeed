@@ -765,8 +765,6 @@ def saverevisioninfo(rev):
         rev.author  = log['author']
         rev.date    = log['date']
         rev.message = log['message']
-    else:
-        rev.date = datetime.now()
 
 
 def validate_result(item):
@@ -830,7 +828,7 @@ def save_result(data):
         return res, True
     else:
         assert(isinstance(res, Environment))
-        e = res
+        env = res
 
     p, created = Project.objects.get_or_create(name=data["project"])
     branch, created = Branch.objects.get_or_create(name=data["branch"],
@@ -852,10 +850,11 @@ def save_result(data):
         if p.repo_type not in ("N", ""):
             try:
                 saverevisioninfo(rev)
-            except StandardError, e:
+            except RuntimeError as e:
                 logging.warning("unable to save revision %s info: %s", rev, e,
                                 exc_info=True)
         rev.save()
+
     exe, created = Executable.objects.get_or_create(
         name=data['executable'],
         project=p
@@ -863,9 +862,9 @@ def save_result(data):
 
     try:
         r = Result.objects.get(
-            revision=rev,executable=exe,benchmark=b,environment=e)
+            revision=rev,executable=exe,benchmark=b,environment=env)
     except Result.DoesNotExist:
-        r = Result(revision=rev,executable=exe,benchmark=b,environment=e)
+        r = Result(revision=rev,executable=exe,benchmark=b,environment=env)
 
     r.value = data["result_value"]
     if 'result_date' in data:
@@ -882,7 +881,7 @@ def save_result(data):
     r.full_clean()
     r.save()
 
-    return (rev, exe, e), False
+    return (rev, exe, env), False
 
 
 def add_result(request):

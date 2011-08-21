@@ -34,14 +34,11 @@ def getlogs(newrev, startrev):
                 )
             )
     except pysvn.ClientError:
-        return [
-            {'error': True,
-            'message': "Could not resolve '" + newrev.branch.project.repo_path + "'"}]
+        raise RuntimeError(
+            "Could not resolve '" + newrev.branch.project.repo_path + "'")
     except ValueError:
-        return [{
-            'error': True,
-            'message': "'%s' is an invalid subversion revision number" % newrev.commitid
-        }]
+        raise RuntimeError(
+            "'%s' is an invalid subversion revision number" % newrev.commitid)
     log_messages.reverse()
     s = len(log_messages)
     while s > loglimit:

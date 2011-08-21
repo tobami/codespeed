@@ -1,5 +1,7 @@
 import os, datetime
 from subprocess import Popen, PIPE
+import logging
+
 from django.conf import settings
 
 
@@ -52,8 +54,8 @@ def getlogs(endrev, startrev):
     p = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=working_copy)
     stdout, stderr = p.communicate()
 
-    if stderr:
-        return [{'error': True, 'message': stderr}]
+    if p.returncode != 0:
+        raise RuntimeError(str(stderr))
     else:
         stdout = stdout.rstrip('\n')#Remove last newline
         logs = []

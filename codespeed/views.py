@@ -626,17 +626,21 @@ def changes(request):
             pass
 
     # Information for template
-    executables = Executable.objects.filter(project__track=True)
     revlimit = 20
+    executables = {}
+    revisionlists = {}
+    projectlist = []
+    for proj in Project.objects.filter(track=True):
+        executables[proj] = Executable.objects.filter(project=proj)
+        projectlist.append(proj)
+        branch = Branch.objects.filter(name=settings.DEF_BRANCH, project=proj)
+        revisionlists[proj.name] = Revision.objects.filter(
+            branch=branch
+        ).order_by('-date')[:revlimit]
     # Get lastest revisions for this project and it's "default" branch
-    branch = Branch.objects.get(
-                name="default", project=defaultexecutable.project)
-    lastrevisions = Revision.objects.filter(
-        branch__project=branch,
-    ).order_by('-date')[:revlimit]
+    lastrevisions = revisionlists.get(defaultexecutable.project.name)
     if not len(lastrevisions):
         return no_data_found(request)
-
     selectedrevision = lastrevisions[0]
 
     if "rev" in data:
@@ -654,20 +658,10 @@ def changes(request):
     # belongs to another project (project changed) and then trigger the
     # repopulation of the revision selection selectbox
     projectmatrix = {}
-    for e in executables:
-        projectmatrix[e.id] = e.project.name
+    for proj in executables:
+        for e in executables[proj]:
+            projectmatrix[e.id] = e.project.name
     projectmatrix = json.dumps(projectmatrix)
-    projectlist = []
-    for p in Project.objects.filter(
-            track=True
-        ).exclude(
-            id=defaultexecutable.project.id):
-        projectlist.append(p)
-    revisionboxes = { defaultexecutable.project.name: lastrevisions }
-    for p in projectlist:
-        revisionboxes[p.name] = Revision.objects.filter(
-            branch__project=p
-        ).order_by('-date')[:revlimit]
 
     return render_to_response('codespeed/changes.html', {
         'defaultenvironment': defaultenv,
@@ -679,7 +673,7 @@ def changes(request):
         'environments': enviros,
         'executables': executables,
         'projectmatrix': projectmatrix,
-        'revisionboxes': revisionboxes,
+        'revisionboxes': revisionlists,
         'trends': trends,
     }, context_instance=RequestContext(request))
 

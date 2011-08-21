@@ -891,7 +891,7 @@ def get_home_data(request):
     pp_branch = Branch.objects.get(name="default", project=pp_exe.project)
     # Fetch PyPy tagged revisions
     pp_taggedrevs = Revision.objects.filter(
-        project=pp_exe.project
+        branch=pp_branch
     ).exclude(tag="").order_by('date')
     data['tagged_revs'] = [rev.tag for rev in pp_taggedrevs]
     pp_results = {}

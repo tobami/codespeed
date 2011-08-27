@@ -110,7 +110,8 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles',
     'codespeed',
-    'south'
+    'south',
+    'tastypie',
 )
 
 STATIC_URL = '/static/'

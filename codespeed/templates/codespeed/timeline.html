@@ -14,27 +14,40 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
 
 <script type="text/javascript">
-  var baselineColor = "#d8b83f";
-  var seriesColors = ["#4bb2c5", "#EAA228", "#c5b47f", "#579575", "#839557", "#958c12", "#953579", "#4b5de4", "#ff5800", "#0085cc"];
   var seriesindex = new Array();
+  var baselineColor = "#d8b83f";
+  var seriesColors = ["#4bb2c5", "#EAA228", "#579575", "#953579", "#839557", "#ff5800", "#958c12", "#4b5de4", "#0085cc"];
+
+  function setExeColors() {
+    // Set color data attribute for all executables
+    $("#executable > div.boxbody > ul > ul > li > input").each(function(index) {
+      var color_id = index;
+      while (color_id > seriesColors.length) { color_id -= seriesColors.length; }
+      $(this).data('color', seriesColors[color_id]);
+    });
+  }
+
+  function getColor(exe_id) {
+    return $("#executable > div.boxbody")
+                            .find("input[value='"+exe_id+"']")
+                            .data('color');
+  }
 
   function shouldPlotEquidistant() {
-	  return $("#equidistant").is(':checked');
+    return $("#equidistant").is(':checked');
   }
 
   function getConfiguration() {
     var config = new Object();
-
     config["exe"] = readCheckbox("input[name='executable']:checked");
     config["base"] = $("#baseline option:selected").val();
     config["ben"] = $("input[name='benchmark']:checked").val();
     config["env"] = $("input[name='environments']:checked").val();
     config["revs"] = $("#revisions option:selected").val();
-    
+
     var branch = readCheckbox("input[name='branch']:checked");
     if (branch)
       config["bran"] = branch;
-    
     config["equid"] = $("#equidistant").is(':checked') ? "on" : "off";
     return config;
   }
@@ -47,6 +60,7 @@
     if($("input[name='benchmark']:checked").val() == "grid") { return false; }
     if (neighbor) {
       var commitid = neighbor.data[3];
+      // Get executable ID from the seriesindex array
       var executableid = seriesindex[neighbor.seriesIndex];
       var environment = $("input[name='environments']:checked").val();
       permalinkToChanges(commitid, executableid, environment);
@@ -57,15 +71,13 @@
     var plotdata = new Array();
     var series = new Array();
     var lastvalues = new Array();//hopefully the smallest values for determining significant digits.
+    seriesindex = new Array();
     for (branch in data["branches"]) {
       // NOTE: Currently, only the "default" branch is shown in the timeline
-      seriesindex = new Array();
       for (exe_id in data["branches"][branch]) {
-        var color_id = $("#executable > div.boxbody").find("input[value='"+exe_id+"']").attr('id').slice(10);
-        while (color_id > seriesColors.length) { color_id -= seriesColors.length; }
-        var label = $("label[for*='executable" + color_id + "']").html();
         if (branch != "default") { label += " - " + branch; }
-        series.push({"label":  label, "color": seriesColors[color_id-1]});
+        var label = $("label[for*='executable" + exe_id + "']").html();
+        series.push({"label":  label, "color": getColor(exe_id)});
         seriesindex.push(exe_id);
         plotdata.push(data["branches"][branch][exe_id]);
         lastvalues.push(data["branches"][branch][exe_id][0][1]);
@@ -158,16 +170,14 @@
   function renderMiniplot(plotid, data) {
     var plotdata = new Array();
     for (branch in data['branches']) {
-	    var series = new Array();
-	    for (id in data['branches'][branch]) {
-	      var colorid = $("#executable > div.boxbody").find("input[value='"+id+"']").attr('id').slice(10);
-	      while (colorid > seriesColors.length) { colorid -= seriesColors.length;}
-	      series.push({
-	        "label": $("label[for*='executable" + colorid + "']").html(),
-	        "color": seriesColors[colorid-1]
-	      });
-	      plotdata.push(data['branches'][branch][id]);
-	    }
+      var series = new Array();
+      for (id in data['branches'][branch]) {
+        series.push({
+          "label": $("label[for*='executable" + id + "']").html(),
+          "color": getColor(id)
+        });
+        plotdata.push(data['branches'][branch][id]);
+      }
     }
     if (data["baseline"] != "None") {
       series.push({
@@ -306,8 +316,9 @@
 
     //Add color legend to executable list
     $("#executable div.boxbody > ul > ul > li > input").each(function() {
-      var colorid = $(this).attr("id").slice(10);
-      $(this).parent().find("div.seriescolor").css("background-color", seriesColors[colorid-1]);
+      $(this).parent()
+        .find("div.seriescolor")
+        .css("background-color", getColor($(this).attr("id").slice(10)));
     });
     $("#baselinecolor").css("background-color", baselineColor);
     $("#equidistant").attr('checked', valueOrDefault(event.parameters['equid'], '{{ defaultequid }}') == "on");
@@ -356,6 +367,7 @@
       refreshContent();
       return false;
     });
+    setExeColors();
   });
 </script>
 {% endblock %}

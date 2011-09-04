@@ -1,4 +1,4 @@
 *.pyc
 *.db
-speedcenter/repos
+example/repos/*
 override

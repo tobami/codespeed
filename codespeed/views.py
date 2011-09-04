@@ -376,8 +376,8 @@ def gettimelinedata(request):
         }
         # Temporary
         trunks = []
-        if Branch.objects.filter(name='default'):
-            trunks.append('default')
+        if Branch.objects.filter(name=settings.DEF_BRANCH):
+            trunks.append(settings.DEF_BRANCH)
         #for branch in data2.get('bran', '').split(','): #-- For now, we'll only work with trunk branches
         append = False
         for branch in trunks:
@@ -480,7 +480,7 @@ def timeline(request):
 
     defaultbranch = ""
     if "default" in branch_list:
-        defaultbranch = "default"
+        defaultbranch = settings.DEF_BRANCH
     if data.get('bran') in branch_list:
         defaultbranch = data.get('bran')
 
@@ -533,7 +533,9 @@ def timeline(request):
         defaultequid = "off"
 
     # Information for template
-    executables = Executable.objects.filter(project__track=True)
+    executables = {}
+    for proj in Project.objects.filter(track=True):
+        executables[proj] = Executable.objects.filter(project=proj)
     return render_to_response('codespeed/timeline.html', {
         'checkedexecutables': checkedexecutables,
         'defaultbaseline': defaultbaseline,
@@ -599,7 +601,7 @@ def changes(request):
 
     enviros = Environment.objects.all()
     if not enviros:
-        return no_environment_error()
+        return no_environment_error(request)
     defaultenv = get_default_environment(enviros, data)
 
     defaultexecutable = getdefaultexecutable()
@@ -626,23 +628,28 @@ def changes(request):
             pass
 
     # Information for template
-    executables = Executable.objects.filter(project__track=True)
     revlimit = 20
+    executables = {}
+    revisionlists = {}
+    projectlist = []
+    for proj in Project.objects.filter(track=True):
+        executables[proj] = Executable.objects.filter(project=proj)
+        projectlist.append(proj)
+        branch = Branch.objects.filter(name=settings.DEF_BRANCH, project=proj)
+        revisionlists[proj.name] = Revision.objects.filter(
+            branch=branch
+        ).order_by('-date')[:revlimit]
     # Get lastest revisions for this project and it's "default" branch
-    lastrevisions = Revision.objects.filter(
-        branch__project=defaultexecutable.project,
-        branch__name="default"
-    ).order_by('-date')[:revlimit]
+    lastrevisions = revisionlists.get(defaultexecutable.project.name)
     if not len(lastrevisions):
         return no_data_found(request)
-
     selectedrevision = lastrevisions[0]
 
     if "rev" in data:
         commitid = data['rev']
         try:
             selectedrevision = Revision.objects.get(
-                commitid__startswith=commitid, branch__project=defaultexecutable.project
+                commitid__startswith=commitid, branch=branch
             )
             if not selectedrevision in lastrevisions:
                 lastrevisions = list(chain(lastrevisions))
@@ -653,20 +660,10 @@ def changes(request):
     # belongs to another project (project changed) and then trigger the
     # repopulation of the revision selection selectbox
     projectmatrix = {}
-    for e in executables:
-        projectmatrix[e.id] = e.project.name
+    for proj in executables:
+        for e in executables[proj]:
+            projectmatrix[e.id] = e.project.name
     projectmatrix = json.dumps(projectmatrix)
-    projectlist = []
-    for p in Project.objects.filter(
-            track=True
-        ).exclude(
-            id=defaultexecutable.project.id):
-        projectlist.append(p)
-    revisionboxes = { defaultexecutable.project.name: lastrevisions }
-    for p in projectlist:
-        revisionboxes[p.name] = Revision.objects.filter(
-            branch__project=p
-        ).order_by('-date')[:revlimit]
 
     return render_to_response('codespeed/changes.html', {
         'defaultenvironment': defaultenv,
@@ -678,7 +675,7 @@ def changes(request):
         'environments': enviros,
         'executables': executables,
         'projectmatrix': projectmatrix,
-        'revisionboxes': revisionboxes,
+        'revisionboxes': revisionlists,
         'trends': trends,
     }, context_instance=RequestContext(request))
 
@@ -689,7 +686,7 @@ def reports(request):
 
     return render_to_response('codespeed/reports.html', {
         'reports': Report.objects.filter(
-            revision__branch__name='default'
+            revision__branch__name=settings.DEF_BRANCH
         ).order_by('-revision__date')[:10],
     }, context_instance=RequestContext(request))
 
@@ -701,7 +698,7 @@ def displaylogs(request):
     error = False
     try:
         startrev = Revision.objects.filter(
-            branch=rev.branch.project
+            branch=rev.branch
         ).filter(date__lt=rev.date).order_by('-date')[:1]
         if not len(startrev):
             startrev = rev
@@ -764,8 +761,6 @@ def saverevisioninfo(rev):
         rev.author  = log['author']
         rev.date    = log['date']
         rev.message = log['message']
-    else:
-        rev.date = datetime.now()
 
 
 def validate_result(item):
@@ -829,7 +824,7 @@ def save_result(data):
         return res, True
     else:
         assert(isinstance(res, Environment))
-        e = res
+        env = res
 
     p, created = Project.objects.get_or_create(name=data["project"])
     branch, created = Branch.objects.get_or_create(name=data["branch"],
@@ -842,7 +837,8 @@ def save_result(data):
         # "None" (as string) can happen when we urlencode the POST data
         if not rev_date or rev_date in ["", "None"]:
             rev_date = datetime.today()
-        rev = Revision(branch=branch, commitid=data['commitid'], date=rev_date)
+        rev = Revision(branch=branch, project=p, commitid=data['commitid'],
+                       date=rev_date)
         try:
             rev.full_clean()
         except ValidationError as e:
@@ -850,10 +846,11 @@ def save_result(data):
         if p.repo_type not in ("N", ""):
             try:
                 saverevisioninfo(rev)
-            except StandardError, e:
+            except RuntimeError as e:
                 logging.warning("unable to save revision %s info: %s", rev, e,
                                 exc_info=True)
         rev.save()
+
     exe, created = Executable.objects.get_or_create(
         name=data['executable'],
         project=p
@@ -861,9 +858,9 @@ def save_result(data):
 
     try:
         r = Result.objects.get(
-            revision=rev,executable=exe,benchmark=b,environment=e)
+            revision=rev,executable=exe,benchmark=b,environment=env)
     except Result.DoesNotExist:
-        r = Result(revision=rev,executable=exe,benchmark=b,environment=e)
+        r = Result(revision=rev,executable=exe,benchmark=b,environment=env)
 
     r.value = data["result_value"]
     if 'result_date' in data:
@@ -880,7 +877,7 @@ def save_result(data):
     r.full_clean()
     r.save()
 
-    return (rev, exe, e), False
+    return (rev, exe, env), False
 
 
 def add_result(request):

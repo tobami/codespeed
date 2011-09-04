@@ -73,10 +73,6 @@ class Revision(models.Model):
                 long(self.commitid)
             except ValueError:
                 raise ValidationError("Invalid SVN commit id %s" % self.commitid)
-        elif self.branch.project.repo_type in ("M", "G", "H") and len(self.commitid) != 40:
-            raise ValidationError("Invalid %s commit hash %s" % (
-                                    self.branch.project.get_repo_type_display(),
-                                    self.commitid))
 
 
 class Executable(models.Model):
@@ -280,15 +276,15 @@ class Report(models.Model):
             return self._get_tablecache()
         # Otherwise generate a new changes table
         # Get latest revisions for this branch (which also sets the project)
-        lastrevisions = Revision.objects.filter(
-            branch=self.revision.branch
-        ).filter(
-            date__lte=self.revision.date
-        ).order_by('-date')[:trend_depth+1]
         try:
+            lastrevisions = Revision.objects.filter(
+                branch=self.revision.branch
+            ).filter(
+                date__lte=self.revision.date
+            ).order_by('-date')[:trend_depth+1]
             # Same as self.revision unless in a different branch
             lastrevision = lastrevisions[0]
-        except IndexError:
+        except:
             return []
         change_list = []
         pastrevisions = []

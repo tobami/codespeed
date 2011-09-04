@@ -6,6 +6,9 @@ WEBSITE_NAME = "PyPy's Speed Center" # This name will be used in the reports RSS
 
 DEF_ENVIRONMENT = None #Name of the environment which should be selected as default
 
+DEF_BRANCH = "default" # Defines the default branch to be used.
+                       # In git projects, this branch is usually be calles
+                       # "master"
 
 DEF_BASELINE = None # Which executable + revision should be default as a baseline
                     # Given as the name of the executable and commitid of the revision

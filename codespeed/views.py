@@ -216,7 +216,7 @@ def comparison(request):
 
     # Check whether there exist appropiate executables
     if not getdefaultexecutable():
-        return no_executables_error()
+        return no_executables_error(request)
 
     executables, exekeys = getcomparisonexes()
     checkedexecutables = []
@@ -606,7 +606,7 @@ def changes(request):
 
     defaultexecutable = getdefaultexecutable()
     if not defaultexecutable:
-        return no_executables_error()
+        return no_executables_error(request)
 
     if "exe" in data:
         try:
@@ -892,7 +892,7 @@ def add_result(request):
     else:
         create_report_if_enough_data(response[0], response[1], response[2])
         logging.debug("add_result: completed")
-        return HttpResponse("Result data saved succesfully", status=202)
+        return HttpResponse("Result data saved successfully", status=202)
 
 
 def add_json_results(request):

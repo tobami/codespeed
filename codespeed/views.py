@@ -496,7 +496,7 @@ def timeline(request):
             pass
 
     lastrevisions = [10, 50, 200, 1000]
-    defaultlast = 200
+    defaultlast = settings.DEF_TIMELINE_LIMIT
     if 'revs' in data:
         if int(data['revs']) not in lastrevisions:
             lastrevisions.append(data['revs'])

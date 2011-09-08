@@ -2,7 +2,7 @@
 """Default settings for Codespeed"""
 
 ## General default options ##
-WEBSITE_NAME = "MySpeedSite" # This name will be used in the reports RSS feed
+WEBSITE_NAME = "PyPy's Speed Center" # This name will be used in the reports RSS feed
 
 DEF_ENVIRONMENT = None #Name of the environment which should be selected as default
 
@@ -38,7 +38,10 @@ DEF_BENCHMARK = None   # Default selected benchmark. Possible values:
                        #       default when there are lots of benchmarks)
                        #   "mybench": will select benchmark named "mybench"
 
-#timeline_branches = True # NOTE: Only the default branch is currently shown
+DEF_TIMELINE_LIMIT = 50  # Default number of revisions to be plotted
+                         # Possible values 10,50,200,1000
+
+#TIMELINE_BRANCHES = True # NOTE: Only the default branch is currently shown
                          # Get timeline results for specific branches
                          # Set to False if you want timeline plots and results only for trunk.
 

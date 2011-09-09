@@ -2,9 +2,7 @@
 
 A web application to monitor and analyze the performance of your code.
 
-Known to be used by [PyPy](http://speed.pypy.org),
-[Twisted](http://speed.twistedmatrix.com).
-and many more.
+Known to be used by [PyPy](http://speed.pypy.org), [Twisted](http://speed.twistedmatrix.com), [RubySpec](http://speed.rubyspec.org/) and many more.
 
 For an overview of some application concepts see the [wiki page](https://github.com/tobami/codespeed/wiki/Overview)
 

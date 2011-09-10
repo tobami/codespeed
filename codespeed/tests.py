@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
-from time import sleep
 import copy, json
 
 from django.test import TestCase
@@ -38,7 +37,7 @@ class AddResult(TestCase):
         
         # Check that we get a success response
         self.assertEquals(response.status_code, 202)
-        self.assertEquals(response.content, "Result data saved succesfully")
+        self.assertEquals(response.content, "Result data saved successfully")
         
         # Check that the data was correctly saved
         e = Environment.objects.get(name='Dual Core')
@@ -70,7 +69,7 @@ class AddResult(TestCase):
         modified_data['min']         = 1.0
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)
-        self.assertEquals(response.content, "Result data saved succesfully")
+        self.assertEquals(response.content, "Result data saved successfully")
         e = Environment.objects.get(name='Dual Core')
         p = Project.objects.get(name='MyProject')
         branch = Branch.objects.get(name='default', project=p)
@@ -156,7 +155,7 @@ class AddResult(TestCase):
         modified_data['executable'] = "My new executable"
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)
-        self.assertEquals(response.content, "Result data saved succesfully")
+        self.assertEquals(response.content, "Result data saved successfully")
 
 
 class AddJSONResults(TestCase):

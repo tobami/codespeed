@@ -2,7 +2,7 @@
 """Default settings for Codespeed"""
 
 ## General default options ##
-WEBSITE_NAME = "PyPy's Speed Center" # This name will be used in the reports RSS feed
+WEBSITE_NAME = "MySpeedSite" # This name will be used in the reports RSS feed
 
 DEF_ENVIRONMENT = None #Name of the environment which should be selected as default
 

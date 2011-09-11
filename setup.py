@@ -4,7 +4,7 @@ setup(
     author='Miquel Torres',
     author_email='tobami@gmail.com',
     name='codespeed',
-    version='0.9.0',
+    version='0.9.1',
     url='https://github.com/tobami/codespeed',
     license='GNU Lesser General Public License version 2.1',
     install_requires=['django>=1.3', 'isodate', 'south'],

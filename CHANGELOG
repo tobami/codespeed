@@ -1,5 +1,12 @@
 == Change Log ==
 
+=== Version 0.9.1, September 11, 2011 ===
+* NEW: Stefan added the possibility to name the default branch other than "default"
+* NEW: Danilo added executable grouping by project
+* NEW: Made default number of data points in the timeline plots configurable
+* FIX: Frank fixed a lot of issues with the deploy examples
+* FIX: Other numerous fixes
+
 
 === Version 0.9.0, July 17, 2011 ===
 * NEW: Frank refactored the Django project and app. Now Codespeed is a proper, installable Django app, and there is a sample project in the "example" dir

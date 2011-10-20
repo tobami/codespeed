@@ -55,19 +55,22 @@ class EnvironmentTest(FixtureTestCase):
         self.client = Client()
         super(EnvironmentTest, self).setUp()
 
-    def test_dual_core(self):
+    def test_get_environment(self):
+        """Should get an existing environment"""
         response = self.client.get('/api/v1/environment/1/')
         self.assertEquals(response.status_code, 200)
         self.assertEqual(json.loads(response.content)['name'], "Dual Core")
 
-    def test_env1(self):
+    def test_get_environment_all_fields(self):
+        """Should get all fields for an environment"""
         response = self.client.get('/api/v1/environment/%s/' % (self.env1.id,))
         self.assertEquals(response.status_code, 200)
         for k in self.env1_data.keys():
             self.assertEqual(
                 json.loads(response.content)[k], getattr(self.env1, k))
 
-    def test_env2_post(self):
+    def test_post(self):
+        """Should save a new environment"""
         response = self.client.post('/api/v1/environment/',
                                     data=json.dumps(self.env2_data),
                                     content_type='application/json')
@@ -77,7 +80,8 @@ class EnvironmentTest(FixtureTestCase):
             self.assertEqual(
                 json.loads(response.content)[k], v)
 
-    def test_env2_put(self):
+    def test_put(self):
+        """Should modify an existing environment"""
         modified_data = copy.deepcopy(self.env2_data)
         modified_data['name'] = "env2.2"
         modified_data['memory'] = "128kB"
@@ -90,7 +94,8 @@ class EnvironmentTest(FixtureTestCase):
             self.assertEqual(
                 json.loads(response.content)[k], v)
 
-    def test_env2_delete(self):
+    def test_delete(self):
+        """Should delete an environment"""
         response = self.client.delete('/api/v1/environment/3/',
                                     content_type='application/json')
         self.assertEquals(response.status_code, 410)
@@ -112,41 +117,45 @@ class ApiKeyAuthenticationTestCase(FixtureTestCase):
     def setUp(self):
         super(ApiKeyAuthenticationTestCase, self).setUp()
         ApiKey.objects.all().delete()
-
-    def test_is_authenticated(self):
-        auth = ApiKeyAuthentication()
-        request = HttpRequest()
+        self.auth = ApiKeyAuthentication()
+        self.request = HttpRequest()
 
         # Simulate sending the signal.
         user = User.objects.get(username='apiuser')
         create_api_key(User, instance=user, created=True)
 
-        # No username/api_key details should fail.
-        self.assertEqual(isinstance(auth.is_authenticated(request), HttpUnauthorized), True)
+    def test_is_not_authenticated(self):
+        """Should return HttpUnauthorized when incorrect credentials are given"""
+        # No username/api_key details
+        self.assertEqual(isinstance(
+            self.auth.is_authenticated(self.request), HttpUnauthorized), True)
 
         # Wrong username details.
-        request.GET['username'] = 'foo'
-        self.assertEqual(isinstance(auth.is_authenticated(request), HttpUnauthorized), True)
+        self.request.GET['username'] = 'foo'
+        self.assertEqual(isinstance(
+            self.auth.is_authenticated(self.request), HttpUnauthorized), True)
 
         # No api_key.
-        request.GET['username'] = 'daniel'
-        self.assertEqual(isinstance(auth.is_authenticated(request), HttpUnauthorized), True)
+        self.request.GET['username'] = 'daniel'
+        self.assertEqual(isinstance(
+            self.auth.is_authenticated(self.request), HttpUnauthorized), True)
 
         # Wrong user/api_key.
-        request.GET['username'] = 'daniel'
-        request.GET['api_key'] = 'foo'
-        self.assertEqual(isinstance(auth.is_authenticated(request), HttpUnauthorized), True)
+        self.request.GET['username'] = 'daniel'
+        self.request.GET['api_key'] = 'foo'
+        self.assertEqual(isinstance(
+            self.auth.is_authenticated(self.request), HttpUnauthorized), True)
 
+    def test_is_authenticated(self):
+        """Should correctly authenticate when using an existing user and key"""
         # Correct user/api_key.
         user = User.objects.get(username='apiuser')
-        request.GET['username'] = 'apiuser'
-        request.GET['api_key'] = user.api_key.key
-        self.assertEqual(auth.is_authenticated(request), True)
+        self.request.GET['username'] = 'apiuser'
+        self.request.GET['api_key'] = user.api_key.key
+        self.assertEqual(self.auth.is_authenticated(self.request), True)
 
 
 #def suite():
 #    suite = unittest.TestSuite()
 #    suite.addTest(EnvironmentTest())
 #    return suite
-
-

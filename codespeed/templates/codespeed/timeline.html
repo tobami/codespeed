@@ -389,12 +389,13 @@
         </li>{% endfor %}
       </ul>
     {% endfor %}
-    <ul>
-      <li title="Select baseline">Baseline:<div id="baselinecolor" class="seriescolor"></div><br/>
-        <select id="baseline">
-        {% for base in baseline %}<option value="{{ base.key }}">{{ base.name }}</option>{% endfor %}
-        </select>
-      </li>
+      <ul>
+        <li title="Select baseline">Baseline:<div id="baselinecolor" class="seriescolor"></div><br/>
+          <select id="baseline">
+          {% for base in baseline %}<option value="{{ base.key }}">{{ base.name }}</option>{% endfor %}
+          </select>
+        </li>
+      </ul>
     </ul>
   </div>
 </div>

@@ -8,16 +8,17 @@ For an overview of some application concepts see the [wiki page](https://github.
 
 # Requirements
 
-You will need Python 2.6+ and Django 1.1+ with South.
+You will need Python 2.6+ and Django 1.1+ with South and Tastypie.
 
 In Debian and Ubuntu, they can be installed with:
 
-    sudo apt-get install python-django python-django-south
+    sudo apt-get install python-django python-django-south python-tastypie
 
 Instead of using distribution packages, you can use pip:
 
     sudo pip install django
     sudo pip install South
+    sudo pip install django-tastypie
 
 If you want version control integration, there are additional requirements:
 

@@ -144,6 +144,9 @@ WEBSITE_NAME = "MySpeedSite" # This name will be used in the reports RSS feed
                       # Given as the name of the executable.
                       # Example: defaultexecutable = "myexe"
 
+#SHOW_AUTHOR_EMAIL_ADDRESS = True # Whether to show the authors email address in the
+                                 # changes log
+
 ## Timeline view options ##
 #DEF_BENCHMARK = "grid" # Default selected benchmark. Possible values:
                        #   "grid": will show the grid of plots

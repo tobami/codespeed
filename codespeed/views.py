@@ -720,7 +720,8 @@ def displaylogs(request):
         error = repr(e)
 
     return render_to_response('codespeed/changes_logs.html',
-                                {'error': error, 'logs': logs },
+                                {'error': error, 'logs': logs,
+                                 'show_email_address': settings.SHOW_AUTHOR_EMAIL_ADDRESS},
                                 context_instance=RequestContext(request))
 
 

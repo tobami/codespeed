@@ -13,7 +13,7 @@
                     </ul>
                 {% endif %}
 
-                {% if log.author_email %}
+                {% if log.author_email and show_email_address %}
                     <a class="author fn" href="mailto:{{ log.author_email }}">{{ log.author }}</a>
                 {% else %}
                     <span class="author fn">{{ log.author }}</span>

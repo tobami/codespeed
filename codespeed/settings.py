@@ -29,6 +29,9 @@ DEF_EXECUTABLE = None # Executable that should be chosen as default in the chang
                       # Given as the name of the executable.
                       # Example: defaultexecutable = "myexe"
 
+SHOW_AUTHOR_EMAIL_ADDRESS = True # Whether to show the authors email address in the
+                                 # changes log
+
 ## Timeline view options ##
 DEF_BENCHMARK = None   # Default selected benchmark. Possible values:
                        #   None: will show a grid of plot thumbnails, or a

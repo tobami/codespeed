@@ -7,15 +7,12 @@ from django.conf import settings
 
 
 def updaterepo(project, update=True):
-    repo_name = os.path.splitext(project.repo_path.split(os.sep)[-1])[0]
-    working_copy = os.path.join(settings.REPOSITORY_BASE_PATH, repo_name)
-
-    if os.path.exists(working_copy):
+    if os.path.exists(project.working_copy):
         if not update:
             return
 
         p = Popen(['git', 'pull'], stdout=PIPE, stderr=PIPE,
-                    cwd=working_copy)
+                    cwd=project.working_copy)
 
         stdout, stderr = p.communicate()
         if p.returncode != 0:
@@ -24,7 +21,7 @@ def updaterepo(project, update=True):
         else:
             return [{'error': False}]
     else:
-        cmd = ['git', 'clone', project.repo_path, repo_name]
+        cmd = ['git', 'clone', project.repo_path, project.repo_name]
         p = Popen(cmd, stdout=PIPE, stderr=PIPE,
                     cwd=settings.REPOSITORY_BASE_PATH)
         logging.debug('Cloning Git repo {0}for project {1}'.format(
@@ -40,11 +37,6 @@ def updaterepo(project, update=True):
 def getlogs(endrev, startrev):
     updaterepo(endrev.branch.project, update=False)
 
-    # TODO: Move all of this onto the model so we can avoid needing to repeat it:
-    repo_name = os.path.splitext(
-        endrev.branch.project.repo_path.split(os.sep)[-1])[0]
-    working_copy = os.path.join(settings.REPOSITORY_BASE_PATH, repo_name)
-
     cmd = ["git", "log",
             # NULL separated values delimited by 0x1e record separators
             # See PRETTY FORMATS in git-log(1):
@@ -56,6 +48,7 @@ def getlogs(endrev, startrev):
         cmd.append("-1") # Only return one commit
         cmd.append(endrev.commitid)
 
+    working_copy = endrev.branch.project.working_copy
     p = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=working_copy)
 
     stdout, stderr = p.communicate()

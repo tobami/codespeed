@@ -6,15 +6,12 @@ from django.conf import settings
 
 
 def updaterepo(project, update=True):
-    repo_name = os.path.splitext(project.repo_path.split(os.sep)[-1])[0]
-    working_copy = os.path.join(settings.REPOSITORY_BASE_PATH, repo_name)
-
-    if os.path.exists(working_copy):
+    if os.path.exists(project.working_copy):
         if not update:
             return
 
         p = Popen(['hg', 'pull', '-u'], stdout=PIPE, stderr=PIPE,
-                    cwd=working_copy)
+                    cwd=project.working_copy)
         stdout, stderr = p.communicate()
 
         if p.returncode != 0 or stderr:
@@ -24,7 +21,7 @@ def updaterepo(project, update=True):
             return [{'error': False}]
     else:
         # Clone repo
-        cmd = ['hg', 'clone', project.repo_path, repo_name]
+        cmd = ['hg', 'clone', project.repo_path, project.repo_name]
 
         p = Popen(cmd, stdout=PIPE, stderr=PIPE,
                     cwd=settings.REPOSITORY_BASE_PATH)
@@ -42,15 +39,12 @@ def updaterepo(project, update=True):
 def getlogs(endrev, startrev):
     updaterepo(endrev.branch.project, update=False)
 
-    # TODO: Move all of this onto the model so we can avoid needing to repeat it:
-    repo_name = os.path.splitext(endrev.branch.project.repo_path.split(os.sep)[-1])[0]
-    working_copy = os.path.join(settings.REPOSITORY_BASE_PATH, repo_name)
-
     cmd = ["hg", "log",
             "-r", "%s:%s" % (endrev.commitid, startrev.commitid),
             "-b", "default",
             "--template", "{rev}:{node|short}\n{node}\n{author|user}\n{author|email}\n{date}\n{desc}\n=newlog=\n"]
 
+    working_copy = endrev.branch.project.working_copy
     p = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=working_copy)
     stdout, stderr = p.communicate()
 

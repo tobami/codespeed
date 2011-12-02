@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
-import copy, json
+import copy, json, os
 
 from django.test import TestCase
 from django.test.client import Client
@@ -375,3 +375,26 @@ class CodespeedSettings(TestCase):
         for k in self.cs_setting_keys:
             self.assertEqual(getattr(settings, k), getattr(default_settings, k))
 
+
+class ProjectTest(TestCase):
+    """Test project model
+    """
+
+    def setUp(self):
+        self.github_project = Project(repo_type='H', repo_path='https://github.com/tobami/codespeed.git')
+        self.git_project = Project(repo_type='G', repo_path='/home/foo/codespeed')
+
+    def test_repo_name(self):
+        """Test that only projects with local repositories have a repo_name attribute
+        """
+        self.assertEqual(self.git_project.repo_name, 'codespeed')
+
+        self.assertRaises(AttributeError, getattr, self.github_project, 'repo_name')
+
+    def test_working_copy(self):
+        """Test that only projects with local repositories have a working_copy attribute
+        """
+        self.assertEqual(self.git_project.working_copy,
+                         os.path.join(settings.REPOSITORY_BASE_PATH, self.git_project.repo_name))
+
+        self.assertRaises(AttributeError, getattr, self.github_project, 'working_copy')

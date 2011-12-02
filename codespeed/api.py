@@ -125,3 +125,29 @@ class ReportResource(ModelResource):
         authorization= Authorization()
 
 
+class BenchmarkResultResource(Resource):
+    """Ressource for all the data of a benchmark result
+
+        mandatory data
+        'commitid',
+        'branch',
+        'project',
+        'executable',
+        'benchmark',
+        'environment',
+        'result_value',
+    """
+
+    revision = fields.ToOneField(RevisionResource, 'revision')
+    branch = fields.ToOneField(BranchResource, 'branch')
+    project = fields.ToOneField(ProjectResource, 'project')
+    executable = fields.ToOneField(ExecutableResource, 'executable')
+    benchmark = fields.ToOneField(BenchmarkResource, 'benchmark')
+    environment = fields.ToOneField(EnvironmentResource, 'environment')
+    result = fields.ToOneField(ResultResource, 'result')
+
+    class Meta:
+        resource_name = 'benchmark-result'
+        authorization= Authorization()
+        allowed_methods = ['get', 'post', 'put', 'delete']
+

@@ -4,7 +4,7 @@
 
 Example:
 GET Environment() data:
-    →curl -H "Accept: application/json" \
+    curl -H "Accept: application/json" \
         http://127.0.0.1:8000/api/v1/environment/1/
 
 POST Environment() data:
@@ -18,7 +18,7 @@ PUT Environment() data:
         http://127.0.0.1:8000/api/v1/environment/2/
 
 DELETE Environment() data:
-    →curl --dump-header - -H "Content-Type: application/json" -X DELETE \
+    curl --dump-header - -H "Content-Type: application/json" -X DELETE \
         http://127.0.0.1:8000/api/v1/environment/2/
 
 See http://django-tastypie.readthedocs.org/en/latest/interacting.html
@@ -175,16 +175,6 @@ class BenchmarkResultResource(Resource):
     def obj_get(self, request=None, **kwargs):
         bundle = Bundle
         pk = kwargs['pk']
-        #logging.debug(kwargs)
-        d =    {
-            'xbenchmark': 2,
-            'xrevision': 1,
-            'branch': 1,
-            'xexecutable': 1,
-            'xenvironment': 1,
-            'result': 1,
-            'project': 1,
-            }
         result = Result.objects.get(pk=pk)
         bundle.obj = result
         bundle.obj.project = bundle.obj.executable.project

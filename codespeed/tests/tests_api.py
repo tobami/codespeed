@@ -96,11 +96,72 @@ class EnvironmentTest(FixtureTestCase):
 
     def test_delete(self):
         """Should delete an environment"""
-        response = self.client.delete('/api/v1/environment/3/',
+        response = self.client.get('/api/v1/environment/{0}/'.format(self.env1.id))
+        self.assertEquals(response.status_code, 200)
+        response = self.client.delete('/api/v1/environment/{0}/'.format(self.env1.id),
                                     content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get('/api/v1/environment/{0}/'.format(self.env1.id))
         self.assertEquals(response.status_code, 410)
 
-        response = self.client.get('/api/v1/environment/3/')
+
+class ProjectTest(FixtureTestCase):
+    """Test Environment() API
+    """
+
+    def setUp(self):
+        self.project_data = dict(
+            name="PyPy",
+            repo_type="M",
+            repo_path="ssh://hg@bitbucket.org/pypy/pypy",
+            repo_user="fridolin",
+            repo_pass="secret",
+        )
+        self.project_data2 = dict(
+            name="project alpha",
+            repo_type="M",
+            repo_path="ssh://hg@bitbucket.org/pypy/pypy",
+            repo_user="alpha",
+            repo_pass="beta",
+            )
+        self.project = Project(**self.project_data)
+        self.project.save()
+        self.client = Client()
+        super(ProjectTest, self).setUp()
+
+    def test_get_project(self):
+        """Should get an existing project"""
+        response = self.client.get('/api/v1/project/{0}/'.format(self.project.id,))
+        self.assertEquals(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['name'], "{0}".format(self.project_data['name']))
+
+    def test_get_project_all_fields(self):
+        """Should get all fields for an environment"""
+        response = self.client.get('/api/v1/project/%s/' % (self.project.id,))
+        self.assertEquals(response.status_code, 200)
+        for k in self.project_data.keys():
+            self.assertEqual(
+                json.loads(response.content)[k], getattr(self.project, k))
+
+    def test_post(self):
+        """Should save a new project"""
+        response = self.client.post('/api/v1/project/',
+                                    data=json.dumps(self.project_data2),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 201)
+        response = self.client.get('/api/v1/project/{0}/'.format(self.project.id))
+        for k, v in self.project_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+
+    def test_delete(self):
+        """Should delete an project"""
+        response = self.client.delete('/api/v1/project/{0}/'.format(self.project.id,),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get('/api/v1/project/{0}/'.format(self.project.id,))
         self.assertEquals(response.status_code, 410)
 
 

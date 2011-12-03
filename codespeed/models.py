@@ -24,6 +24,7 @@ class Project(models.Model):
     repo_path = models.CharField("Repository URL", blank=True, max_length=200)
     repo_user = models.CharField("Repository username", blank=True, max_length=100)
     repo_pass = models.CharField("Repository password", blank=True, max_length=100)
+    commit_browsing_url = models.CharField("Commit browsing URL", blank=True, max_length=200)
     track = models.BooleanField("Track changes", default=False)
 
     def __unicode__(self):
@@ -72,6 +73,9 @@ class Revision(models.Model):
 
     def get_short_commitid(self):
         return self.commitid[:10]
+
+    def get_browsing_url(self):
+        return self.branch.project.commit_browsing_url.format(**self.__dict__)
 
     def __unicode__(self):
         if self.date is None:

@@ -96,21 +96,6 @@
       if (data['benchmark_description']) {
         $("#plotdescription").html('<p class="note"><i>' + data['benchmark'] + '</i>: ' + data['benchmark_description'] + '</p>');
       }
-
-      if (series.length > 4) {
-        // Move legend outside plot area to unclutter
-        var labels = new Array();
-        for (l in series) {
-          labels.push(series[l]['label'].length)
-        }
-        // offset ammount depends on the maximum label length
-        var offset = 55 + Math.max.apply( Math, labels ) * 5.4;
-        plotoptions.legend.location = 'ne';
-        plotoptions.legend.xoffset = -offset;
-        $("#plot").css("margin-right", offset + 10);
-        var w = $("#plot").width();
-        $("#plot").css('width', w - offset);
-      }
     }
     if (data["baseline"] != "None") {
       series.push({
@@ -404,12 +389,13 @@
         </li>{% endfor %}
       </ul>
     {% endfor %}
-    <ul>
-      <li title="Select baseline">Baseline:<div id="baselinecolor" class="seriescolor"></div><br/>
-        <select id="baseline">
-        {% for base in baseline %}<option value="{{ base.key }}">{{ base.name }}</option>{% endfor %}
-        </select>
-      </li>
+      <ul>
+        <li title="Select baseline">Baseline:<div id="baselinecolor" class="seriescolor"></div><br/>
+          <select id="baseline">
+          {% for base in baseline %}<option value="{{ base.key }}">{{ base.name }}</option>{% endfor %}
+          </select>
+        </li>
+      </ul>
     </ul>
   </div>
 </div>

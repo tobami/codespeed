@@ -27,6 +27,7 @@ import logging
 
 from django.contrib.auth.models import User
 from django.db import models
+from tastypie.bundle import Bundle
 from tastypie.resources import ModelResource, Resource
 from tastypie import fields
 from tastypie.authorization import Authorization, DjangoAuthorization
@@ -172,6 +173,7 @@ class BenchmarkResultResource(Resource):
         return self.get_object_list(request)
 
     def obj_get(self, request=None, **kwargs):
+        bundle = Bundle
         pk = kwargs['pk']
         #logging.debug(kwargs)
         d =    {
@@ -184,10 +186,11 @@ class BenchmarkResultResource(Resource):
             'project': 1,
             }
         result = Result.objects.get(pk=pk)
-        result.project = result.executable.project
-        result.result = result
-        result.branch = result.revision
-        return result
+        bundle.obj = result
+        bundle.obj.project = bundle.obj.executable.project
+        bundle.obj.branch = bundle.obj.revision.branch
+        bundle.obj.result = result
+        return bundle.obj
 
     def obj_create(self, bundle, request=None, **kwargs):
         bundle.obj = RiakObject(initial=kwargs)

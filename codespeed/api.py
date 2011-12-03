@@ -173,20 +173,10 @@ class BenchmarkResultResource(Resource):
 
     def obj_get(self, request=None, **kwargs):
         pk = kwargs['pk']
-        #logging.debug(kwargs)
-        d =    {
-            'xbenchmark': 2,
-            'xrevision': 1,
-            'branch': 1,
-            'xexecutable': 1,
-            'xenvironment': 1,
-            'result': 1,
-            'project': 1,
-            }
         result = Result.objects.get(pk=pk)
         result.project = result.executable.project
         result.result = result
-        result.branch = result.revision
+        result.branch = result.revision.branch
         return result
 
     def obj_create(self, bundle, request=None, **kwargs):

@@ -4,7 +4,10 @@ from django.core.urlresolvers import reverse
 from django.views.generic.simple import direct_to_template
 from tastypie.api import Api
 from codespeed.feeds import LatestEntries
-from codespeed.api import UserResource, EnvironmentResource, BenchmarkResultResource, ProjectResource, ExecutableResource, BenchmarkResource, ResultResource, BranchResource, RevisionResource
+from codespeed.api import (UserResource, EnvironmentResource,
+                           ProjectResource, ExecutableResource,
+                           BenchmarkResource, ResultResource, BranchResource,
+                           RevisionResource, ResultBundleResource)
 
 feeds = { 'latest': LatestEntries }
 
@@ -17,7 +20,7 @@ rest_api.register(BenchmarkResource())
 rest_api.register(ResultResource())
 rest_api.register(BranchResource())
 rest_api.register(RevisionResource())
-rest_api.register(BenchmarkResultResource())
+rest_api.register(ResultBundleResource())
 
 urlpatterns = patterns('',
     (r'^$', direct_to_template, {'template': 'home.html'}),

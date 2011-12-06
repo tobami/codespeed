@@ -19,6 +19,8 @@ from tastypie.http import HttpUnauthorized
 from tastypie.authentication import Authentication, ApiKeyAuthentication
 from codespeed.models import (Project, Benchmark, Revision, Branch,
                               Executable, Environment, Result, Report)
+from codespeed.api import ResultBundle
+
 from codespeed import settings as default_settings
 
 
@@ -214,6 +216,37 @@ class ApiKeyAuthenticationTestCase(FixtureTestCase):
         self.request.GET['username'] = 'apiuser'
         self.request.GET['api_key'] = user.api_key.key
         self.assertEqual(self.auth.is_authenticated(self.request), True)
+
+
+class ResultBundleTestCase(FixtureTestCase):
+
+    def setUp(self):
+        self.data1 = {
+            'commitid': '2',
+            'branch': 'default', # Always use default for trunk/master/tip
+            'project': 'MyProject',
+            'executable': 'myexe O3 64bits',
+            'benchmark': 'float',
+            'environment': "Bulldozer",
+            'result_value': 4000,
+        }
+        self.env1 = Environment(name='Bulldozer')
+        self.env1.save()
+        self.bundle1 = ResultBundle(**self.data1)
+        project_data = dict(
+            name="PyPy",
+            repo_type="M",
+            repo_path="ssh://hg@bitbucket.org/pypy/pypy",
+            repo_user="fridolin",
+            repo_pass="secret",
+            )
+        self.project = Project(**project_data)
+        self.project.save()
+
+    def test_populate(self):
+        self.bundle1._populate_obj_by_data()
+        self.bundle1.save()
+        self.assert_(True)
 
 
 #def suite():

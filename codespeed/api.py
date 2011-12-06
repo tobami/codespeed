@@ -24,16 +24,24 @@ DELETE Environment() data:
 See http://django-tastypie.readthedocs.org/en/latest/interacting.html
 """
 import logging
-
 from django.contrib.auth.models import User
 from django.db import models
+<<<<<<< HEAD
 from tastypie.bundle import Bundle
+=======
+from django.http import Http404
+from django.shortcuts import get_object_or_404
+from tastypie.bundle import Bundle
+from tastypie.exceptions import ImmediateHttpResponse
+from tastypie.http import HttpBadRequest
+>>>>>>> Implement the 1st version of the Result Bundle class
 from tastypie.resources import ModelResource, Resource
 from tastypie import fields
 from tastypie.authorization import Authorization, DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.models import create_api_key
-from codespeed.models import Environment, Project, Result, Branch, Revision, Executable, Benchmark, Report
+from codespeed.models import (Environment, Project, Result, Branch, Revision,
+                              Executable, Benchmark, Report)
 
 
 models.signals.post_save.connect(create_api_key, sender=User)
@@ -127,7 +135,117 @@ class ReportResource(ModelResource):
         authorization= Authorization()
 
 
-class BenchmarkResultResource(Resource):
+class ResultBundle(Bundle):
+    """tastypie.api.Bundle class to deal with submitted results.
+    """
+
+    # order of mandatory_keys must not be changed
+    mandatory_keys = (
+        'revision',
+        'project',
+        'executable',
+        'benchmark',
+        'environment',
+        'branch',
+        'result_value',
+    )
+    optional_keys = (
+        'std_dev',
+        'val_min',
+        'val_max',
+        'date',
+    )
+
+    def __init__(self, **data):
+        self.data = data
+        self.__data_validated = False
+        super(ResultBundle, self).__init__(data=data)
+
+    def _populate_obj_by_data(self):
+        """Database lookup
+
+        get everything except the result, 2nd try reverse lookup
+        """
+        def populate(key):
+            return {
+                'project': Project.objects.get(name=self.data['project']),
+                'executable': Executable.objects.get(
+                    name=self.data['executable']),
+                'benchmark': Benchmark.objects.get(name=self.data['benchmark']),
+                'environment': Environment.objects.get(
+                    name=self.data['environment']),
+            }.get(key, None)
+
+        self.obj =  Result()
+        try:
+            self.obj.value =  float(self.data['result_value'])
+        except ValueError, error:
+            logging.error(
+                "Result value: {0} cannot be converted to float. {1}".format(
+                    self.data['result_value'], error
+                ))
+            raise ImmediateHttpResponse(
+                response=HttpBadRequest(u"Value needs to be a number"))
+        for key in [k for k in self.mandatory_keys \
+                    if k not in ('result_value', 'revision', 'branch')]:
+            try:
+                #populate
+                setattr(self.obj, key, populate(key))
+                #self.data[key] = populate(key)
+            except Exception, error:
+                logging.error("Data for field %s: %s not found. %s" % (
+                    key, self.data[key], error))
+                raise ImmediateHttpResponse(
+                    response=HttpBadRequest(u"Error finding: {0}={1}".format(
+                        key, self.data[key]
+                    )))
+
+        branch = Branch.objects.get(name=self.data['branch'],
+                                     project=self.obj.project)
+
+        # find the revision
+        self.obj.revision = Revision.objects.get(
+            commitid=self.data['commitid'],
+            project=self.obj.project,
+            branch=branch,
+            )
+
+    def save(self):
+        """Save self.obj which is an instance of Result()
+
+            First populate the Result() instance with self.data
+        """
+        self._populate_obj_by_data()
+        self.obj.save()
+
+    def _check_data(self):
+        """
+
+        Args:
+
+
+        Returns:
+
+        """
+        error    = True
+        for key in self.mandatory_data:
+            if not key in self.data:
+                return 'Key "' + key + '" missing from request', error
+            elif key in self.data and self.data[key] == "":
+                return 'Value for key "' + key + '" empty in request', error
+
+        # Check that the Environment exists
+        try:
+            e = Environment.objects.get(name=self.data['environment'])
+            error = False
+            return e, error
+        except Environment.DoesNotExist:
+            return "Environment %(environment)s not found" % item, error
+
+        return True
+
+
+class ResultBundleResource(Resource):
     """Ressource for all the data of a benchmark result.
 
        Primarily used to submit benchmark results
@@ -140,6 +258,10 @@ class BenchmarkResultResource(Resource):
         'benchmark',
         'environment',
         'result_value',
+
+        not mandatory data
+         'notify'  -  Send notification to registered user if result varies from
+                      previous results
     """
 
     revision = fields.ToOneField(RevisionResource, 'revision')
@@ -149,6 +271,8 @@ class BenchmarkResultResource(Resource):
     benchmark = fields.ToOneField(BenchmarkResource, 'benchmark')
     environment = fields.ToOneField(EnvironmentResource, 'environment')
     result = fields.ToOneField(ResultResource, 'result')
+    user = fields.ToOneField(UserResource, 'user')
+    notify = fields.CharField(attribute='notify')
 
     class Meta:
         resource_name = 'benchmark-result'
@@ -173,7 +297,8 @@ class BenchmarkResultResource(Resource):
         return self.get_object_list(request)
 
     def obj_get(self, request=None, **kwargs):
-        bundle = Bundle
+        """get the ResultBundle with the result_id as the primary key
+        """
         pk = kwargs['pk']
         result = Result.objects.get(pk=pk)
         bundle.obj = result
@@ -207,3 +332,4 @@ class BenchmarkResultResource(Resource):
 
     def rollback(self, bundles):
         pass
+

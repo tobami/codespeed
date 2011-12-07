@@ -7,7 +7,7 @@
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
 <script type="text/javascript">
     var projectmatrix = eval({{ projectmatrix|safe }});
-    var revisionboxes = new Object();
+    var revisionboxes = {};
     {% for project, revlist in revisionboxes.items %}
     revisionboxes['{{ project }}'] = '{% for rev in revlist %}<option value="{{ rev.commitid }}">{{ rev }}</option>{% endfor %}';{% endfor %}
     var currentproject = "{{ defaultexecutable.project }}";

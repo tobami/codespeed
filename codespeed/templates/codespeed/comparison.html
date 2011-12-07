@@ -68,9 +68,9 @@
       return false;
     });
 
-    plotheight = $("#cplot").height();
+    var plotheight = $("#cplot").height();
     // Get comparison data
-    var h = parseInt($("#content").css("height"));//get height for loading text
+    var h = $("#content").height();//get height for loading text
     $("#cplot").html(getLoadText("Loading...", h, true));
     $.getJSON("json/", savedata);
   });

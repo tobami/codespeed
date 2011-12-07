@@ -1,10 +1,10 @@
 function getConfiguration() {
-    var config = new Object();
-    config["tre"] = $("#trend option:selected").val();
-    config["rev"] = $("#revision option:selected").val();
-    config["exe"] = $("input[name='executable']:checked").val();
-    config["env"] = $("input[name='environment']:checked").val();
-    return config;
+    return {
+        tre: $("#trend option:selected").val(),
+        rev: $("#revision option:selected").val(),
+        exe: $("input[name='executable']:checked").val(),
+        env: $("input[name='environment']:checked").val()
+    };
 }
 
 function permalinkToTimeline(benchmark, environment) {
@@ -22,7 +22,7 @@ function colorTable() {
             var change = $(this).children("td:eq("+index+")").text().slice(0, -1);
             var trend = $(this).children("td:eq("+(index+1)+")").text().slice(0, -1);
             // Check whether less is better
-            if (lessisbetter == "False") {
+            if (lessisbetter === "False") {
                 change = -change;
                 trend = -trend;
             }
@@ -54,7 +54,7 @@ function updateTable() {
 }
 
 function refreshContent() {
-    var h = parseInt($("#content").css("height"));//get height for loading text
+    var h = $("#content").height();//get height for loading text
     $("#contentwrap").fadeOut("fast", function() {
         $(this).show();
         $(this).html(getLoadText("Loading...", h, true));
@@ -66,7 +66,7 @@ function changerevisions() {
     // This function repopulates the revision selectbox everytime a new
     // executable is selected that corresponds to a different project.
     var executable = $("input[name='executable']:checked").val();
-    if (projectmatrix[executable] != currentproject) {
+    if (projectmatrix[executable] !== currentproject) {
         $("#revision").html(revisionboxes[projectmatrix[executable]]);
         currentproject = projectmatrix[executable];
 

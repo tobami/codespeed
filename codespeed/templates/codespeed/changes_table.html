@@ -95,7 +95,7 @@
     </tbody>
     <script type="text/javascript">
       var revisionid = $("tbody.commits").attr("id");
-      loadoption = "revisionid=" + revisionid.split('__')[1];
+      var loadoption = "revisionid=" + revisionid.split('__')[1];
       $("#" + revisionid).load("logs/", loadoption);
     </script>
 </table>

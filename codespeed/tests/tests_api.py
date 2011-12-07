@@ -230,9 +230,6 @@ class ResultBundleTestCase(FixtureTestCase):
             'environment': "Bulldozer",
             'result_value': 4000,
         }
-        self.env1 = Environment(name='Bulldozer')
-        self.env1.save()
-        self.bundle1 = ResultBundle(**self.data1)
         project_data = dict(
             name="PyPy",
             repo_type="M",
@@ -243,9 +240,12 @@ class ResultBundleTestCase(FixtureTestCase):
         self.project = Project(**project_data)
         self.project.save()
 
-    def test_populate(self):
-        self.bundle1._populate_obj_by_data()
-        self.bundle1.save()
+    def test_populate_and_save(self):
+        self.env1 = Environment(name='Bulldozer')
+        self.env1.save()
+        self.bundle = ResultBundle(**self.data1)
+        self.bundle._populate_obj_by_data()
+        self.bundle.save()
         self.assert_(True)
 
 

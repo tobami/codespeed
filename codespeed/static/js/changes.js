@@ -11,6 +11,14 @@ function permalinkToTimeline(benchmark, environment) {
     window.location=timeline_url + "?ben=" + benchmark + "&env=" + environment;
 }
 
+//colors number based on a threshold
+function getColorcode(change, theigh, tlow) {
+    var colorcode = "status-none";
+    if(change < tlow) { colorcode = "status-red"; }
+    else if(change > theigh) { colorcode = "status-green"; }
+    return colorcode;
+}
+
 function colorTable() {
     //color two colums to the right starting with index = last-1
     // Each because there is one table per units type

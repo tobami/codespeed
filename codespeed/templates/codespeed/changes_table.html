@@ -1,10 +1,10 @@
 <div class="leftcolumn">
 {% for units in tablelist %}
-<table class="tablesorter">
+<table class="tablesorter" data-lessisbetter="{{ units.lessisbetter }}">
 <thead>
   <tr>
     <th>Benchmark</th>
-    <th>{{ units.units_title }} in {{ units.units }}<label title="lessisbetter" style="display:none;">{{ units.lessisbetter }}</label></th>
+    <th>{{ units.units_title }} in {{ units.units }}</th>
     {% if units.has_stddev %}<th>Std dev</th>{% endif%}
     {% if units.hasmin %}<th>Min</th>{% endif%}
     {% if units.hasmax %}<th>Max</th>{% endif%}
@@ -13,7 +13,7 @@
   </tr>
 </thead>
 <tfoot>
-  <tr>
+  <tr data-change="{{ units.totals.change }}" data-trend="{{ units.totals.trend }}">
     <td title="Arithmetic mean">Average</td>
     <td></td>
     {% if units.hasmin %}<td></td>
@@ -24,7 +24,8 @@
   </tr>
 </tfoot>
 <tbody>
-{% for row in units.rows|dictsort:"bench_name" %}  <tr>
+{% for row in units.rows|dictsort:"bench_name" %}
+  <tr data-change="{{ row.change }}" data-trend="{{ row.trend }}">
     <td title="{{ row.bench_description }}">{{ row.bench_name }}</td>
     <td>{{ row.result|floatformat:units.precission }}</td>
     {% if units.has_stddev %}<td>{{ row.std_dev|floatformat:units.precission }}</td>
@@ -90,13 +91,12 @@
         <th colspan="2">Commit logs</th>
       </tr>
     </thead>
-    <tbody class="commits" id="commitid__{{ rev.id }}">
+    <tbody class="commits" data-commitid="{{ rev.id }}">
       <tr><td colspan="2" style="text-align:center;">Loading... <img src="{{ STATIC_URL}}images/ajax-loader.gif" align="bottom"></td></tr>
     </tbody>
     <script type="text/javascript">
-      var revisionid = $("tbody.commits").attr("id");
-      var loadoption = "revisionid=" + revisionid.split('__')[1];
-      $("#" + revisionid).load("logs/", loadoption);
+      var el = $("tbody.commits");
+      el.load("logs/", "revisionid=" + el.data("commitid"));
     </script>
 </table>
 {% endifnotequal %}

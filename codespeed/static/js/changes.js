@@ -16,11 +16,13 @@ function colorTable() {
     // Each because there is one table per units type
     $(".tablesorter").each(function() {
         // Find column index of the current change column (one before last)
-        var index = $(this).find("thead tr th").length -2;
-        var lessisbetter = $(this).find("th:eq(1) label").text();
+        var index = $(this).find("thead tr th").length - 2;
+        var lessisbetter = $(this).data("lessisbetter");
+
         $(this).find(":not(thead) > tr").each(function() {
-            var change = $(this).children("td:eq("+index+")").text().slice(0, -1);
-            var trend = $(this).children("td:eq("+(index+1)+")").text().slice(0, -1);
+            var change = $(this).data("change"),
+                trend = $(this).data("trend");
+
             // Check whether less is better
             if (lessisbetter === "False") {
                 change = -change;

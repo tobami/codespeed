@@ -6,30 +6,24 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/changes.js"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
 <script type="text/javascript">
-    var projectmatrix = eval({{ projectmatrix|safe }});
-    var revisionboxes = {};
-    {% for project, revlist in revisionboxes.items %}
-    revisionboxes['{{ project }}'] = '{% for rev in revlist %}<option value="{{ rev.commitid }}">{{ rev }}</option>{% endfor %}';{% endfor %}
-    var currentproject = "{{ defaultexecutable.project }}";
-    var changethres = {{ defaultchangethres }};
-    var trendthres = {{ defaulttrendthres }};
-    var timeline_url = "{% url timeline %}";
+    var TIMELINE_URL = "{% url timeline %}";
 
     $(function() {
         // Configure defaults
-        $("#trend").val("{{ defaulttrend }}");
-        $("#trend").change(refreshContent);
+        init({
+            project: "{{ defaultexecutable.project }}",
+            executable: "{{ defaultexecutable.id }}",
+            environment: "{{ defaultenvironment.id }}",
+            revision: "{{ selectedrevision.commitid }}",
+            trend: "{{ defaulttrend }}",
+            projectmatrix: eval({{ projectmatrix|safe }}),
+            revisionlists: eval({{ revisionlists|safe }})
+        });
 
-        $("input:radio[name=executable]").filter('[value="{{ defaultexecutable.id }}"]').attr('checked', true);
-        $("input[name='executable']").change(changerevisions);
-
-        $("input:radio[name='environment']").filter('[value="{{ defaultenvironment.id }}"]').attr('checked', true);
-        $("input[name='environment']").change(refreshContent);
-
-        //repopulate revision select box if the project has changed
-        $("#revision").html(revisionboxes['{{ defaultexecutable.project.name }}']);
-        $("#revision").val("{{ selectedrevision.commitid }}");
-        $("#revision").change(refreshContent);
+        config({
+            changethres: {{ defaultchangethres }},
+            trendthres: {{ defaulttrendthres }}
+        });
 
         refreshContent();
     });
@@ -49,8 +43,8 @@
     <ul>
     {% for env in environments %}
       <li title="{{ env.os }}, {{ env.cpu }}">
-        <input id="env{{ env.name }}" type="radio" name="environment" value="{{ env.id }}" />
-        <label for="env{{ env.name }}">{{ env }}</label>
+        <input id="env{{ env.id }}" type="radio" name="environment" value="{{ env.id }}" />
+        <label for="env{{ env.id }}">{{ env }}</label>
       </li>
     {% endfor %}
     </ul>

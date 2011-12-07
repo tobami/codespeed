@@ -1,3 +1,5 @@
+var currentproject, changethres, trendthres, projectmatrix, revisionboxes = {};
+
 function getConfiguration() {
     return {
         tre: $("#trend option:selected").val(),
@@ -8,15 +10,14 @@ function getConfiguration() {
 }
 
 function permalinkToTimeline(benchmark, environment) {
-    window.location=timeline_url + "?ben=" + benchmark + "&env=" + environment;
+    window.location=TIMELINE_URL + "?ben=" + benchmark + "&env=" + environment;
 }
 
 //colors number based on a threshold
 function getColorcode(change, theigh, tlow) {
-    var colorcode = "status-none";
-    if(change < tlow) { colorcode = "status-red"; }
-    else if(change > theigh) { colorcode = "status-green"; }
-    return colorcode;
+    if (change < tlow) { return "status-red"; }
+    else if (change > theigh) { return "status-green"; }
+    else { return "status-node"; }
 }
 
 function colorTable() {
@@ -46,19 +47,18 @@ function colorTable() {
 
 function updateTable() {
     colorTable();
-    //Add permalink events to table rows
-    $(".tablesorter > tbody > tr").each(function() {
-        $(this).click(function () {
+
+    $(".tablesorter > tbody")
+        //Add permalink events to table rows
+        .on("click", "tr", function() {
             var environment = $("input[name='environment']:checked").val();
             permalinkToTimeline($(this).children("td:eq(0)").text(), environment);
+        })
+        //Add hover effect to rows
+        .on("hover", "tr", function() {
+            $(this).toggleClass("highlight");
         });
-    });
-    //Add hover effect to rows
-    $(".tablesorter > tbody > tr > td").hover(function() {
-        $(this).parents('tr').addClass('highlight');
-    }, function() {
-        $(this).parents('tr').removeClass('highlight');
-    });
+
     //Configure table as tablesorter
     $(".tablesorter").tablesorter({widgets: ['zebra']});
 }
@@ -68,17 +68,19 @@ function refreshContent() {
     $("#contentwrap").fadeOut("fast", function() {
         $(this).show();
         $(this).html(getLoadText("Loading...", h, true));
-        $(this).load("table/", $.param(getConfiguration()), function(responseText) { updateTable(); });
+        $(this).load("table/", $.param(getConfiguration()), function() { updateTable(); });
     });
 }
 
-function changerevisions() {
+function changeRevisions() {
     // This function repopulates the revision selectbox everytime a new
     // executable is selected that corresponds to a different project.
-    var executable = $("input[name='executable']:checked").val();
-    if (projectmatrix[executable] !== currentproject) {
-        $("#revision").html(revisionboxes[projectmatrix[executable]]);
-        currentproject = projectmatrix[executable];
+    var executable = $("input[name='executable']:checked").val(),
+        selected_project = projectmatrix[executable];
+
+    if (selected_project !== currentproject) {
+        $("#revision").html(revisionboxes[selected_project]);
+        currentproject = selected_project;
 
         //Give visual cue that the select box has changed
         var bgc = $("#revision").parent().parent().css("backgroundColor");
@@ -89,4 +91,35 @@ function changerevisions() {
         });
     }
     refreshContent();
+}
+
+function config(c) {
+    changethres = c.changethres;
+    trendthres = c.trendthres;
+}
+
+function init(defaults) {
+    currentproject = defaults.project;
+    projectmatrix = defaults.projectmatrix;
+
+    $.each(defaults.revisionlists, function(project, revs) {
+        var options = "";
+        $.each(revs, function(index, r) {
+            options += "<option value='" + r[1] + "'>" + r[0] + "</option>";
+        });
+        revisionboxes[project] = options;
+    });
+
+    $("#trend").val(defaults.trend);
+    $("#trend").change(refreshContent);
+
+    $("#executable" + defaults.executable).attr('checked', true);
+    $("input[name='executable']").change(changeRevisions);
+
+    $("#env" + defaults.environment).attr('checked', true);
+    $("input[name='environment']").change(refreshContent);
+
+    $("#revision").html(revisionboxes[defaults.project]);
+    $("#revision").val(defaults.revision);
+    $("#revision").change(refreshContent);
 }

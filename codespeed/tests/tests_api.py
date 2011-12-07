@@ -232,7 +232,14 @@ class ResultBundleTestCase(FixtureTestCase):
             'benchmark': 'float',
             'environment': "Bulldozer",
             'result_value': 4000,
-        }
+            }
+        DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+        self.data_optional = {
+            'std_dev': 0.2,
+            'val_min': 2.23,
+            'val_max': 3.42,
+            'date': datetime.now().strftime(DATETIME_FORMAT),
+            }
         project_data = dict(
             name="PyPy",
             repo_type="M",
@@ -297,7 +304,6 @@ class ResultBundleTestCase(FixtureTestCase):
 
         try:
             ResultBundle(**modified_data)
-            self.fail('No exception thrown')
         except ImmediateHttpResponse:
             self.assertTrue(True, msg="Caught right exception.")
         except Exception as error:
@@ -305,6 +311,19 @@ class ResultBundleTestCase(FixtureTestCase):
         else:
             self.fail('No exception thrown')
 
+    def test_optional_data(self):
+        """
+        Check handling of optional data
+        """
+        data = dict(self.data1.items() + self.data_optional.items())
+        bundle = ResultBundle(**data)
+        self.assertIsInstance(bundle.obj.date, datetime)
+        self.assertEqual(bundle.obj.std_dev,
+                         float(self.data_optional['std_dev']))
+        self.assertEqual(bundle.obj.val_max,
+                         float(self.data_optional['val_max']))
+        self.assertEqual(bundle.obj.val_min,
+                         float(self.data_optional['val_min']))
 #def suite():
 #    suite = unittest.TestSuite()
 #    suite.addTest(EnvironmentTest())

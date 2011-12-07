@@ -137,6 +137,8 @@ class ReportResource(ModelResource):
 
 class ResultBundle(Bundle):
     """tastypie.api.Bundle class to deal with submitted results.
+
+    FIXME (a8): add models.Data if they do not exist in DB
     """
 
     # order of mandatory_keys must not be changed
@@ -158,8 +160,10 @@ class ResultBundle(Bundle):
 
     def __init__(self, **data):
         self.data = data
+        self.obj =  Result()
         self.__data_validated = False
-        super(ResultBundle, self).__init__(data=data)
+        self._check_data()
+        super(ResultBundle, self).__init__(data=data, obj=self.obj)
 
     def _populate_obj_by_data(self):
         """Database lookup
@@ -168,15 +172,16 @@ class ResultBundle(Bundle):
         """
         def populate(key):
             return {
-                'project': Project.objects.get(name=self.data['project']),
-                'executable': Executable.objects.get(
+                'project': lambda: Project.objects.get(name=self.data['project']),
+                'executable': lambda: Executable.objects.get(
                     name=self.data['executable']),
-                'benchmark': Benchmark.objects.get(name=self.data['benchmark']),
-                'environment': Environment.objects.get(
+                'benchmark': lambda: Benchmark.objects.get(name=self.data['benchmark']),
+                'environment': lambda: Environment.objects.get(
                     name=self.data['environment']),
-            }.get(key, None)
+                'branch': lambda: Branch.objects.get(name=self.data['branch'],
+                                            project=self.obj.project),
+            }.get(key, None)()
 
-        self.obj =  Result()
         try:
             self.obj.value =  float(self.data['result_value'])
         except ValueError, error:
@@ -187,12 +192,14 @@ class ResultBundle(Bundle):
             raise ImmediateHttpResponse(
                 response=HttpBadRequest(u"Value needs to be a number"))
         for key in [k for k in self.mandatory_keys \
-                    if k not in ('result_value', 'revision', 'branch')]:
+                    if k not in ('result_value', 'revision')]:
             try:
                 #populate
-                setattr(self.obj, key, populate(key))
+                item = populate(key)
+                setattr(self.obj, key, item)
                 #self.data[key] = populate(key)
             except Exception, error:
+                print "Except Key: %s" % key
                 logging.error("Data for field %s: %s not found. %s" % (
                     key, self.data[key], error))
                 raise ImmediateHttpResponse(
@@ -200,14 +207,11 @@ class ResultBundle(Bundle):
                         key, self.data[key]
                     )))
 
-        branch = Branch.objects.get(name=self.data['branch'],
-                                     project=self.obj.project)
-
         # find the revision
         self.obj.revision = Revision.objects.get(
             commitid=self.data['commitid'],
             project=self.obj.project,
-            branch=branch,
+            branch=self.obj.branch,
             )
 
     def save(self):
@@ -219,31 +223,42 @@ class ResultBundle(Bundle):
         self.obj.save()
 
     def _check_data(self):
+        """See if all mandatory data is there
         """
-
-        Args:
-
-
-        Returns:
-
-        """
-        error    = True
-        for key in self.mandatory_data:
-            if not key in self.data:
-                return 'Key "' + key + '" missing from request', error
-            elif key in self.data and self.data[key] == "":
-                return 'Value for key "' + key + '" empty in request', error
+        # check if all mandatory keys are there
+        for key in [k for k in self.mandatory_keys\
+                    if k not in ('revision')]:
+            if not key in self.data.keys():
+                error_text = u"You need to provide key: {0}".format(key)
+                logging.error(error_text)
+                raise ImmediateHttpResponse(
+                    response=HttpBadRequest(error_text))
+            # check for data
+            elif not self.data[key]:
+                error_text = 'Value for key {0} is empty.'.format(key)
+                logging.error(error_text)
+                raise ImmediateHttpResponse(response=HttpBadRequest(error_text))
 
         # Check that the Environment exists
         try:
-            e = Environment.objects.get(name=self.data['environment'])
-            error = False
-            return e, error
+            self.obj.environment = Environment.objects.get(
+                name=self.data['environment'])
         except Environment.DoesNotExist:
-            return "Environment %(environment)s not found" % item, error
-
-        return True
-
+            error_text = 'Environment: {0} not found in database.'.format(
+                self.data['environment'])
+            logging.error(error_text)
+            raise ImmediateHttpResponse(
+                response=HttpBadRequest(
+                    error_text
+                ))
+        except Exception as e:
+            error_text = 'Error while looking up Environment: {0}, {1}.'.format(
+                self.data['environment'], e)
+            logging.error(error_text)
+            raise ImmediateHttpResponse(
+                response=HttpBadRequest(
+                    error_text
+                ))
 
 class ResultBundleResource(Resource):
     """Ressource for all the data of a benchmark result.

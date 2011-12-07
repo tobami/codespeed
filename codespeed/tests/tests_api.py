@@ -6,14 +6,17 @@ Tests related to RESTful API
 
 from datetime import datetime
 import copy, json
+import logging
 import unittest
 
 from django import test
+from django.db.utils import IntegrityError
 from django.test.client import Client
 from django.http import HttpRequest
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User
+from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.models import ApiKey, create_api_key
 from tastypie.http import HttpUnauthorized
 from tastypie.authentication import Authentication, ApiKeyAuthentication
@@ -239,15 +242,68 @@ class ResultBundleTestCase(FixtureTestCase):
             )
         self.project = Project(**project_data)
         self.project.save()
-
-    def test_populate_and_save(self):
         self.env1 = Environment(name='Bulldozer')
         self.env1.save()
-        self.bundle = ResultBundle(**self.data1)
-        self.bundle._populate_obj_by_data()
-        self.bundle.save()
+
+    def test_populate_and_save(self):
+        bundle = ResultBundle(**self.data1)
+        bundle._populate_obj_by_data()
+        # should raise exception if not OK
+        bundle.save()
         self.assert_(True)
 
+    def test_save_same_result_again(self):
+        """Save a previously saved result. Expected is an IntegrityError
+        """
+        modified_data = copy.deepcopy(self.data1)
+        modified_data['environment'] = "Dual Core"
+        bundle = ResultBundle(**modified_data)
+        bundle._populate_obj_by_data()
+        # FIXME (a8): need to learn how to catch that with assertRaise()
+        #self.assertRaises(Exception, bundle.save())
+        try:
+            bundle.save()
+        except IntegrityError:
+                self.assertTrue(True, msg="Caught right exception.")
+        except Exception as error:
+           logging.error('Unexpected exception thrown: {0}'.format(error.__class__,))
+        else:
+            self.fail('No exception thrown')
+
+    def test_for_nonexistent_environment(self):
+        """Save data using non existing environment. Expected is an ImmediateHttpResponse
+        """
+        modified_data = copy.deepcopy(self.data1)
+        modified_data['environment'] = "Foo the Bar"
+        #self.assertRaises(ImmediateHttpResponse, bundle._check_data())
+        # FIXME (a8): need to learn how to catch that here
+        #self.assertRaises(ImmediateHttpResponse, bundle.save())
+        try:
+            bundle = ResultBundle(**modified_data)
+        except ImmediateHttpResponse:
+            self.assertTrue(True, msg="Caught right exception.")
+        except Exception as error:
+            logging.error('Unexpected exception thrown: {0}'.format(error.__class__,))
+        else:
+            self.fail('No exception thrown')
+
+    def test_insufficient_data(self):
+        """See if Result() is saved w/ insufficient data
+        """
+        modified_data = copy.deepcopy(self.data1)
+        #modified_data.pop('environment')
+        #bundle = ResultBundle(**modified_data)
+        # FIXME (a8): need to learn how to cacht that here
+
+        try:
+            ResultBundle(**modified_data)
+            self.fail('No exception thrown')
+        except ImmediateHttpResponse:
+            self.assertTrue(True, msg="Caught right exception.")
+        except Exception as error:
+            logging.error('Unexpected exception thrown: {0}'.format(error.__class__,))
+        else:
+            self.fail('No exception thrown')
 
 #def suite():
 #    suite = unittest.TestSuite()

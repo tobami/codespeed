@@ -24,6 +24,7 @@ DELETE Environment() data:
 See http://django-tastypie.readthedocs.org/en/latest/interacting.html
 """
 import logging
+from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models
 from tastypie.bundle import Bundle
@@ -135,10 +136,15 @@ class ReportResource(ModelResource):
 class ResultBundle(Bundle):
     """tastypie.api.Bundle class to deal with submitted results.
 
+    Note, to populate the Bundle.obj with data .save()
+    has to be called first.
+
     FIXME (a8): add models.Data if they do not exist in DB
     """
+    DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
     # order of mandatory_keys must not be changed
+    # FIXME (a8): refactor result_value to just value
     mandatory_keys = (
         'revision',
         'project',
@@ -148,6 +154,9 @@ class ResultBundle(Bundle):
         'branch',
         'result_value',
     )
+
+    # Note, views.add_result() expects result_date. Here it's the
+    # same as the Result() attribute
     optional_keys = (
         'std_dev',
         'val_min',
@@ -158,7 +167,7 @@ class ResultBundle(Bundle):
     def __init__(self, **data):
         self.data = data
         self.obj =  Result()
-        self.__data_validated = False
+        self.__data_validated = False   #not used so far
         self._check_data()
         super(ResultBundle, self).__init__(data=data, obj=self.obj)
 
@@ -210,14 +219,16 @@ class ResultBundle(Bundle):
             project=self.obj.project,
             branch=self.obj.branch,
             )
+        # populate optional data
+        for key in [k for k in self.optional_keys \
+                    if k not in ('date')]:
+            if key in self.data.keys():
+                setattr(self.obj, key, self.data[key])
 
-    def save(self):
-        """Save self.obj which is an instance of Result()
-
-            First populate the Result() instance with self.data
-        """
-        self._populate_obj_by_data()
-        self.obj.save()
+        if 'date' in self.data.keys():
+            self.obj.date = self.data['date']
+        else:
+            self.obj.date = datetime.now()
 
     def _check_data(self):
         """See if all mandatory data is there
@@ -256,6 +267,39 @@ class ResultBundle(Bundle):
                 response=HttpBadRequest(
                     error_text
                 ))
+        # check optional data
+        for key in [k for k in self.optional_keys \
+                    if k not in ('date')]:
+            if key in self.data.keys():
+                try:
+                    self.data[key] = float(self.data[key])
+                except ValueError:
+                    error_text = u"{0} cannot be casted to float.".format(
+                        self.data[key])
+                    logging.error(error_text)
+                    raise ImmediateHttpResponse(
+                        response=HttpBadRequest(error_text))
+
+        if 'date' in self.data.keys():
+            #FIXME (a8): make that more robust for different json date formats
+            try:
+                self.data['date'] = datetime.strptime(self.data['date'],
+                                                      self.DATETIME_FORMAT)
+            except ValueError:
+                error_text = u"Cannot convert date {0} into datetime.".format(
+                    self.data['date'])
+                logging.error(error_text)
+                raise ImmediateHttpResponse(
+                    response=HttpBadRequest(error_text))
+
+    def save(self):
+            """Save self.obj which is an instance of Result()
+
+                First populate the Result() instance with self.data
+            """
+            self._populate_obj_by_data()
+            self.obj.save()
+
 
 class ResultBundleResource(Resource):
     """Ressource for all the data of a benchmark result.

@@ -298,10 +298,27 @@ class ResultBundleTestCase(FixtureTestCase):
         """See if Result() is saved w/ insufficient data
         """
         modified_data = copy.deepcopy(self.data1)
-        #modified_data.pop('environment')
-        #bundle = ResultBundle(**modified_data)
-        # FIXME (a8): need to learn how to cacht that here
+        modified_data.pop('environment')
 
+        try:
+            ResultBundle(**modified_data)
+        except ImmediateHttpResponse:
+            self.assertTrue(True, msg="Caught right exception.")
+        except Exception as error:
+            logging.error('Unexpected exception thrown: {0}'.format(error.__class__,))
+        else:
+            self.fail('No exception thrown')
+
+    def test_date_attr_set(self):
+        """
+        Check if date attr of Result() is set if not given
+        """
+        modified_data = copy.deepcopy(self.data1)
+        bundle = ResultBundle(**modified_data)
+        bundle.save()
+        self.assertIsInstance(bundle.obj.date, datetime)
+        modified_data['date'] = '2011-05-05T03:01:45'
+        #self.assertRaises(ImmediateHttpResponse, ResultBundle(**modified_data))
         try:
             ResultBundle(**modified_data)
         except ImmediateHttpResponse:
@@ -317,6 +334,7 @@ class ResultBundleTestCase(FixtureTestCase):
         """
         data = dict(self.data1.items() + self.data_optional.items())
         bundle = ResultBundle(**data)
+        bundle.save()
         self.assertIsInstance(bundle.obj.date, datetime)
         self.assertEqual(bundle.obj.std_dev,
                          float(self.data_optional['std_dev']))

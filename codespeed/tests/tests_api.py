@@ -343,22 +343,34 @@ class ResultBundleTestCase(FixtureTestCase):
         self.assertEqual(bundle.obj.val_min,
                          float(self.data_optional['val_min']))
 
-    def test_non_exiting_project(self):
+    def test_non_exiting_items(self):
         """
         Check handling of optional data
         """
         modified_data = copy.deepcopy(self.data1)
         modified_data['commitid'] = '0b31bf33a469ac2cb1949666eea54d69a36c3724'
-        #modified_data['project'] = 'Cython'
+        modified_data['project'] = 'Cython'
         modified_data['benchmark'] = 'Django Template'
+        modified_data['executable'] = 'pypy-jit'
         bundle = ResultBundle(**modified_data)
         bundle.save()
         self.assertEqual(bundle.obj.revision.commitid,
                          modified_data['commitid'])
         self.assertEqual(bundle.obj.benchmark.name,
                          modified_data['benchmark'])
-        #self.assertEqual(bundle.obj.project.name,
-        #                 modified_data['project'])
+        self.assertEqual(bundle.obj.project.name,
+                         modified_data['project'])
+
+    def test_exiting_executable(self):
+        """
+        Check that an exception is raised if the executable already exists but
+        the project changes.
+        """
+        modified_data = copy.deepcopy(self.data1)
+        modified_data['commitid'] = '0b31bf33a469ac2cb1949666eea54d69a36c3724'
+        modified_data['project'] = 'Cython'
+        bundle = ResultBundle(**modified_data)
+        self.assertRaises(ImmediateHttpResponse, bundle.save)
 
 #def suite():
 #    suite = unittest.TestSuite()

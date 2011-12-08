@@ -205,9 +205,7 @@ class ResultBundle(Bundle):
             try:
                 #populate
                 (item, created) = populate(key)
-                print "Item: %s" % item
                 setattr(self.obj, key, item)
-                #self.data[key] = populate(key)
             except Exception, error:
                 logging.error("Data for field %s: %s not found. %s" % (
                     key, self.data[key], error))

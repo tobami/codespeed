@@ -349,10 +349,16 @@ class ResultBundleTestCase(FixtureTestCase):
         """
         modified_data = copy.deepcopy(self.data1)
         modified_data['commitid'] = '0b31bf33a469ac2cb1949666eea54d69a36c3724'
+        #modified_data['project'] = 'Cython'
+        modified_data['benchmark'] = 'Django Template'
         bundle = ResultBundle(**modified_data)
         bundle.save()
         self.assertEqual(bundle.obj.revision.commitid,
                          modified_data['commitid'])
+        self.assertEqual(bundle.obj.benchmark.name,
+                         modified_data['benchmark'])
+        #self.assertEqual(bundle.obj.project.name,
+        #                 modified_data['project'])
 
 #def suite():
 #    suite = unittest.TestSuite()

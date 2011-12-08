@@ -119,6 +119,8 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
 
 # Codespeed settings that can be overwritten here.
+from codespeed.settings import *
+
 ## General default options ##
 WEBSITE_NAME = "MySpeedSite" # This name will be used in the reports RSS feed
 

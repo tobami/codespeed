@@ -266,67 +266,37 @@ class ResultBundleTestCase(FixtureTestCase):
         modified_data['environment'] = "Dual Core"
         bundle = ResultBundle(**modified_data)
         bundle._populate_obj_by_data()
-        # FIXME (a8): need to learn how to catch that with assertRaise()
-        #self.assertRaises(Exception, bundle.save())
-        try:
-            bundle.save()
-        except IntegrityError:
-                self.assertTrue(True, msg="Caught right exception.")
-        except Exception as error:
-           logging.error('Unexpected exception thrown: {0}'.format(error.__class__,))
-        else:
-            self.fail('No exception thrown')
+        self.assertRaises(IntegrityError, bundle.save)
 
     def test_for_nonexistent_environment(self):
         """Save data using non existing environment. Expected is an ImmediateHttpResponse
         """
         modified_data = copy.deepcopy(self.data1)
         modified_data['environment'] = "Foo the Bar"
-        #self.assertRaises(ImmediateHttpResponse, bundle._check_data())
-        # FIXME (a8): need to learn how to catch that here
-        #self.assertRaises(ImmediateHttpResponse, bundle.save())
-        try:
-            bundle = ResultBundle(**modified_data)
-        except ImmediateHttpResponse:
-            self.assertTrue(True, msg="Caught right exception.")
-        except Exception as error:
-            logging.error('Unexpected exception thrown: {0}'.format(error.__class__,))
-        else:
-            self.fail('No exception thrown')
+        self.assertRaises(ImmediateHttpResponse, ResultBundle, **modified_data)
 
     def test_insufficient_data(self):
         """See if Result() is saved w/ insufficient data
         """
         modified_data = copy.deepcopy(self.data1)
         modified_data.pop('environment')
-
-        try:
-            ResultBundle(**modified_data)
-        except ImmediateHttpResponse:
-            self.assertTrue(True, msg="Caught right exception.")
-        except Exception as error:
-            logging.error('Unexpected exception thrown: {0}'.format(error.__class__,))
-        else:
-            self.fail('No exception thrown')
+        self.assertRaises(ImmediateHttpResponse, ResultBundle, **modified_data)
 
     def test_date_attr_set(self):
         """
         Check if date attr of Result() is set if not given
         """
+        # date is set automatically
         modified_data = copy.deepcopy(self.data1)
         bundle = ResultBundle(**modified_data)
         bundle.save()
         self.assertIsInstance(bundle.obj.date, datetime)
+        # date set by value
+        modified_data['date'] = '2011-05-05 03:01:45'
+        ResultBundle(**modified_data)
+        # wrong date string
         modified_data['date'] = '2011-05-05T03:01:45'
-        #self.assertRaises(ImmediateHttpResponse, ResultBundle(**modified_data))
-        try:
-            ResultBundle(**modified_data)
-        except ImmediateHttpResponse:
-            self.assertTrue(True, msg="Caught right exception.")
-        except Exception as error:
-            logging.error('Unexpected exception thrown: {0}'.format(error.__class__,))
-        else:
-            self.fail('No exception thrown')
+        self.assertRaises(ImmediateHttpResponse, ResultBundle, **modified_data)
 
     def test_optional_data(self):
         """

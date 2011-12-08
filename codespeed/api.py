@@ -181,15 +181,18 @@ class ResultBundle(Bundle):
         """
         def populate(key):
             return {
-                'project': lambda: Project.objects.get(name=self.data['project']),
-                'executable': lambda: Executable.objects.get(
-                    name=self.data['executable']),
-                'benchmark': lambda: Benchmark.objects.get(name=self.data['benchmark']),
-                'environment': lambda: Environment.objects.get(
-                    name=self.data['environment']),
-                'branch': lambda: Branch.objects.get(name=self.data['branch'],
-                                            project=self.obj.project),
-            }.get(key, None)()
+                'project': lambda: Project.objects.get_or_create(
+                    name=self.data['project']),
+                'executable': lambda: Executable.objects.get_or_create(
+                    name=self.data['executable'], project=self.obj.project
+                ),
+                'benchmark': lambda: Benchmark.objects.get_or_create(
+                    name=self.data['benchmark']),
+                'environment': lambda: (Environment.objects.get(
+                    name=self.data['environment']), False),
+                'branch': lambda: Branch.objects.get_or_create(
+                    name=self.data['branch'], project=self.obj.project),
+            }.get(key, (None, None))()
 
         try:
             self.obj.value =  float(self.data['result_value'])
@@ -204,7 +207,7 @@ class ResultBundle(Bundle):
                     if k not in ('result_value', 'revision')]:
             try:
                 #populate
-                item = populate(key)
+                (item, created) = populate(key)
                 setattr(self.obj, key, item)
                 #self.data[key] = populate(key)
             except Exception, error:
@@ -217,11 +220,13 @@ class ResultBundle(Bundle):
                     )))
 
         # find the revision
-        self.obj.revision = Revision.objects.get(
+        self.obj.revision, created = Revision.objects.get_or_create(
             commitid=self.data['commitid'],
             project=self.obj.project,
             branch=self.obj.branch,
             )
+        print self.data['commitid']
+        print "Rev created: %s" % (created,)
         # populate optional data
         for key in [k for k in self.optional_keys \
                     if k not in ('date')]:

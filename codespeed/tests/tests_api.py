@@ -342,6 +342,18 @@ class ResultBundleTestCase(FixtureTestCase):
                          float(self.data_optional['val_max']))
         self.assertEqual(bundle.obj.val_min,
                          float(self.data_optional['val_min']))
+
+    def test_non_exiting_project(self):
+        """
+        Check handling of optional data
+        """
+        modified_data = copy.deepcopy(self.data1)
+        modified_data['commitid'] = '0b31bf33a469ac2cb1949666eea54d69a36c3724'
+        bundle = ResultBundle(**modified_data)
+        bundle.save()
+        self.assertEqual(bundle.obj.revision.commitid,
+                         modified_data['commitid'])
+
 #def suite():
 #    suite = unittest.TestSuite()
 #    suite.addTest(EnvironmentTest())

@@ -96,9 +96,15 @@ class Benchmark(models.Model):
     units_title = models.CharField(max_length=30, default='Time')
     units = models.CharField(max_length=20, default='seconds')
     lessisbetter = models.BooleanField("Less is better", default=True)
+    default_on_comparison = models.BooleanField("Default on comparison page", default=True)
 
     def __unicode__(self):
         return self.name
+
+    def clean(self):
+        if self.default_on_comparison and self.benchmark_type != 'C':
+            raise ValidationError("Only cross-project benchmarks are shown on the "
+                                  "comparison page. Deactivate 'default_on_comparison' first.")
 
 
 class Environment(models.Model):

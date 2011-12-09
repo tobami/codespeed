@@ -30,7 +30,7 @@ class ExecutableAdmin(admin.ModelAdmin):
 admin.site.register(Executable, ExecutableAdmin)
 
 class BenchmarkAdmin(admin.ModelAdmin):
-    list_display = ('name', 'benchmark_type', 'description', 'units_title', 'units', 'lessisbetter')
+    list_display = ('name', 'benchmark_type', 'description', 'units_title', 'units', 'lessisbetter', 'default_on_comparison')
     ordering = ['name']
     search_fields = ('name', 'description')
 

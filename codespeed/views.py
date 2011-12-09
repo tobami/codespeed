@@ -38,11 +38,12 @@ def no_data_found(request):
 
 def getbaselineexecutables():
     baseline = [{'key': "none", 'name': "None", 'executable': "none", 'revision': "none"}]
-    revs = Revision.objects.exclude(tag="")
+    executables = Executable.objects.select_related('project')
+    revs = Revision.objects.exclude(tag="").select_related('branch__project')
     maxlen = 22
     for rev in revs:
         #add executables that correspond to each tagged revision.
-        for exe in Executable.objects.filter(project=rev.branch.project):
+        for exe in [e for e in executables if e.project == rev.branch.project]:
             exestring = str(exe)
             if len(exestring) > maxlen: exestring = str(exe)[0:maxlen] + "..."
             name = exestring + " " + rev.tag
@@ -56,11 +57,11 @@ def getbaselineexecutables():
     # move default to first place
     if hasattr(settings, 'DEF_BASELINE') and settings.DEF_BASELINE != None:
         try:
+            exename = settings.DEF_BASELINE['executable']
+            commitid = settings.DEF_BASELINE['revision']
             for base in baseline:
                 if base['key'] == "none":
                     continue
-                exename = settings.DEF_BASELINE['executable']
-                commitid = settings.DEF_BASELINE['revision']
                 if base['executable'].name == exename and base['revision'].commitid == commitid:
                     baseline.remove(base)
                     baseline.insert(1, base)

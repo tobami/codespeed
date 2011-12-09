@@ -21,6 +21,13 @@ DELETE Environment() data:
     curl --dump-header - -H "Content-Type: application/json" -X DELETE \
         http://127.0.0.1:8000/api/v1/environment/2/
 
+PUT a full result:
+    curl --dump-header - -H "Content-Type: application/json" -X POST \
+        --data '{"commitid": "4", "branch": "default",  "project": "MyProject",\
+        "executable": "myexe O3 64bits", "benchmark": "float", "environment": \
+        "Quad Core", "result_value": 4000, "result": "4000"}' \
+        http://127.0.0.1:8000/api/v1/benchmark-result/
+
 See http://django-tastypie.readthedocs.org/en/latest/interacting.html
 """
 import logging

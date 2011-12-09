@@ -220,8 +220,6 @@ class ResultBundle(Bundle):
             project=self.obj.project,
             branch=self.obj.branch,
             )
-        print self.data['commitid']
-        print "Rev created: %s" % (created,)
         # populate optional data
         for key in [k for k in self.optional_keys \
                     if k not in ('date')]:

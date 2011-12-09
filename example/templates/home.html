@@ -4,7 +4,7 @@
 {{ block.super }}
 <script type="text/javascript">
     function permalinkToChanges(permalink) {
-        window.location="{% url changes %}?" + permalink;
+        window.location=permalink;
     }
 
     function updateTable() {

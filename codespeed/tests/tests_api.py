@@ -342,7 +342,56 @@ class ResultBundleTestCase(FixtureTestCase):
         bundle = ResultBundle(**modified_data)
         self.assertRaises(ImmediateHttpResponse, bundle.save)
 
+class ResultBundleResourceTestCase(FixtureTestCase):
+    """
+    Submitting new benchmark results
+    """
+
+    def setUp(self):
+        self.data1 = {
+            'commitid': '2',
+            'branch': 'default', # Always use default for trunk/master/tip
+            'project': 'MyProject',
+            'executable': 'myexe O3 64bits',
+            'benchmark': 'float',
+            'environment': "Bulldozer",
+            'result_value': 4000,
+            }
+        DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+        self.data_optional = {
+            'std_dev': 0.2,
+            'val_min': 2.23,
+            'val_max': 3.42,
+            'date': datetime.now().strftime(DATETIME_FORMAT),
+            }
+        project_data = dict(
+            name="PyPy",
+            repo_type="M",
+            repo_path="ssh://hg@bitbucket.org/pypy/pypy",
+            repo_user="fridolin",
+            repo_pass="secret",
+            )
+        self.project = Project(**project_data)
+        self.project.save()
+        self.env1 = Environment(name='Bulldozer')
+        self.env1.save()
+
+    def test_post_mandatory(self):
+        """Should save a new project
+        """
+        response = self.client.post('/api/v1/benchmark-result/',
+                                    data=json.dumps(self.data1),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 201)
+            #response = self.client.get('/api/v1/project/{0}/'.format(self.project.id))
+            #for k, v in self.project_data.items():
+            #    self.assertEqual(
+            #        json.loads(response.content)[k], v)
+
+
+
 #def suite():
 #    suite = unittest.TestSuite()
 #    suite.addTest(EnvironmentTest())
 #    return suite
+

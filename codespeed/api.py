@@ -27,20 +27,19 @@ import logging
 from datetime import datetime
 from django.contrib.auth.models import User
 from django.db import models
-<<<<<<< HEAD
 from tastypie.bundle import Bundle
-=======
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from tastypie.bundle import Bundle
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.http import HttpBadRequest
->>>>>>> Implement the 1st version of the Result Bundle class
+from tastypie.http import HttpBadRequest, HttpCreated, HttpNotImplemented
 from tastypie.resources import ModelResource, Resource
 from tastypie import fields
 from tastypie.authorization import Authorization, DjangoAuthorization
 from tastypie.authentication import ApiKeyAuthentication
 from tastypie.models import create_api_key
+from tastypie.utils.dict import dict_strip_unicode_keys
 from codespeed.models import (Environment, Project, Result, Branch, Revision,
                               Executable, Benchmark, Report)
 
@@ -339,17 +338,26 @@ class ResultBundleResource(Resource):
         authorization= Authorization()
         allowed_methods = ['get', 'post', 'put', 'delete']
 
+    def get_resource_uri(self, bundle_or_obj):
+        kwargs = {
+            'resource_name': self._meta.resource_name,
+        }
+
+        if isinstance(bundle_or_obj, Bundle):
+            kwargs['pk'] = bundle_or_obj.obj.pk
+        else:
+            kwargs['pk'] = bundle_or_obj.pk
+
+        if self._meta.api_name is not None:
+            kwargs['api_name'] = self._meta.api_name
+
+        #FIXME (a8): reverse url should point to ResultResource()
+        return self._build_reverse_url("api_dispatch_detail", kwargs=kwargs)
+
     def get_object_list(self, request):
-        query = self._client().add('messages')
-        query.map("function(v) { var data = JSON.parse(v.values[0].data); return [[v.key, data]]; }")
-        results = []
+        query = Result.objects.all()
 
-        for result in query.run():
-            new_obj = RiakObject(initial=result[1])
-            new_obj.uuid = result[0]
-            results.append(new_obj)
-
-        return results
+        return query
 
     def obj_get_list(self, request=None, **kwargs):
         """Return all benchmark results ever
@@ -368,15 +376,41 @@ class ResultBundleResource(Resource):
         return bundle.obj
 
     def obj_create(self, bundle, request=None, **kwargs):
-        bundle.obj = RiakObject(initial=kwargs)
-        bundle = self.full_hydrate(bundle)
-        bucket = self._bucket()
-        new_message = bucket.new(bundle.obj.uuid, data=bundle.obj.to_dict())
-        new_message.store()
+        # FIXME (a8): Find out what full_hydrate does
+        #bundle = self.full_hydrate(bundle)
+        bundle.save()
         return bundle
 
     def obj_update(self, bundle, request=None, **kwargs):
         return self.obj_create(bundle, request, **kwargs)
+
+
+    def post_list(self, request, **kwargs):
+        """
+        Creates a new resource/object with the provided data.
+
+        Calls ``obj_create`` with the provided data and returns a response
+        with the new resource's location.
+
+        If a new resource is created, return ``HttpCreated`` (201 Created).
+        """
+        deserialized = self.deserialize(request, request.raw_post_data, format=request.META.get('CONTENT_TYPE', 'application/json'))
+        deserialized = self.alter_deserialized_list_data(request, deserialized)
+        bundle = ResultBundle(**dict_strip_unicode_keys(deserialized))
+        self.is_valid(bundle, request)
+        updated_bundle = self.obj_create(bundle, request=request)
+        return HttpCreated(location=self.get_resource_uri(updated_bundle))
+
+    def post_detail(self, request, **kwargs):
+        """
+        Creates a new subcollection of the resource under a resource.
+
+        This is not implemented by default because most people's data models
+        aren't self-referential.
+
+        If a new resource is created, return ``HttpCreated`` (201 Created).
+        """
+        return HttpNotImplemented()
 
     def obj_delete_list(self, request=None, **kwargs):
         bucket = self._bucket()

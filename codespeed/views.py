@@ -177,25 +177,28 @@ def getcomparisondata(request):
     data = request.GET
 
     executables, exekeys = getcomparisonexes()
+    benchmarks = Benchmark.objects.all()
+    environments = Environment.objects.all()
 
     compdata = {}
     compdata['error'] = "Unknown error"
     for proj in executables:
         for exe in executables[proj]:
             compdata[exe['key']] = {}
-            for env in Environment.objects.all():
+            for env in environments:
                 compdata[exe['key']][env.id] = {}
-                for bench in Benchmark.objects.all().order_by('name'):
-                    try:
-                        value = Result.objects.get(
-                            environment=env,
-                            executable=exe['executable'],
-                            revision=exe['revision'],
-                            benchmark=bench
-                        ).value
-                    except Result.DoesNotExist:
-                        value = None
-                    compdata[exe['key']][env.id][bench.id] = value
+
+                # Load all results for this env/executable/revision in a dict
+                # for fast lookup
+                results = dict(Result.objects.filter(
+                    environment=env,
+                    executable=exe['executable'],
+                    revision=exe['revision'],
+                ).values_list('benchmark', 'value'))
+
+                for bench in benchmarks:
+                    compdata[exe['key']][env.id][bench.id] = results.get(bench.id, None)
+
     compdata['error'] = "None"
 
     return HttpResponse(json.dumps( compdata ))

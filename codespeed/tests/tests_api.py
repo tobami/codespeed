@@ -108,7 +108,7 @@ class EnvironmentTest(FixtureTestCase):
         self.assertEquals(response.status_code, 204)
 
         response = self.client.get('/api/v1/environment/{0}/'.format(self.env1.id))
-        self.assertEquals(response.status_code, 410)
+        self.assertEquals(response.status_code, 404)
 
 
 class ProjectTest(FixtureTestCase):
@@ -167,7 +167,7 @@ class ProjectTest(FixtureTestCase):
         self.assertEquals(response.status_code, 204)
 
         response = self.client.get('/api/v1/project/{0}/'.format(self.project.id,))
-        self.assertEquals(response.status_code, 410)
+        self.assertEquals(response.status_code, 404)
 
 
 class UserTest(FixtureTestCase):

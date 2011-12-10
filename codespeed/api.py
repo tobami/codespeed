@@ -402,13 +402,12 @@ class ResultBundleResource(Resource):
 
         If a new resource is created, return ``HttpCreated`` (201 Created).
         """
-        #deserialized = self.deserialize(request, request.raw_post_data, format=request.META.get('CONTENT_TYPE', 'application/json'))
-        #deserialized = self.alter_deserialized_list_data(request, deserialized)
-        #bundle = ResultBundle(**dict_strip_unicode_keys(deserialized))
-        #self.is_valid(bundle, request)
-        #updated_bundle = self.obj_create(bundle, request=request)
-        #return HttpCreated(location=self.get_resource_uri(updated_bundle))
-        return HttpNotImplemented()
+        deserialized = self.deserialize(request, request.raw_post_data, format=request.META.get('CONTENT_TYPE', 'application/json'))
+        deserialized = self.alter_deserialized_list_data(request, deserialized)
+        bundle = ResultBundle(**dict_strip_unicode_keys(deserialized))
+        self.is_valid(bundle, request)
+        updated_bundle = self.obj_create(bundle, request=request)
+        return HttpCreated(location=self.get_resource_uri(updated_bundle))
 
     def post_detail(self, request, **kwargs):
         """

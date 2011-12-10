@@ -93,6 +93,7 @@ class RevisionResource(ModelResource):
 
 class ExecutableResource(ModelResource):
     """Ressource for Executable()"""
+    project = fields.ToOneField(ProjectResource, 'project')
 
     class Meta:
         queryset = Executable.objects.all()

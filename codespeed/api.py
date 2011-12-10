@@ -54,8 +54,7 @@ models.signals.post_save.connect(create_api_key, sender=User)
 
 
 class UserResource(ModelResource):
-    """Ressource for Django User()
-    """
+    """Ressource for Django User()"""
     class Meta:
         queryset = User.objects.filter(is_active=True)
         resource_name = 'user'
@@ -69,8 +68,7 @@ class UserResource(ModelResource):
 
 
 class ProjectResource(ModelResource):
-    """Ressource for Project()
-    """
+    """Ressource for Project()"""
 
     class Meta:
         queryset = Project.objects.all()
@@ -78,8 +76,7 @@ class ProjectResource(ModelResource):
 
 
 class BranchResource(ModelResource):
-    """Ressource for Branch()
-    """
+    """Ressource for Branch()"""
 
     class Meta:
         queryset = Branch.objects.all()
@@ -87,8 +84,7 @@ class BranchResource(ModelResource):
 
 
 class RevisionResource(ModelResource):
-    """Ressource for Revision()
-    """
+    """Ressource for Revision()"""
 
     class Meta:
         queryset = Revision.objects.all()
@@ -96,8 +92,7 @@ class RevisionResource(ModelResource):
 
 
 class ExecutableResource(ModelResource):
-    """Ressource for Executable()
-    """
+    """Ressource for Executable()"""
 
     class Meta:
         queryset = Executable.objects.all()
@@ -105,8 +100,7 @@ class ExecutableResource(ModelResource):
 
 
 class BenchmarkResource(ModelResource):
-    """Ressource for Benchmark()
-    """
+    """Ressource for Benchmark()"""
 
     class Meta:
         queryset = Benchmark.objects.all()
@@ -114,8 +108,7 @@ class BenchmarkResource(ModelResource):
 
 
 class EnvironmentResource(ModelResource):
-    """Ressource for Enviroment()
-    """
+    """Ressource for Enviroment()"""
 
     class Meta:
         queryset = Environment.objects.all()
@@ -124,8 +117,7 @@ class EnvironmentResource(ModelResource):
 
 
 class ResultResource(ModelResource):
-    """Ressource for Result()
-    """
+    """Ressource for Result()"""
 
     class Meta:
         queryset = Result.objects.all()
@@ -133,8 +125,7 @@ class ResultResource(ModelResource):
 
 
 class ReportResource(ModelResource):
-    """Ressource for Report()
-    """
+    """Ressource for Report()"""
 
     class Meta:
         queryset = Report.objects.all()
@@ -240,8 +231,7 @@ class ResultBundle(Bundle):
             self.obj.date = datetime.now()
 
     def _check_data(self):
-        """See if all mandatory data is there
-        """
+        """See if all mandatory data is there"""
         # check if all mandatory keys are there
         for key in [k for k in self.mandatory_keys\
                     if k not in ('revision')]:
@@ -366,14 +356,12 @@ class ResultBundleResource(Resource):
         return HttpNotImplemented()
 
     def obj_get_list(self, request=None, **kwargs):
-        """Return all benchmark results ever
-        """
+        """Return all benchmark results ever"""
         #return self.get_object_list(request)
         pass
 
     def obj_get(self, request=None, **kwargs):
-        """get the ResultBundle with the result_id as the primary key
-        """
+        """get the ResultBundle with the result_id as the primary key"""
         bundle = Bundle
         pk = kwargs['pk']
         result = Result.objects.get(pk=pk)

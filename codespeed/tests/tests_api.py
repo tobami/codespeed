@@ -37,8 +37,7 @@ class FixtureTestCase(test.TestCase):
 
 
 class EnvironmentTest(FixtureTestCase):
-    """Test Environment() API
-    """
+    """Test Environment() API"""
 
     def setUp(self):
         self.env1_data = dict(
@@ -112,8 +111,7 @@ class EnvironmentTest(FixtureTestCase):
 
 
 class ProjectTest(FixtureTestCase):
-    """Test Environment() API
-    """
+    """Test Environment() API"""
 
     def setUp(self):
         self.project_data = dict(
@@ -171,8 +169,7 @@ class ProjectTest(FixtureTestCase):
 
 
 class UserTest(FixtureTestCase):
-    """Test api user related stuff
-    """
+    """Test api user related stuff"""
 
     def test_has_apikey(self):
         self.assertTrue(hasattr(self.api_user, 'api_key'))
@@ -260,8 +257,7 @@ class ResultBundleTestCase(FixtureTestCase):
         self.assert_(True)
 
     def test_save_same_result_again(self):
-        """Save a previously saved result. Expected is an IntegrityError
-        """
+        """Save a previously saved result. Expected is an IntegrityError"""
         modified_data = copy.deepcopy(self.data1)
         modified_data['environment'] = "Dual Core"
         bundle = ResultBundle(**modified_data)
@@ -269,23 +265,21 @@ class ResultBundleTestCase(FixtureTestCase):
         self.assertRaises(IntegrityError, bundle.save)
 
     def test_for_nonexistent_environment(self):
-        """Save data using non existing environment. Expected is an ImmediateHttpResponse
+        """Save data using non existing environment. Expected is an
+        ImmediateHttpResponse
         """
         modified_data = copy.deepcopy(self.data1)
         modified_data['environment'] = "Foo the Bar"
         self.assertRaises(ImmediateHttpResponse, ResultBundle, **modified_data)
 
     def test_insufficient_data(self):
-        """See if Result() is saved w/ insufficient data
-        """
+        """See if Result() is saved w/ insufficient data"""
         modified_data = copy.deepcopy(self.data1)
         modified_data.pop('environment')
         self.assertRaises(ImmediateHttpResponse, ResultBundle, **modified_data)
 
     def test_date_attr_set(self):
-        """
-        Check if date attr of Result() is set if not given
-        """
+        """Check if date attr of Result() is set if not given"""
         # date is set automatically
         modified_data = copy.deepcopy(self.data1)
         bundle = ResultBundle(**modified_data)
@@ -299,9 +293,7 @@ class ResultBundleTestCase(FixtureTestCase):
         self.assertRaises(ImmediateHttpResponse, ResultBundle, **modified_data)
 
     def test_optional_data(self):
-        """
-        Check handling of optional data
-        """
+        """Check handling of optional data"""
         data = dict(self.data1.items() + self.data_optional.items())
         bundle = ResultBundle(**data)
         bundle.save()
@@ -314,9 +306,7 @@ class ResultBundleTestCase(FixtureTestCase):
                          float(self.data_optional['val_min']))
 
     def test_non_exiting_items(self):
-        """
-        Check handling of optional data
-        """
+        """Check handling of optional data"""
         modified_data = copy.deepcopy(self.data1)
         modified_data['commitid'] = '0b31bf33a469ac2cb1949666eea54d69a36c3724'
         modified_data['project'] = 'Cython'
@@ -343,9 +333,7 @@ class ResultBundleTestCase(FixtureTestCase):
         self.assertRaises(ImmediateHttpResponse, bundle.save)
 
 class ResultBundleResourceTestCase(FixtureTestCase):
-    """
-    Submitting new benchmark results
-    """
+    """Submitting new benchmark results"""
 
     def setUp(self):
         self.data1 = {
@@ -377,13 +365,12 @@ class ResultBundleResourceTestCase(FixtureTestCase):
         self.env1.save()
 
     def test_post_mandatory(self):
-        """Should save a new project
-        """
+        """Should save a new project"""
         response = self.client.post('/api/v1/benchmark-result/',
                                     data=json.dumps(self.data1),
                                     content_type='application/json')
         self.assertEquals(response.status_code, 201)
-        print response
+        #response = self.client.post(response['Location'].split('http://testserver'),)
             #response = self.client.get('/api/v1/project/{0}/'.format(self.project.id))
             #for k, v in self.project_data.items():
             #    self.assertEqual(

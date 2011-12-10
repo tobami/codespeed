@@ -206,7 +206,7 @@ class ExecutableTest(FixtureTestCase):
                 json.loads(response.content)[k], self.data[k])
 
     def test_post(self):
-        """Should save a new project"""
+        """Should save a new executable"""
         modified_data = copy.deepcopy(self.data)
         modified_data['name'] = 'nbody'
         modified_data['project'] = '/api/v1/project/{0}/'.format(self.project.pk)
@@ -400,6 +400,7 @@ class ResultBundleTestCase(FixtureTestCase):
 class ResultBundleResourceTestCase(FixtureTestCase):
     """Submitting new benchmark results"""
 
+    DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
     def setUp(self):
         self.data1 = {
             'commitid': '2',
@@ -410,12 +411,11 @@ class ResultBundleResourceTestCase(FixtureTestCase):
             'environment': "Bulldozer",
             'result_value': 4000,
             }
-        DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
         self.data_optional = {
             'std_dev': 0.2,
             'val_min': 2.23,
             'val_max': 3.42,
-            'date': datetime.now().strftime(DATETIME_FORMAT),
+            'date': datetime.now().strftime(self.DATETIME_FORMAT),
             }
         project_data = dict(
             name="PyPy",
@@ -430,17 +430,38 @@ class ResultBundleResourceTestCase(FixtureTestCase):
         self.env1.save()
 
     def test_post_mandatory(self):
-        """Should save a new project"""
+        """Should save a new result with only mandatory data"""
         response = self.client.post('/api/v1/benchmark-result/',
                                     data=json.dumps(self.data1),
                                     content_type='application/json')
         self.assertEquals(response.status_code, 201)
-        #response = self.client.post(response['Location'].split('http://testserver'),)
-            #response = self.client.get('/api/v1/project/{0}/'.format(self.project.id))
-            #for k, v in self.project_data.items():
-            #    self.assertEqual(
-            #        json.loads(response.content)[k], v)
+        id = response['Location'].rsplit('/', 2)[-2]
+        result = Result.objects.get(pk=int(id))
+        # just to make the point
+        self.assertIsInstance(result, Result)
+        self.assertEqual(result.value, self.data1['result_value'])
 
+    def test_post_all_data(self):
+        """Should save a new result with mandatory and optional data"""
+        data = dict(self.data1, **self.data_optional)
+        response = self.client.post('/api/v1/benchmark-result/',
+                                    data=json.dumps(data),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 201)
+
+    def xtest_get(self):
+        """Should get a result bundle"""
+        response = self.client.get('/api/v1/benchmark-result/',
+                                    data=json.dumps(self.data1),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 201)
+        id = response['Location'].rsplit('/', 2)[-2]
+        result = Result.objects.get(pk=int(id))
+        for k in ('std_dev', 'val_min', 'val_max'):
+            self.assertEqual(getattr(result, k), self.data_optional[k])
+        self.assertEqual(
+            result.date.strftime(self.DATETIME_FORMAT),
+            self.data_optional['date'])
 
 
 #def suite():

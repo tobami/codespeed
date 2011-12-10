@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import simplejson as json
 
@@ -424,7 +425,7 @@ class Report(models.Model):
         return tablelist
 
     def get_absolute_url(self):
-        return "/changes/?rev=%s&exe=%s&env=%s" % (
+        return reverse("changes") + "?rev=%s&exe=%s&env=%s" % (
             self.revision.commitid, self.executable.id, self.environment.name)
 
     def _save_tablecache(self, data):

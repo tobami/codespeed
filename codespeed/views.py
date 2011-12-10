@@ -277,7 +277,7 @@ def comparison(request):
                 pass
     if not checkedbenchmarks:
         # Only include benchmarks marked as cross-project
-        checkedbenchmarks = Benchmark.objects.filter(benchmark_type="C")
+        checkedbenchmarks = Benchmark.objects.filter(benchmark_type="C", default_on_comparison=True)
 
     charts = ['normal bars', 'stacked bars', 'relative bars']
     # Don't show relative charts as an option if there is only one executable

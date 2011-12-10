@@ -362,14 +362,15 @@ class ResultBundleResource(Resource):
         return self._build_reverse_url("api_dispatch_detail", kwargs=kwargs)
 
     def get_object_list(self, request):
-        query = Result.objects.all()
+        #query = Result.objects.all()
 
-        return query
+        return HttpNotImplemented()
 
     def obj_get_list(self, request=None, **kwargs):
         """Return all benchmark results ever
         """
-        return self.get_object_list(request)
+        #return self.get_object_list(request)
+        pass
 
     def obj_get(self, request=None, **kwargs):
         """get the ResultBundle with the result_id as the primary key
@@ -401,12 +402,13 @@ class ResultBundleResource(Resource):
 
         If a new resource is created, return ``HttpCreated`` (201 Created).
         """
-        deserialized = self.deserialize(request, request.raw_post_data, format=request.META.get('CONTENT_TYPE', 'application/json'))
-        deserialized = self.alter_deserialized_list_data(request, deserialized)
-        bundle = ResultBundle(**dict_strip_unicode_keys(deserialized))
-        self.is_valid(bundle, request)
-        updated_bundle = self.obj_create(bundle, request=request)
-        return HttpCreated(location=self.get_resource_uri(updated_bundle))
+        #deserialized = self.deserialize(request, request.raw_post_data, format=request.META.get('CONTENT_TYPE', 'application/json'))
+        #deserialized = self.alter_deserialized_list_data(request, deserialized)
+        #bundle = ResultBundle(**dict_strip_unicode_keys(deserialized))
+        #self.is_valid(bundle, request)
+        #updated_bundle = self.obj_create(bundle, request=request)
+        #return HttpCreated(location=self.get_resource_uri(updated_bundle))
+        return HttpNotImplemented()
 
     def post_detail(self, request, **kwargs):
         """
@@ -420,16 +422,12 @@ class ResultBundleResource(Resource):
         return HttpNotImplemented()
 
     def obj_delete_list(self, request=None, **kwargs):
-        bucket = self._bucket()
-
-        for key in bucket.get_keys():
-            obj = bucket.get(key)
-            obj.delete()
+        return HttpNotImplemented()
 
     def obj_delete(self, request=None, **kwargs):
-        bucket = self._bucket()
-        obj = bucket.get(kwargs['pk'])
-        obj.delete()
+        #obj = Result.objects.get(pk=kwargs['pk'])
+        #obj.delete()
+        return HttpNotImplemented()
 
     def rollback(self, bundles):
         pass

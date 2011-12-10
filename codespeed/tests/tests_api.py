@@ -383,6 +383,7 @@ class ResultBundleResourceTestCase(FixtureTestCase):
                                     data=json.dumps(self.data1),
                                     content_type='application/json')
         self.assertEquals(response.status_code, 201)
+        print response
             #response = self.client.get('/api/v1/project/{0}/'.format(self.project.id))
             #for k, v in self.project_data.items():
             #    self.assertEqual(

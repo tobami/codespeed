@@ -111,7 +111,7 @@ class EnvironmentTest(FixtureTestCase):
 
 
 class ProjectTest(FixtureTestCase):
-    """Test Environment() API"""
+    """Test Project() API"""
 
     def setUp(self):
         self.project_data = dict(
@@ -135,12 +135,14 @@ class ProjectTest(FixtureTestCase):
 
     def test_get_project(self):
         """Should get an existing project"""
-        response = self.client.get('/api/v1/project/{0}/'.format(self.project.id,))
+        response = self.client.get('/api/v1/project/{0}/'.format(
+            self.project.id,))
         self.assertEquals(response.status_code, 200)
-        self.assertEqual(json.loads(response.content)['name'], "{0}".format(self.project_data['name']))
+        self.assertEqual(json.loads(response.content)['name'], "{0}".format(
+            self.project_data['name']))
 
     def test_get_project_all_fields(self):
-        """Should get all fields for an environment"""
+        """Should get all fields for a project"""
         response = self.client.get('/api/v1/project/%s/' % (self.project.id,))
         self.assertEquals(response.status_code, 200)
         for k in self.project_data.keys():
@@ -153,18 +155,81 @@ class ProjectTest(FixtureTestCase):
                                     data=json.dumps(self.project_data2),
                                     content_type='application/json')
         self.assertEquals(response.status_code, 201)
-        response = self.client.get('/api/v1/project/{0}/'.format(self.project.id))
+        response = self.client.get('/api/v1/project/{0}/'.format(
+            self.project.id))
         for k, v in self.project_data.items():
             self.assertEqual(
                 json.loads(response.content)[k], v)
 
     def test_delete(self):
         """Should delete an project"""
-        response = self.client.delete('/api/v1/project/{0}/'.format(self.project.id,),
+        response = self.client.delete('/api/v1/project/{0}/'.format(
+            self.project.id,),
                                     content_type='application/json')
         self.assertEquals(response.status_code, 204)
 
-        response = self.client.get('/api/v1/project/{0}/'.format(self.project.id,))
+        response = self.client.get('/api/v1/project/{0}/'.format(
+            self.project.id,))
+        self.assertEquals(response.status_code, 404)
+
+
+class ExecutableTest(FixtureTestCase):
+    """Test Executable() API"""
+
+    def setUp(self):
+        self.data = dict(
+            name="Fibo",
+            description="Fibonacci the Lame",
+            )
+        # project is a ForeignKey and is not added automatically by tastypie
+        self.project=Project.objects.get(pk=1)
+        self.executable = Executable(project=self.project, **self.data)
+        self.executable.save()
+        self.client = Client()
+        super(ExecutableTest, self).setUp()
+
+    def test_get_executable(self):
+        """Should get an existing executable"""
+        response = self.client.get('/api/v1/executable/{0}/'.format(
+            self.executable.id,))
+        self.assertEquals(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['name'], "{0}".format(
+            self.data['name']))
+
+    def test_get_executable_all_fields(self):
+        """Should get all fields for an executable"""
+        response = self.client.get('/api/v1/executable/%s/' % (
+            self.executable.id,))
+        self.assertEquals(response.status_code, 200)
+        for k in self.data.keys():
+            self.assertEqual(
+                json.loads(response.content)[k], self.data[k])
+
+    def test_post(self):
+        """Should save a new project"""
+        modified_data = copy.deepcopy(self.data)
+        modified_data['name'] = 'nbody'
+        modified_data['project'] = '/api/v1/project/{0}/'.format(self.project.pk)
+        response = self.client.post('/api/v1/executable/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 201)
+        response = self.client.get('/api/v1/executable/{0}/'.format(
+            self.executable.id))
+        response_data = json.loads(response.content)
+        for k, v in self.data.items():
+            self.assertEqual(response_data[k], v)
+        executable = Executable.objects.get(pk=int(response_data['id']))
+        self.assertEquals(executable.project, self.project)
+
+    def test_delete(self):
+        """Should delete an project"""
+        response = self.client.delete('/api/v1/executable/{0}/'.format(
+            self.executable.id,), content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get('/api/v1/executable/{0}/'.format(
+            self.executable.id,))
         self.assertEquals(response.status_code, 404)
 
 

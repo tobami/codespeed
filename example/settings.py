@@ -89,7 +89,7 @@ if DEBUG:
 ROOT_URLCONF = 'example.urls'
 
 TEMPLATE_DIRS = (
-    os.path.join(os.path.dirname(__file__), 'templates'),
+    os.path.join(BASEDIR, 'templates'),
 )
 
 TEMPLATE_CONTEXT_PROCESSORS = (

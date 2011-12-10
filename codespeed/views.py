@@ -9,6 +9,7 @@ from django.http import (HttpResponse, Http404, HttpResponseNotAllowed,
 from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.conf import settings
 
 from codespeed.models import (Environment, Report, Project, Revision, Result,
@@ -16,13 +17,16 @@ from codespeed.models import (Environment, Report, Project, Revision, Result,
 
 
 def no_environment_error(request):
+    admin_url = reverse('admin:codespeed_environment_changelist')
     return render_to_response('codespeed/nodata.html', {
-        'message': 'You need to configure at least one Environment. Please go to the <a href="../admin/codespeed/environment/">admin interface</a>'
+        'message': 'You need to configure at least one Environment. Please go to the <a href="%s">admin interface</a>' % admin_url
     }, context_instance=RequestContext(request))
 
 def no_default_project_error(request):
+    admin_url = reverse('admin:codespeed_project_changelist')
     return render_to_response('codespeed/nodata.html', {
-        'message': 'You need to configure at least one one Project as default (checked "Track changes" field).<br />Please go to the <a href="../admin/codespeed/project/">admin interface</a>'
+        'message': 'You need to configure at least one one Project as default (checked "Track changes" field).<br />'
+                   'Please go to the <a href="%s">admin interface</a>' % admin_url
     }, context_instance=RequestContext(request))
 
 def no_executables_error(request):

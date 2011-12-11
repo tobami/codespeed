@@ -165,12 +165,17 @@ class ResultBundle(Bundle):
         'date',
     )
 
-    def __init__(self, **data):
-        self.data = data
-        self.obj =  Result()
+    def __init__(self, obj=None, **kwargs):
+        self.data = kwargs
+        if obj is None:
+            self.obj =  Result()
+        elif isinstance(obj, Result):
+            self.obj = obj
+        else:
+            raise ValueError("obj has to be an instance of models.Result")
         self.__data_validated = False   #not used so far
         self._check_data()
-        super(ResultBundle, self).__init__(data=data, obj=self.obj)
+        super(ResultBundle, self).__init__(data=self.data, obj=self.obj)
 
     def _populate_obj_by_data(self):
         """Database lookup
@@ -328,8 +333,8 @@ class ResultBundleResource(Resource):
     benchmark = fields.ToOneField(BenchmarkResource, 'benchmark')
     environment = fields.ToOneField(EnvironmentResource, 'environment')
     result = fields.ToOneField(ResultResource, 'result')
-    user = fields.ToOneField(UserResource, 'user')
-    notify = fields.CharField(attribute='notify')
+    user = fields.ToOneField(UserResource, 'user', null=True)
+    notify = fields.CharField(attribute='notify', null=True)
 
     class Meta:
         resource_name = 'benchmark-result'
@@ -353,28 +358,29 @@ class ResultBundleResource(Resource):
         return self._build_reverse_url("api_dispatch_detail", kwargs=kwargs)
 
     def get_object_list(self, request):
-        #query = Result.objects.all()
+        results = Result.objects.all()
 
-        return HttpNotImplemented()
+        return [ResultBundle(obj=r) for r in results]
 
     def obj_get_list(self, request=None, **kwargs):
         """Return all benchmark results ever"""
-        #return self.get_object_list(request)
-        pass
+        return self.get_object_list(request)
 
     def obj_get(self, request=None, **kwargs):
         """get the ResultBundle with the result_id as the primary key"""
-        bundle = Bundle
         pk = kwargs['pk']
         result = Result.objects.get(pk=pk)
-        bundle.obj = result
-        bundle.obj.project = bundle.obj.executable.project
-        bundle.obj.branch = bundle.obj.revision.branch
-        bundle.obj.result = result
-        return bundle.obj
+        result.project = result.executable.project
+        result.branch = result.revision.branch
+        setattr(result, 'result', result)
+        # TODO (a8): add user to models
+        #setattr(result, 'user', User.objects.get(pk=1))
+        setattr(result, 'user', None)
+        #setattr(result, 'notify', None)
+        return result
 
     def obj_create(self, bundle, request=None, **kwargs):
-        # FIXME (a8): Find out what full_hydrate does
+        # FIXME (a8): Make full_hydrate work
         #bundle = self.full_hydrate(bundle)
         bundle.save()
         return bundle

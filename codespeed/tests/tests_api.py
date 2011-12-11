@@ -449,19 +449,17 @@ class ResultBundleResourceTestCase(FixtureTestCase):
                                     content_type='application/json')
         self.assertEquals(response.status_code, 201)
 
-    def xtest_get(self):
+    def test_get_one(self):
         """Should get a result bundle"""
-        response = self.client.get('/api/v1/benchmark-result/',
-                                    data=json.dumps(self.data1),
+        response = self.client.get('/api/v1/benchmark-result/1/',
                                     content_type='application/json')
-        self.assertEquals(response.status_code, 201)
-        id = response['Location'].rsplit('/', 2)[-2]
-        result = Result.objects.get(pk=int(id))
-        for k in ('std_dev', 'val_min', 'val_max'):
-            self.assertEqual(getattr(result, k), self.data_optional[k])
-        self.assertEqual(
-            result.date.strftime(self.DATETIME_FORMAT),
-            self.data_optional['date'])
+        self.assertEquals(response.status_code, 200)
+        response_data = json.loads(response.content)
+        for k in ('project', 'result', 'branch', 'benchmark', 'environment',
+            'executable', 'revision'):
+            self.assertEqual(
+                response_data[k],
+                '/api/v1/{0}/1/'.format(k,))
 
 
 #def suite():

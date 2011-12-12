@@ -5,6 +5,9 @@ import logging
 from django.conf import settings
 
 
+logger = logging.getLogger(__name__)
+
+
 def updaterepo(project, update=True):
     repo_name = os.path.splitext(project.repo_path.split(os.sep)[-1])[0]
     working_copy = os.path.join(settings.REPOSITORY_BASE_PATH, repo_name)
@@ -28,7 +31,7 @@ def updaterepo(project, update=True):
 
         p = Popen(cmd, stdout=PIPE, stderr=PIPE,
                     cwd=settings.REPOSITORY_BASE_PATH)
-        logging.debug('Cloning Mercurial repo {0}for project {1}'.format(
+        logger.debug('Cloning Mercurial repo {0}for project {1}'.format(
             project.repo_path, project))
         stdout, stderr = p.communicate()
 

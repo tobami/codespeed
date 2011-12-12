@@ -16,6 +16,9 @@ from codespeed.models import (Environment, Report, Project, Revision, Result,
                               Executable, Benchmark, Branch)
 
 
+logger = logging.getLogger(__name__)
+
+
 def no_environment_error(request):
     admin_url = reverse('admin:codespeed_environment_changelist')
     return render_to_response('codespeed/nodata.html', {
@@ -720,7 +723,7 @@ def displaylogs(request):
         else:
             error = 'no logs found'
     except StandardError, e:
-        logging.error("Unhandled exception displaying logs for %s: %s", rev, e, exc_info=True)
+        logger.error("Unhandled exception displaying logs for %s: %s", rev, e, exc_info=True)
         error = repr(e)
 
     return render_to_response('codespeed/changes_logs.html',
@@ -742,7 +745,7 @@ def getcommitlogs(rev, startrev, update=False):
         from github import getlogs, updaterepo
     else:
         if rev.branch.project.repo_type not in ("N", ""):
-            logging.warning("Don't know how to retrieve logs from %s project",
+            logger.warning("Don't know how to retrieve logs from %s project",
                                 rev.branch.project.get_repo_type_display())
         return logs
 
@@ -814,13 +817,13 @@ def create_report_if_enough_data(rev, exe, e):
         # If there is are at least as many results as in the last revision,
         # create new report
         if len(current_results) >= len(last_results):
-            logging.debug("create_report_if_enough_data: About to create new report")
+            logger.debug("create_report_if_enough_data: About to create new report")
             report, created = Report.objects.get_or_create(
                 executable=exe, environment=e, revision=rev
             )
             report.full_clean()
             report.save()
-            logging.debug("create_report_if_enough_data: Created new report.")
+            logger.debug("create_report_if_enough_data: Created new report.")
 
 
 def save_result(data):
@@ -852,7 +855,7 @@ def save_result(data):
             try:
                 saverevisioninfo(rev)
             except RuntimeError as e:
-                logging.warning("unable to save revision %s info: %s", rev, e,
+                logger.warning("unable to save revision %s info: %s", rev, e,
                                 exc_info=True)
         rev.save()
 
@@ -892,11 +895,11 @@ def add_result(request):
 
     response, error = save_result(data)
     if error:
-        logging.error("Could not save result: " + response)
+        logger.error("Could not save result: " + response)
         return HttpResponseBadRequest(response)
     else:
         create_report_if_enough_data(response[0], response[1], response[2])
-        logging.debug("add_result: completed")
+        logger.debug("add_result: completed")
         return HttpResponse("Result data saved successfully", status=202)
 
 
@@ -906,26 +909,26 @@ def add_json_results(request):
     if not request.POST.get('json'):
         return HttpResponseBadRequest("No key 'json' in POST payload")
     data = json.loads(request.POST['json'])
-    logging.info("add_json_results request with %d entries." % len(data))
+    logger.info("add_json_results request with %d entries." % len(data))
 
     unique_reports = set()
     i = 0
     for result in data:
         i += 1
-        logging.debug("add_json_results: save item %d." % i)
+        logger.debug("add_json_results: save item %d." % i)
         response, error = save_result(result)
         if error:
-            logging.debug(
+            logger.debug(
                 "add_json_results: could not save item %d because %s" % (
                 i, response))
             return HttpResponseBadRequest(response)
         else:
             unique_reports.add(response)
 
-    logging.debug("add_json_results: about to create reports")
+    logger.debug("add_json_results: about to create reports")
     for rep in unique_reports:
         create_report_if_enough_data(rep[0], rep[1], rep[2])
 
-    logging.debug("add_json_results: completed")
+    logger.debug("add_json_results: completed")
 
     return HttpResponse("All result data saved successfully", status=202)

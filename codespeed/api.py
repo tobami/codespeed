@@ -166,14 +166,18 @@ class ResultBundle(Bundle):
 
     def __init__(self, obj=None, **kwargs):
         self.data = kwargs
-        if obj is None:
-            self.obj =  Result()
-        elif isinstance(obj, Result):
+
+        if isinstance(obj, Result):
             self.obj = obj
+            self._populate_by_obj()
+        elif obj is None:
+            self.obj =  Result()
         else:
             raise ValueError("obj has to be an instance of models.Result")
-        self.__data_validated = False   #not used so far
-        self._check_data()
+
+        if self.data:
+            self._check_data()
+        self.__data_validated = False   #not used for now
         super(ResultBundle, self).__init__(data=self.data, obj=self.obj)
 
     def _populate_obj_by_data(self):
@@ -235,6 +239,20 @@ class ResultBundle(Bundle):
             self.obj.date = self.data['date']
         else:
             self.obj.date = datetime.now()
+
+    def _populate_by_obj(self):
+        """set attributes to make obj match ResultBundleResource
+
+        FIXME: That looks very wrong here.
+        """
+        self.obj.project = self.obj.executable.project
+        self.obj.branch = self.obj.revision.branch
+        #self.obj.result = self.obj
+        setattr(self.obj, 'result', self.obj)
+        # TODO (a8): add user to models
+        setattr(self.obj, 'user', User.objects.get(pk=1))
+        #setattr(self.obj, 'user', None)
+        setattr(self.obj, 'notify', None)
 
     def _check_data(self):
         """See if all mandatory data is there"""
@@ -359,7 +377,7 @@ class ResultBundleResource(Resource):
     def get_object_list(self, request):
         results = Result.objects.all()
 
-        return [ResultBundle(obj=r) for r in results]
+        return [ResultBundle(obj=r).obj for r in results]
 
     def obj_get_list(self, request=None, **kwargs):
         """Return all benchmark results ever"""

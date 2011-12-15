@@ -31,7 +31,7 @@ def updaterepo(project, update=True):
 
         p = Popen(cmd, stdout=PIPE, stderr=PIPE,
                     cwd=settings.REPOSITORY_BASE_PATH)
-        logger.debug('Cloning Mercurial repo {0}for project {1}'.format(
+        logger.debug('Cloning Mercurial repo {0} for project {1}'.format(
             project.repo_path, project))
         stdout, stderr = p.communicate()
 

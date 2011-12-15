@@ -30,7 +30,7 @@ def updaterepo(project, update=True):
         cmd = ['git', 'clone', project.repo_path, repo_name]
         p = Popen(cmd, stdout=PIPE, stderr=PIPE,
                     cwd=settings.REPOSITORY_BASE_PATH)
-        logger.debug('Cloning Git repo {0}for project {1}'.format(
+        logger.debug('Cloning Git repo {0} for project {1}'.format(
             project.repo_path, project))
         stdout, stderr = p.communicate()
 

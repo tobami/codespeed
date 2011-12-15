@@ -83,6 +83,9 @@ class EnvironmentTest(FixtureTestCase):
         for k, v in self.env2_data.items():
             self.assertEqual(
                 json.loads(response.content)[k], v)
+        response = self.client.delete('/api/v1/environment/3/',
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 204)
 
     def test_put(self):
         """Should modify an existing environment"""
@@ -230,6 +233,10 @@ class ExecutableTest(FixtureTestCase):
 
         response = self.client.get('/api/v1/executable/{0}/'.format(
             self.executable.id,))
+
+    def test_nonexistent(self):
+        """Requesting an environment that doesn't exist should return a 404"""
+        response = self.client.get('/api/v1/environment/3333333/')
         self.assertEquals(response.status_code, 404)
 
 

@@ -39,7 +39,6 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404
 from tastypie.bundle import Bundle
 from tastypie.exceptions import ImmediateHttpResponse
-from tastypie.http import HttpBadRequest
 from tastypie.http import HttpBadRequest, HttpCreated, HttpNotImplemented
 from tastypie.resources import ModelResource, Resource
 from tastypie import fields

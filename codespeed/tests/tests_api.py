@@ -56,6 +56,10 @@ class EnvironmentTest(FixtureTestCase):
             os="ZX Spectrum OS",
             kernel="2.6.32"
         )
+        env_db1 = Environment.objects.get(id=1)
+        self.env_db1_data = dict(
+            [(k, getattr(env_db1, k)) for k in self.env1_data.keys()]
+        )
         self.client = Client()
         super(EnvironmentTest, self).setUp()
 
@@ -79,37 +83,52 @@ class EnvironmentTest(FixtureTestCase):
                                     data=json.dumps(self.env2_data),
                                     content_type='application/json')
         self.assertEquals(response.status_code, 201)
-        response = self.client.get('/api/v1/environment/3/')
+        id = response['Location'].rsplit('/', 2)[-2]
+        response = self.client.get('/api/v1/environment/{0}/'.format(id))
         for k, v in self.env2_data.items():
             self.assertEqual(
                 json.loads(response.content)[k], v)
-        response = self.client.delete('/api/v1/environment/3/',
+        response = self.client.delete('/api/v1/environment/{0}/'.format(id),
                                     content_type='application/json')
         self.assertEquals(response.status_code, 204)
 
     def test_put(self):
         """Should modify an existing environment"""
-        modified_data = copy.deepcopy(self.env2_data)
+        modified_data = copy.deepcopy(self.env_db1_data)
         modified_data['name'] = "env2.2"
         modified_data['memory'] = "128kB"
-        response = self.client.put('/api/v1/environment/3/',
+        response = self.client.put('/api/v1/environment/1/',
                                     data=json.dumps(modified_data),
                                     content_type='application/json')
-        self.assertEquals(response.status_code, 201)
-        response = self.client.get('/api/v1/environment/3/')
+        self.assertEquals(response.status_code, 204)
+        response = self.client.get('/api/v1/environment/1/')
         for k, v in modified_data.items():
             self.assertEqual(
                 json.loads(response.content)[k], v)
 
     def test_delete(self):
         """Should delete an environment"""
-        response = self.client.get('/api/v1/environment/{0}/'.format(self.env1.id))
+        response = self.client.get('/api/v1/environment/1/')
         self.assertEquals(response.status_code, 200)
-        response = self.client.delete('/api/v1/environment/{0}/'.format(self.env1.id),
+        # from fixture
+        response = self.client.delete('/api/v1/environment/1/',
                                     content_type='application/json')
         self.assertEquals(response.status_code, 204)
 
-        response = self.client.get('/api/v1/environment/{0}/'.format(self.env1.id))
+        response = self.client.get('/api/v1/environment/1/')
+        self.assertEquals(response.status_code, 404)
+
+        # from just created data
+        response = self.client.get(
+            '/api/v1/environment/{0}/'.format(self.env1.id))
+        self.assertEquals(response.status_code, 200)
+        response = self.client.delete(
+            '/api/v1/environment/{0}/'.format(self.env1.id),
+            content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get(
+            '/api/v1/environment/{0}/'.format(self.env1.id))
         self.assertEquals(response.status_code, 404)
 
 

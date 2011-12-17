@@ -18,9 +18,11 @@
       {# TODO: Rename id=title to id=header and/or switch to <header> #}
       <div id="title" class="clearfix">
         {% block page_header %}
+          <a href="/">
           {% block logo %}
             <img src="{{ STATIC_URL }}images/logo.png" height="48" alt="logo"/>
           {% endblock logo %}
+          </a>
           <h2>{% block page_title %}SPEED CENTER{% endblock page_title %}</h2>
           {% block top_nav %}
             <ul id="links" class="inline">

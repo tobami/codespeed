@@ -42,11 +42,12 @@ def no_data_found(request):
 
 def getbaselineexecutables():
     baseline = [{'key': "none", 'name': "None", 'executable': "none", 'revision': "none"}]
-    revs = Revision.objects.exclude(tag="")
+    executables = Executable.objects.select_related('project')
+    revs = Revision.objects.exclude(tag="").select_related('branch__project')
     maxlen = 22
     for rev in revs:
         #add executables that correspond to each tagged revision.
-        for exe in Executable.objects.filter(project=rev.branch.project):
+        for exe in [e for e in executables if e.project == rev.branch.project]:
             exestring = str(exe)
             if len(exestring) > maxlen: exestring = str(exe)[0:maxlen] + "..."
             name = exestring + " " + rev.tag
@@ -60,11 +61,11 @@ def getbaselineexecutables():
     # move default to first place
     if hasattr(settings, 'DEF_BASELINE') and settings.DEF_BASELINE != None:
         try:
+            exename = settings.DEF_BASELINE['executable']
+            commitid = settings.DEF_BASELINE['revision']
             for base in baseline:
                 if base['key'] == "none":
                     continue
-                exename = settings.DEF_BASELINE['executable']
-                commitid = settings.DEF_BASELINE['revision']
                 if base['executable'].name == exename and base['revision'].commitid == commitid:
                     baseline.remove(base)
                     baseline.insert(1, base)
@@ -180,25 +181,28 @@ def getcomparisondata(request):
     data = request.GET
 
     executables, exekeys = getcomparisonexes()
+    benchmarks = Benchmark.objects.all()
+    environments = Environment.objects.all()
 
     compdata = {}
     compdata['error'] = "Unknown error"
     for proj in executables:
         for exe in executables[proj]:
             compdata[exe['key']] = {}
-            for env in Environment.objects.all():
+            for env in environments:
                 compdata[exe['key']][env.id] = {}
-                for bench in Benchmark.objects.all().order_by('name'):
-                    try:
-                        value = Result.objects.get(
-                            environment=env,
-                            executable=exe['executable'],
-                            revision=exe['revision'],
-                            benchmark=bench
-                        ).value
-                    except Result.DoesNotExist:
-                        value = None
-                    compdata[exe['key']][env.id][bench.id] = value
+
+                # Load all results for this env/executable/revision in a dict
+                # for fast lookup
+                results = dict(Result.objects.filter(
+                    environment=env,
+                    executable=exe['executable'],
+                    revision=exe['revision'],
+                ).values_list('benchmark', 'value'))
+
+                for bench in benchmarks:
+                    compdata[exe['key']][env.id][bench.id] = results.get(bench.id, None)
+
     compdata['error'] = "None"
 
     return HttpResponse(json.dumps( compdata ))

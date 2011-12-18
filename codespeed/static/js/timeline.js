@@ -318,4 +318,8 @@ function init(def) {
     $('.checkall, .uncheckall').click(refreshContent);
 
     setExeColors();
+
+    $("#permalink").click(function() {
+        window.location = "?" + $.param(getConfiguration());
+    });
 }

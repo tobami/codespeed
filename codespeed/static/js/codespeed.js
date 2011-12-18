@@ -1,8 +1,3 @@
-
-function permalink() {
-    window.location="?" + $.param(getConfiguration());
-}
-
 function readCheckbox(el) {
     /* Builds a string that holds all checked values in an input form */
     var config = "";

@@ -414,4 +414,8 @@ function init(defaults) {
     var h = $("#content").height();//get height for loading text
     $("#cplot").html(getLoadText("Loading...", h, true));
     $.getJSON("json/", savedata);
+
+    $("#permalink").click(function() {
+        window.location = "?" + $.param(getConfiguration());
+    });
 }

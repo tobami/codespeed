@@ -122,4 +122,8 @@ function init(defaults) {
     $("#revision").html(revisionboxes[defaults.project]);
     $("#revision").val(defaults.revision);
     $("#revision").change(refreshContent);
+
+    $("#permalink").click(function() {
+        window.location = "?" + $.param(getConfiguration());
+    });
 }

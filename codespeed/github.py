@@ -16,6 +16,8 @@ from django.core.cache import cache
 from django.utils import simplejson as json
 
 
+logger = logging.getLogger(__name__)
+
 GITHUB_URL_RE = re.compile(r'^(?P<proto>\w+)://github.com/(?P<username>[^/]+)/(?P<project>[^/]+)[.]git$')
 
 # We currently use a simple linear search of on a single parent to retrieve
@@ -38,7 +40,7 @@ def retrieve_revision(commit_id, username, project, revision = None):
         try:
             commit_json = json.load(urllib.urlopen(commit_url))
         except IOError, e:
-            logging.exception("Unable to load %s: %s",
+            logger.exception("Unable to load %s: %s",
                 commit_url, e, exc_info=True)
             raise e
 

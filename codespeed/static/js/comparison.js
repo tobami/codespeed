@@ -1,3 +1,8 @@
+var Comparison = (function(window){
+
+// Localize globals
+var readCheckbox = window.readCheckbox, getLoadText = window.getLoadText;
+
 var compdata, bench_units;
 
 function getConfiguration() {
@@ -419,3 +424,9 @@ function init(defaults) {
         window.location = "?" + $.param(getConfiguration());
     });
 }
+
+return {
+    init: init
+};
+
+})(window);

@@ -107,7 +107,7 @@
   var CHANGES_URL = "{% url changes %}";
 
   $(function() {
-    init({
+    Timeline.init({
       revisions: {{ defaultlast }},
       baseline: "{{ defaultbaseline }}",
       executables: [{% for exe in checkedexecutables %}{{ exe.id }}, {% endfor %}],

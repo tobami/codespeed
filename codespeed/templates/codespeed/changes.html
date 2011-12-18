@@ -69,8 +69,12 @@
     var TIMELINE_URL = "{% url timeline %}";
 
     $(function() {
-        // Configure defaults
-        init({
+        Changes.config({
+            changethres: {{ defaultchangethres }},
+            trendthres: {{ defaulttrendthres }}
+        });
+
+        Changes.init({
             project: "{{ defaultexecutable.project }}",
             executable: "{{ defaultexecutable.id }}",
             environment: "{{ defaultenvironment.id }}",
@@ -79,13 +83,6 @@
             projectmatrix: eval({{ projectmatrix|safe }}),
             revisionlists: eval({{ revisionlists|safe }})
         });
-
-        config({
-            changethres: {{ defaultchangethres }},
-            trendthres: {{ defaulttrendthres }}
-        });
-
-        refreshContent();
     });
 </script>
 {% endblock %}

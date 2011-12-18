@@ -1,3 +1,9 @@
+var Timeline = (function(window){
+
+// Localize globals
+var CHANGES_URL = window.CHANGES_URL, readCheckbox = window.readCheckbox,
+    getLoadText = window.getLoadText;
+
 var seriesindex = [],
     baselineColor = "#d8b83f",
     seriesColors = ["#4bb2c5", "#EAA228", "#579575", "#953579", "#839557", "#ff5800", "#958c12", "#4b5de4", "#0085cc"],
@@ -323,3 +329,9 @@ function init(def) {
         window.location = "?" + $.param(getConfiguration());
     });
 }
+
+return {
+    init: init
+};
+
+})(window);

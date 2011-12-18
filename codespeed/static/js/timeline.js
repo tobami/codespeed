@@ -1,3 +1,8 @@
+var seriesindex = [],
+    baselineColor = "#d8b83f",
+    seriesColors = ["#4bb2c5", "#EAA228", "#579575", "#953579", "#839557", "#ff5800", "#958c12", "#4b5de4", "#0085cc"],
+    defaults;
+
 function setExeColors() {
   // Set color data attribute for all executables
   $("#executable > div.boxbody > ul > ul > li > input").each(function(index) {
@@ -36,7 +41,7 @@ function getConfiguration() {
 }
 
 function permalinkToChanges(commitid, executableid, environment) {
-  window.location=changes_url + "?rev=" + commitid + "&" + "exe=" + executableid + "&env=" + environment;
+  window.location=CHANGES_URL + "?rev=" + commitid + "&" + "exe=" + executableid + "&env=" + environment;
 }
 
 function OnMarkerClickHandler(ev, gridpos, datapos, neighbor, plot) {
@@ -247,4 +252,70 @@ function initializeSite(event) {
 function refreshSite(event) {
   setValuesOfInputFields(event);
   refreshContent();
+}
+
+function setValuesOfInputFields(event) {
+  // Either set the default value, or the one parsed from the url
+
+  // Reset all checkboxes
+  $("input:checkbox").removeAttr('checked');
+
+  $("#revisions").val(valueOrDefault(event.parameters.revs, defaults.revisions));
+  $("#baseline").val(valueOrDefault(event.parameters.base, defaults.baseline));
+
+  // Set default selected executables
+  var executables = event.parameters.exe ? event.parameters.exe.split(',') : defaults.executables;
+  var sel = $("input[name='executable']");
+
+  $.each(executables, function(i, exe) {
+    sel.filter("[value='" + exe + "']").attr('checked', true);
+  });
+
+  // Set default selected branches
+  var branches = event.parameters.bran ? event.parameters.bran.split(',') : defaults.branches;
+  sel = $("input[name='branch']");
+
+  $.each(branches, function(i, b) {
+    sel.filter("[value='" + b + "']").attr('checked', true);
+  });
+
+  // Set default selected benchmark
+  var benchmark = valueOrDefault(event.parameters.ben, defaults.benchmark);
+  $("input:radio[name='benchmark']")
+      .filter("[value='" + benchmark + "']")
+      .attr('checked', true);
+
+  // Set default selected environment
+  var environment = valueOrDefault(event.parameters.env, defaults.environment);
+  $("input:radio[name='environments']")
+      .filter("[value='" + environment + "']")
+      .attr('checked', true);
+
+  // Add color legend to executable list
+  $("#executable div.boxbody > ul > ul > li > input").each(function() {
+    $(this).parent()
+      .find("div.seriescolor")
+      .css("background-color", getColor($(this).attr("id").slice(10)));
+  });
+
+  $("#baselinecolor").css("background-color", baselineColor);
+  $("#equidistant").attr('checked', valueOrDefault(event.parameters.equid, defaults.equidistant === "on"));
+}
+
+function init(def) {
+    defaults = def;
+
+    $.ajaxSetup ({
+      cache: false
+    });
+
+    // Even listener for clicks on plot markers
+    $.jqplot.eventListenerHooks.push(['jqplotClick', OnMarkerClickHandler]);
+
+    // Init and change handlers are set to the refreshContent handler
+    $.address.init(initializeSite).change(refreshSite);
+
+    $('.checkall, .uncheckall').click(refreshContent);
+
+    setExeColors();
 }

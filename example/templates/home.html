@@ -1,6 +1,34 @@
 {% extends "base.html" %}
 
-{% block extra_head %}
+{% block navigation %}
+{% endblock navigation %}
+
+{% block body %}
+<div id="presentation" class="clearfix">
+    <a href="{% url changes %}">
+        <div id="changes" class="menubox">
+          <h2>Changes</h2>
+          <p>Track performance changes in the latest revisions</p>
+        </div>
+    </a>
+    <a href="{% url timeline %}">
+        <div id="timeline" class="menubox">
+          <h2>Timeline</h2>
+          <p>Analyze performance over time</p>
+        </div>
+    </a>
+    <a href="{% url comparison %}">
+        <div id="comparison" class="menubox">
+          <h2>Comparison</h2>
+          <p>Compare different executables and revisions</p>
+        </div>
+    </a>
+    <br />
+    <div id="reports"></div>
+</div>
+{% endblock body %}
+
+{% block extra_body %}
 {{ block.super }}
 <script type="text/javascript">
     function permalinkToChanges(permalink) {
@@ -29,30 +57,3 @@
   });
 </script>
 {% endblock %}
-{% block navigation %}
-{% endblock navigation %}
-
-{% block body %}
-<div id="presentation" class="clearfix">
-    <a href="{% url changes %}">
-        <div id="changes" class="menubox">
-          <h2>Changes</h2>
-          <p>Track performance changes in the latest revisions</p>
-        </div>
-    </a>
-    <a href="{% url timeline %}">
-        <div id="timeline" class="menubox">
-          <h2>Timeline</h2>
-          <p>Analyze performance over time</p>
-        </div>
-    </a>
-    <a href="{% url comparison %}">
-        <div id="comparison" class="menubox">
-          <h2>Comparison</h2>
-          <p>Compare different executables and revisions</p>
-        </div>
-    </a>
-    <br />
-    <div id="reports"></div>
-</div>
-{% endblock body %}

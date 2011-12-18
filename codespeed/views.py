@@ -673,6 +673,12 @@ def changes(request):
             projectmatrix[e.id] = e.project.name
     projectmatrix = json.dumps(projectmatrix)
 
+    for project, revisions in revisionlists.items():
+        revisionlists[project] = [
+            (unicode(rev), rev.commitid) for rev in revisions
+        ]
+    revisionlists = json.dumps(revisionlists)
+
     return render_to_response('codespeed/changes.html', {
         'defaultenvironment': defaultenv,
         'defaultexecutable': defaultexecutable,
@@ -683,7 +689,7 @@ def changes(request):
         'environments': enviros,
         'executables': executables,
         'projectmatrix': projectmatrix,
-        'revisionboxes': revisionlists,
+        'revisionlists': revisionlists,
         'trends': trends,
     }, context_instance=RequestContext(request))
 

@@ -1,3 +1,5 @@
+var compdata, bench_units;
+
 function getConfiguration() {
   return {
     exe: readCheckbox("input[name='executables']:checked"),
@@ -374,4 +376,59 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     $("#" + plotid).css('width', w);
     $("#" + plotid).css('height', h);
     $.jqplot(plotid, plotdata, plotoptions);
+}
+
+function init(defaults) {
+    bench_units = defaults.bench_units;
+
+    // Set default values
+    $("#chart_type").val(defaults.chart_type);
+    $("#baseline").val(defaults.baseline);
+    $("#direction").attr("checked", defaults.direction === "True");
+
+    var sel = $("input[name='executables']");
+    $.each(defaults.executables, function(i, exe) {
+        sel.filter("[value='" + exe + "']").attr('checked', true);
+    });
+
+    sel = $("input[name='benchmarks']");
+    $.each(defaults.benchmarks, function(i, bench) {
+        sel.filter("[value='" + bench + "']").attr('checked', true);
+    });
+
+    sel = $("input[name='environments']");
+    $.each(defaults.environments, function(i, env) {
+        sel.filter("[value='" + env + "']").attr('checked', true);
+    });
+
+    $("#chart_type, #baseline, #direction, input[name='executables']," +
+      "input[name='benchmarks'], input[name='environments']").change(refreshContent);
+
+    // Check all and none links
+    $('.checkall').each(function() {
+        var inputs = $(this).parent().children("li").children("input");
+        $(this).click(function() {
+            inputs.attr("checked", true);
+            refreshContent();
+            return false;
+        });
+    });
+
+    $('.uncheckall').each(function() {
+        var inputs = $(this).parent().children("li").children("input");
+        $(this).click(function() {
+            inputs.attr("checked", false);
+            refreshContent();
+            return false;
+        });
+    });
+
+    $.ajaxSetup ({
+      cache: false
+    });
+
+    // Get comparison data
+    var h = $("#content").height();//get height for loading text
+    $("#cplot").html(getLoadText("Loading...", h, true));
+    $.getJSON("json/", savedata);
 }

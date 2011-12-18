@@ -89,66 +89,16 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/comparison.js"></script>
 
 <script type="text/javascript">
-  var compdata = new Object();
-  var defaultbase = "";
-  var bench_units = eval({{ bench_units|safe }});
-  var plotheight = 10;//Initial height
-
   $(function() {
-    $.ajaxSetup ({
-      cache: false
+    init({
+      chart_type: "{{ selectedchart }}",
+      baseline: "{{ selectedbaseline }}",
+      direction: "{{ selecteddirection }}",
+      executables: [{% for e in checkedexecutables %}"{{ e }}",{% endfor %}],
+      benchmarks: [{% for b in checkedbenchmarks %}{{ b.id }},{% endfor %}],
+      environments: [{% for e in checkedenviros %}{{ e.id }},{% endfor %}],
+      bench_units: eval({{ bench_units|safe }})
     });
-
-    //reset all checkboxes
-    $("input:checkbox").removeAttr('checked');
-
-    //set default chart type
-    $("#chart_type").val("{{ selectedchart }}");
-    $("#chart_type").change(refreshContent);
-
-    $("#baseline").val("{{ selectedbaseline }}");
-    $("#baseline").change(refreshContent);
-
-    {% if selecteddirection %}$("input[name=direction]").attr('checked', true);{% endif %}
-    $("#direction").change(refreshContent);
-
-    //set default selected executables
-    {% for checkedexecutable in checkedexecutables %}
-    $("input[name='executables']").filter('[value="{{ checkedexecutable }}"]').attr('checked', true);{% endfor %}
-    $("input[name='executables']").change(refreshContent);
-
-    //set default selected benchmarks
-    {% for checkedbenchmark in checkedbenchmarks %}
-    $("input:checkbox[name='benchmarks']").filter('[value="{{ checkedbenchmark.id }}"]').attr('checked', true);{% endfor %}
-    $("input[name='benchmarks']").change(refreshContent);
-
-    //set default selected environments
-    {% for checkedenv in checkedenviros %}
-    $("input:checkbox[name='environments']").filter('[value="{{ checkedenv.id }}"]').attr('checked', true);{% endfor %}
-    $("input[name='environments']").change(refreshContent);
-
-    // Check all and none links
-    $('.checkall').click(function() {
-      $(this).parent().children("li").children("input").each(function() {
-        $(this).attr('checked', true);
-      });
-      refreshContent();
-      return false;
-    });
-
-    $('.uncheckall').click(function() {
-      $(this).parent().children("li").children("input").each(function() {
-        $(this).attr('checked', false);
-      });
-      refreshContent();
-      return false;
-    });
-
-    var plotheight = $("#cplot").height();
-    // Get comparison data
-    var h = $("#content").height();//get height for loading text
-    $("#cplot").html(getLoadText("Loading...", h, true));
-    $.getJSON("json/", savedata);
   });
 </script>
 {% endblock %}

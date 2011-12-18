@@ -181,22 +181,8 @@
     // Init and change handlers are set to the refreshContent handler
     $.address.init(initializeSite).change(refreshSite);
 
-    // Check all and none links
-    $('.checkall').click(function() {
-      $(this).parent().children("li").children("input").each(function() {
-        $(this).attr('checked', true);
-      });
-      refreshContent();
-      return false;
-    });
+    $('.checkall, .uncheckall').click(refreshContent);
 
-    $('.uncheckall').click(function() {
-      $(this).parent().children("li").children("input").each(function() {
-        $(this).attr('checked', false);
-      });
-      refreshContent();
-      return false;
-    });
     setExeColors();
   });
 </script>

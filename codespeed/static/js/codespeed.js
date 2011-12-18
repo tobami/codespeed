@@ -30,3 +30,22 @@ function getLoadText(text, h, showloader) {
     loadtext += '</p></div>';
     return loadtext;
 }
+
+$(function() {
+    // Check all and none links
+    $('.checkall').each(function() {
+        var inputs = $(this).parent().children("li").children("input");
+        $(this).click(function() {
+            inputs.attr("checked", true);
+            return false;
+        });
+    });
+
+    $('.uncheckall').each(function() {
+        var inputs = $(this).parent().children("li").children("input");
+        $(this).click(function() {
+            inputs.attr("checked", false);
+            return false;
+        });
+    });
+});

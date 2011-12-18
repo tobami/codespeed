@@ -404,24 +404,7 @@ function init(defaults) {
     $("#chart_type, #baseline, #direction, input[name='executables']," +
       "input[name='benchmarks'], input[name='environments']").change(refreshContent);
 
-    // Check all and none links
-    $('.checkall').each(function() {
-        var inputs = $(this).parent().children("li").children("input");
-        $(this).click(function() {
-            inputs.attr("checked", true);
-            refreshContent();
-            return false;
-        });
-    });
-
-    $('.uncheckall').each(function() {
-        var inputs = $(this).parent().children("li").children("input");
-        $(this).click(function() {
-            inputs.attr("checked", false);
-            refreshContent();
-            return false;
-        });
-    });
+    $('.checkall, .uncheckall').click(refreshContent);
 
     $.ajaxSetup ({
       cache: false

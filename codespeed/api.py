@@ -292,7 +292,7 @@ class ResultBundle(Bundle):
                 ))
         # check optional data
         for key in [k for k in self.optional_keys \
-                    if k not in ('date')]:
+                    if k not in ('date',)]:
             if key in self.data.keys():
                 try:
                     self.data[key] = float(self.data[key])

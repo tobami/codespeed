@@ -259,6 +259,31 @@ class ExecutableTest(FixtureTestCase):
         self.assertEquals(response.status_code, 404)
 
 
+class BranchTest(FixtureTestCase):
+    """Test Branch() API"""
+    pass
+
+
+class RevisionTest(FixtureTestCase):
+    """Test Branch() API"""
+    pass
+
+
+class ExecutableTest(FixtureTestCase):
+    """Test Branch() API"""
+    pass
+
+
+class BenchmarkTest(FixtureTestCase):
+    """Test Branch() API"""
+    pass
+
+
+class ReportTest(FixtureTestCase):
+    """Test Branch() API"""
+    pass
+
+
 class UserTest(FixtureTestCase):
     """Test api user related stuff"""
 
@@ -412,16 +437,6 @@ class ResultBundleTestCase(FixtureTestCase):
         self.assertEqual(bundle.obj.project.name,
                          modified_data['project'])
 
-    def test_exiting_executable(self):
-        """
-        Check that an exception is raised if the executable already exists but
-        the project changes.
-        """
-        modified_data = copy.deepcopy(self.data1)
-        modified_data['commitid'] = '0b31bf33a469ac2cb1949666eea54d69a36c3724'
-        modified_data['project'] = 'Cython'
-        bundle = ResultBundle(**modified_data)
-        self.assertRaises(ImmediateHttpResponse, bundle.save)
 
 class ResultBundleResourceTestCase(FixtureTestCase):
     """Submitting new benchmark results"""

@@ -261,7 +261,84 @@ class ExecutableTest(FixtureTestCase):
 
 class BranchTest(FixtureTestCase):
     """Test Branch() API"""
-    pass
+
+    def setUp(self):
+        self.branch1 = Branch.objects.get(pk=1)
+        self.project_data = dict(
+            name="PyPy",
+            repo_type="M",
+            repo_path="ssh://hg@bitbucket.org/pypy/pypy",
+            repo_user="fridolin",
+            repo_pass="secret",
+            )
+        self.project = Project(**self.project_data)
+        self.project.save()
+        self.branch2_data = dict(
+            name="master2",
+            project='/api/v1/project/{0}/'.format(self.project.id)
+        )
+        self.client = Client()
+        super(BranchTest, self).setUp()
+
+    def test_get_branch(self):
+        """Should get an existing branch"""
+        response = self.client.get('/api/v1/branch/1/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['name'], "default")
+        self.assertEqual(json.loads(response.content)['project'],
+                         "/api/v1/project/1/")
+
+    def test_get_branch_all_fields(self):
+        """Should get all fields for an branch"""
+        response = self.client.get('/api/v1/branch/%s/' % (self.branch1.id,))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json.loads(response.content)['name'],
+                          self.branch1.name)
+        self.assertEquals(json.loads(response.content)['project'],
+                          '/api/v1/project/1/')
+        self.assertEquals(json.loads(response.content)['resource_uri'],
+                          '/api/v1/branch/%s/' %(self.branch1.id,))
+
+    def test_post(self):
+        """Should save a new branch"""
+        modified_data = copy.deepcopy(self.branch2_data)
+        response = self.client.post('/api/v1/branch/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 201)
+        id = response['Location'].rsplit('/', 2)[-2]
+        response = self.client.get('/api/v1/branch/{0}/'.format(id))
+        for k, v in self.branch2_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+        response = self.client.delete('/api/v1/branch/{0}/'.format(id),
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+    def test_put(self):
+        """Should modify an existing environment"""
+        modified_data = copy.deepcopy(self.branch2_data)
+        modified_data['name'] = "tip"
+        response = self.client.put('/api/v1/branch/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+        response = self.client.get('/api/v1/branch/1/')
+        for k, v in modified_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+
+    def test_delete(self):
+        """Should delete a branch"""
+        response = self.client.get('/api/v1/branch/1/')
+        self.assertEquals(response.status_code, 200)
+        # from fixture
+        response = self.client.delete('/api/v1/branch/1/',
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get('/api/v1/branch/1/')
+        self.assertEquals(response.status_code, 404)
 
 
 class RevisionTest(FixtureTestCase):

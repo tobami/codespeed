@@ -78,6 +78,8 @@ class ProjectResource(ModelResource):
 class BranchResource(ModelResource):
     """Ressource for Branch()"""
 
+    project = fields.ToOneField(ProjectResource, 'project')
+
     class Meta:
         queryset = Branch.objects.all()
         authorization= Authorization()

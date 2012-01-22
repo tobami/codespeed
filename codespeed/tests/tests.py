@@ -431,3 +431,24 @@ class ProjectTest(TestCase):
 
         self.assertRaises(
             AttributeError, getattr, self.github_project, 'working_copy')
+
+    def test_github_browsing_url(self):
+        """If empty, the commit browsing url will be filled in with a default
+        value when using github repository.
+        """
+
+        # It should work with https:// as well as git:// urls
+        self.github_project.save()
+        self.assertEquals(self.github_project.commit_browsing_url,
+                          'https://github.com/tobami/codespeed/commit/{commitid}')
+
+        self.github_project.repo_path = 'git://github.com/tobami/codespeed.git'
+        self.github_project.save()
+        self.assertEquals(self.github_project.commit_browsing_url,
+                          'https://github.com/tobami/codespeed/commit/{commitid}')
+
+        # If filled in, commit browsing url should not change
+        self.github_project.commit_browsing_url = 'https://example.com/{commitid}'
+        self.github_project.save()
+        self.assertEquals(self.github_project.commit_browsing_url,
+                          'https://example.com/{commitid}')

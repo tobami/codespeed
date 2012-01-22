@@ -5,21 +5,17 @@
         <tr>
             <th class="date infofirst">{{ log.date }}</th>
             <td>
-                {% if log.links %}
-                    <ul class="inline float-right">
-                        {% for title, href in log.links.items %}
-                            <li><a href="{{ href }}">{{ title }}</a></li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-
                 {% if log.author_email and show_email_address %}
                     <a class="author fn" href="mailto:{{ log.author_email }}">{{ log.author }}</a>
                 {% else %}
                     <span class="author fn">{{ log.author }}</span>
                 {% endif %}
                 commited
-                <abbr class="commit-id" title="{{ log.commitid }}">{{ log.short_commit_id|default:log.commitid }}</abbr>:
+                {% if log.commit_browse_url %}
+                    <a class="commit-id" title="{{ log.commitid }}" href="{{ log.commit_browse_url }}">{{ log.short_commit_id|default:log.commitid }}</a>:
+                {% else %}
+                    <abbr class="commit-id" title="{{ log.commitid }}">{{ log.short_commit_id|default:log.commitid }}</abbr>:
+                {% endif %}
 
                 <pre class="message">{{ log.message|linebreaksbr|urlize }}</pre>
                 {% if log.body %}

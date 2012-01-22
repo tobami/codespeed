@@ -8,6 +8,8 @@ from django.utils import simplejson as json
 
 from django.conf import settings
 
+from codespeed.github import GITHUB_URL_RE
+
 
 class Project(models.Model):
     REPO_TYPES = (
@@ -24,6 +26,7 @@ class Project(models.Model):
     repo_path = models.CharField("Repository URL", blank=True, max_length=200)
     repo_user = models.CharField("Repository username", blank=True, max_length=100)
     repo_pass = models.CharField("Repository password", blank=True, max_length=100)
+    commit_browsing_url = models.CharField("Commit browsing URL", blank=True, max_length=200)
     track = models.BooleanField("Track changes", default=False)
 
     def __unicode__(self):
@@ -46,6 +49,18 @@ class Project(models.Model):
             raise AttributeError(error)
 
         return os.path.join(settings.REPOSITORY_BASE_PATH, self.repo_name)
+
+    def save(self, *args, **kwargs):
+        """Provide a default for commit browsing url in github repositories."""
+        if not self.commit_browsing_url and self.repo_type == 'H':
+            m = GITHUB_URL_RE.match(self.repo_path)
+            if m:
+                url = 'https://github.com/%s/%s/commit/{commitid}' % (
+                    m.group('username'), m.group('project')
+                )
+                self.commit_browsing_url = url
+            
+        super(Project, self).save(*args, **kwargs)
 
 
 class Branch(models.Model):
@@ -72,6 +87,9 @@ class Revision(models.Model):
 
     def get_short_commitid(self):
         return self.commitid[:10]
+
+    def get_browsing_url(self):
+        return self.branch.project.commit_browsing_url.format(**self.__dict__)
 
     def __unicode__(self):
         if self.date is None:

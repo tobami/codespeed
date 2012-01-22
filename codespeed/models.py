@@ -8,6 +8,8 @@ from django.utils import simplejson as json
 
 from django.conf import settings
 
+from codespeed.github import GITHUB_URL_RE
+
 
 class Project(models.Model):
     REPO_TYPES = (
@@ -47,6 +49,18 @@ class Project(models.Model):
             raise AttributeError(error)
 
         return os.path.join(settings.REPOSITORY_BASE_PATH, self.repo_name)
+
+    def save(self, *args, **kwargs):
+        """Provide a default for commit browsing url in github repositories."""
+        if not self.commit_browsing_url and self.repo_type == 'H':
+            m = GITHUB_URL_RE.match(self.repo_path)
+            if m:
+                url = 'https://github.com/%s/%s/commit/{commitid}' % (
+                    m.group('username'), m.group('project')
+                )
+                self.commit_browsing_url = url
+            
+        super(Project, self).save(*args, **kwargs)
 
 
 class Branch(models.Model):

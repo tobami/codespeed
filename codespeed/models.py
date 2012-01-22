@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import os
+
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
@@ -26,6 +28,24 @@ class Project(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    @property
+    def repo_name(self):
+        # name not defined for None, GitHub or Subversion
+        if self.repo_type in ('N', 'H', 'S'):
+            error = 'Not supported for %s project' % self.get_repo_type_display()
+            raise AttributeError(error)
+
+        return os.path.splitext(self.repo_path.split(os.sep)[-1])[0]
+
+    @property
+    def working_copy(self):
+        # working copy exists for mercurial and git only
+        if self.repo_type in ('N', 'H', 'S'):
+            error = 'Not supported for %s project' % self.get_repo_type_display()
+            raise AttributeError(error)
+
+        return os.path.join(settings.REPOSITORY_BASE_PATH, self.repo_name)
 
 
 class Branch(models.Model):

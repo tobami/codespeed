@@ -96,12 +96,12 @@ class EnvironmentTest(FixtureTestCase):
 
     def test_delete(self):
         """Should delete an environment"""
-        response = self.client.delete('/api/v1/environment/3/',
+        response = self.client.delete('/api/v1/environment/1/',
                                     content_type='application/json')
-        self.assertEquals(response.status_code, 410)
+        self.assertEquals(response.status_code, 204)
 
-        response = self.client.get('/api/v1/environment/3/')
-        self.assertEquals(response.status_code, 410)
+        response = self.client.get('/api/v1/environment/1/')
+        self.assertEquals(response.status_code, 404)
 
 
 class UserTest(FixtureTestCase):

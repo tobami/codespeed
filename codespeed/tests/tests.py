@@ -367,7 +367,8 @@ class CodespeedSettings(TestCase):
         in django.conf.settings
         """
         for k in self.cs_setting_keys:
-            self.assertTrue(hasattr(settings, k))
+            self.assertTrue(hasattr(settings, k),
+                            "Key {0} is missing in settings.py.".format(k))
 
     def test_settings_attributes(self):
         """Check if all settings from codespeed.settings equals

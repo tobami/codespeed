@@ -1,3 +1,8 @@
+var Changes = (function(window){
+
+// Localize globals
+var TIMELINE_URL = window.TIMELINE_URL, getLoadText = window.getLoadText;
+
 var currentproject, changethres, trendthres, projectmatrix, revisionboxes = {};
 
 function getConfiguration() {
@@ -122,4 +127,17 @@ function init(defaults) {
     $("#revision").html(revisionboxes[defaults.project]);
     $("#revision").val(defaults.revision);
     $("#revision").change(refreshContent);
+
+    $("#permalink").click(function() {
+        window.location = "?" + $.param(getConfiguration());
+    });
+
+    refreshContent();
 }
+
+return {
+    init: init,
+    config: config
+};
+
+})(window);

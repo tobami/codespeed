@@ -342,8 +342,98 @@ class BranchTest(FixtureTestCase):
 
 
 class RevisionTest(FixtureTestCase):
-    """Test Branch() API"""
-    pass
+    """Test Revision() API"""
+
+    def setUp(self):
+        DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
+        self.branch1 = Branch.objects.get(pk=1)
+        self.project1 = Project.objects.get(pk=1)
+        self.revision1_data = dict(
+            commitid="2a6306432e973cdcfd324e81169bb8029d47b736",
+            tag="tag",
+            date=datetime.now(),
+            message="Commit message\n  - all bugs fixed\n  - code 130% faster",
+            project=self.project1,
+            author="Alan T. <alan@localhost>",
+            branch=self.branch1,
+        )
+        self.revision1 = Revision(**self.revision1_data)
+        self.revision1.save()
+        self.revision2_data = dict(
+            commitid="4d3bea3cffe4edcd7d70fc46c5e19474cc4bd012",
+            tag="v1.0",
+            date=datetime.now().strftime(DATETIME_FORMAT),
+            message="Commit message\n  - cleanup\n  - all FIXMEs removed",
+            project='/api/v1/project/{0}/'.format(self.project1.id),
+            author="Chuck N. <chuck@localhost>",
+            branch='/api/v1/branch/{0}/'.format(self.branch1.id),
+        )
+        self.client = Client()
+        super(RevisionTest, self).setUp()
+
+    def test_get_revision(self):
+        """Should get an existing branch"""
+        response = self.client.get('/api/v1/revision/1/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['commitid'], "1")
+        self.assertEqual(json.loads(response.content)['project'],
+                         "/api/v1/project/1/")
+
+    def test_get_revision_all_fields(self):
+        """Should get all fields for a revision"""
+        response = self.client.get('/api/v1/revision/%s/' % (self.revision1.id,))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json.loads(response.content)['commitid'],
+                          self.revision1.commitid)
+        self.assertEquals(json.loads(response.content)['project'],
+                          '/api/v1/project/%s/' % (self.project1.pk))
+        self.assertEquals(json.loads(response.content)['branch'],
+                          '/api/v1/branch/%s/' % (self.branch1.pk))
+        self.assertEquals(json.loads(response.content)['tag'],
+                          self.revision1_data['tag'])
+        self.assertEquals(json.loads(response.content)['message'],
+                          self.revision1_data['message'])
+
+    def test_post(self):
+        """Should save a new revision"""
+        modified_data = copy.deepcopy(self.revision2_data)
+        response = self.client.post('/api/v1/revision/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 201)
+        id = response['Location'].rsplit('/', 2)[-2]
+        response = self.client.get('/api/v1/revision/{0}/'.format(id))
+        for k, v in self.revision2_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+        response = self.client.delete('/api/v1/revision/{0}/'.format(id),
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+    def test_put(self):
+        """Should modify an existing environment"""
+        modified_data = copy.deepcopy(self.revision2_data)
+        modified_data['tag'] = "v0.9.1"
+        response = self.client.put('/api/v1/revision/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+        response = self.client.get('/api/v1/revision/1/')
+        for k, v in modified_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+
+    def test_delete(self):
+        """Should delete a revision"""
+        response = self.client.get('/api/v1/revision/1/')
+        self.assertEquals(response.status_code, 200)
+        # from fixture
+        response = self.client.delete('/api/v1/revision/1/',
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get('/api/v1/revision/1/')
+        self.assertEquals(response.status_code, 404)
 
 
 class ExecutableTest(FixtureTestCase):

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
-import copy, json
+import copy, json, os
 
 from django.test import TestCase
 from django.test.client import Client
@@ -367,7 +367,8 @@ class CodespeedSettings(TestCase):
         in django.conf.settings
         """
         for k in self.cs_setting_keys:
-            self.assertTrue(hasattr(settings, k))
+            self.assertTrue(hasattr(settings, k),
+                            "Key {0} is missing in settings.py.".format(k))
 
     def test_settings_attributes(self):
         """Check if all settings from codespeed.settings equals
@@ -378,8 +379,7 @@ class CodespeedSettings(TestCase):
 
 
 class TestViewHelpers(TestCase):
-    """Test helper functions in codespeed.views
-    """
+    """Test helper functions in codespeed.views"""
 
     def setUp(self):
         self.project = Project.objects.create(name='Test')
@@ -408,3 +408,48 @@ class TestViewHelpers(TestCase):
         Revision.objects.create(commitid='3', branch=self.branch)
         result = getbaselineexecutables()
         self.assertEqual(len(result), 3)
+
+
+class ProjectTest(TestCase):
+    """Test project model"""
+
+    def setUp(self):
+        self.github_project = Project(repo_type='H', repo_path='https://github.com/tobami/codespeed.git')
+        self.git_project = Project(repo_type='G', repo_path='/home/foo/codespeed')
+
+    def test_repo_name(self):
+        """Test that only projects with local repositories have a repo_name attribute
+        """
+        self.assertEqual(self.git_project.repo_name, 'codespeed')
+
+        self.assertRaises(AttributeError, getattr, self.github_project, 'repo_name')
+
+    def test_working_copy(self):
+        """Test that only projects with local repositories have a working_copy attribute
+        """
+        self.assertEqual(self.git_project.working_copy,
+                         os.path.join(settings.REPOSITORY_BASE_PATH, self.git_project.repo_name))
+
+        self.assertRaises(
+            AttributeError, getattr, self.github_project, 'working_copy')
+
+    def test_github_browsing_url(self):
+        """If empty, the commit browsing url will be filled in with a default
+        value when using github repository.
+        """
+
+        # It should work with https:// as well as git:// urls
+        self.github_project.save()
+        self.assertEquals(self.github_project.commit_browsing_url,
+                          'https://github.com/tobami/codespeed/commit/{commitid}')
+
+        self.github_project.repo_path = 'git://github.com/tobami/codespeed.git'
+        self.github_project.save()
+        self.assertEquals(self.github_project.commit_browsing_url,
+                          'https://github.com/tobami/codespeed/commit/{commitid}')
+
+        # If filled in, commit browsing url should not change
+        self.github_project.commit_browsing_url = 'https://example.com/{commitid}'
+        self.github_project.save()
+        self.assertEquals(self.github_project.commit_browsing_url,
+                          'https://example.com/{commitid}')

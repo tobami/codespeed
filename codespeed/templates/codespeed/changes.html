@@ -1,34 +1,5 @@
 {% extends "base.html" %}
 {% block title %}{{ block.super }}: Changes{% endblock %}
-{% block extra_head %}
-{{ block.super }}
-<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/changes.js"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
-<script type="text/javascript">
-    var TIMELINE_URL = "{% url timeline %}";
-
-    $(function() {
-        // Configure defaults
-        init({
-            project: "{{ defaultexecutable.project }}",
-            executable: "{{ defaultexecutable.id }}",
-            environment: "{{ defaultenvironment.id }}",
-            revision: "{{ selectedrevision.commitid }}",
-            trend: "{{ defaulttrend }}",
-            projectmatrix: eval({{ projectmatrix|safe }}),
-            revisionlists: eval({{ revisionlists|safe }})
-        });
-
-        config({
-            changethres: {{ defaultchangethres }},
-            trendthres: {{ defaulttrendthres }}
-        });
-
-        refreshContent();
-    });
-</script>
-{% endblock %}
 
 {% block navigation %}
     {{ block.super }}
@@ -83,9 +54,35 @@
 
 <div id="configbar">
   <span class="options">Results for revision <select id="revision"></select></span>
-  <a id="permalink" href="javascript:permalink();">Permalink</a>
+  <a id="permalink" href="#">Permalink</a>
 </div>
 <div id="content" class="clearfix">
 <div id="contentwrap"></div>
 </div>
+{% endblock %}
+
+{% block extra_body %}
+{{ block.super }}
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/changes.js"></script>
+<script type="text/javascript">
+    var TIMELINE_URL = "{% url timeline %}";
+
+    $(function() {
+        Changes.config({
+            changethres: {{ defaultchangethres }},
+            trendthres: {{ defaulttrendthres }}
+        });
+
+        Changes.init({
+            project: "{{ defaultexecutable.project }}",
+            executable: "{{ defaultexecutable.id }}",
+            environment: "{{ defaultenvironment.id }}",
+            revision: "{{ selectedrevision.commitid }}",
+            trend: "{{ defaulttrend }}",
+            projectmatrix: eval({{ projectmatrix|safe }}),
+            revisionlists: eval({{ revisionlists|safe }})
+        });
+    });
+</script>
 {% endblock %}

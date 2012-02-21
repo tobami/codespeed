@@ -1,116 +1,8 @@
 {% extends "base.html" %}
 {% block title %}{{ block.super }}: Timeline{% endblock %}
+
 {% block extra_head %}
-{{ block.super }}
-<!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqplot/excanvas.min.js"></script><![endif]-->
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/jqplot/jquery.jqplot.min.css" />
-<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.address-1.4.min.js?autoUpdate=0"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jquery.jqplot.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.cursor.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.highlighter.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/timeline.js"></script>
-
-<script type="text/javascript">
-  var seriesindex = [];
-  var baselineColor = "#d8b83f";
-  var seriesColors = ["#4bb2c5", "#EAA228", "#579575", "#953579", "#839557", "#ff5800", "#958c12", "#4b5de4", "#0085cc"];
-
-  var changes_url = "{% url changes %}";
-
-  function setValuesOfInputFields(event) {
-    // Either set the default value, or the one parsed from the url
-
-    //Set default amount of revisions shown
-    $("#revisions").val(valueOrDefault(event.parameters.revs, {{ defaultlast }}));
-
-    //Reset all checkboxes
-    $("input:checkbox").removeAttr('checked');
-
-    //Set default selected executables
-    $("#baseline").val(valueOrDefault(event.parameters.base, "{{ defaultbaseline }}"));
-
-    if (event.parameters.exe) {
-        var executable_ids = event.parameters.exe.split(',');
-        for (var exec in executable_ids) {
-            exec = executable_ids[exec];
-            $("input[name='executable']").filter('[value='+exec+']').attr('checked', true);
-        }
-    }
-    else {
-      {% for checkedexecutable in checkedexecutables %}
-      $("input[name='executable']").filter('[value={{ checkedexecutable.id }}]').attr('checked', true);
-      {% endfor %}
-    }
-
-    if (event.parameters.bran) {
-      var branch_ids = event.parameters.bran.split(',');
-      for (var bran in branch_ids) {
-          var branch = branch_ids[bran];
-          $("input[name='branch']").filter('[value='+branch+']').attr('checked', true);
-      }
-    }
-    else {
-      {% for branch in branch_list %}
-      $("input[name='branch']").filter('[value={{ branch }}]').attr('checked', true);
-      {% endfor %}
-    }
-
-    //Set default selected benchmark
-    $("input:radio[name='benchmark']")
-        .filter('[value=\"' + valueOrDefault(event.parameters.ben,
-                                           '{{ defaultbenchmark }}') + '\"]')
-        .attr('checked', true);
-
-    //Set default selected environment
-    $("input:radio[name='environments']")
-        .filter('[value=' + valueOrDefault(event.parameters.env,
-                                           '{{ defaultenvironment.id }}') + ']')
-        .attr('checked', true);
-
-    //Add color legend to executable list
-    $("#executable div.boxbody > ul > ul > li > input").each(function() {
-      $(this).parent()
-        .find("div.seriescolor")
-        .css("background-color", getColor($(this).attr("id").slice(10)));
-    });
-    $("#baselinecolor").css("background-color", baselineColor);
-    $("#equidistant").attr('checked', valueOrDefault(event.parameters.equid, '{{ defaultequid }}') == "on");
-  }
-
-  $(function() {
-    $.ajaxSetup ({
-      cache: false
-    });
-
-    // Even listener for clicks on plot markers
-    $.jqplot.eventListenerHooks.push(['jqplotClick', OnMarkerClickHandler]);
-
-    // Init and change handlers are set to the refreshContent handler
-    $.address.init(initializeSite).change(refreshSite);
-
-    // Check all and none links
-    $('.checkall').click(function() {
-      $(this).parent().children("li").children("input").each(function() {
-        $(this).attr('checked', true);
-      });
-      refreshContent();
-      return false;
-    });
-
-    $('.uncheckall').click(function() {
-      $(this).parent().children("li").children("input").each(function() {
-        $(this).attr('checked', false);
-      });
-      refreshContent();
-      return false;
-    });
-    setExeColors();
-  });
-</script>
+  <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/jqplot/jquery.jqplot.min.css" />
 {% endblock %}
 
 {% block navigation %}
@@ -190,10 +82,41 @@
     <input id="equidistant" name="equidistant" type="checkbox" />
     <label for="equidistant">Equidistant</label>
   </span>
-  <a id="permalink" href="javascript:permalink();">Permalink</a>
+  <a id="permalink" href="#">Permalink</a>
 </div>
 <div id="content" class="clearfix">
 <div id="plotgrid"></div>
 <div id="plotdescription"></div>
 </div>
 {% endblock %}
+
+{% block extra_body %}
+{{ block.super }}
+<!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqplot/excanvas.min.js"></script><![endif]-->
+<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.address-1.4.min.js?autoUpdate=0"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.cursor.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.highlighter.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.dateAxisRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/timeline.js"></script>
+
+<script type="text/javascript">
+  var CHANGES_URL = "{% url changes %}";
+
+  $(function() {
+    Timeline.init({
+      revisions: {{ defaultlast }},
+      baseline: "{{ defaultbaseline }}",
+      executables: [{% for exe in checkedexecutables %}{{ exe.id }}, {% endfor %}],
+      branches: [{% for b in branch_list %}"{{ branch }}", {% endfor %}],
+      benchmark: "{{ defaultbenchmark }}",
+      environment: {{ defaultenvironment.id }},
+      equidistant: "{{ defaultequid }}"
+    });
+  });
+</script>
+{% endblock %}
+

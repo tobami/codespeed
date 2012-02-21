@@ -438,7 +438,79 @@ class RevisionTest(FixtureTestCase):
 
 class ExecutableTest(FixtureTestCase):
     """Test Branch() API"""
-    pass
+
+    def setUp(self):
+        self.executable1 = Executable.objects.get(pk=1)
+        self.project1 = Project.objects.get(pk=1)
+        self.executable2_data = dict(
+            name="sleep",
+            description="Sleep benchmark",
+            project= '/api/v1/project/{0}/'.format(self.project1.id),
+            )
+        self.client = Client()
+        super(ExecutableTest, self).setUp()
+
+    def test_get_executable(self):
+        """Should get an existing executable"""
+        response = self.client.get('/api/v1/executable/1/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['name'],
+                         'myexe O3 64bits')
+        self.assertEqual(json.loads(response.content)['project'],
+                         "/api/v1/project/1/")
+
+    def test_get_executable_all_fields(self):
+        """Should get all fields for an executable"""
+        response = self.client.get('/api/v1/executable/{0}/'.format(
+            self.executable1.id,))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json.loads(response.content)['name'],
+                          self.executable1.name)
+        self.assertEquals(json.loads(response.content)['project'],
+                          '/api/v1/project/%s/' % (self.project1.pk))
+        self.assertEquals(json.loads(response.content)['description'],
+                          self.executable1.description)
+
+    def test_post(self):
+        """Should save a new executable"""
+        modified_data = copy.deepcopy(self.executable2_data)
+        response = self.client.post('/api/v1/executable/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 201)
+        id = response['Location'].rsplit('/', 2)[-2]
+        response = self.client.get('/api/v1/executable/{0}/'.format(id))
+        for k, v in self.executable2_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+        response = self.client.delete('/api/v1/executable/{0}/'.format(id),
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+    def test_put(self):
+        """Should modify an existing environment"""
+        modified_data = copy.deepcopy(self.executable2_data)
+        modified_data['name'] = "django"
+        response = self.client.put('/api/v1/executable/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+        response = self.client.get('/api/v1/executable/1/')
+        for k, v in modified_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+
+    def test_delete(self):
+        """Should delete a executable"""
+        response = self.client.get('/api/v1/executable/1/')
+        self.assertEquals(response.status_code, 200)
+        # from fixture
+        response = self.client.delete('/api/v1/executable/1/',
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get('/api/v1/executable/1/')
+        self.assertEquals(response.status_code, 404)
 
 
 class BenchmarkTest(FixtureTestCase):

@@ -5,7 +5,7 @@ from django.views.generic.simple import direct_to_template
 from tastypie.api import Api
 from codespeed.feeds import LatestEntries
 from codespeed.api import (UserResource, EnvironmentResource,
-                           ProjectResource, ExecutableResource,
+                           ProjectResource, ExecutableResource, ReportResource,
                            BenchmarkResource, ResultResource, BranchResource,
                            RevisionResource, ResultBundleResource)
 
@@ -20,6 +20,7 @@ rest_api.register(BenchmarkResource())
 rest_api.register(ResultResource())
 rest_api.register(BranchResource())
 rest_api.register(RevisionResource())
+rest_api.register(ReportResource())
 rest_api.register(ResultBundleResource())
 
 urlpatterns = patterns('',

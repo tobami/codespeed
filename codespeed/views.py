@@ -736,6 +736,11 @@ def displaylogs(request):
         logger.error("Unhandled exception displaying logs for %s: %s", rev, e, exc_info=True)
         error = repr(e)
 
+    # add commit browsing url to logs
+    project = rev.branch.project
+    for log in logs:
+        log['commit_browse_url'] = project.commit_browsing_url.format(**log)
+
     return render_to_response('codespeed/changes_logs.html',
                                 {'error': error, 'logs': logs,
                                  'show_email_address': settings.SHOW_AUTHOR_EMAIL_ADDRESS},

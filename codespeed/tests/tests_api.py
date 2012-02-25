@@ -259,6 +259,414 @@ class ExecutableTest(FixtureTestCase):
         self.assertEquals(response.status_code, 404)
 
 
+class BranchTest(FixtureTestCase):
+    """Test Branch() API"""
+
+    def setUp(self):
+        self.branch1 = Branch.objects.get(pk=1)
+        self.project_data = dict(
+            name="PyPy",
+            repo_type="M",
+            repo_path="ssh://hg@bitbucket.org/pypy/pypy",
+            repo_user="fridolin",
+            repo_pass="secret",
+            )
+        self.project = Project(**self.project_data)
+        self.project.save()
+        self.branch2_data = dict(
+            name="master2",
+            project='/api/v1/project/{0}/'.format(self.project.id)
+        )
+        self.client = Client()
+        super(BranchTest, self).setUp()
+
+    def test_get_branch(self):
+        """Should get an existing branch"""
+        response = self.client.get('/api/v1/branch/1/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['name'], "default")
+        self.assertEqual(json.loads(response.content)['project'],
+                         "/api/v1/project/1/")
+
+    def test_get_branch_all_fields(self):
+        """Should get all fields for an branch"""
+        response = self.client.get('/api/v1/branch/%s/' % (self.branch1.id,))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json.loads(response.content)['name'],
+                          self.branch1.name)
+        self.assertEquals(json.loads(response.content)['project'],
+                          '/api/v1/project/1/')
+        self.assertEquals(json.loads(response.content)['resource_uri'],
+                          '/api/v1/branch/%s/' %(self.branch1.id,))
+
+    def test_post(self):
+        """Should save a new branch"""
+        modified_data = copy.deepcopy(self.branch2_data)
+        response = self.client.post('/api/v1/branch/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 201)
+        id = response['Location'].rsplit('/', 2)[-2]
+        response = self.client.get('/api/v1/branch/{0}/'.format(id))
+        for k, v in self.branch2_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+        response = self.client.delete('/api/v1/branch/{0}/'.format(id),
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+    def test_put(self):
+        """Should modify an existing environment"""
+        modified_data = copy.deepcopy(self.branch2_data)
+        modified_data['name'] = "tip"
+        response = self.client.put('/api/v1/branch/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+        response = self.client.get('/api/v1/branch/1/')
+        for k, v in modified_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+
+    def test_delete(self):
+        """Should delete a branch"""
+        response = self.client.get('/api/v1/branch/1/')
+        self.assertEquals(response.status_code, 200)
+        # from fixture
+        response = self.client.delete('/api/v1/branch/1/',
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get('/api/v1/branch/1/')
+        self.assertEquals(response.status_code, 404)
+
+
+class RevisionTest(FixtureTestCase):
+    """Test Revision() API"""
+
+    def setUp(self):
+        DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
+        self.branch1 = Branch.objects.get(pk=1)
+        self.project1 = Project.objects.get(pk=1)
+        self.revision1_data = dict(
+            commitid="2a6306432e973cdcfd324e81169bb8029d47b736",
+            tag="tag",
+            date=datetime.now(),
+            message="Commit message\n  - all bugs fixed\n  - code 130% faster",
+            project=self.project1,
+            author="Alan T. <alan@localhost>",
+            branch=self.branch1,
+        )
+        self.revision1 = Revision(**self.revision1_data)
+        self.revision1.save()
+        self.revision2_data = dict(
+            commitid="4d3bea3cffe4edcd7d70fc46c5e19474cc4bd012",
+            tag="v1.0",
+            date=datetime.now().strftime(DATETIME_FORMAT),
+            message="Commit message\n  - cleanup\n  - all FIXMEs removed",
+            project='/api/v1/project/{0}/'.format(self.project1.id),
+            author="Chuck N. <chuck@localhost>",
+            branch='/api/v1/branch/{0}/'.format(self.branch1.id),
+        )
+        self.client = Client()
+        super(RevisionTest, self).setUp()
+
+    def test_get_revision(self):
+        """Should get an existing revision"""
+        response = self.client.get('/api/v1/revision/1/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['commitid'], "1")
+        self.assertEqual(json.loads(response.content)['project'],
+                         "/api/v1/project/1/")
+
+    def test_get_revision_all_fields(self):
+        """Should get all fields for a revision"""
+        response = self.client.get('/api/v1/revision/%s/' % (self.revision1.id,))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json.loads(response.content)['commitid'],
+                          self.revision1.commitid)
+        self.assertEquals(json.loads(response.content)['project'],
+                          '/api/v1/project/%s/' % (self.project1.pk))
+        self.assertEquals(json.loads(response.content)['branch'],
+                          '/api/v1/branch/%s/' % (self.branch1.pk))
+        self.assertEquals(json.loads(response.content)['tag'],
+                          self.revision1_data['tag'])
+        self.assertEquals(json.loads(response.content)['message'],
+                          self.revision1_data['message'])
+
+    def test_post(self):
+        """Should save a new revision"""
+        modified_data = copy.deepcopy(self.revision2_data)
+        response = self.client.post('/api/v1/revision/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 201)
+        id = response['Location'].rsplit('/', 2)[-2]
+        response = self.client.get('/api/v1/revision/{0}/'.format(id))
+        for k, v in self.revision2_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+        response = self.client.delete('/api/v1/revision/{0}/'.format(id),
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+    def test_put(self):
+        """Should modify an existing revision"""
+        modified_data = copy.deepcopy(self.revision2_data)
+        modified_data['tag'] = "v0.9.1"
+        response = self.client.put('/api/v1/revision/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+        response = self.client.get('/api/v1/revision/1/')
+        for k, v in modified_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+
+    def test_delete(self):
+        """Should delete a revision"""
+        response = self.client.get('/api/v1/revision/1/')
+        self.assertEquals(response.status_code, 200)
+        # from fixture
+        response = self.client.delete('/api/v1/revision/1/',
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get('/api/v1/revision/1/')
+        self.assertEquals(response.status_code, 404)
+
+
+class ExecutableTest(FixtureTestCase):
+    """Test Executable() API"""
+
+    def setUp(self):
+        self.executable1 = Executable.objects.get(pk=1)
+        self.project1 = Project.objects.get(pk=1)
+        self.executable2_data = dict(
+            name="sleep",
+            description="Sleep benchmark",
+            project= '/api/v1/project/{0}/'.format(self.project1.id),
+            )
+        self.client = Client()
+        super(ExecutableTest, self).setUp()
+
+    def test_get_executable(self):
+        """Should get an existing executable"""
+        response = self.client.get('/api/v1/executable/1/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['name'],
+                         'myexe O3 64bits')
+        self.assertEqual(json.loads(response.content)['project'],
+                         "/api/v1/project/1/")
+
+    def test_get_executable_all_fields(self):
+        """Should get all fields for an executable"""
+        response = self.client.get('/api/v1/executable/{0}/'.format(
+            self.executable1.id,))
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(json.loads(response.content)['name'],
+                          self.executable1.name)
+        self.assertEquals(json.loads(response.content)['project'],
+                          '/api/v1/project/%s/' % (self.project1.pk))
+        self.assertEquals(json.loads(response.content)['description'],
+                          self.executable1.description)
+
+    def test_post(self):
+        """Should save a new executable"""
+        modified_data = copy.deepcopy(self.executable2_data)
+        response = self.client.post('/api/v1/executable/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 201)
+        id = response['Location'].rsplit('/', 2)[-2]
+        response = self.client.get('/api/v1/executable/{0}/'.format(id))
+        for k, v in self.executable2_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+        response = self.client.delete('/api/v1/executable/{0}/'.format(id),
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+    def test_put(self):
+        """Should modify an existing environment"""
+        modified_data = copy.deepcopy(self.executable2_data)
+        modified_data['name'] = "django"
+        response = self.client.put('/api/v1/executable/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+        response = self.client.get('/api/v1/executable/1/')
+        for k, v in modified_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+
+    def test_delete(self):
+        """Should delete a executable"""
+        response = self.client.get('/api/v1/executable/1/')
+        self.assertEquals(response.status_code, 200)
+        # from fixture
+        response = self.client.delete('/api/v1/executable/1/',
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get('/api/v1/executable/1/')
+        self.assertEquals(response.status_code, 404)
+
+
+class BenchmarkTest(FixtureTestCase):
+    """Test Benchmark() API"""
+
+    def setUp(self):
+        self.benchmark1 = Benchmark.objects.get(pk=1)
+        self.benchmark2_data = dict(
+            name="sleep",
+            benchmark_type = 'C',
+            description = 'fast faster fastest',
+            units_title = 'Time',
+            units = 'seconds',
+            lessisbetter = True,
+            default_on_comparison = True,
+            )
+        self.benchmark2 = Benchmark(**self.benchmark2_data)
+        self.benchmark2.save()
+        self.client = Client()
+        super(BenchmarkTest, self).setUp()
+
+    def test_get_benchmark(self):
+        """Should get an existing benchmark"""
+        response = self.client.get('/api/v1/benchmark/1/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['name'],
+                         'float')
+        self.assertEqual(json.loads(response.content)['units'],
+                         "seconds")
+
+    def test_get_benchmark_all_fields(self):
+        """Should get all fields for an benchmark"""
+        response = self.client.get('/api/v1/benchmark/{0}/'.format(
+            self.benchmark2.id,))
+        self.assertEquals(response.status_code, 200)
+        for k, v in self.benchmark2_data.items():
+            self.assertEqual(json.loads(response.content)[k], v)
+
+    def test_post(self):
+        """Should save a new benchmark"""
+        modified_data = copy.deepcopy(self.benchmark2_data)
+        modified_data['name'] = 'wake'
+        response = self.client.post('/api/v1/benchmark/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json')
+        self.assertEquals(response.status_code, 201)
+        id = response['Location'].rsplit('/', 2)[-2]
+        response = self.client.get('/api/v1/benchmark/{0}/'.format(id))
+        for k, v in modified_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+        response = self.client.delete('/api/v1/benchmark/{0}/'.format(id),
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+    def test_put(self):
+        """Should modify an existing benchmark"""
+        modified_data = copy.deepcopy(self.benchmark2_data)
+        modified_data['name'] = "django"
+        response = self.client.put('/api/v1/benchmark/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+        response = self.client.get('/api/v1/benchmark/1/')
+        for k, v in modified_data.items():
+            self.assertEqual(
+                json.loads(response.content)[k], v)
+
+    def test_delete(self):
+        """Should delete a benchmark"""
+        response = self.client.get('/api/v1/benchmark/1/')
+        self.assertEquals(response.status_code, 200)
+        # from fixture
+        response = self.client.delete('/api/v1/benchmark/1/',
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 204)
+
+        response = self.client.get('/api/v1/benchmark/1/')
+        self.assertEquals(response.status_code, 404)
+
+
+class ReportTest(FixtureTestCase):
+    """Test Report() API"""
+
+    def setUp(self):
+        self.report1 = Report.objects.get(pk=1)
+        self.revision1 = Revision.objects.get(pk=1)
+        self.executable1 = Executable.objects.get(pk=1)
+        self.environment1 = Environment.objects.get(pk=1)
+        self.executable2_data = dict(
+            name="Fibo",
+            description="Fibonacci the Lame",
+            )
+        self.project=Project.objects.get(pk=1)
+        self.executable2 = Executable(project=self.project,
+                                      **self.executable2_data)
+        self.executable2.save()
+        self.report2_data = dict(
+            revision=self.revision1,
+            environment=self.environment1,
+            executable=self.executable2,
+            )
+        self.report2 = Report(**self.report2_data)
+        self.report2.save()
+        self.report2_data = dict(
+            revision='/api/v1/revision/{0}/'.format(self.revision1.id),
+            environment='/api/v1/environment/{0}/'.format(self.environment1.id),
+            executable='/api/v1/executable/{0}/'.format(self.executable2.id),
+            )
+        self.client = Client()
+        super(ReportTest, self).setUp()
+
+    def test_get_report(self):
+        """Should get an existing report"""
+        response = self.client.get('/api/v1/report/1/')
+        self.assertEquals(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)['summary'],
+                         'float -50.0%')
+        self.assertEqual(json.loads(response.content)['colorcode'],
+                         "green")
+
+    def test_get_report_all_fields(self):
+        """Should get all fields for an report"""
+        response = self.client.get('/api/v1/report/{0}/'.format(
+            self.report2.id,))
+        self.assertEquals(response.status_code, 200)
+        for k, v in self.report2_data.items():
+            self.assertEqual(json.loads(response.content)[k], v)
+
+    def test_post(self):
+        """Should save a new report"""
+        modified_data = copy.deepcopy(self.report2_data)
+        response = self.client.post('/api/v1/report/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json')
+        # next has to be 405, otherwise would raise IntegrityError
+        self.assertEquals(response.status_code, 405)
+
+    def test_put(self):
+        """Should modify an existing report"""
+        modified_data = copy.deepcopy(self.report2_data)
+        response = self.client.put('/api/v1/report/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json')
+        self.assertEquals(response.status_code, 405)
+
+    def test_delete(self):
+        """Should delete a report"""
+        response = self.client.get('/api/v1/report/1/')
+        self.assertEquals(response.status_code, 200)
+        # from fixture
+        response = self.client.delete('/api/v1/report/1/',
+                                      content_type='application/json')
+        self.assertEquals(response.status_code, 405)
+
+
 class UserTest(FixtureTestCase):
     """Test api user related stuff"""
 
@@ -412,16 +820,6 @@ class ResultBundleTestCase(FixtureTestCase):
         self.assertEqual(bundle.obj.project.name,
                          modified_data['project'])
 
-    def test_exiting_executable(self):
-        """
-        Check that an exception is raised if the executable already exists but
-        the project changes.
-        """
-        modified_data = copy.deepcopy(self.data1)
-        modified_data['commitid'] = '0b31bf33a469ac2cb1949666eea54d69a36c3724'
-        modified_data['project'] = 'Cython'
-        bundle = ResultBundle(**modified_data)
-        self.assertRaises(ImmediateHttpResponse, bundle.save)
 
 class ResultBundleResourceTestCase(FixtureTestCase):
     """Submitting new benchmark results"""

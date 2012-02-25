@@ -54,7 +54,8 @@ models.signals.post_save.connect(create_api_key, sender=User)
 
 
 class UserResource(ModelResource):
-    """Ressource for Django User()"""
+    """Resource for Django User()"""
+
     class Meta:
         queryset = User.objects.filter(is_active=True)
         resource_name = 'user'
@@ -68,7 +69,7 @@ class UserResource(ModelResource):
 
 
 class ProjectResource(ModelResource):
-    """Ressource for Project()"""
+    """Resource for Project()"""
 
     class Meta:
         queryset = Project.objects.all()
@@ -76,7 +77,9 @@ class ProjectResource(ModelResource):
 
 
 class BranchResource(ModelResource):
-    """Ressource for Branch()"""
+    """Resource for Branch()"""
+
+    project = fields.ToOneField(ProjectResource, 'project')
 
     class Meta:
         queryset = Branch.objects.all()
@@ -84,7 +87,10 @@ class BranchResource(ModelResource):
 
 
 class RevisionResource(ModelResource):
-    """Ressource for Revision()"""
+    """Resource for Revision()"""
+
+    project = fields.ToOneField(ProjectResource, 'project')
+    branch = fields.ToOneField(BranchResource, 'branch')
 
     class Meta:
         queryset = Revision.objects.all()
@@ -92,7 +98,8 @@ class RevisionResource(ModelResource):
 
 
 class ExecutableResource(ModelResource):
-    """Ressource for Executable()"""
+    """Resource for Executable()"""
+
     project = fields.ToOneField(ProjectResource, 'project')
 
     class Meta:
@@ -101,7 +108,7 @@ class ExecutableResource(ModelResource):
 
 
 class BenchmarkResource(ModelResource):
-    """Ressource for Benchmark()"""
+    """Resource for Benchmark()"""
 
     class Meta:
         queryset = Benchmark.objects.all()
@@ -109,7 +116,7 @@ class BenchmarkResource(ModelResource):
 
 
 class EnvironmentResource(ModelResource):
-    """Ressource for Enviroment()"""
+    """Resource for Enviroment()"""
 
     class Meta:
         queryset = Environment.objects.all()
@@ -118,7 +125,7 @@ class EnvironmentResource(ModelResource):
 
 
 class ResultResource(ModelResource):
-    """Ressource for Result()"""
+    """Resource for Result()"""
 
     class Meta:
         queryset = Result.objects.all()
@@ -126,10 +133,15 @@ class ResultResource(ModelResource):
 
 
 class ReportResource(ModelResource):
-    """Ressource for Report()"""
+    """Resource for Report()"""
+
+    revision = fields.ToOneField(RevisionResource, 'revision')
+    environment = fields.ToOneField(EnvironmentResource, 'environment')
+    executable = fields.ToOneField(ExecutableResource, 'executable')
 
     class Meta:
         queryset = Report.objects.all()
+        allowed_methods = ['get']
         authorization= Authorization()
 
 
@@ -292,7 +304,7 @@ class ResultBundle(Bundle):
                 ))
         # check optional data
         for key in [k for k in self.optional_keys \
-                    if k not in ('date')]:
+                    if k not in ('date',)]:
             if key in self.data.keys():
                 try:
                     self.data[key] = float(self.data[key])
@@ -325,7 +337,7 @@ class ResultBundle(Bundle):
 
 
 class ResultBundleResource(Resource):
-    """Ressource for all the data of a benchmark result.
+    """Resource for all the data of a benchmark result.
 
        Primarily used to submit benchmark results
 

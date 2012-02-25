@@ -78,7 +78,6 @@ def retrieve_revision(commit_id, username, project, revision = None):
             'author_email': commit['author']['email'],
             'commitid':     commit['id'],
             'short_commit_id': commit['id'][0:7],
-            'links': {'Github': 'http://github.com%s' % commit['url']},
             'parents':      commit['parents']}
 
 def getlogs(endrev, startrev):

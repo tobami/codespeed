@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
+import os
+
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import simplejson as json
 
 from django.conf import settings
+
+from codespeed.github import GITHUB_URL_RE
 
 
 class Project(models.Model):
@@ -22,10 +26,41 @@ class Project(models.Model):
     repo_path = models.CharField("Repository URL", blank=True, max_length=200)
     repo_user = models.CharField("Repository username", blank=True, max_length=100)
     repo_pass = models.CharField("Repository password", blank=True, max_length=100)
+    commit_browsing_url = models.CharField("Commit browsing URL", blank=True, max_length=200)
     track = models.BooleanField("Track changes", default=False)
 
     def __unicode__(self):
         return self.name
+
+    @property
+    def repo_name(self):
+        # name not defined for None, GitHub or Subversion
+        if self.repo_type in ('N', 'H', 'S'):
+            error = 'Not supported for %s project' % self.get_repo_type_display()
+            raise AttributeError(error)
+
+        return os.path.splitext(self.repo_path.split(os.sep)[-1])[0]
+
+    @property
+    def working_copy(self):
+        # working copy exists for mercurial and git only
+        if self.repo_type in ('N', 'H', 'S'):
+            error = 'Not supported for %s project' % self.get_repo_type_display()
+            raise AttributeError(error)
+
+        return os.path.join(settings.REPOSITORY_BASE_PATH, self.repo_name)
+
+    def save(self, *args, **kwargs):
+        """Provide a default for commit browsing url in github repositories."""
+        if not self.commit_browsing_url and self.repo_type == 'H':
+            m = GITHUB_URL_RE.match(self.repo_path)
+            if m:
+                url = 'https://github.com/%s/%s/commit/{commitid}' % (
+                    m.group('username'), m.group('project')
+                )
+                self.commit_browsing_url = url
+            
+        super(Project, self).save(*args, **kwargs)
 
 
 class Branch(models.Model):
@@ -53,6 +88,9 @@ class Revision(models.Model):
     def get_short_commitid(self):
         return self.commitid[:10]
 
+    def get_browsing_url(self):
+        return self.branch.project.commit_browsing_url.format(**self.__dict__)
+
     def __unicode__(self):
         if self.date is None:
             date = None
@@ -77,9 +115,12 @@ class Revision(models.Model):
 
 
 class Executable(models.Model):
-    name = models.CharField(unique=True, max_length=30)
+    name = models.CharField(max_length=30)
     description = models.CharField(max_length=200, blank=True)
     project = models.ForeignKey(Project, related_name="executables")
+
+    class Meta:
+        unique_together = ('name', 'project')
 
     def __unicode__(self):
         return self.name

@@ -447,8 +447,8 @@ class Report(models.Model):
                     totals[key] = "-"
 
             if totals['change'] != "-":
-                # Transform ratio
-                totals['change'] = (totals['change'] - 1) * 100 to percentage
+                # Transform ratio to percentage
+                totals['change'] = (totals['change'] - 1) * 100
             if totals['trend'] != "-":
                 # Transform ratio to percentage
                 totals['trend'] = (totals['trend'] - 1) * 100

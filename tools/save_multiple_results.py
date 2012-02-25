@@ -2,7 +2,10 @@
 ####################################################
 # Sample script that shows how to save result data using json #
 ####################################################
-import urllib, urllib2, json
+import urllib
+import urllib2
+import json
+
 
 # You need to enter the real URL and have the server running
 CODESPEED_URL = 'http://localhost:8000/'
@@ -27,6 +30,7 @@ sample_data = [
         "result_value": 1100
     }
 ]
+
 
 def add(data):
     #params = urllib.urlencode(data)

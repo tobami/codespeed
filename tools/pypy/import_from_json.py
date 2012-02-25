@@ -55,7 +55,8 @@ for INTERP in RESULTS_URLS:
         interpreter = INTERP
         int_options = ""
         options = ""
-        if result.has_key('options'): options = result['options']
+        if 'options' in result:
+            options = result['options']
 
         host = 'tannit'
         #saveresults.save(proj, revision, result['results'], options, interpreter, host)

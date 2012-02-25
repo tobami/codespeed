@@ -22,7 +22,7 @@ CHANGE_THRESHOLD = 3.0
 
 # Threshold that determines when a performance change
 # over a number of revisions is significant
-TREND_THRESHOLD  = 5.0
+TREND_THRESHOLD = 5.0
 
 ## Changes view options ##
 DEF_EXECUTABLE = None # Executable that should be chosen as default in the changes view

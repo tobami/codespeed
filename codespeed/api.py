@@ -64,8 +64,8 @@ class UserResource(ModelResource):
         #excludes = ['email', 'password', 'is_superuser']
         # Add it here.
         #authorization = DjangoAuthorization()
-        authorization= Authorization()
-        #authentication = ApiKeyAuthentication() 
+        authorization = Authorization()
+        #authentication = ApiKeyAuthentication()
 
 
 class ProjectResource(ModelResource):
@@ -73,7 +73,7 @@ class ProjectResource(ModelResource):
 
     class Meta:
         queryset = Project.objects.all()
-        authorization= Authorization()
+        authorization = Authorization()
 
 
 class BranchResource(ModelResource):
@@ -83,7 +83,7 @@ class BranchResource(ModelResource):
 
     class Meta:
         queryset = Branch.objects.all()
-        authorization= Authorization()
+        authorization = Authorization()
 
 
 class RevisionResource(ModelResource):
@@ -94,7 +94,7 @@ class RevisionResource(ModelResource):
 
     class Meta:
         queryset = Revision.objects.all()
-        authorization= Authorization()
+        authorization = Authorization()
 
 
 class ExecutableResource(ModelResource):
@@ -104,7 +104,7 @@ class ExecutableResource(ModelResource):
 
     class Meta:
         queryset = Executable.objects.all()
-        authorization= Authorization()
+        authorization = Authorization()
 
 
 class BenchmarkResource(ModelResource):
@@ -112,7 +112,7 @@ class BenchmarkResource(ModelResource):
 
     class Meta:
         queryset = Benchmark.objects.all()
-        authorization= Authorization()
+        authorization = Authorization()
 
 
 class EnvironmentResource(ModelResource):
@@ -121,7 +121,7 @@ class EnvironmentResource(ModelResource):
     class Meta:
         queryset = Environment.objects.all()
         resource_name = 'environment'
-        authorization= Authorization()
+        authorization = Authorization()
 
 
 class ResultResource(ModelResource):
@@ -129,7 +129,7 @@ class ResultResource(ModelResource):
 
     class Meta:
         queryset = Result.objects.all()
-        authorization= Authorization()
+        authorization = Authorization()
 
 
 class ReportResource(ModelResource):
@@ -142,7 +142,7 @@ class ReportResource(ModelResource):
     class Meta:
         queryset = Report.objects.all()
         allowed_methods = ['get']
-        authorization= Authorization()
+        authorization = Authorization()
 
 
 class ResultBundle(Bundle):
@@ -183,13 +183,13 @@ class ResultBundle(Bundle):
             self.obj = obj
             self._populate_by_obj()
         elif obj is None:
-            self.obj =  Result()
+            self.obj = Result()
         else:
             raise ValueError("obj has to be an instance of models.Result")
 
         if self.data:
             self._check_data()
-        self.__data_validated = False   #not used for now
+        self.__data_validated = False  # not used for now
         super(ResultBundle, self).__init__(data=self.data, obj=self.obj)
 
     def _populate_obj_by_data(self):
@@ -213,7 +213,7 @@ class ResultBundle(Bundle):
             }.get(key, (None, None))()
 
         try:
-            self.obj.value =  float(self.data['result_value'])
+            self.obj.value = float(self.data['result_value'])
         except ValueError, error:
             logging.error(
                 "Result value: {0} cannot be converted to float. {1}".format(
@@ -367,7 +367,7 @@ class ResultBundleResource(Resource):
 
     class Meta:
         resource_name = 'benchmark-result'
-        authorization= Authorization()
+        authorization = Authorization()
         allowed_methods = ['get', 'post', 'put', 'delete']
 
     def get_resource_uri(self, bundle_or_obj):
@@ -417,7 +417,6 @@ class ResultBundleResource(Resource):
     def obj_update(self, bundle, request=None, **kwargs):
         return self.obj_create(bundle, request, **kwargs)
 
-
     def post_list(self, request, **kwargs):
         """
         Creates a new resource/object with the provided data.
@@ -458,4 +457,3 @@ class ResultBundleResource(Resource):
 
     def rollback(self, bundles):
         pass
-

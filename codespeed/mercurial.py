@@ -1,4 +1,5 @@
-import os, datetime
+import os
+import datetime
 from subprocess import Popen, PIPE
 import logging
 
@@ -39,6 +40,7 @@ def updaterepo(project, update=True):
         else:
             return [{'error': False}]
 
+
 def getlogs(endrev, startrev):
     updaterepo(endrev.branch.project, update=False)
 
@@ -54,7 +56,7 @@ def getlogs(endrev, startrev):
     if p.returncode != 0:
         raise RuntimeError(str(stderr))
     else:
-        stdout = stdout.rstrip('\n')#Remove last newline
+        stdout = stdout.rstrip('\n')  # Remove last newline
         logs = []
         for log in stdout.split("=newlog=\n"):
             elements = []
@@ -78,9 +80,9 @@ def getlogs(endrev, startrev):
 
                 # Add changeset info
                 logs.append({
-                    'date': date, 'author': author_name, 'author_email': author_email,
-                    'message': message,'short_commit_id': short_commit_id,
-                    'commitid': commit_id})
+                    'date': date, 'author': author_name,
+                    'author_email': author_email, 'message': message,
+                    'short_commit_id': short_commit_id, 'commitid': commit_id})
     # Remove last log here because mercurial saves the short hast as commitid now
     if len(logs) > 1 and logs[-1].get('short_commit_id') == startrev.commitid:
         logs.pop()

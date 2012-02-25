@@ -5,7 +5,6 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils import simplejson as json
-
 from django.conf import settings
 
 from codespeed.github import GITHUB_URL_RE
@@ -59,7 +58,6 @@ class Project(models.Model):
                     m.group('username'), m.group('project')
                 )
                 self.commit_browsing_url = url
-            
         super(Project, self).save(*args, **kwargs)
 
 
@@ -75,7 +73,8 @@ class Branch(models.Model):
 
 
 class Revision(models.Model):
-    commitid = models.CharField(max_length=42)#git and mercurial's SHA-1 length is 40
+    # git and mercurial's SHA-1 length is 40
+    commitid = models.CharField(max_length=42)
     tag = models.CharField(max_length=20, blank=True)
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
@@ -181,11 +180,11 @@ class Result(models.Model):
 
 
 class Report(models.Model):
-    revision    = models.ForeignKey(Revision, related_name="reports")
+    revision = models.ForeignKey(Revision, related_name="reports")
     environment = models.ForeignKey(Environment, related_name="reports")
-    executable  = models.ForeignKey(Executable, related_name="reports")
-    summary     = models.CharField(max_length=64, blank=True)
-    colorcode   = models.CharField(max_length=10, default="none")
+    executable = models.ForeignKey(Executable, related_name="reports")
+    summary = models.CharField(max_length=64, blank=True)
+    colorcode = models.CharField(max_length=10, default="none")
     _tablecache = models.TextField(blank=True)
 
     def __unicode__(self):
@@ -203,8 +202,9 @@ class Report(models.Model):
 
         # Get default threshold values
         change_threshold = 3.0
-        trend_threshold  = 5.0
-        if hasattr(settings, 'CHANGE_THRESHOLD') and settings.CHANGE_THRESHOLD != None:
+        trend_threshold = 5.0
+        if (hasattr(settings, 'CHANGE_THRESHOLD') and
+                settings.CHANGE_THRESHOLD != None):
             change_threshold = settings.CHANGE_THRESHOLD
         if hasattr(settings, 'TREND_THRESHOLD') and settings.TREND_THRESHOLD:
             trend_threshold = settings.TREND_THRESHOLD
@@ -218,7 +218,7 @@ class Report(models.Model):
             color = self.getcolorcode(val, units['lessisbetter'], change_threshold)
             if self.is_big_change(val, color, average_change, average_change_color):
                 # Do update biggest total change
-                average_change       = val
+                average_change = val
                 average_change_units = units['units_title']
                 average_change_color = color
             # Total trend
@@ -227,7 +227,7 @@ class Report(models.Model):
                 color = self.getcolorcode(val, units['lessisbetter'], trend_threshold)
                 if self.is_big_change(val, color, average_trend, average_trend_color):
                     # Do update biggest total trend change
-                    average_trend       = val
+                    average_trend = val
                     average_trend_units = units['units_title']
                     average_trend_color = color
             for row in units['rows']:
@@ -238,8 +238,8 @@ class Report(models.Model):
                 color = self.getcolorcode(val, units['lessisbetter'], change_threshold)
                 if self.is_big_change(val, color, max_change, max_change_color):
                     # Do update biggest single change
-                    max_change       = val
-                    max_change_ben   = row['bench_name']
+                    max_change = val
+                    max_change_ben = row['bench_name']
                     max_change_color = color
                 # Single trend
                 val = row['trend']
@@ -248,8 +248,8 @@ class Report(models.Model):
                 color = self.getcolorcode(val, units['lessisbetter'], trend_threshold)
                 if self.is_big_change(val, color, max_trend, max_trend_color):
                     # Do update biggest single trend change
-                    max_trend       = val
-                    max_trend_ben   = row['bench_name']
+                    max_trend = val
+                    max_trend_ben = row['bench_name']
                     max_trend_color = color
         # Reinitialize
         self.summary = ""
@@ -311,7 +311,7 @@ class Report(models.Model):
             colorcode = "red"
         elif val > threshold:
             colorcode = "green"
-        return colorcode;
+        return colorcode
 
     def get_changes_table(self, trend_depth=10, force_save=False):
         # Determine whether required trend value is the default one
@@ -329,7 +329,7 @@ class Report(models.Model):
                 branch=self.revision.branch
             ).filter(
                 date__lte=self.revision.date
-            ).order_by('-date')[:trend_depth+1]
+            ).order_by('-date')[:trend_depth + 1]
             # Same as self.revision unless in a different branch
             lastrevision = lastrevisions[0]
         except:
@@ -345,7 +345,7 @@ class Report(models.Model):
             ).filter(
                 executable=self.executable
             )
-            pastrevisions = lastrevisions[trend_depth-2:trend_depth+1]
+            pastrevisions = lastrevisions[trend_depth - 2:trend_depth + 1]
 
         result_list = Result.objects.filter(
             revision=lastrevision
@@ -363,26 +363,33 @@ class Report(models.Model):
             hasmax = False
             has_stddev = False
             smallest = 1000
-            totals = {'change': [], 'trend': [],}
+            totals = {'change': [], 'trend': []}
             for bench in Benchmark.objects.filter(units=units['units']):
                 units_title = bench.units_title
                 lessisbetter = bench.lessisbetter
                 resultquery = result_list.filter(benchmark=bench, value__gt=0)
-                if not len(resultquery): continue
+                if not len(resultquery):
+                    continue
 
                 resobj = resultquery.filter(benchmark=bench)[0]
 
                 std_dev = resobj.std_dev
-                if std_dev is not None: has_stddev = True
-                else: std_dev = "-"
+                if std_dev is not None:
+                    has_stddev = True
+                else:
+                    std_dev = "-"
 
                 val_min = resobj.val_min
-                if val_min is not None: hasmin = True
-                else: val_min = "-"
+                if val_min is not None:
+                    hasmin = True
+                else:
+                    val_min = "-"
 
                 val_max = resobj.val_max
-                if val_max is not None: hasmax = True
-                else: val_max = "-"
+                if val_max is not None:
+                    hasmax = True
+                else:
+                    val_max = "-"
 
                 # Calculate percentage change relative to previous result
                 result = resobj.value
@@ -390,7 +397,7 @@ class Report(models.Model):
                 if len(change_list):
                     c = change_list.filter(benchmark=bench)
                     if c.count() and c[0].value and result:
-                        change = (result - c[0].value)*100/c[0].value
+                        change = (result - c[0].value) * 100 / c[0].value
                         totals['change'].append(result / c[0].value)
 
                 # Calculate trend:
@@ -413,7 +420,7 @@ class Report(models.Model):
                 trend = "-"
                 if average:
                     average = average / averagecount
-                    trend =  (result - average)*100/average
+                    trend = (result - average) * 100 / average
                     totals['trend'].append(result / average)
 
                 # Retain lowest number different than 0
@@ -440,12 +447,14 @@ class Report(models.Model):
                     totals[key] = "-"
 
             if totals['change'] != "-":
-                totals['change'] = (totals['change'] - 1) * 100#transform ratio to percentage
+                # Transform ratio
+                totals['change'] = (totals['change'] - 1) * 100 to percentage
             if totals['trend'] != "-":
-                totals['trend'] = (totals['trend'] - 1) * 100#transform ratio to percentage
+                # Transform ratio to percentage
+                totals['trend'] = (totals['trend'] - 1) * 100
 
             # Calculate significant digits
-            digits = 2;
+            digits = 2
             while smallest < 1:
                 smallest *= 10
                 digits += 1

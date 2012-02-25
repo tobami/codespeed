@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
-import sys
-import os
-
-"""
-Add the default branch to all existing revisions
+"""Adds the default branch to all existing revisions
 
 Note: This file is assumed to be in the same directory
 as the project settings.py. Otherwise you have to set the
 shell environment DJANGO_SETTINGS_MODULE
 """
+import sys
+import os
+
 
 ## Setup to import models from Django app ##
 def import_from_string(name):
@@ -18,18 +17,19 @@ def import_from_string(name):
     return reduce(lambda mod, y: getattr(mod, y), components, __import__(name))
 
 sys.path.append(os.path.abspath('..'))
-if os.environ.has_key('DJANGO_SETTINGS_MODULE'):
+
+if 'DJANGO_SETTINGS_MODULE' in os.environ:
     settings = import_from_string(os.environ['DJANGO_SETTINGS_MODULE'])
 else:
     try:
-        import settings # Assumed to be in the same directory.
+        import settings  # Assumed to be in the same directory.
     except ImportError:
         import sys
         sys.stderr.write(
             "Error: Can't find the file 'settings.py' in the directory "
             "containing %r. It appears you've customized things.\nYou'll have "
-            "to run django-admin.py, passing it your settings module.\n(If the "
-            "file settings.py does indeed exist, it's causing an ImportError "
+            "to run django-admin.py, passing it your settings module.\n(If the"
+            " file settings.py does indeed exist, it's causing an ImportError "
             "somehow.)\n" % __file__)
         sys.exit(1)
 
@@ -50,4 +50,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

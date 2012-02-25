@@ -26,11 +26,12 @@ GITHUB_URL_RE = re.compile(r'^(?P<proto>\w+)://github.com/(?P<username>[^/]+)/(?
 # revisions.
 GITHUB_REVISION_LIMIT = 10
 
+
 def updaterepo(project, update=True):
     return
 
 
-def retrieve_revision(commit_id, username, project, revision = None):
+def retrieve_revision(commit_id, username, project, revision=None):
     commit_url = 'http://github.com/api/v2/json/commits/show/%s/%s/%s' % (
         username, project, commit_id)
 
@@ -73,12 +74,13 @@ def retrieve_revision(commit_id, username, project, revision = None):
 
     return {'date':         date,
             'message':      commit['message'],
-            'body':         "", # TODO: pretty-print diffs
+            'body':         "",   # TODO: pretty-print diffs
             'author':       commit['author']['name'],
             'author_email': commit['author']['email'],
             'commitid':     commit['id'],
             'short_commit_id': commit['id'][0:7],
             'parents':      commit['parents']}
+
 
 def getlogs(endrev, startrev):
     if endrev != startrev:
@@ -108,15 +110,15 @@ def getlogs(endrev, startrev):
         logs.append(last_rev_data)
         revision_count += 1
         ancestor_found = (startrev.commitid in [rev['id'] for rev in last_rev_data['parents']])
-    
+
     # Simple approach to find the startrev, stop after found or after
     # #GITHUB_REVISION_LIMIT revisions are fetched
-    while (revision_count < GITHUB_REVISION_LIMIT 
+    while (revision_count < GITHUB_REVISION_LIMIT
             and not ancestor_found
             and len(last_rev_data['parents']) > 0):
         last_rev_data = retrieve_revision(last_rev_data['parents'][0]['id'], username, project)
         logs.append(last_rev_data)
         revision_count += 1
         ancestor_found = (startrev.commitid in [rev['id'] for rev in last_rev_data['parents']])
-    
+
     return sorted(logs, key=lambda i: i['date'], reverse=True)

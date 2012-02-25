@@ -37,6 +37,7 @@ def updaterepo(project, update=True):
         else:
             return [{'error': False}]
 
+
 def getlogs(endrev, startrev):
     updaterepo(endrev.branch.project, update=False)
 
@@ -48,7 +49,7 @@ def getlogs(endrev, startrev):
     if endrev.commitid != startrev.commitid:
         cmd.append("%s...%s" % (startrev.commitid, endrev.commitid))
     else:
-        cmd.append("-1") # Only return one commit
+        cmd.append("-1")  # Only return one commit
         cmd.append(endrev.commitid)
 
     working_copy = endrev.branch.project.working_copy

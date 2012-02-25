@@ -25,6 +25,7 @@ def no_environment_error(request):
         'message': 'You need to configure at least one Environment. Please go to the <a href="%s">admin interface</a>' % admin_url
     }, context_instance=RequestContext(request))
 
+
 def no_default_project_error(request):
     admin_url = reverse('admin:codespeed_project_changelist')
     return render_to_response('codespeed/nodata.html', {
@@ -32,10 +33,12 @@ def no_default_project_error(request):
                    'Please go to the <a href="%s">admin interface</a>' % admin_url
     }, context_instance=RequestContext(request))
 
+
 def no_executables_error(request):
     return render_to_response('codespeed/nodata.html', {
         'message': 'There needs to be at least one executable'
     }, context_instance=RequestContext(request))
+
 
 def no_data_found(request):
     return render_to_response('codespeed/nodata.html', {
@@ -49,10 +52,11 @@ def getbaselineexecutables():
     revs = Revision.objects.exclude(tag="").select_related('branch__project')
     maxlen = 22
     for rev in revs:
-        #add executables that correspond to each tagged revision.
+        # Add executables that correspond to each tagged revision.
         for exe in [e for e in executables if e.project == rev.branch.project]:
             exestring = str(exe)
-            if len(exestring) > maxlen: exestring = str(exe)[0:maxlen] + "..."
+            if len(exestring) > maxlen:
+                exestring = str(exe)[0:maxlen] + "..."
             name = exestring + " " + rev.tag
             key = str(exe.id) + "+" + str(rev.id)
             baseline.append({
@@ -208,7 +212,7 @@ def getcomparisondata(request):
 
     compdata['error'] = "None"
 
-    return HttpResponse(json.dumps( compdata ))
+    return HttpResponse(json.dumps(compdata))
 
 
 def comparison(request):
@@ -281,7 +285,8 @@ def comparison(request):
     if 'ben' in data:
         checkedbenchmarks = []
         for i in data['ben'].split(","):
-            if not i: continue
+            if not i:
+                continue
             try:
                 checkedbenchmarks.append(Benchmark.objects.get(id=int(i)))
             except Benchmark.DoesNotExist:
@@ -293,7 +298,8 @@ def comparison(request):
     charts = ['normal bars', 'stacked bars', 'relative bars']
     # Don't show relative charts as an option if there is only one executable
     # Relative charts need normalization
-    if len(executables) == 1: charts.remove('relative bars')
+    if len(executables) == 1:
+        charts.remove('relative bars')
 
     selectedchart = charts[0]
     if 'chart' in data and data['chart'] in charts:
@@ -312,7 +318,7 @@ def comparison(request):
         try:
             # TODO: Avoid calling twice getbaselineexecutables
             selectedbaseline = getbaselineexecutables()[1]['key']
-            # Uncheck exe used for normalization 
+            # Uncheck exe used for normalization
             try:
                 checkedexecutables.remove(selectedbaseline)
             except ValueError:
@@ -350,7 +356,7 @@ def gettimelinedata(request):
     executables = data.get('exe', "").split(",")
     if not filter(None, executables):
         timeline_list['error'] = "No executables selected"
-        return HttpResponse(json.dumps( timeline_list ))
+        return HttpResponse(json.dumps(timeline_list))
     environment = None
     try:
         environment = get_object_or_404(Environment, id=data.get('env'))
@@ -436,7 +442,7 @@ def gettimelinedata(request):
                         if len(timeline['branches'][branch][exe]) > len(results):
                             results = timeline['branches'][branch][exe]
                     end = results[0][0]
-                    start = results[len(results)-1][0]
+                    start = results[len(results) - 1][0]
                     timeline['baseline'] = [
                         [str(start), baselinevalue],
                         [str(end), baselinevalue]
@@ -447,7 +453,7 @@ def gettimelinedata(request):
     if not len(timeline_list['timelines']) and data['ben'] != 'show_none':
         response = 'No data found for the selected options'
         timeline_list['error'] = response
-    return HttpResponse(json.dumps( timeline_list ))
+    return HttpResponse(json.dumps(timeline_list))
 
 
 def timeline(request):
@@ -472,7 +478,8 @@ def timeline(request):
     checkedexecutables = []
     if 'exe' in data:
         for i in data['exe'].split(","):
-            if not i: continue
+            if not i:
+                continue
             try:
                 checkedexecutables.append(Executable.objects.get(id=int(i)))
             except Executable.DoesNotExist:
@@ -537,7 +544,7 @@ def timeline(request):
             defaultbenchmark = data['ben']
         else:
             defaultbenchmark = get_object_or_404(Benchmark, name=data['ben'])
-    
+
     if 'equid' in data:
         defaultequid = data['equid']
     else:
@@ -560,7 +567,7 @@ def timeline(request):
         'environments': enviros,
         'branch_list': branch_list,
         'defaultbranch': defaultbranch,
-        'defaultequid' : defaultequid
+        'defaultequid': defaultequid
     }, context_instance=RequestContext(request))
 
 
@@ -592,7 +599,8 @@ def getchangestable(request):
 
 
 def changes(request):
-    if request.method != 'GET': return HttpResponseNotAllowed('GET')
+    if request.method != 'GET':
+        return HttpResponseNotAllowed('GET')
     data = request.GET
 
     # Configuration of default parameters
@@ -781,8 +789,8 @@ def saverevisioninfo(rev):
 
     if log:
         log = log[0]
-        rev.author  = log['author']
-        rev.date    = log['date']
+        rev.author = log['author']
+        rev.date = log['date']
         rev.message = log['message']
 
 
@@ -805,7 +813,7 @@ def validate_result(item):
     ]
 
     response = {}
-    error    = True
+    error = True
     for key in mandatory_data:
         if not key in item:
             return 'Key "' + key + '" missing from request', error
@@ -828,7 +836,8 @@ def create_report_if_enough_data(rev, exe, e):
     ).order_by('-date')[:2]
     if len(last_revs) > 1:
         current_results = rev.results.filter(executable=exe, environment=e)
-        last_results = last_revs[1].results.filter(executable=exe,environment=e)
+        last_results = last_revs[1].results.filter(
+            executable=exe, environment=e)
         # If there is are at least as many results as in the last revision,
         # create new report
         if len(current_results) >= len(last_results):
@@ -881,9 +890,9 @@ def save_result(data):
 
     try:
         r = Result.objects.get(
-            revision=rev,executable=exe,benchmark=b,environment=env)
+            revision=rev, executable=exe, benchmark=b, environment=env)
     except Result.DoesNotExist:
-        r = Result(revision=rev,executable=exe,benchmark=b,environment=env)
+        r = Result(revision=rev, executable=exe, benchmark=b, environment=env)
 
     r.value = data["result_value"]
     if 'result_date' in data:

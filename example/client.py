@@ -67,7 +67,7 @@ def save_to_speedcenter(url=None, project=None, commitid=None, executable=None,
     if status == 202:
         logging.debug("Server %s: HTTP %s: %s", url, status, response)
     else:
-        raise IOError("Server %s returned HTTP %s"  % (url, status))
+        raise IOError("Server %s returned HTTP %s" % (url, status))
 
 
 if __name__ == "__main__":
@@ -76,7 +76,8 @@ if __name__ == "__main__":
     parser = OptionParser()
     parser.add_option("--benchmark")
     parser.add_option("--commitid")
-    parser.add_option("--environment", help="Use a custom Codespeed environment")
+    parser.add_option("--environment",
+        help="Use a custom Codespeed environment")
     parser.add_option("--executable")
     parser.add_option("--max", type="float")
     parser.add_option("--min", type="float")
@@ -86,7 +87,8 @@ if __name__ == "__main__":
     parser.add_option("--result-value", type="float")
     parser.add_option("--revision_date")
     parser.add_option("--std-dev", type="float")
-    parser.add_option("--url", help="URL of your Codespeed server (e.g. http://codespeed.example.org)")
+    parser.add_option("--url",
+        help="URL of your Codespeed server (e.g. http://codespeed.example.org)")
 
     (options, args) = parser.parse_args()
 

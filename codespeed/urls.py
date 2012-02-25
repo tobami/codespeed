@@ -9,7 +9,7 @@ from codespeed.api import (UserResource, EnvironmentResource,
                            BenchmarkResource, ResultResource, BranchResource,
                            RevisionResource, ResultBundleResource)
 
-feeds = { 'latest': LatestEntries }
+feeds = {'latest': LatestEntries}
 
 rest_api = Api(api_name='v1')
 rest_api.register(EnvironmentResource())

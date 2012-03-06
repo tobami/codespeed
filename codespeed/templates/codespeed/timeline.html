@@ -85,6 +85,12 @@
     <input id="equidistant" name="equidistant" type="checkbox" />
     <label for="equidistant">Equidistant</label>
   </span>
+  {% if use_error_bars %}
+  <span class="options mean" title="Shows error bars in the plots" style="display: none">
+    <input id="show_error_bars" type="checkbox" name="show_error_bars" checked="checked"/>
+    <label for="show_error_bars">Show error bars</label>
+  </span>
+  {% endif %}
   {% if use_median_bands %}
   <span class="options median" title="Shows quartile bands in the plots" style="display: none">
     <input id="show_quartile_bands" type="checkbox" name="show_quartile_bands" checked="checked"/>
@@ -114,6 +120,7 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.ohlcRendererWithErrorBars.min.js"></script>
 <script type="text/javascript">
   var CHANGES_URL = "{% url "changes" %}";
 </script>
@@ -128,6 +135,7 @@
       benchmark: "{{ defaultbenchmark }}",
       environment: {{ defaultenvironment.id }},
       equidistant: "{{ defaultequid }}",
+      error: "{{ defaulterr }}",
       quartiles: "{{ defaultquarts }}",
       extrema: "{{ defaultextr }}"
     });

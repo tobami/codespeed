@@ -554,6 +554,7 @@ def timeline(request):
     executables = {}
     for proj in Project.objects.filter(track=True):
         executables[proj] = Executable.objects.filter(project=proj)
+    use_error_bars = hasattr(settings, 'USE_ERROR_BARS') and settings.USE_ERROR_BARS
     return render_to_response('codespeed/timeline.html', {
         'checkedexecutables': checkedexecutables,
         'defaultbaseline': defaultbaseline,
@@ -567,7 +568,8 @@ def timeline(request):
         'environments': enviros,
         'branch_list': branch_list,
         'defaultbranch': defaultbranch,
-        'defaultequid': defaultequid
+        'defaultequid': defaultequid,
+        'use_error_bars': use_error_bars
     }, context_instance=RequestContext(request))
 
 

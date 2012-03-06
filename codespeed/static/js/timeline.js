@@ -35,7 +35,8 @@ function getConfiguration() {
     ben: $("input[name='benchmark']:checked").val(),
     env: $("input[name='environments']:checked").val(),
     revs: $("#revisions option:selected").val(),
-    equid: $("#equidistant").is(':checked') ? "on" : "off"
+    equid: $("#equidistant").is(':checked') ? "on" : "off",
+    error: $("#show_error_bars").is(':checked') ? "on" : "off"
   };
 
   var branch = readCheckbox("input[name='branch']:checked");
@@ -69,6 +70,19 @@ function renderPlot(data) {
   for (var branch in data.branches) {
     // NOTE: Currently, only the "default" branch is shown in the timeline
     for (var exe_id in data.branches[branch]) {
+        if (readCheckbox("input[name='show_error_bars']:checked")) {
+          marker = false;
+          var error = new Array();
+          for (res in data["branches"][branch][exe_id]) {
+            var date = data["branches"][branch][exe_id][res][0];
+            var value = data["branches"][branch][exe_id][res][1];
+            var std_dev = data["branches"][branch][exe_id][res][2];
+            error.push([date, value - std_dev, value + std_dev, data["branches"][branch][exe_id][res][3]]);
+          }
+          plotdata.push(error);
+          series.push({renderer:$.jqplot.OHLCRenderer, rendererOptions:{errorBar:true}, showLabel: false, showMarker: true,
+                     "label": $("label[for*='executable" + getColor(exe_id) + "']").html() + " error", color: "#C0C0C0"});
+        }
       // FIXME if (branch !== "default") { label += " - " + branch; }
       var label = $("label[for*='executable" + exe_id + "']").html();
       series.push({"label":  label, "color": getColor(exe_id)});
@@ -192,6 +206,7 @@ function renderMiniplot(plotid, data) {
 function render(data) {
   $("#revisions").attr("disabled", false);
   $("#equidistant").attr("disabled", false);
+  $("#show_error_bars").attr("disabled",false);
   $("#plotgrid").html("");
   if(data.error !== "None") {
     var h = $("#content").height();//get height for error message
@@ -207,6 +222,7 @@ function render(data) {
     //Render Grid of plots
     $("#revisions").attr("disabled",true);
     $("#equidistant").attr("disabled", true);
+    $("#show_error_bars").attr("disabled",true);
     for (var bench in data.timelines) {
       var plotid = "plot_" + data.timelines[bench].benchmark_id;
       $("#plotgrid").append('<div id="' + plotid + '" class="miniplot"></div>');
@@ -253,6 +269,7 @@ function initializeSite(event) {
   $("input[name='benchmark']"   ).change(updateUrl);
   $("input[name='environments']").change(updateUrl);
   $("#equidistant"              ).change(updateUrl);
+  $("#show_error_bars"          ).change(updateUrl);
 }
 
 function refreshSite(event) {
@@ -305,7 +322,8 @@ function setValuesOfInputFields(event) {
   });
 
   $("#baselinecolor").css("background-color", baselineColor);
-  $("#equidistant").attr('checked', valueOrDefault(event.parameters.equid, defaults.equidistant === "on"));
+  $("#equidistant").attr('checked', valueOrDefault(event.parameters.equid, defaults.equidistant) == "on");
+  $("#show_error_bars").attr('checked', valueOrDefault(event.parameters.error, defaults.error) == "on");
 }
 
 function init(def) {

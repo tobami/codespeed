@@ -136,11 +136,12 @@ function renderPlot(data) {
     },
     legend: {show: true, location: 'nw'},
     highlighter: {
+      show: true,
       tooltipLocation: 'nw',
       yvalues: 4,
       formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
     },
-    cursor:{zoom:true, showTooltip:false, clickReset:true}
+    cursor:{show:true, zoom:true, showTooltip:false, clickReset:true}
   };
   if (series.length > 4) {
       // Move legend outside plot area to unclutter

@@ -28,6 +28,10 @@ function shouldPlotEquidistant() {
   return $("#equidistant").is(':checked');
 }
 
+function shouldPlotErrorBars() {
+  return $("#show_error_bars").is(':checked');
+}
+
 function getConfiguration() {
   var config = {
     exe: readCheckbox("input[name='executable']:checked"),
@@ -67,10 +71,11 @@ function renderPlot(data) {
       series = [],
       lastvalues = [];//hopefully the smallest values for determining significant digits.
   seriesindex = [];
+  var errorSeries = 0;
   for (var branch in data.branches) {
     // NOTE: Currently, only the "default" branch is shown in the timeline
     for (var exe_id in data.branches[branch]) {
-        if (readCheckbox("input[name='show_error_bars']:checked")) {
+        if (shouldPlotErrorBars()) {
           marker = false;
           var error = new Array();
           for (res in data["branches"][branch][exe_id]) {
@@ -82,6 +87,7 @@ function renderPlot(data) {
           plotdata.push(error);
           series.push({renderer:$.jqplot.OHLCRenderer, rendererOptions:{errorBar:true}, showLabel: false, showMarker: true,
                      "label": $("label[for*='executable" + getColor(exe_id) + "']").html() + " error", color: "#C0C0C0"});
+          errorSeries++;
         }
       // FIXME if (branch !== "default") { label += " - " + branch; }
       var label = $("label[for*='executable" + exe_id + "']").html();
@@ -143,7 +149,7 @@ function renderPlot(data) {
     },
     cursor:{show:true, zoom:true, showTooltip:false, clickReset:true}
   };
-  if (series.length > 4) {
+  if (series.length > 4 + errorSeries) {
       // Move legend outside plot area to unclutter
       var labels = [];
       for (var l in series) {

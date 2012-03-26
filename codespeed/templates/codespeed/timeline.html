@@ -83,9 +83,9 @@
     <label for="equidistant">Equidistant</label>
   </span>
   {% if use_error_bars %}
-  <span>
-    <input id="show_error_bars" type="checkbox" name="show_error_bars" />
-    <label for="show_error_bars"> Show error bars</label>
+  <span class="options" title="Shows error bars in the plots">
+    <input id="show_error_bars" type="checkbox" name="show_error_bars" checked="checked"/>
+    <label for="show_error_bars">Show error bars</label>
   </span>
   {% endif %}
   <a id="permalink" href="#">Permalink</a>
@@ -107,7 +107,7 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.ohlcRendererWithErrorBars.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.ohlcRendererWithErrorBars.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/timeline.js"></script>
 
 <script type="text/javascript">
@@ -121,7 +121,8 @@
       branches: [{% for b in branch_list %}"{{ branch }}", {% endfor %}],
       benchmark: "{{ defaultbenchmark }}",
       environment: {{ defaultenvironment.id }},
-      equidistant: "{{ defaultequid }}"
+      equidistant: "{{ defaultequid }}",
+      error: "on"
     });
   });
 </script>

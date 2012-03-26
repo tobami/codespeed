@@ -207,7 +207,7 @@ function renderMiniplot(plotid, data) {
 function render(data) {
   $("#revisions").attr("disabled", false);
   $("#equidistant").attr("disabled", false);
-  $("#show_error_bars").attr("disabled",false);
+  $("#show_error_bars").attr("disabled", false);
   $("#plotgrid").html("");
   if(data.error !== "None") {
     var h = $("#content").height();//get height for error message

@@ -884,6 +884,7 @@ def get_home_data(request):
     cp_exe = Executable.objects.get(name="cpython")
     cp_lastrev = Revision.objects.filter(
         branch__project=cp_exe.project).order_by('-date')[0]
+    data['baseline'] = 'CPython ' + cp_lastrev.tag
     cp_results = Result.objects.filter(
         executable=cp_exe, revision=cp_lastrev, environment=env)
 
@@ -918,8 +919,7 @@ def get_home_data(request):
         if res == 0:
             continue
         benchmarks.append(res.benchmark.name)
-        key = 'CPython ' + cp_lastrev.tag
-        data['results'][res.benchmark.name] = {key: res.value}
+        data['results'][res.benchmark.name] = {data['baseline']: res.value}
         for rev_name in pp_results:
             val = 0
             for pp_res in pp_results[rev_name]:

@@ -719,7 +719,14 @@ def reports(request):
 def displaylogs(request):
     rev = get_object_or_404(Revision, pk=request.GET.get('revisionid'))
     logs = []
-    logs.append(rev)
+    logs.append(
+        {
+            'date': str(rev.date), 'author': rev.author,
+            'author_email': '', 'message': rev.message,
+            'short_commit_id': rev.get_short_commitid(),
+            'commitid': rev.commitid
+        }
+    )
     error = False
     try:
         startrev = Revision.objects.filter(
@@ -740,8 +747,10 @@ def displaylogs(request):
             logs = remotelogs
         else:
             error = 'no logs found'
-    except StandardError, e:
-        logger.error("Unhandled exception displaying logs for %s: %s", rev, e, exc_info=True)
+    except (StandardError, RuntimeError) as e:
+        logger.error(
+            "Unhandled exception displaying logs for %s: %s",
+            rev, e, exc_info=True)
         error = repr(e)
 
     # add commit browsing url to logs

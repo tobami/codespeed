@@ -38,7 +38,7 @@
                     add_to_tagged_data = false;
                 }
                 if (add_to_tagged_data === false) { break; }
-                relative_value = data['results'][benchname][rev]/data['results'][benchname]['CPython 2.6.2'];
+                relative_value = data['results'][benchname][rev]/data['results'][benchname][data['baseline']];
                 tagged_data[i].push(relative_value)
             }
             // Only add benchmark if there are no 0 values
@@ -46,7 +46,7 @@
             // First add benchmark
             benchmarks.push(benchname);
             // Add PyPy trunk and CPython's 1.0 value
-            relative_value = data['results'][benchname]['PyPy trunk']/data['results'][benchname]['CPython 2.6.2'];
+            relative_value = data['results'][benchname]['PyPy trunk']/data['results'][benchname][data['baseline']];
             plotdata[0].push(relative_value);
             plotdata[1].push(1.0);
             labels.push(relative_value.toFixed(2));
@@ -73,7 +73,7 @@
                     pointLabels:{labels:labels}
                 },
                 {
-                    label: 'CPython',
+                    label: data['baseline'],
                     pointLabels:{show:false}
                 }
             ],
@@ -84,7 +84,7 @@
                     tickOptions: {angle: -40}
                 },
                 yaxis:{
-                    ticks: [0, 0.25, 0.5, 0.75, 1, 1.25, 1.5],
+                    ticks: [0, 0.25, 0.5, 0.75, 1, 1.25],
                     tickOptions:{formatString:'%.2f'}
                 }
             }
@@ -104,7 +104,7 @@
             geomeans.push(tempgeo);
         }
         geomeans.push(trunk_geomean);
-        var ticks = ['CPython 2.6.2'];
+        var ticks = [data['baseline']];
         for (var i in data['tagged_revs']) {
             ticks.push(data['tagged_revs'][i]);
         }
@@ -195,7 +195,7 @@
         <p>It depends greatly on the type of task being performed. The geometric average of all benchmarks is <span id="geomean"></span> or <strong id="geofaster"></strong> times <em>faster</em> than CPython</p>
         <h3>How has PyPy performance evolved over time?</h3>
 
-        <div id="cpythonplot2" style="width:500px;height:400px;margin: 0 auto;"></div>
+        <div id="cpythonplot2" style="width:600px;height:400px;margin: 0 auto;"></div>
         <p style="font-size:smaller;">Plot 2: Geometric averages of normalized times, out of <span id="num_of_benchs"></span> benchmarks. Smaller is better. "times faster" inside parenthesis</p>
     </div>
 </div>

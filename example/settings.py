@@ -5,7 +5,7 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-BASEDIR = os.path.dirname(__file__)
+BASEDIR = os.path.abspath(os.path.dirname(__file__))
 
 #: The directory which should contain checked out source repositories:
 REPOSITORY_BASE_PATH = os.path.join(BASEDIR, "repos")
@@ -113,9 +113,9 @@ INSTALLED_APPS = (
     'south',
     'tastypie',
 )
+SOUTH_TESTS_MIGRATE = False
 
 STATIC_URL = '/static/'
-
 STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
 
 # Codespeed settings that can be overwritten here.

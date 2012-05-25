@@ -43,7 +43,8 @@ from tastypie.http import HttpBadRequest, HttpCreated, HttpNotImplemented
 from tastypie.resources import ModelResource, Resource
 from tastypie import fields
 from tastypie.authorization import Authorization, DjangoAuthorization
-from tastypie.authentication import ApiKeyAuthentication
+#from tastypie.authentication import ApiKeyAuthentication, Authentication, MultiAuthentication
+from tastypie.authentication import Authentication, ApiKeyAuthentication, MultiAuthentication
 from tastypie.models import create_api_key
 from tastypie.utils.dict import dict_strip_unicode_keys
 from codespeed.models import (Environment, Project, Result, Branch, Revision,
@@ -63,9 +64,9 @@ class UserResource(ModelResource):
         allowed_methods = ['get']
         #excludes = ['email', 'password', 'is_superuser']
         # Add it here.
-        #authorization = DjangoAuthorization()
-        authorization = Authorization()
-        #authentication = ApiKeyAuthentication()
+        authorization = DjangoAuthorization()
+        #authorization = Authorization()
+        authentication = ApiKeyAuthentication()
 
 
 class ProjectResource(ModelResource):
@@ -121,7 +122,10 @@ class EnvironmentResource(ModelResource):
     class Meta:
         queryset = Environment.objects.all()
         resource_name = 'environment'
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        #authorization = Authorization()
+        authentication = ApiKeyAuthentication()
+        #authentication = MultiAuthentication(Authentication(), ApiKeyAuthentication())
 
 
 class ResultResource(ModelResource):

@@ -21,7 +21,7 @@ from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.models import ApiKey, create_api_key
 from tastypie.http import HttpUnauthorized
 from tastypie.authentication import ApiKeyAuthentication
-from codespeed.api import EnvironmentResource
+from codespeed.api import EnvironmentResource, ProjectResource
 from codespeed.models import (Project, Benchmark, Revision, Branch,
                               Executable, Environment, Result, Report)
 from codespeed.api import ResultBundle
@@ -36,10 +36,13 @@ class FixtureTestCase(test.TestCase):
         self.api_user = User.objects.create_user(
             username='apiuser', email='api@foo.bar', password='password')
         self.api_user.save()
-        #create_api_key(User, instance=self.api_user, created=True)
+        self.api_user.user_permissions.clear()
         john_doe = User.objects.create_user(
             username='johndoe', email='api@foo.bar', password='password')
         john_doe.save()
+        authorization='ApiKey {0}:{1}'.format(self.api_user.username,
+                                              self.api_user.api_key.key)
+        self.post_auth = {'HTTP_AUTHORIZATION': authorization}
 
 
 class UserTest(FixtureTestCase):
@@ -62,7 +65,6 @@ class UserTest(FixtureTestCase):
 
         # Simulate sending the signal.
         john_doe = User.objects.get(username='johndoe')
-        #create_api_key(User, instance=john_doe, created=True)
 
         # No username/api_key details should fail.
         self.assertEqual(isinstance(auth.is_authenticated(request), HttpUnauthorized), True)
@@ -98,102 +100,6 @@ class UserTest(FixtureTestCase):
         self.assertEqual(auth.is_authenticated(request), True)
 
 
-class EnvironmentTest(FixtureTestCase):
-    """Test Environment() API"""
-
-    def setUp(self):
-        self.env1_data = dict(
-            name="env1",
-            cpu="cpu1",
-            memory="48kB",
-            os="ZX Spectrum OS",
-            kernel="2.6.32"
-        )
-        self.env1 = Environment(**self.env1_data)
-        self.env1.save()
-        self.env2_data = dict(
-            name="env2",
-            cpu="z80",
-            memory="64kB",
-            os="ZX Spectrum OS",
-            kernel="2.6.32"
-        )
-        env_db1 = Environment.objects.get(id=1)
-        self.env_db1_data = dict(
-            [(k, getattr(env_db1, k)) for k in self.env1_data.keys()]
-        )
-        self.client = Client()
-        super(EnvironmentTest, self).setUp()
-
-    def xtest_get_environment(self):
-        """Should get an existing environment"""
-        response = self.client.get('/api/v1/environment/1/')
-        self.assertEquals(response.status_code, 200)
-        self.assertEqual(json.loads(response.content)['name'], "Dual Core")
-
-    def xtest_get_environment_all_fields(self):
-        """Should get all fields for an environment"""
-        response = self.client.get('/api/v1/environment/%s/' % (self.env1.id,))
-        self.assertEquals(response.status_code, 200)
-        for k in self.env1_data.keys():
-            self.assertEqual(
-                json.loads(response.content)[k], getattr(self.env1, k))
-
-    def xtest_post(self):
-        """Should save a new environment"""
-        response = self.client.post('/api/v1/environment/',
-                                    data=json.dumps(self.env2_data),
-                                    content_type='application/json')
-        self.assertEquals(response.status_code, 201)
-        id = response['Location'].rsplit('/', 2)[-2]
-        response = self.client.get('/api/v1/environment/{0}/'.format(id))
-        for k, v in self.env2_data.items():
-            self.assertEqual(
-                json.loads(response.content)[k], v)
-        response = self.client.delete('/api/v1/environment/{0}/'.format(id),
-                                    content_type='application/json')
-        self.assertEquals(response.status_code, 204)
-
-    def xtest_put(self):
-        """Should modify an existing environment"""
-        modified_data = copy.deepcopy(self.env_db1_data)
-        modified_data['name'] = "env2.2"
-        modified_data['memory'] = "128kB"
-        response = self.client.put('/api/v1/environment/1/',
-                                    data=json.dumps(modified_data),
-                                    content_type='application/json')
-        self.assertEquals(response.status_code, 204)
-        response = self.client.get('/api/v1/environment/1/')
-        for k, v in modified_data.items():
-            self.assertEqual(
-                json.loads(response.content)[k], v)
-
-    def xtest_delete(self):
-        """Should delete an environment"""
-        response = self.client.get('/api/v1/environment/1/')
-        self.assertEquals(response.status_code, 200)
-        # from fixture
-        response = self.client.delete('/api/v1/environment/1/',
-                                    content_type='application/json')
-        self.assertEquals(response.status_code, 204)
-
-        response = self.client.get('/api/v1/environment/1/')
-        self.assertEquals(response.status_code, 404)
-
-        # from just created data
-        response = self.client.get(
-            '/api/v1/environment/{0}/'.format(self.env1.id))
-        self.assertEquals(response.status_code, 200)
-        response = self.client.delete(
-            '/api/v1/environment/{0}/'.format(self.env1.id),
-            content_type='application/json')
-        self.assertEquals(response.status_code, 204)
-
-        response = self.client.get(
-            '/api/v1/environment/{0}/'.format(self.env1.id))
-        self.assertEquals(response.status_code, 404)
-
-
 class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
     """Test Environment() API"""
 
@@ -205,8 +111,6 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
             'change_environment', 'codespeed', 'environment')
         self.delete = Permission.objects.get_by_natural_key(
             'delete_environment', 'codespeed', 'environment')
-        #self.user = User.objects.all()[0]
-        self.api_user.user_permissions.clear()
         self.env1_data = dict(
             name="env1",
             cpu="cpu1",
@@ -228,9 +132,6 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
             [(k, getattr(env_db1, k)) for k in self.env1_data.keys()]
         )
         self.client = Client()
-        authorization='ApiKey {0}:{1}'.format(self.api_user.username,
-                                              self.api_user.api_key.key)
-        self.post_auth = {'HTTP_AUTHORIZATION': authorization}
 
     def test_no_perms(self):
         # sanity check: user has no permissions
@@ -461,6 +362,13 @@ class ProjectTest(FixtureTestCase):
     """Test Project() API"""
 
     def setUp(self):
+        super(ProjectTest, self).setUp()
+        self.add = Permission.objects.get_by_natural_key(
+            'add_project', 'codespeed', 'project')
+        self.change = Permission.objects.get_by_natural_key(
+            'change_project', 'codespeed', 'project')
+        self.delete = Permission.objects.get_by_natural_key(
+            'delete_project', 'codespeed', 'project')
         self.project_data = dict(
             name="PyPy",
             repo_type="M",
@@ -478,7 +386,21 @@ class ProjectTest(FixtureTestCase):
         self.project = Project(**self.project_data)
         self.project.save()
         self.client = Client()
-        super(ProjectTest, self).setUp()
+
+    def test_all(self):
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+        request.user.user_permissions.add(self.change)
+        request.user.user_permissions.add(self.delete)
+
+        for method in ('GET', 'OPTIONS', 'HEAD', 'POST', 'PUT', 'DELETE',
+                       'PATCH'):
+            request.method = method
+            self.assertTrue(
+                ProjectResource()._meta.authorization.is_authorized(request)
+            )
 
     def test_get_project(self):
         """Should get an existing project"""
@@ -498,12 +420,28 @@ class ProjectTest(FixtureTestCase):
 
     def test_post(self):
         """Should save a new project"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+        request.user.user_permissions.add(self.change)
+        request.user.user_permissions.add(self.delete)
+
         response = self.client.post('/api/v1/project/',
                                     data=json.dumps(self.project_data2),
                                     content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.post('/api/v1/project/',
+                                    data=json.dumps(self.project_data2),
+                                    content_type='application/json',
+                                    **self.post_auth
+        )
         self.assertEquals(response.status_code, 201)
-        response = self.client.get('/api/v1/project/{0}/'.format(
-            self.project.id))
+        id = response['Location'].rsplit('/', 2)[-2]
+        response = self.client.get(
+            '/api/v1/project/{0}/?username={1}&api_key={2}'.format(
+                self.project.id, self.api_user.username, self.api_user.api_key.key)
+        )
         for k, v in self.project_data.items():
             self.assertEqual(
                 json.loads(response.content)[k], v)
@@ -511,12 +449,21 @@ class ProjectTest(FixtureTestCase):
     def test_delete(self):
         """Should delete an project"""
         response = self.client.delete('/api/v1/project/{0}/'.format(
-            self.project.id,),
-                                    content_type='application/json')
-        self.assertEquals(response.status_code, 204)
+            self.project.id,), content_type='application/json')
+        self.assertEquals(response.status_code, 401)
 
+        request = HttpRequest()
+        request.user = self.api_user
+        request.user.user_permissions.add(self.delete)
+        response = self.client.delete(
+            '/api/v1/project/{0}/'.format(self.project.id,),
+            content_type='application/json',
+            **self.post_auth
+        )
+        self.assertEquals(response.status_code, 204)
         response = self.client.get('/api/v1/project/{0}/'.format(
-            self.project.id,))
+            self.project.id,)
+        )
         self.assertEquals(response.status_code, 404)
 
 

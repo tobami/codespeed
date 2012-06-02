@@ -74,7 +74,9 @@ class ProjectResource(ModelResource):
 
     class Meta:
         queryset = Project.objects.all()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        # Note, the order for MultiAuthentication matters!
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class BranchResource(ModelResource):

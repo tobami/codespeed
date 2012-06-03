@@ -535,6 +535,13 @@ class BranchTest(FixtureTestCase):
     """Test Branch() API"""
 
     def setUp(self):
+        super(BranchTest, self).setUp()
+        self.add = Permission.objects.get_by_natural_key(
+            'add_branch', 'codespeed', 'branch')
+        self.change = Permission.objects.get_by_natural_key(
+            'change_branch', 'codespeed', 'branch')
+        self.delete = Permission.objects.get_by_natural_key(
+            'delete_branch', 'codespeed', 'branch')
         self.branch1 = Branch.objects.get(pk=1)
         self.project_data = dict(
             name="PyPy",
@@ -550,7 +557,6 @@ class BranchTest(FixtureTestCase):
             project='/api/v1/project/{0}/'.format(self.project.id)
         )
         self.client = Client()
-        super(BranchTest, self).setUp()
 
     def test_get_branch(self):
         """Should get an existing branch"""
@@ -573,10 +579,22 @@ class BranchTest(FixtureTestCase):
 
     def test_post(self):
         """Should save a new branch"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+        request.user.user_permissions.add(self.delete)
+
         modified_data = copy.deepcopy(self.branch2_data)
         response = self.client.post('/api/v1/branch/',
                                     data=json.dumps(modified_data),
                                     content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.post('/api/v1/branch/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json',
+                                    **self.post_auth
+        )
         self.assertEquals(response.status_code, 201)
         id = response['Location'].rsplit('/', 2)[-2]
         response = self.client.get('/api/v1/branch/{0}/'.format(id))
@@ -584,16 +602,28 @@ class BranchTest(FixtureTestCase):
             self.assertEqual(
                 json.loads(response.content)[k], v)
         response = self.client.delete('/api/v1/branch/{0}/'.format(id),
-                                      content_type='application/json')
+                                      content_type='application/json',
+                                      **self.post_auth
+        )
         self.assertEquals(response.status_code, 204)
 
     def test_put(self):
         """Should modify an existing environment"""
+        request = HttpRequest()
+        request.user = self.api_user
+        request.user.user_permissions.add(self.change)
+
         modified_data = copy.deepcopy(self.branch2_data)
         modified_data['name'] = "tip"
         response = self.client.put('/api/v1/branch/1/',
                                    data=json.dumps(modified_data),
                                    content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.put('/api/v1/branch/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json',
+                                   **self.post_auth
+        )
         self.assertEquals(response.status_code, 204)
         response = self.client.get('/api/v1/branch/1/')
         for k, v in modified_data.items():
@@ -602,11 +632,20 @@ class BranchTest(FixtureTestCase):
 
     def test_delete(self):
         """Should delete a branch"""
+        request = HttpRequest()
+        request.user = self.api_user
+        request.user.user_permissions.add(self.delete)
+
         response = self.client.get('/api/v1/branch/1/')
         self.assertEquals(response.status_code, 200)
         # from fixture
         response = self.client.delete('/api/v1/branch/1/',
                                       content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.delete('/api/v1/branch/1/',
+                                      content_type='application/json',
+                                      **self.post_auth
+        )
         self.assertEquals(response.status_code, 204)
 
         response = self.client.get('/api/v1/branch/1/')

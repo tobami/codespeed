@@ -152,7 +152,8 @@ class ReportResource(ModelResource):
     class Meta:
         queryset = Report.objects.all()
         allowed_methods = ['get']
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class ResultBundle(Bundle):

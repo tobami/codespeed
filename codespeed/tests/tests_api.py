@@ -898,6 +898,13 @@ class BenchmarkTest(FixtureTestCase):
     """Test Benchmark() API"""
 
     def setUp(self):
+        super(BenchmarkTest, self).setUp()
+        self.add = Permission.objects.get_by_natural_key(
+            'add_benchmark', 'codespeed', 'benchmark')
+        self.change = Permission.objects.get_by_natural_key(
+            'change_benchmark', 'codespeed', 'benchmark')
+        self.delete = Permission.objects.get_by_natural_key(
+            'delete_benchmark', 'codespeed', 'benchmark')
         self.benchmark1 = Benchmark.objects.get(pk=1)
         self.benchmark2_data = dict(
             name="sleep",
@@ -911,7 +918,6 @@ class BenchmarkTest(FixtureTestCase):
         self.benchmark2 = Benchmark(**self.benchmark2_data)
         self.benchmark2.save()
         self.client = Client()
-        super(BenchmarkTest, self).setUp()
 
     def test_get_benchmark(self):
         """Should get an existing benchmark"""
@@ -932,28 +938,53 @@ class BenchmarkTest(FixtureTestCase):
 
     def test_post(self):
         """Should save a new benchmark"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+
         modified_data = copy.deepcopy(self.benchmark2_data)
         modified_data['name'] = 'wake'
         response = self.client.post('/api/v1/benchmark/',
                                     data=json.dumps(modified_data),
                                     content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.post('/api/v1/benchmark/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json',
+                                    **self.post_auth
+        )
         self.assertEquals(response.status_code, 201)
         id = response['Location'].rsplit('/', 2)[-2]
         response = self.client.get('/api/v1/benchmark/{0}/'.format(id))
         for k, v in modified_data.items():
             self.assertEqual(
                 json.loads(response.content)[k], v)
+        request.user.user_permissions.add(self.delete)
         response = self.client.delete('/api/v1/benchmark/{0}/'.format(id),
-                                      content_type='application/json')
+                                      content_type='application/json',
+                                      **self.post_auth)
         self.assertEquals(response.status_code, 204)
 
     def test_put(self):
         """Should modify an existing benchmark"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+        request.user.user_permissions.add(self.change)
+        request.user.user_permissions.add(self.delete)
+
         modified_data = copy.deepcopy(self.benchmark2_data)
         modified_data['name'] = "django"
         response = self.client.put('/api/v1/benchmark/1/',
                                    data=json.dumps(modified_data),
                                    content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.put('/api/v1/benchmark/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json',
+                                   **self.post_auth)
         self.assertEquals(response.status_code, 204)
         response = self.client.get('/api/v1/benchmark/1/')
         for k, v in modified_data.items():
@@ -962,11 +993,19 @@ class BenchmarkTest(FixtureTestCase):
 
     def test_delete(self):
         """Should delete a benchmark"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.delete)
         response = self.client.get('/api/v1/benchmark/1/')
         self.assertEquals(response.status_code, 200)
         # from fixture
         response = self.client.delete('/api/v1/benchmark/1/',
                                       content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.delete('/api/v1/benchmark/1/',
+                                      content_type='application/json',
+                                      **self.post_auth)
         self.assertEquals(response.status_code, 204)
 
         response = self.client.get('/api/v1/benchmark/1/')

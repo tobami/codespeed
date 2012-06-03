@@ -841,17 +841,31 @@ class ExecutableTest(FixtureTestCase):
         for k, v in self.executable2_data.items():
             self.assertEqual(
                 json.loads(response.content)[k], v)
+        request.user.user_permissions.add(self.delete)
         response = self.client.delete('/api/v1/executable/{0}/'.format(id),
-                                      content_type='application/json')
+                                      content_type='application/json',
+                                      **self.post_auth)
         self.assertEquals(response.status_code, 204)
 
     def test_put(self):
         """Should modify an existing environment"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+        request.user.user_permissions.add(self.change)
+        request.user.user_permissions.add(self.delete)
+
         modified_data = copy.deepcopy(self.executable2_data)
         modified_data['name'] = "django"
         response = self.client.put('/api/v1/executable/1/',
                                    data=json.dumps(modified_data),
                                    content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.put('/api/v1/executable/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json',
+                                   **self.post_auth)
         self.assertEquals(response.status_code, 204)
         response = self.client.get('/api/v1/executable/1/')
         for k, v in modified_data.items():
@@ -860,11 +874,20 @@ class ExecutableTest(FixtureTestCase):
 
     def test_delete(self):
         """Should delete a executable"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.delete)
+
         response = self.client.get('/api/v1/executable/1/')
         self.assertEquals(response.status_code, 200)
         # from fixture
         response = self.client.delete('/api/v1/executable/1/',
                                       content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.delete('/api/v1/executable/1/',
+                                      content_type='application/json',
+                                      **self.post_auth)
         self.assertEquals(response.status_code, 204)
 
         response = self.client.get('/api/v1/executable/1/')

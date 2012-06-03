@@ -86,7 +86,8 @@ class BranchResource(ModelResource):
 
     class Meta:
         queryset = Branch.objects.all()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class RevisionResource(ModelResource):

@@ -45,6 +45,49 @@ class FixtureTestCase(test.TestCase):
         self.post_auth = {'HTTP_AUTHORIZATION': authorization}
 
 
+class ApiKeyAuthenticationTestCase(FixtureTestCase):
+
+    def setUp(self):
+        super(ApiKeyAuthenticationTestCase, self).setUp()
+        ApiKey.objects.all().delete()
+        self.auth = ApiKeyAuthentication()
+        self.request = HttpRequest()
+
+        # Simulate sending the signal.
+        user = User.objects.get(username='apiuser')
+        create_api_key(User, instance=user, created=True)
+
+    def test_is_not_authenticated(self):
+        """Should return HttpUnauthorized when incorrect credentials are given"""
+        # No username/api_key details
+        self.assertEqual(isinstance(
+            self.auth.is_authenticated(self.request), HttpUnauthorized), True)
+
+        # Wrong username details.
+        self.request.GET['username'] = 'foo'
+        self.assertEqual(isinstance(
+            self.auth.is_authenticated(self.request), HttpUnauthorized), True)
+
+        # No api_key.
+        self.request.GET['username'] = 'daniel'
+        self.assertEqual(isinstance(
+            self.auth.is_authenticated(self.request), HttpUnauthorized), True)
+
+        # Wrong user/api_key.
+        self.request.GET['username'] = 'daniel'
+        self.request.GET['api_key'] = 'foo'
+        self.assertEqual(isinstance(
+            self.auth.is_authenticated(self.request), HttpUnauthorized), True)
+
+    def test_is_authenticated(self):
+        """Should correctly authenticate when using an existing user and key"""
+        # Correct user/api_key.
+        user = User.objects.get(username='apiuser')
+        self.request.GET['username'] = 'apiuser'
+        self.request.GET['api_key'] = user.api_key.key
+        self.assertEqual(self.auth.is_authenticated(self.request), True)
+
+
 class UserTest(FixtureTestCase):
     """Test api user related stuff"""
 
@@ -1023,7 +1066,7 @@ class ReportTest(FixtureTestCase):
             'change_report', 'codespeed', 'report')
         self.delete = Permission.objects.get_by_natural_key(
             'delete_report', 'codespeed', 'report')
-        
+
         self.report1 = Report.objects.get(pk=1)
         self.revision1 = Revision.objects.get(pk=1)
         self.executable1 = Executable.objects.get(pk=1)
@@ -1127,52 +1170,10 @@ class ReportTest(FixtureTestCase):
         self.assertEquals(response.status_code, 405)
 
 
-class ApiKeyAuthenticationTestCase(FixtureTestCase):
-
-    def setUp(self):
-        super(ApiKeyAuthenticationTestCase, self).setUp()
-        ApiKey.objects.all().delete()
-        self.auth = ApiKeyAuthentication()
-        self.request = HttpRequest()
-
-        # Simulate sending the signal.
-        user = User.objects.get(username='apiuser')
-        create_api_key(User, instance=user, created=True)
-
-    def test_is_not_authenticated(self):
-        """Should return HttpUnauthorized when incorrect credentials are given"""
-        # No username/api_key details
-        self.assertEqual(isinstance(
-            self.auth.is_authenticated(self.request), HttpUnauthorized), True)
-
-        # Wrong username details.
-        self.request.GET['username'] = 'foo'
-        self.assertEqual(isinstance(
-            self.auth.is_authenticated(self.request), HttpUnauthorized), True)
-
-        # No api_key.
-        self.request.GET['username'] = 'daniel'
-        self.assertEqual(isinstance(
-            self.auth.is_authenticated(self.request), HttpUnauthorized), True)
-
-        # Wrong user/api_key.
-        self.request.GET['username'] = 'daniel'
-        self.request.GET['api_key'] = 'foo'
-        self.assertEqual(isinstance(
-            self.auth.is_authenticated(self.request), HttpUnauthorized), True)
-
-    def test_is_authenticated(self):
-        """Should correctly authenticate when using an existing user and key"""
-        # Correct user/api_key.
-        user = User.objects.get(username='apiuser')
-        self.request.GET['username'] = 'apiuser'
-        self.request.GET['api_key'] = user.api_key.key
-        self.assertEqual(self.auth.is_authenticated(self.request), True)
-
-
 class ResultBundleTestCase(FixtureTestCase):
 
     def setUp(self):
+        super(ResultBundleTestCase, self).setUp()
         self.data1 = {
             'commitid': '2',
             'branch': 'default', # Always use default for trunk/master/tip
@@ -1279,6 +1280,16 @@ class ResultBundleResourceTestCase(FixtureTestCase):
 
     DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
     def setUp(self):
+
+        super(ResultBundleResourceTestCase, self).setUp()
+
+        self.add = Permission.objects.get_by_natural_key(
+            'add_result', 'codespeed', 'result')
+        self.change = Permission.objects.get_by_natural_key(
+            'change_result', 'codespeed', 'result')
+        self.delete = Permission.objects.get_by_natural_key(
+            'delete_result', 'codespeed', 'result')
+
         self.data1 = {
             'commitid': '2',
             'branch': 'default', # Always use default for trunk/master/tip
@@ -1305,6 +1316,7 @@ class ResultBundleResourceTestCase(FixtureTestCase):
         self.project.save()
         self.env1 = Environment(name='Bulldozer')
         self.env1.save()
+        self.client = Client()
 
     def test_post_mandatory(self):
         """Should save a new result with only mandatory data"""

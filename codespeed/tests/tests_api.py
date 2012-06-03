@@ -1016,6 +1016,14 @@ class ReportTest(FixtureTestCase):
     """Test Report() API"""
 
     def setUp(self):
+        super(ReportTest, self).setUp()
+        self.add = Permission.objects.get_by_natural_key(
+            'add_report', 'codespeed', 'report')
+        self.change = Permission.objects.get_by_natural_key(
+            'change_report', 'codespeed', 'report')
+        self.delete = Permission.objects.get_by_natural_key(
+            'delete_report', 'codespeed', 'report')
+        
         self.report1 = Report.objects.get(pk=1)
         self.revision1 = Revision.objects.get(pk=1)
         self.executable1 = Executable.objects.get(pk=1)
@@ -1041,7 +1049,6 @@ class ReportTest(FixtureTestCase):
             executable='/api/v1/executable/{0}/'.format(self.executable2.id),
             )
         self.client = Client()
-        super(ReportTest, self).setUp()
 
     def test_get_report(self):
         """Should get an existing report"""
@@ -1061,29 +1068,62 @@ class ReportTest(FixtureTestCase):
             self.assertEqual(json.loads(response.content)[k], v)
 
     def test_post(self):
-        """Should save a new report"""
+        """Should not save a new report"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+
         modified_data = copy.deepcopy(self.report2_data)
         response = self.client.post('/api/v1/report/',
                                     data=json.dumps(modified_data),
                                     content_type='application/json')
+        self.assertEquals(response.status_code, 405)
+        # next has to be 405 (method not allowed),
+        # otherwise would raise IntegrityError
+        response = self.client.post('/api/v1/report/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json',
+                                    **self.post_auth)
         # next has to be 405, otherwise would raise IntegrityError
         self.assertEquals(response.status_code, 405)
 
     def test_put(self):
-        """Should modify an existing report"""
+        """Should not modify an existing report"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+        request.user.user_permissions.add(self.change)
+        request.user.user_permissions.add(self.delete)
+
         modified_data = copy.deepcopy(self.report2_data)
         response = self.client.put('/api/v1/report/1/',
                                    data=json.dumps(modified_data),
                                    content_type='application/json')
         self.assertEquals(response.status_code, 405)
+        response = self.client.put('/api/v1/report/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json',
+                                   **self.post_auth)
+        self.assertEquals(response.status_code, 405)
 
     def test_delete(self):
         """Should delete a report"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.delete)
+
         response = self.client.get('/api/v1/report/1/')
         self.assertEquals(response.status_code, 200)
         # from fixture
         response = self.client.delete('/api/v1/report/1/',
                                       content_type='application/json')
+        self.assertEquals(response.status_code, 405)
+        response = self.client.delete('/api/v1/report/1/',
+                                      content_type='application/json',
+                                      **self.post_auth)
         self.assertEquals(response.status_code, 405)
 
 

@@ -98,7 +98,8 @@ class RevisionResource(ModelResource):
 
     class Meta:
         queryset = Revision.objects.all()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class ExecutableResource(ModelResource):
@@ -108,7 +109,8 @@ class ExecutableResource(ModelResource):
 
     class Meta:
         queryset = Executable.objects.all()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class BenchmarkResource(ModelResource):

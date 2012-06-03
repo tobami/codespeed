@@ -65,7 +65,6 @@ class UserResource(ModelResource):
         #excludes = ['email', 'password', 'is_superuser']
         # Add it here.
         authorization = DjangoAuthorization()
-        #authorization = Authorization()
         authentication = ApiKeyAuthentication()
 
 
@@ -129,7 +128,6 @@ class EnvironmentResource(ModelResource):
         queryset = Environment.objects.all()
         resource_name = 'environment'
         authorization = DjangoAuthorization()
-        #authorization = Authorization()
         authentication = ApiKeyAuthentication()
         #authentication = MultiAuthentication(Authentication(), ApiKeyAuthentication())
 
@@ -139,7 +137,8 @@ class ResultResource(ModelResource):
 
     class Meta:
         queryset = Result.objects.all()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class ReportResource(ModelResource):
@@ -378,7 +377,8 @@ class ResultBundleResource(Resource):
 
     class Meta:
         resource_name = 'benchmark-result'
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
         allowed_methods = ['get', 'post', 'put', 'delete']
 
     def get_resource_uri(self, bundle_or_obj):

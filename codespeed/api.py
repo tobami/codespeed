@@ -118,7 +118,8 @@ class BenchmarkResource(ModelResource):
 
     class Meta:
         queryset = Benchmark.objects.all()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class EnvironmentResource(ModelResource):

@@ -262,8 +262,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         response = self.client.post('/api/v1/environment/',
                                     data=json.dumps(self.env2_data),
                                     content_type='application/json',
-                                    **self.post_auth
-        )
+                                    **self.post_auth)
         self.assertEquals(response.status_code, 201)
         id = response['Location'].rsplit('/', 2)[-2]
         #response = self.client.get('/api/v1/environment/{0}/'.format(id))
@@ -276,8 +275,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
                 json.loads(response.content)[k], v)
         response = self.client.delete('/api/v1/environment/{0}/'.format(id),
                                     content_type='application/json',
-                                    **self.post_auth
-        )
+                                    **self.post_auth)
         self.assertEquals(response.status_code, 204)
 
     def test_put(self):
@@ -288,8 +286,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         response = self.client.put('/api/v1/environment/1/',
                                    data=json.dumps(modified_data),
                                    content_type='application/json',
-                                   **self.post_auth
-        )
+                                   **self.post_auth)
         self.assertEquals(response.status_code, 401)
 
         request = HttpRequest()
@@ -299,8 +296,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         response = self.client.put('/api/v1/environment/1/',
                                    data=json.dumps(modified_data),
                                    content_type='application/json',
-                                   **self.post_auth
-        )
+                                   **self.post_auth)
         self.assertEquals(response.status_code, 204)
         response = self.client.get('/api/v1/environment/1/')
         response = self.client.get(
@@ -320,8 +316,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         # from fixture
         response = self.client.delete('/api/v1/environment/1/',
                                       content_type='application/json',
-                                      **self.post_auth
-        )
+                                      **self.post_auth)
         self.assertEquals(response.status_code, 401)
 
         request = HttpRequest()
@@ -329,8 +324,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         request.user.user_permissions.add(self.delete)
         response = self.client.delete('/api/v1/environment/1/',
                                       content_type='application/json',
-                                      **self.post_auth
-        )
+                                      **self.post_auth)
         self.assertEquals(response.status_code, 204)
 
         response = self.client.get(
@@ -434,8 +428,7 @@ class ProjectTest(FixtureTestCase):
         response = self.client.post('/api/v1/project/',
                                     data=json.dumps(self.project_data2),
                                     content_type='application/json',
-                                    **self.post_auth
-        )
+                                    **self.post_auth)
         self.assertEquals(response.status_code, 201)
         id = response['Location'].rsplit('/', 2)[-2]
         response = self.client.get(
@@ -593,8 +586,7 @@ class BranchTest(FixtureTestCase):
         response = self.client.post('/api/v1/branch/',
                                     data=json.dumps(modified_data),
                                     content_type='application/json',
-                                    **self.post_auth
-        )
+                                    **self.post_auth)
         self.assertEquals(response.status_code, 201)
         id = response['Location'].rsplit('/', 2)[-2]
         response = self.client.get('/api/v1/branch/{0}/'.format(id))
@@ -603,8 +595,7 @@ class BranchTest(FixtureTestCase):
                 json.loads(response.content)[k], v)
         response = self.client.delete('/api/v1/branch/{0}/'.format(id),
                                       content_type='application/json',
-                                      **self.post_auth
-        )
+                                      **self.post_auth)
         self.assertEquals(response.status_code, 204)
 
     def test_put(self):
@@ -622,8 +613,7 @@ class BranchTest(FixtureTestCase):
         response = self.client.put('/api/v1/branch/1/',
                                    data=json.dumps(modified_data),
                                    content_type='application/json',
-                                   **self.post_auth
-        )
+                                   **self.post_auth)
         self.assertEquals(response.status_code, 204)
         response = self.client.get('/api/v1/branch/1/')
         for k, v in modified_data.items():
@@ -644,8 +634,7 @@ class BranchTest(FixtureTestCase):
         self.assertEquals(response.status_code, 401)
         response = self.client.delete('/api/v1/branch/1/',
                                       content_type='application/json',
-                                      **self.post_auth
-        )
+                                      **self.post_auth)
         self.assertEquals(response.status_code, 204)
 
         response = self.client.get('/api/v1/branch/1/')
@@ -656,6 +645,13 @@ class RevisionTest(FixtureTestCase):
     """Test Revision() API"""
 
     def setUp(self):
+        super(RevisionTest, self).setUp()
+        self.add = Permission.objects.get_by_natural_key(
+            'add_revision', 'codespeed', 'revision')
+        self.change = Permission.objects.get_by_natural_key(
+            'change_revision', 'codespeed', 'revision')
+        self.delete = Permission.objects.get_by_natural_key(
+            'delete_revision', 'codespeed', 'revision')
         DATETIME_FORMAT = '%Y-%m-%dT%H:%M:%S'
         self.branch1 = Branch.objects.get(pk=1)
         self.project1 = Project.objects.get(pk=1)
@@ -680,7 +676,6 @@ class RevisionTest(FixtureTestCase):
             branch='/api/v1/branch/{0}/'.format(self.branch1.id),
         )
         self.client = Client()
-        super(RevisionTest, self).setUp()
 
     def test_get_revision(self):
         """Should get an existing revision"""
@@ -707,10 +702,22 @@ class RevisionTest(FixtureTestCase):
 
     def test_post(self):
         """Should save a new revision"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+        request.user.user_permissions.add(self.change)
+        request.user.user_permissions.add(self.delete)
+
         modified_data = copy.deepcopy(self.revision2_data)
         response = self.client.post('/api/v1/revision/',
                                     data=json.dumps(modified_data),
                                     content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.post('/api/v1/revision/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json',
+                                    **self.post_auth)
         self.assertEquals(response.status_code, 201)
         id = response['Location'].rsplit('/', 2)[-2]
         response = self.client.get('/api/v1/revision/{0}/'.format(id))
@@ -718,16 +725,29 @@ class RevisionTest(FixtureTestCase):
             self.assertEqual(
                 json.loads(response.content)[k], v)
         response = self.client.delete('/api/v1/revision/{0}/'.format(id),
-                                      content_type='application/json')
+                                      content_type='application/json',
+                                      **self.post_auth)
         self.assertEquals(response.status_code, 204)
 
     def test_put(self):
         """Should modify an existing revision"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+        request.user.user_permissions.add(self.change)
+        request.user.user_permissions.add(self.delete)
+
         modified_data = copy.deepcopy(self.revision2_data)
         modified_data['tag'] = "v0.9.1"
         response = self.client.put('/api/v1/revision/1/',
                                    data=json.dumps(modified_data),
                                    content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.put('/api/v1/revision/1/',
+                                   data=json.dumps(modified_data),
+                                   content_type='application/json',
+                                   **self.post_auth)
         self.assertEquals(response.status_code, 204)
         response = self.client.get('/api/v1/revision/1/')
         for k, v in modified_data.items():
@@ -736,11 +756,20 @@ class RevisionTest(FixtureTestCase):
 
     def test_delete(self):
         """Should delete a revision"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.delete)
+
         response = self.client.get('/api/v1/revision/1/')
         self.assertEquals(response.status_code, 200)
         # from fixture
         response = self.client.delete('/api/v1/revision/1/',
                                       content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.delete('/api/v1/revision/1/',
+                                      content_type='application/json',
+                                      **self.post_auth)
         self.assertEquals(response.status_code, 204)
 
         response = self.client.get('/api/v1/revision/1/')
@@ -751,6 +780,15 @@ class ExecutableTest(FixtureTestCase):
     """Test Executable() API"""
 
     def setUp(self):
+        super(ExecutableTest, self).setUp()
+
+        self.add = Permission.objects.get_by_natural_key(
+            'add_executable', 'codespeed', 'executable')
+        self.change = Permission.objects.get_by_natural_key(
+            'change_executable', 'codespeed', 'executable')
+        self.delete = Permission.objects.get_by_natural_key(
+            'delete_executable', 'codespeed', 'executable')
+
         self.executable1 = Executable.objects.get(pk=1)
         self.project1 = Project.objects.get(pk=1)
         self.executable2_data = dict(
@@ -759,7 +797,6 @@ class ExecutableTest(FixtureTestCase):
             project= '/api/v1/project/{0}/'.format(self.project1.id),
             )
         self.client = Client()
-        super(ExecutableTest, self).setUp()
 
     def test_get_executable(self):
         """Should get an existing executable"""
@@ -784,10 +821,20 @@ class ExecutableTest(FixtureTestCase):
 
     def test_post(self):
         """Should save a new executable"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+
         modified_data = copy.deepcopy(self.executable2_data)
         response = self.client.post('/api/v1/executable/',
                                     data=json.dumps(modified_data),
                                     content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.post('/api/v1/executable/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json',
+                                    **self.post_auth)
         self.assertEquals(response.status_code, 201)
         id = response['Location'].rsplit('/', 2)[-2]
         response = self.client.get('/api/v1/executable/{0}/'.format(id))

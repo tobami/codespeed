@@ -1171,6 +1171,7 @@ class ReportTest(FixtureTestCase):
 
 
 class ResultBundleTestCase(FixtureTestCase):
+    """Test CRUD of results via API"""
 
     def setUp(self):
         super(ResultBundleTestCase, self).setUp()
@@ -1320,9 +1321,19 @@ class ResultBundleResourceTestCase(FixtureTestCase):
 
     def test_post_mandatory(self):
         """Should save a new result with only mandatory data"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+
         response = self.client.post('/api/v1/benchmark-result/',
                                     data=json.dumps(self.data1),
                                     content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.post('/api/v1/benchmark-result/',
+                                    data=json.dumps(self.data1),
+                                    content_type='application/json',
+                                    **self.post_auth)
         self.assertEquals(response.status_code, 201)
         id = response['Location'].rsplit('/', 2)[-2]
         result = Result.objects.get(pk=int(id))
@@ -1332,10 +1343,20 @@ class ResultBundleResourceTestCase(FixtureTestCase):
 
     def test_post_all_data(self):
         """Should save a new result with mandatory and optional data"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+
         data = dict(self.data1, **self.data_optional)
         response = self.client.post('/api/v1/benchmark-result/',
                                     data=json.dumps(data),
                                     content_type='application/json')
+        self.assertEquals(response.status_code, 401)
+        response = self.client.post('/api/v1/benchmark-result/',
+                                    data=json.dumps(data),
+                                    content_type='application/json',
+                                    **self.post_auth)
         self.assertEquals(response.status_code, 201)
 
     def test_get_one(self):
@@ -1355,4 +1376,3 @@ class ResultBundleResourceTestCase(FixtureTestCase):
 #    suite = unittest.TestSuite()
 #    suite.addTest(EnvironmentTest())
 #    return suite
-

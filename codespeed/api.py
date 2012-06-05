@@ -134,6 +134,10 @@ class EnvironmentResource(ModelResource):
 
 class ResultResource(ModelResource):
     """Resource for Result()"""
+    revision = fields.ToOneField(RevisionResource, 'revision')
+    executable = fields.ToOneField(ExecutableResource, 'executable')
+    benchmark = fields.ToOneField(BenchmarkResource, 'benchmark')
+    environment = fields.ToOneField(EnvironmentResource, 'environment')
 
     class Meta:
         queryset = Result.objects.all()
@@ -274,7 +278,7 @@ class ResultBundle(Bundle):
         # TODO (a8): add user to models
         setattr(self.obj, 'user', User.objects.get(pk=1))
         #setattr(self.obj, 'user', None)
-        setattr(self.obj, 'notify', None)
+        #setattr(self.obj, 'notify', None)
 
     def _check_data(self):
         """See if all mandatory data is there"""
@@ -362,7 +366,7 @@ class ResultBundleResource(Resource):
 
         not mandatory data
          'notify'  -  Send notification to registered user if result varies from
-                      previous results
+                      previous results, currently not implemented
     """
 
     revision = fields.ToOneField(RevisionResource, 'revision')
@@ -372,13 +376,15 @@ class ResultBundleResource(Resource):
     benchmark = fields.ToOneField(BenchmarkResource, 'benchmark')
     environment = fields.ToOneField(EnvironmentResource, 'environment')
     result = fields.ToOneField(ResultResource, 'result')
-    user = fields.ToOneField(UserResource, 'user', null=True)
-    notify = fields.CharField(attribute='notify', null=True)
+    #user = fields.ToOneField(UserResource, 'user', null=True)
+    #notify = fields.CharField(attribute='notify', null=True)
 
     class Meta:
         resource_name = 'benchmark-result'
+        object_class = Result
         authorization = DjangoAuthorization()
-        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             Authentication())
         allowed_methods = ['get', 'post', 'put', 'delete']
 
     def get_resource_uri(self, bundle_or_obj):
@@ -415,12 +421,12 @@ class ResultBundleResource(Resource):
         setattr(result, 'result', result)
         # TODO (a8): add user to models
         #setattr(result, 'user', User.objects.get(pk=1))
-        setattr(result, 'user', None)
+        #setattr(result, 'user', None)
         #setattr(result, 'notify', None)
         return result
 
     def obj_create(self, bundle, request=None, **kwargs):
-        # FIXME (a8): Make full_hydrate work
+        # not calling hydrate here since bundle.save() has that functionality
         #bundle = self.full_hydrate(bundle)
         bundle.save()
         return bundle
@@ -467,4 +473,7 @@ class ResultBundleResource(Resource):
         return HttpNotImplemented()
 
     def rollback(self, bundles):
+        pass
+
+    def detail_uri_kwargs(self):
         pass

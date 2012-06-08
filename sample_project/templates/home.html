@@ -129,17 +129,19 @@
                 tempgeo *= tagged_data[i][j];
             }
             tempgeo = Math.pow(tempgeo, 1/tagged_data[i].length);
+            tempgeo = 1/tempgeo;
             geomeans.push(tempgeo);
         }
-        geomeans.push(trunk_geomean);
+        geomeans.push(1/trunk_geomean);
         var ticks = [data['baseline']];
         for (var i in data['tagged_revs']) {
             ticks.push(data['tagged_revs'][i]);
         }
         ticks.push('PyPy trunk');
         var geolabels = new Array();
-        for (var i in geomeans) { 
-            geolabels.push(geomeans[i].toFixed(2) + " (" + (1/geomeans[i]).toFixed(1) + "x)");
+        for (var i in geomeans) {
+//             geolabels.push(geomeans[i].toFixed(2) + " (" + (1/geomeans[i]).toFixed(1) + "x)");
+            geolabels.push(geomeans[i].toFixed(2) + "x");
         }
         $('#num_of_benchs').html(num_of_benchs)
         
@@ -159,7 +161,8 @@
                     ticks: ticks
                 },
                 yaxis:{
-                    ticks: [0.0, 0.25, 0.5, 0.75, 1.0, 1.25],
+//                     ticks: [0.0, 0.25, 0.5, 0.75, 1.0, 1.25],
+                    min: 0,
                     tickOptions:{formatString:'%.2f'}
                 }
             }
@@ -224,7 +227,7 @@
         <h3>How has PyPy performance evolved over time?</h3>
 
         <div id="cpythonplot2" style="width:600px;height:400px;margin: 0 auto;"></div>
-        <p style="font-size:smaller;">Plot 2: Geometric averages of normalized times, out of <span id="num_of_benchs"></span> benchmarks. Smaller is better. "times faster" inside parenthesis</p>
+        <p style="font-size:smaller;">Plot 2: Speedup compared to CPython, using the inverse of the geometric average of normalized times, out of <span id="num_of_benchs"></span> benchmarks.</p>
     </div>
 </div>
 {% endblock body %}

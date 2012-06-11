@@ -92,17 +92,17 @@ class UserTest(FixtureTestCase):
     """Test api user related stuff"""
 
     def test_has_apikey(self):
+        """User() should have an api key attr that was generated automatically."""
         self.assertTrue(hasattr(self.api_user, 'api_key'))
 
     def test_len_apikey(self):
-        """Test the key has a length"""
+        """Should have api user key with a non-zero length."""
         self.assertTrue(len(self.api_user.api_key.key) >= 1)
 
     def test_is_authenticated_header(self):
         """Taken from tastypie test suite to ensure api key is generated for
-        new users correctly.
+        new users correctly and tastypie is installed correctly.
         """
-
         auth = ApiKeyAuthentication()
         request = HttpRequest()
 
@@ -135,7 +135,7 @@ class UserTest(FixtureTestCase):
         self.assertEqual(auth.is_authenticated(request), True)
 
     def test_api_key(self):
-        # Correct user/api_key.
+        """User should be authenticated by it's api key."""
         auth = ApiKeyAuthentication()
         request = HttpRequest()
         authorization='ApiKey %s:%s' % (self.api_user.username, self.api_user.api_key.key)
@@ -177,6 +177,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         self.client = Client()
 
     def test_no_perms(self):
+        """User() should have only GET permission"""
         # sanity check: user has no permissions
         self.assertFalse(self.api_user.get_all_permissions())
 
@@ -194,6 +195,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
             )
 
     def test_add_perm(self):
+        """User() should have add permission granted."""
         request = HttpRequest()
         request.user = self.api_user
 
@@ -204,6 +206,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
             EnvironmentResource()._meta.authorization.is_authorized(request))
 
     def test_change_perm(self):
+        """User() should have change permission granted."""
         request = HttpRequest()
         request.user = self.api_user
 
@@ -214,6 +217,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
             EnvironmentResource()._meta.authorization.is_authorized(request))
 
     def test_delete_perm(self):
+        """User() should have delete permission granted."""
         request = HttpRequest()
         request.user = self.api_user
 
@@ -224,6 +228,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
             EnvironmentResource()._meta.authorization.is_authorized(request))
 
     def test_all(self):
+        """User() should have add, change, delete permissions granted."""
         request = HttpRequest()
         request.user = self.api_user
 
@@ -239,6 +244,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
             )
 
     def test_patch_perms(self):
+        """User() should have patch (add, change, delete) permissions granted."""
         request = HttpRequest()
         request.user = self.api_user
         request.method = 'PATCH'
@@ -261,6 +267,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
             EnvironmentResource()._meta.authorization.is_authorized(request))
 
     def test_unrecognized_method(self):
+        """User() should not have the permission to call non-existent method."""
         request = HttpRequest()
         self.api_user.user_permissions.clear()
         request.user = self.api_user
@@ -271,12 +278,19 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
             EnvironmentResource()._meta.authorization.is_authorized(request))
 
     def test_get_environment(self):
-        """Should get an existing environment"""
+        """Should get an environment when given an existing ID"""
         response = self.client.get(
             '/api/v1/environment/1/?username={0}&api_key={1}'.format(
                 self.api_user.username, self.api_user.api_key.key))
         self.assertEquals(response.status_code, 200)
         self.assertEqual(json.loads(response.content)['name'], "Dual Core")
+
+    def test_get_non_existing_environment(self):
+        """Should return 404 when given a non existing environment ID"""
+        response = self.client.get(
+            '/api/v1/environment/999/?username={0}&api_key={1}'.format(
+                self.api_user.username, self.api_user.api_key.key))
+        self.assertEquals(response.status_code, 404)
 
     def test_get_environment_all_fields(self):
         """Should get all fields for an environment"""
@@ -425,6 +439,7 @@ class ProjectTest(FixtureTestCase):
         self.client = Client()
 
     def test_all(self):
+        """User should have all permissions granted."""
         request = HttpRequest()
         request.user = self.api_user
 
@@ -1204,6 +1219,7 @@ class ResultBundleTestCase(FixtureTestCase):
         self.env1.save()
 
     def test_populate_and_save(self):
+        """Should populate ResultBundle() with data"""
         bundle = ResultBundle(**self.data1)
         bundle._populate_obj_by_data()
         # should raise exception if not OK
@@ -1233,7 +1249,7 @@ class ResultBundleTestCase(FixtureTestCase):
         self.assertRaises(ImmediateHttpResponse, ResultBundle, **modified_data)
 
     def test_date_attr_set(self):
-        """Check if date attr of Result() is set if not given"""
+        """Should add date attr to Result() obj if date is not given"""
         # date is set automatically
         modified_data = copy.deepcopy(self.data1)
         bundle = ResultBundle(**modified_data)
@@ -1247,7 +1263,7 @@ class ResultBundleTestCase(FixtureTestCase):
         self.assertRaises(ImmediateHttpResponse, ResultBundle, **modified_data)
 
     def test_optional_data(self):
-        """Check handling of optional data"""
+        """Should save optional data."""
         data = dict(self.data1.items() + self.data_optional.items())
         bundle = ResultBundle(**data)
         bundle.save()
@@ -1259,8 +1275,8 @@ class ResultBundleTestCase(FixtureTestCase):
         self.assertEqual(bundle.obj.val_min,
                          float(self.data_optional['val_min']))
 
-    def test_non_exiting_items(self):
-        """Check handling of optional data"""
+    def test_overwrite_exiting_items(self):
+        """Should overwrite existing attributes"""
         modified_data = copy.deepcopy(self.data1)
         modified_data['commitid'] = '0b31bf33a469ac2cb1949666eea54d69a36c3724'
         modified_data['project'] = 'Cython'

@@ -43,7 +43,6 @@ from tastypie.http import HttpBadRequest, HttpCreated, HttpNotImplemented
 from tastypie.resources import ModelResource, Resource
 from tastypie import fields
 from tastypie.authorization import Authorization, DjangoAuthorization
-#from tastypie.authentication import ApiKeyAuthentication, Authentication, MultiAuthentication
 from tastypie.authentication import Authentication, ApiKeyAuthentication, MultiAuthentication
 from tastypie.models import create_api_key
 from tastypie.utils.dict import dict_strip_unicode_keys

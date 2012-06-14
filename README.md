@@ -35,8 +35,7 @@ can take a long time. Please be patient.
 # Installation
 
 * Download the last stable release from
-  [http://github.com/tobami/codespeed/downloads](http://github.com/tobami/codespeed/downloads)
-  and unpack it
+  [http://github.com/tobami/codespeed/downloads](http://github.com/tobami/codespeed/downloads), unpack it and install it with `python setup.py install`.
 * To get started, you can use the `example` directory as a starting point for your Django project, which can be normally configured by editing `example/settings.py`.
 * For simplicity, you can use the default sqlite configuration, which will save
   the data to a database named `example/data.db`

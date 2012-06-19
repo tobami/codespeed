@@ -274,10 +274,6 @@ class ResultBundle(Bundle):
         self.obj.branch = self.obj.revision.branch
         #self.obj.result = self.obj
         setattr(self.obj, 'result', self.obj)
-        # TODO (a8): add user to models
-        setattr(self.obj, 'user', User.objects.get(pk=1))
-        #setattr(self.obj, 'user', None)
-        #setattr(self.obj, 'notify', None)
 
     def _check_data(self):
         """See if all mandatory data is there"""
@@ -375,8 +371,6 @@ class ResultBundleResource(Resource):
     benchmark = fields.ToOneField(BenchmarkResource, 'benchmark')
     environment = fields.ToOneField(EnvironmentResource, 'environment')
     result = fields.ToOneField(ResultResource, 'result')
-    #user = fields.ToOneField(UserResource, 'user', null=True)
-    #notify = fields.CharField(attribute='notify', null=True)
 
     class Meta:
         resource_name = 'benchmark-result'
@@ -418,10 +412,6 @@ class ResultBundleResource(Resource):
         result.project = result.executable.project
         result.branch = result.revision.branch
         setattr(result, 'result', result)
-        # TODO (a8): add user to models
-        #setattr(result, 'user', User.objects.get(pk=1))
-        #setattr(result, 'user', None)
-        #setattr(result, 'notify', None)
         return result
 
     def obj_create(self, bundle, request=None, **kwargs):

@@ -212,18 +212,19 @@ class ResultBundle(Bundle):
         """
         def populate(key):
             return {
-                'project': lambda: Project.objects.get_or_create(
-                    name=self.data['project']),
-                'executable': lambda: Executable.objects.get_or_create(
-                    name=self.data['executable'], project=self.obj.project
-                ),
-                'benchmark': lambda: Benchmark.objects.get_or_create(
-                    name=self.data['benchmark']),
-                'environment': lambda: (Environment.objects.get(
-                    name=self.data['environment']), False),
-                'branch': lambda: Branch.objects.get_or_create(
-                    name=self.data['branch'], project=self.obj.project),
-            }.get(key, (None, None))()
+                'project': lambda: ProjectResource().get_via_uri(
+                    self.data['project']),
+                'executable': lambda: ExecutableResource().get_via_uri(
+                    self.data['executable']),
+                'benchmark': lambda: BenchmarkResource().get_via_uri(
+                    self.data['benchmark']),
+                'environment': lambda: EnvironmentResource().get_via_uri(
+                    self.data['environment']),
+                'branch': lambda: BranchResource().get_via_uri(
+                    self.data['branch']),
+                'revision': lambda: RevisionResource().get_via_uri(
+                    self.data['commitid']),
+            }.get(key, None)()
 
         try:
             self.obj.value = float(self.data['result_value'])
@@ -235,10 +236,10 @@ class ResultBundle(Bundle):
             raise ImmediateHttpResponse(
                 response=HttpBadRequest(u"Value needs to be a number"))
         for key in [k for k in self.mandatory_keys \
-                    if k not in ('result_value', 'revision')]:
+                    if k not in ('result_value',)]:
             try:
                 #populate
-                (item, created) = populate(key)
+                item = populate(key)
                 setattr(self.obj, key, item)
             except Exception, error:
                 logging.error("Data for field %s: %s not found. %s" % (
@@ -247,13 +248,6 @@ class ResultBundle(Bundle):
                     response=HttpBadRequest(u"Error finding: {0}={1}".format(
                         key, self.data[key]
                     )))
-
-        # find the revision
-        self.obj.revision, created = Revision.objects.get_or_create(
-            commitid=self.data['commitid'],
-            project=self.obj.project,
-            branch=self.obj.branch,
-            )
         # populate optional data
         for key in [k for k in self.optional_keys \
                     if k not in ('date')]:
@@ -293,8 +287,8 @@ class ResultBundle(Bundle):
 
         # Check that the Environment exists
         try:
-            self.obj.environment = Environment.objects.get(
-                name=self.data['environment'])
+            self.obj.environment = EnvironmentResource().get_via_uri(
+                self.data['environment'])
         except Environment.DoesNotExist:
             error_text = 'Environment: {0} not found in database.'.format(
                 self.data['environment'])
@@ -336,7 +330,7 @@ class ResultBundle(Bundle):
                 raise ImmediateHttpResponse(
                     response=HttpBadRequest(error_text))
 
-    def save(self):
+    def hydrate_and_save(self):
             """Save self.obj which is an instance of Result()
 
                 First populate the Result() instance with self.data
@@ -393,7 +387,6 @@ class ResultBundleResource(Resource):
         if self._meta.api_name is not None:
             kwargs['api_name'] = self._meta.api_name
 
-        #FIXME (a8): reverse url should point to ResultResource()
         return self._build_reverse_url("api_dispatch_detail", kwargs=kwargs)
 
     def get_object_list(self, request):
@@ -416,8 +409,10 @@ class ResultBundleResource(Resource):
 
     def obj_create(self, bundle, request=None, **kwargs):
         # not calling hydrate here since bundle.save() has that functionality
+        # self.full_hydrate(bundle) will try to hydrate result which is not
+        # there yet
         #bundle = self.full_hydrate(bundle)
-        bundle.save()
+        bundle.hydrate_and_save()
         return bundle
 
     def obj_update(self, bundle, request=None, **kwargs):

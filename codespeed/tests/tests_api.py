@@ -1191,12 +1191,12 @@ class ResultBundleTestCase(FixtureTestCase):
     def setUp(self):
         super(ResultBundleTestCase, self).setUp()
         self.data1 = {
-            'commitid': '2',
-            'branch': 'default', # Always use default for trunk/master/tip
-            'project': 'MyProject',
-            'executable': 'myexe O3 64bits',
-            'benchmark': 'float',
-            'environment': "Bulldozer",
+            'commitid': '/api/v1/revision/2/',
+            'branch': '/api/v1/branch/1/', # Always use default for trunk/master/tip
+            'project': '/api/v1/project/2/',
+            'executable': '/api/v1/executable/1/',
+            'benchmark': '/api/v1/benchmark/1/',
+            'environment': '/api/v1/environment/2/',
             'result_value': 4000,
             }
         DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -1223,23 +1223,24 @@ class ResultBundleTestCase(FixtureTestCase):
         bundle = ResultBundle(**self.data1)
         bundle._populate_obj_by_data()
         # should raise exception if not OK
-        bundle.save()
+        bundle.hydrate_and_save()
         self.assert_(True)
 
     def test_save_same_result_again(self):
         """Save a previously saved result. Expected is an IntegrityError"""
         modified_data = copy.deepcopy(self.data1)
-        modified_data['environment'] = "Dual Core"
+        modified_data['environment'] = '/api/v1/environment/1/'
+        modified_data['project'] = '/api/v1/project/1/'
         bundle = ResultBundle(**modified_data)
         bundle._populate_obj_by_data()
-        self.assertRaises(IntegrityError, bundle.save)
+        self.assertRaises(IntegrityError, bundle.hydrate_and_save)
 
     def test_for_nonexistent_environment(self):
         """Save data using non existing environment. Expected is an
         ImmediateHttpResponse
         """
         modified_data = copy.deepcopy(self.data1)
-        modified_data['environment'] = "Foo the Bar"
+        modified_data['environment'] = '/api/v1/environment/3/'
         self.assertRaises(ImmediateHttpResponse, ResultBundle, **modified_data)
 
     def test_insufficient_data(self):
@@ -1253,7 +1254,7 @@ class ResultBundleTestCase(FixtureTestCase):
         # date is set automatically
         modified_data = copy.deepcopy(self.data1)
         bundle = ResultBundle(**modified_data)
-        bundle.save()
+        bundle.hydrate_and_save()
         self.assertIsInstance(bundle.obj.date, datetime)
         # date set by value
         modified_data['date'] = '2011-05-05 03:01:45'
@@ -1266,7 +1267,7 @@ class ResultBundleTestCase(FixtureTestCase):
         """Should save optional data."""
         data = dict(self.data1.items() + self.data_optional.items())
         bundle = ResultBundle(**data)
-        bundle.save()
+        bundle.hydrate_and_save()
         self.assertIsInstance(bundle.obj.date, datetime)
         self.assertEqual(bundle.obj.std_dev,
                          float(self.data_optional['std_dev']))
@@ -1274,22 +1275,6 @@ class ResultBundleTestCase(FixtureTestCase):
                          float(self.data_optional['val_max']))
         self.assertEqual(bundle.obj.val_min,
                          float(self.data_optional['val_min']))
-
-    def test_overwrite_exiting_items(self):
-        """Should overwrite existing attributes"""
-        modified_data = copy.deepcopy(self.data1)
-        modified_data['commitid'] = '0b31bf33a469ac2cb1949666eea54d69a36c3724'
-        modified_data['project'] = 'Cython'
-        modified_data['benchmark'] = 'Django Template'
-        modified_data['executable'] = 'pypy-jit'
-        bundle = ResultBundle(**modified_data)
-        bundle.save()
-        self.assertEqual(bundle.obj.revision.commitid,
-                         modified_data['commitid'])
-        self.assertEqual(bundle.obj.benchmark.name,
-                         modified_data['benchmark'])
-        self.assertEqual(bundle.obj.project.name,
-                         modified_data['project'])
 
 
 class ResultBundleResourceTestCase(FixtureTestCase):
@@ -1308,12 +1293,12 @@ class ResultBundleResourceTestCase(FixtureTestCase):
             'delete_result', 'codespeed', 'result')
 
         self.data1 = {
-            'commitid': '2',
-            'branch': 'default', # Always use default for trunk/master/tip
-            'project': 'MyProject',
-            'executable': 'myexe O3 64bits',
-            'benchmark': 'float',
-            'environment': "Bulldozer",
+            'commitid': '/api/v1/revision/2/',
+            'branch': '/api/v1/branch/1/', # Always use default for trunk/master/tip
+            'project': '/api/v1/project/2/',
+            'executable': '/api/v1/executable/1/',
+            'benchmark': '/api/v1/benchmark/1/',
+            'environment': '/api/v1/environment/2/',
             'result_value': 4000,
             }
         self.data_optional = {
@@ -1374,6 +1359,22 @@ class ResultBundleResourceTestCase(FixtureTestCase):
                                     content_type='application/json',
                                     **self.post_auth)
         self.assertEquals(response.status_code, 201)
+
+    def test_post_invalid_data(self):
+        """Should save a new result with mandatory and optional data"""
+        request = HttpRequest()
+        request.user = self.api_user
+
+        request.user.user_permissions.add(self.add)
+
+        modified_data = copy.deepcopy(self.data1)
+        # environment does not exist
+        modified_data['environment'] = '/api/v1/environment/5/'
+        response = self.client.post('/api/v1/benchmark-result/',
+                                    data=json.dumps(modified_data),
+                                    content_type='application/json',
+                                    **self.post_auth)
+        self.assertEquals(response.status_code, 400)
 
     def test_get_one(self):
         """Should get a result bundle"""

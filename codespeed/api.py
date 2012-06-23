@@ -329,12 +329,12 @@ class ResultBundle(Bundle):
                     response=HttpBadRequest(error_text))
 
     def hydrate_and_save(self):
-            """Save self.obj which is an instance of Result()
+        """Save self.obj which is an instance of Result()
 
-                First populate the Result() instance with self.data
-            """
-            self._populate_obj_by_data()
-            self.obj.save()
+           First populate the Result() instance with self.data
+        """
+        self._populate_obj_by_data()
+        self.obj.save()
 
 
 class ResultBundleResource(Resource):

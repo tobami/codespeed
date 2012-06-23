@@ -211,20 +211,18 @@ class ResultBundle(Bundle):
         get everything except the result, 2nd try reverse lookup
         """
         def populate(key):
-            return {
-                'project': lambda: ProjectResource().get_via_uri(
-                    self.data['project']),
-                'executable': lambda: ExecutableResource().get_via_uri(
-                    self.data['executable']),
-                'benchmark': lambda: BenchmarkResource().get_via_uri(
-                    self.data['benchmark']),
-                'environment': lambda: EnvironmentResource().get_via_uri(
-                    self.data['environment']),
-                'branch': lambda: BranchResource().get_via_uri(
-                    self.data['branch']),
-                'revision': lambda: RevisionResource().get_via_uri(
-                    self.data['commitid']),
-                }.get(key, None)()
+            return {'project': lambda: ProjectResource().get_via_uri(
+                        self.data['project']),
+                    'executable': lambda: ExecutableResource().get_via_uri(
+                        self.data['executable']),
+                    'benchmark': lambda: BenchmarkResource().get_via_uri(
+                        self.data['benchmark']),
+                    'environment': lambda: EnvironmentResource().get_via_uri(
+                        self.data['environment']),
+                    'branch': lambda: BranchResource().get_via_uri(
+                        self.data['branch']),
+                    'revision': lambda: RevisionResource().get_via_uri(
+                        self.data['commitid']),}.get(key, None)()
 
         try:
             self.obj.value = float(self.data['result_value'])

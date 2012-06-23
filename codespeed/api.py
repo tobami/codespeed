@@ -224,7 +224,7 @@ class ResultBundle(Bundle):
                     self.data['branch']),
                 'revision': lambda: RevisionResource().get_via_uri(
                     self.data['commitid']),
-            }.get(key, None)()
+                }.get(key, None)()
 
         try:
             self.obj.value = float(self.data['result_value'])

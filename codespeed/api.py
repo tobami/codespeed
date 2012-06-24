@@ -43,7 +43,7 @@ from tastypie.http import HttpBadRequest, HttpCreated, HttpNotImplemented
 from tastypie.resources import ModelResource, Resource
 from tastypie import fields
 from tastypie.authorization import Authorization, DjangoAuthorization
-from tastypie.authentication import ApiKeyAuthentication
+from tastypie.authentication import Authentication, ApiKeyAuthentication, MultiAuthentication
 from tastypie.models import create_api_key
 from tastypie.utils.dict import dict_strip_unicode_keys
 from codespeed.models import (Environment, Project, Result, Branch, Revision,
@@ -63,9 +63,8 @@ class UserResource(ModelResource):
         allowed_methods = ['get']
         #excludes = ['email', 'password', 'is_superuser']
         # Add it here.
-        #authorization = DjangoAuthorization()
-        authorization = Authorization()
-        #authentication = ApiKeyAuthentication()
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
 
 
 class ProjectResource(ModelResource):
@@ -73,7 +72,9 @@ class ProjectResource(ModelResource):
 
     class Meta:
         queryset = Project.objects.all()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        # Note, the order for MultiAuthentication matters!
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class BranchResource(ModelResource):
@@ -83,7 +84,8 @@ class BranchResource(ModelResource):
 
     class Meta:
         queryset = Branch.objects.all()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class RevisionResource(ModelResource):
@@ -94,7 +96,8 @@ class RevisionResource(ModelResource):
 
     class Meta:
         queryset = Revision.objects.all()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class ExecutableResource(ModelResource):
@@ -104,7 +107,8 @@ class ExecutableResource(ModelResource):
 
     class Meta:
         queryset = Executable.objects.all()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class BenchmarkResource(ModelResource):
@@ -112,7 +116,8 @@ class BenchmarkResource(ModelResource):
 
     class Meta:
         queryset = Benchmark.objects.all()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class EnvironmentResource(ModelResource):
@@ -121,15 +126,22 @@ class EnvironmentResource(ModelResource):
     class Meta:
         queryset = Environment.objects.all()
         resource_name = 'environment'
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = ApiKeyAuthentication()
+        #authentication = MultiAuthentication(Authentication(), ApiKeyAuthentication())
 
 
 class ResultResource(ModelResource):
     """Resource for Result()"""
+    revision = fields.ToOneField(RevisionResource, 'revision')
+    executable = fields.ToOneField(ExecutableResource, 'executable')
+    benchmark = fields.ToOneField(BenchmarkResource, 'benchmark')
+    environment = fields.ToOneField(EnvironmentResource, 'environment')
 
     class Meta:
         queryset = Result.objects.all()
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class ReportResource(ModelResource):
@@ -142,7 +154,8 @@ class ReportResource(ModelResource):
     class Meta:
         queryset = Report.objects.all()
         allowed_methods = ['get']
-        authorization = Authorization()
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
 
 
 class ResultBundle(Bundle):
@@ -198,19 +211,18 @@ class ResultBundle(Bundle):
         get everything except the result, 2nd try reverse lookup
         """
         def populate(key):
-            return {
-                'project': lambda: Project.objects.get_or_create(
-                    name=self.data['project']),
-                'executable': lambda: Executable.objects.get_or_create(
-                    name=self.data['executable'], project=self.obj.project
-                ),
-                'benchmark': lambda: Benchmark.objects.get_or_create(
-                    name=self.data['benchmark']),
-                'environment': lambda: (Environment.objects.get(
-                    name=self.data['environment']), False),
-                'branch': lambda: Branch.objects.get_or_create(
-                    name=self.data['branch'], project=self.obj.project),
-            }.get(key, (None, None))()
+            return {'project': lambda: ProjectResource().get_via_uri(
+                        self.data['project']),
+                    'executable': lambda: ExecutableResource().get_via_uri(
+                        self.data['executable']),
+                    'benchmark': lambda: BenchmarkResource().get_via_uri(
+                        self.data['benchmark']),
+                    'environment': lambda: EnvironmentResource().get_via_uri(
+                        self.data['environment']),
+                    'branch': lambda: BranchResource().get_via_uri(
+                        self.data['branch']),
+                    'revision': lambda: RevisionResource().get_via_uri(
+                        self.data['commitid']),}.get(key, None)()
 
         try:
             self.obj.value = float(self.data['result_value'])
@@ -222,10 +234,10 @@ class ResultBundle(Bundle):
             raise ImmediateHttpResponse(
                 response=HttpBadRequest(u"Value needs to be a number"))
         for key in [k for k in self.mandatory_keys \
-                    if k not in ('result_value', 'revision')]:
+                    if k not in ('result_value',)]:
             try:
                 #populate
-                (item, created) = populate(key)
+                item = populate(key)
                 setattr(self.obj, key, item)
             except Exception, error:
                 logging.error("Data for field %s: %s not found. %s" % (
@@ -234,13 +246,6 @@ class ResultBundle(Bundle):
                     response=HttpBadRequest(u"Error finding: {0}={1}".format(
                         key, self.data[key]
                     )))
-
-        # find the revision
-        self.obj.revision, created = Revision.objects.get_or_create(
-            commitid=self.data['commitid'],
-            project=self.obj.project,
-            branch=self.obj.branch,
-            )
         # populate optional data
         for key in [k for k in self.optional_keys \
                     if k not in ('date')]:
@@ -261,10 +266,6 @@ class ResultBundle(Bundle):
         self.obj.branch = self.obj.revision.branch
         #self.obj.result = self.obj
         setattr(self.obj, 'result', self.obj)
-        # TODO (a8): add user to models
-        setattr(self.obj, 'user', User.objects.get(pk=1))
-        #setattr(self.obj, 'user', None)
-        setattr(self.obj, 'notify', None)
 
     def _check_data(self):
         """See if all mandatory data is there"""
@@ -284,8 +285,8 @@ class ResultBundle(Bundle):
 
         # Check that the Environment exists
         try:
-            self.obj.environment = Environment.objects.get(
-                name=self.data['environment'])
+            self.obj.environment = EnvironmentResource().get_via_uri(
+                self.data['environment'])
         except Environment.DoesNotExist:
             error_text = 'Environment: {0} not found in database.'.format(
                 self.data['environment'])
@@ -327,13 +328,13 @@ class ResultBundle(Bundle):
                 raise ImmediateHttpResponse(
                     response=HttpBadRequest(error_text))
 
-    def save(self):
-            """Save self.obj which is an instance of Result()
+    def hydrate_and_save(self):
+        """Save self.obj which is an instance of Result()
 
-                First populate the Result() instance with self.data
-            """
-            self._populate_obj_by_data()
-            self.obj.save()
+           First populate the Result() instance with self.data
+        """
+        self._populate_obj_by_data()
+        self.obj.save()
 
 
 class ResultBundleResource(Resource):
@@ -352,7 +353,7 @@ class ResultBundleResource(Resource):
 
         not mandatory data
          'notify'  -  Send notification to registered user if result varies from
-                      previous results
+                      previous results, currently not implemented
     """
 
     revision = fields.ToOneField(RevisionResource, 'revision')
@@ -362,12 +363,13 @@ class ResultBundleResource(Resource):
     benchmark = fields.ToOneField(BenchmarkResource, 'benchmark')
     environment = fields.ToOneField(EnvironmentResource, 'environment')
     result = fields.ToOneField(ResultResource, 'result')
-    user = fields.ToOneField(UserResource, 'user', null=True)
-    notify = fields.CharField(attribute='notify', null=True)
 
     class Meta:
         resource_name = 'benchmark-result'
-        authorization = Authorization()
+        object_class = Result
+        authorization = DjangoAuthorization()
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             Authentication())
         allowed_methods = ['get', 'post', 'put', 'delete']
 
     def get_resource_uri(self, bundle_or_obj):
@@ -383,7 +385,6 @@ class ResultBundleResource(Resource):
         if self._meta.api_name is not None:
             kwargs['api_name'] = self._meta.api_name
 
-        #FIXME (a8): reverse url should point to ResultResource()
         return self._build_reverse_url("api_dispatch_detail", kwargs=kwargs)
 
     def get_object_list(self, request):
@@ -402,16 +403,14 @@ class ResultBundleResource(Resource):
         result.project = result.executable.project
         result.branch = result.revision.branch
         setattr(result, 'result', result)
-        # TODO (a8): add user to models
-        #setattr(result, 'user', User.objects.get(pk=1))
-        setattr(result, 'user', None)
-        #setattr(result, 'notify', None)
         return result
 
     def obj_create(self, bundle, request=None, **kwargs):
-        # FIXME (a8): Make full_hydrate work
+        # not calling hydrate here since bundle.save() has that functionality
+        # self.full_hydrate(bundle) will try to hydrate result which is not
+        # there yet
         #bundle = self.full_hydrate(bundle)
-        bundle.save()
+        bundle.hydrate_and_save()
         return bundle
 
     def obj_update(self, bundle, request=None, **kwargs):
@@ -456,4 +455,7 @@ class ResultBundleResource(Resource):
         return HttpNotImplemented()
 
     def rollback(self, bundles):
+        pass
+
+    def detail_uri_kwargs(self):
         pass

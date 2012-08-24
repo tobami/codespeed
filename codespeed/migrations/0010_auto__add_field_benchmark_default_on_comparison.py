@@ -5,9 +5,9 @@ from south.v2 import SchemaMigration
 from django.db import models
 
 class Migration(SchemaMigration):
+    no_dry_run = True
 
     def forwards(self, orm):
-        
         # Adding field 'Benchmark.default_on_comparison'
         db.add_column('codespeed_benchmark', 'default_on_comparison', self.gf('django.db.models.fields.BooleanField')(default=True), keep_default=False)
         for bench in orm.Benchmark.objects.all():
@@ -16,7 +16,6 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
         # Deleting field 'Benchmark.default_on_comparison'
         db.delete_column('codespeed_benchmark', 'default_on_comparison')
 

@@ -1,4 +1,4 @@
 *.pyc
 *.db
-example/repos/*
+sample_project/repos/*
 override

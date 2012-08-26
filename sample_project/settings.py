@@ -6,6 +6,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
+TOPDIR = os.path.split(BASEDIR)[1]
 
 #: The directory which should contain checked out source repositories:
 REPOSITORY_BASE_PATH = os.path.join(BASEDIR, "repos")
@@ -92,8 +93,7 @@ if DEBUG:
     # set shown level of logging output to debug
     logging.basicConfig(level=logging.DEBUG)
 
-
-ROOT_URLCONF = 'example.urls'
+ROOT_URLCONF = '{0}.urls'.format(TOPDIR)
 
 TEMPLATE_DIRS = (
     os.path.join(BASEDIR, 'templates'),

@@ -14,7 +14,9 @@ class Migration(SchemaMigration):
         db.alter_column('codespeed_revision', 'branch_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['codespeed.Branch']))
 
         # Adding index on 'Revision', fields ['branch']
-        db.create_index('codespeed_revision', ['branch_id'])
+        # NOTE: commented out because it can cause an
+        # "index codespeed_revision_d56253ba already exists"
+        # db.create_index('codespeed_revision', ['branch_id'])
 
 
     def backwards(self, orm):

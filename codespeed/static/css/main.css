@@ -292,7 +292,7 @@ table.reports caption a { color: black; }
 table.reports caption a img {
     border: 0; vertical-align: middle; height: 14px; margin-bottom: 1px; }
 table.reports td { padding: 0.4em; }
-table.reports td span { opacity: 0.4; }
+table.reports tr.status-none td.summary { opacity: 0.4; }
 
 table.tablesorter { margin-right: 0.8em; margin-bottom: 0.8em; }
 

@@ -478,6 +478,12 @@ class Report(models.Model):
         return reverse("changes") + "?rev=%s&exe=%s&env=%s" % (
             self.revision.commitid, self.executable.id, self.environment.name)
 
+    def item_description(self):
+        if self.summary == "":
+            return "no significant changes"
+        else:
+            return self.summary
+
     def _save_tablecache(self, data):
         self._tablecache = json.dumps(data)
 

@@ -68,8 +68,8 @@ def getlogs(endrev, startrev):
         date = datetime.datetime.fromtimestamp(
                                     int(date_t)).strftime("%Y-%m-%d %H:%M:%S")
 
-        logs.append({'date': date, 'message': subject, 'body': body,
-                        'author': author_name, 'author_email': author_email,
-                        'commitid': commit_id, 'short_commit_id': short_commit_id})
+        logs.append({'date': date, 'message': subject, 'commitid': commit_id,
+                     'author': author_name, 'author_email': author_email,
+                     'body': body, 'short_commit_id': short_commit_id})
 
     return logs

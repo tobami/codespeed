@@ -3,9 +3,9 @@
 """
 Tests related to RESTful API
 """
-
 from datetime import datetime
-import copy, json
+import copy
+import json
 import logging
 import unittest
 
@@ -16,16 +16,17 @@ from django.http import HttpRequest
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.models import User, Permission
-from tastypie.authorization import Authorization, ReadOnlyAuthorization, DjangoAuthorization
+from tastypie.authorization import (Authorization, ReadOnlyAuthorization,
+                                    DjangoAuthorization)
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.models import ApiKey, create_api_key
 from tastypie.http import HttpUnauthorized
 from tastypie.authentication import ApiKeyAuthentication
+
 from codespeed.api import EnvironmentResource, ProjectResource
 from codespeed.models import (Project, Benchmark, Revision, Branch,
                               Executable, Environment, Result, Report)
 from codespeed.api import ResultBundle
-
 from codespeed import settings as default_settings
 
 
@@ -40,8 +41,8 @@ class FixtureTestCase(test.TestCase):
         john_doe = User.objects.create_user(
             username='johndoe', email='api@foo.bar', password='password')
         john_doe.save()
-        authorization='ApiKey {0}:{1}'.format(self.api_user.username,
-                                              self.api_user.api_key.key)
+        authorization = 'ApiKey {0}:{1}'.format(self.api_user.username,
+                                                self.api_user.api_key.key)
         self.post_auth = {'HTTP_AUTHORIZATION': authorization}
 
 
@@ -138,7 +139,8 @@ class UserTest(FixtureTestCase):
         """User should be authenticated by it's api key."""
         auth = ApiKeyAuthentication()
         request = HttpRequest()
-        authorization='ApiKey %s:%s' % (self.api_user.username, self.api_user.api_key.key)
+        authorization = 'ApiKey %s:%s' % (self.api_user.username,
+                                          self.api_user.api_key.key)
         request.META['HTTP_AUTHORIZATION'] = authorization
         self.assertEqual(auth.is_authenticated(request), True)
 
@@ -522,12 +524,9 @@ class ExecutableTest(FixtureTestCase):
     """Test Executable() API"""
 
     def setUp(self):
-        self.data = dict(
-            name="Fibo",
-            description="Fibonacci the Lame",
-            )
+        self.data = dict(name="Fibo", description="Fibonacci the Lame",)
         # project is a ForeignKey and is not added automatically by tastypie
-        self.project=Project.objects.get(pk=1)
+        self.project = Project.objects.get(pk=1)
         self.executable = Executable(project=self.project, **self.data)
         self.executable.save()
         self.client = Client()
@@ -626,7 +625,7 @@ class BranchTest(FixtureTestCase):
         self.assertEquals(json.loads(response.content)['project'],
                           '/api/v1/project/1/')
         self.assertEquals(json.loads(response.content)['resource_uri'],
-                          '/api/v1/branch/%s/' %(self.branch1.id,))
+                          '/api/v1/branch/%s/' % (self.branch1.id,))
 
     def test_post(self):
         """Should save a new branch"""
@@ -852,8 +851,8 @@ class ExecutableTest(FixtureTestCase):
         self.executable2_data = dict(
             name="sleep",
             description="Sleep benchmark",
-            project= '/api/v1/project/{0}/'.format(self.project1.id),
-            )
+            project='/api/v1/project/{0}/'.format(self.project1.id),
+        )
         self.client = Client()
 
     def test_get_executable(self):
@@ -966,13 +965,13 @@ class BenchmarkTest(FixtureTestCase):
         self.benchmark1 = Benchmark.objects.get(pk=1)
         self.benchmark2_data = dict(
             name="sleep",
-            benchmark_type = 'C',
-            description = 'fast faster fastest',
-            units_title = 'Time',
-            units = 'seconds',
-            lessisbetter = True,
-            default_on_comparison = True,
-            )
+            benchmark_type='C',
+            description='fast faster fastest',
+            units_title='Time',
+            units='seconds',
+            lessisbetter=True,
+            default_on_comparison=True,
+        )
         self.benchmark2 = Benchmark(**self.benchmark2_data)
         self.benchmark2.save()
         self.client = Client()
@@ -1089,8 +1088,8 @@ class ReportTest(FixtureTestCase):
         self.executable2_data = dict(
             name="Fibo",
             description="Fibonacci the Lame",
-            )
-        self.project=Project.objects.get(pk=1)
+        )
+        self.project = Project.objects.get(pk=1)
         self.executable2 = Executable(project=self.project,
                                       **self.executable2_data)
         self.executable2.save()
@@ -1281,8 +1280,8 @@ class ResultBundleResourceTestCase(FixtureTestCase):
     """Submitting new benchmark results"""
 
     DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
-    def setUp(self):
 
+    def setUp(self):
         super(ResultBundleResourceTestCase, self).setUp()
 
         self.add = Permission.objects.get_by_natural_key(

@@ -132,6 +132,8 @@ class Benchmark(models.Model):
     )
 
     name = models.CharField(unique=True, max_length=30)
+    parent = models.ForeignKey('self', verbose_name="parent",
+        help_text="allows to group benchmarks in hierarchies", null=True, default=None)
     benchmark_type = models.CharField(max_length=1, choices=B_TYPES, default='C')
     description = models.CharField(max_length=300, blank=True)
     units_title = models.CharField(max_length=30, default='Time')

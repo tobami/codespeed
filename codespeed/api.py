@@ -23,29 +23,33 @@ DELETE Environment() data:
 
 PUT a full result:
     curl --dump-header - -H "Content-Type: application/json" -X POST \
-        --data '{"commitid": "4", "branch": "default",  "project": "MyProject",\
-        "executable": "myexe O3 64bits", "benchmark": "float", "environment": \
-        "Quad Core", "result_value": 4000, "result": "4000"}' \
+        --data '{"commitid": "4", "branch": "default", \
+        "project": "MyProject", "executable": "myexe O3 64bits", \
+        "benchmark": "float", "environment": "Quad Core", \
+        "result_value": 4000, "result": "4000"}' \
         http://127.0.0.1:8000/api/v1/benchmark-result/
 
 See http://django-tastypie.readthedocs.org/en/latest/interacting.html
 """
 import logging
 from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.db import models
-from tastypie.bundle import Bundle
 from django.http import Http404
 from django.shortcuts import get_object_or_404
+from tastypie.bundle import Bundle
 from tastypie.bundle import Bundle
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.http import HttpBadRequest, HttpCreated, HttpNotImplemented
 from tastypie.resources import ModelResource, Resource
 from tastypie import fields
 from tastypie.authorization import Authorization, DjangoAuthorization
-from tastypie.authentication import Authentication, ApiKeyAuthentication, MultiAuthentication
+from tastypie.authentication import (Authentication, ApiKeyAuthentication,
+                                     MultiAuthentication)
 from tastypie.models import create_api_key
 from tastypie.utils.dict import dict_strip_unicode_keys
+
 from codespeed.models import (Environment, Project, Result, Branch, Revision,
                               Executable, Benchmark, Report)
 
@@ -74,7 +78,8 @@ class ProjectResource(ModelResource):
         queryset = Project.objects.all()
         authorization = DjangoAuthorization()
         # Note, the order for MultiAuthentication matters!
-        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             Authentication())
 
 
 class BranchResource(ModelResource):
@@ -85,7 +90,8 @@ class BranchResource(ModelResource):
     class Meta:
         queryset = Branch.objects.all()
         authorization = DjangoAuthorization()
-        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             Authentication())
 
 
 class RevisionResource(ModelResource):
@@ -97,7 +103,8 @@ class RevisionResource(ModelResource):
     class Meta:
         queryset = Revision.objects.all()
         authorization = DjangoAuthorization()
-        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             Authentication())
 
 
 class ExecutableResource(ModelResource):
@@ -108,7 +115,8 @@ class ExecutableResource(ModelResource):
     class Meta:
         queryset = Executable.objects.all()
         authorization = DjangoAuthorization()
-        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             Authentication())
 
 
 class BenchmarkResource(ModelResource):
@@ -117,7 +125,8 @@ class BenchmarkResource(ModelResource):
     class Meta:
         queryset = Benchmark.objects.all()
         authorization = DjangoAuthorization()
-        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             Authentication())
 
 
 class EnvironmentResource(ModelResource):
@@ -128,7 +137,8 @@ class EnvironmentResource(ModelResource):
         resource_name = 'environment'
         authorization = DjangoAuthorization()
         authentication = ApiKeyAuthentication()
-        #authentication = MultiAuthentication(Authentication(), ApiKeyAuthentication())
+        #authentication = MultiAuthentication(Authentication(),
+                                              #ApiKeyAuthentication())
 
 
 class ResultResource(ModelResource):
@@ -141,7 +151,8 @@ class ResultResource(ModelResource):
     class Meta:
         queryset = Result.objects.all()
         authorization = DjangoAuthorization()
-        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             Authentication())
 
 
 class ReportResource(ModelResource):
@@ -155,7 +166,8 @@ class ReportResource(ModelResource):
         queryset = Report.objects.all()
         allowed_methods = ['get']
         authorization = DjangoAuthorization()
-        authentication = MultiAuthentication(ApiKeyAuthentication(), Authentication())
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             Authentication())
 
 
 class ResultBundle(Bundle):
@@ -222,7 +234,7 @@ class ResultBundle(Bundle):
                     'branch': lambda: BranchResource().get_via_uri(
                         self.data['branch']),
                     'revision': lambda: RevisionResource().get_via_uri(
-                        self.data['commitid']),}.get(key, None)()
+                        self.data['commitid'])}.get(key, None)()
 
         try:
             self.obj.value = float(self.data['result_value'])
@@ -281,7 +293,8 @@ class ResultBundle(Bundle):
             elif not self.data[key]:
                 error_text = 'Value for key {0} is empty.'.format(key)
                 logging.error(error_text)
-                raise ImmediateHttpResponse(response=HttpBadRequest(error_text))
+                raise ImmediateHttpResponse(
+                    response=HttpBadRequest(error_text))
 
         # Check that the Environment exists
         try:
@@ -296,13 +309,10 @@ class ResultBundle(Bundle):
                     error_text
                 ))
         except Exception as e:
-            error_text = 'Error while looking up Environment: {0}, {1}.'.format(
-                self.data['environment'], e)
+            error_text = ('Error while looking up Environment: '
+                          '{0}, {1}.'.format(self.data['environment'], e))
             logging.error(error_text)
-            raise ImmediateHttpResponse(
-                response=HttpBadRequest(
-                    error_text
-                ))
+            raise ImmediateHttpResponse(response=HttpBadRequest(error_text))
         # check optional data
         for key in [k for k in self.optional_keys \
                     if k not in ('date',)]:
@@ -352,8 +362,8 @@ class ResultBundleResource(Resource):
         'result_value',
 
         not mandatory data
-         'notify'  -  Send notification to registered user if result varies from
-                      previous results, currently not implemented
+         'notify'  -  Send notification to registered user if result varies
+                      from previous results, currently not implemented
     """
 
     revision = fields.ToOneField(RevisionResource, 'revision')

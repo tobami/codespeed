@@ -76,4 +76,3 @@ def get_suite(*names, **kwargs):
     return suite
 
 suite = lambda: get_suite(__name__)
-

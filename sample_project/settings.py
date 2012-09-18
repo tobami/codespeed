@@ -5,7 +5,8 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-BASEDIR = os.path.dirname(__file__)
+BASEDIR = os.path.abspath(os.path.dirname(__file__))
+TOPDIR = os.path.split(BASEDIR)[1]
 
 #: The directory which should contain checked out source repositories:
 REPOSITORY_BASE_PATH = os.path.join(BASEDIR, "repos")
@@ -65,8 +66,15 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    #    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+)
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
 )
 
 if DEBUG:
@@ -85,8 +93,7 @@ if DEBUG:
     # set shown level of logging output to debug
     logging.basicConfig(level=logging.DEBUG)
 
-
-ROOT_URLCONF = 'example.urls'
+ROOT_URLCONF = '{0}.urls'.format(TOPDIR)
 
 TEMPLATE_DIRS = (
     os.path.join(BASEDIR, 'templates'),
@@ -113,9 +120,9 @@ INSTALLED_APPS = (
     'south',
     'tastypie',
 )
+SOUTH_TESTS_MIGRATE = False
 
 STATIC_URL = '/static/'
-
 STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
 
 # Codespeed settings that can be overwritten here.

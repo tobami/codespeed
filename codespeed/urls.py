@@ -3,6 +3,7 @@ from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
 from django.views.generic.simple import direct_to_template
 from tastypie.api import Api
+
 from codespeed.feeds import LatestEntries
 from codespeed.api import (UserResource, EnvironmentResource,
                            ProjectResource, ExecutableResource, ReportResource,

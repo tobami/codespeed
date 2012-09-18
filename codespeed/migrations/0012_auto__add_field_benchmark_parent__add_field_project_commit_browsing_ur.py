@@ -1,23 +1,30 @@
-# encoding: utf-8
+# -*- coding: utf-8 -*-
 import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
 
+
 class Migration(SchemaMigration):
-    no_dry_run = True
 
     def forwards(self, orm):
-        # Adding field 'Benchmark.default_on_comparison'
-        db.add_column('codespeed_benchmark', 'default_on_comparison', self.gf('django.db.models.fields.BooleanField')(default=True), keep_default=False)
-        for bench in orm.Benchmark.objects.all():
-            bench.default_on_comparison = bench.benchmark_type == 'C'
-            bench.save()
+        # Adding field 'Benchmark.parent'
+        db.add_column('codespeed_benchmark', 'parent',
+                      self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['codespeed.Benchmark'], null=True),
+                      keep_default=False)
+
+        # Adding field 'Project.commit_browsing_url'
+        db.add_column('codespeed_project', 'commit_browsing_url',
+                      self.gf('django.db.models.fields.CharField')(default='', max_length=200, blank=True),
+                      keep_default=False)
 
 
     def backwards(self, orm):
-        # Deleting field 'Benchmark.default_on_comparison'
-        db.delete_column('codespeed_benchmark', 'default_on_comparison')
+        # Deleting field 'Benchmark.parent'
+        db.delete_column('codespeed_benchmark', 'parent_id')
+
+        # Deleting field 'Project.commit_browsing_url'
+        db.delete_column('codespeed_project', 'commit_browsing_url')
 
 
     models = {
@@ -29,6 +36,7 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'lessisbetter': ('django.db.models.fields.BooleanField', [], {'default': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'}),
+            'parent': ('django.db.models.fields.related.ForeignKey', [], {'default': 'None', 'to': "orm['codespeed.Benchmark']", 'null': 'True'}),
             'units': ('django.db.models.fields.CharField', [], {'default': "'seconds'", 'max_length': '20'}),
             'units_title': ('django.db.models.fields.CharField', [], {'default': "'Time'", 'max_length': '30'})
         },
@@ -48,14 +56,15 @@ class Migration(SchemaMigration):
             'os': ('django.db.models.fields.CharField', [], {'max_length': '30', 'blank': 'True'})
         },
         'codespeed.executable': {
-            'Meta': {'object_name': 'Executable'},
+            'Meta': {'unique_together': "(('name', 'project'),)", 'object_name': 'Executable'},
             'description': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'}),
+            'name': ('django.db.models.fields.CharField', [], {'max_length': '30'}),
             'project': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'executables'", 'to': "orm['codespeed.Project']"})
         },
         'codespeed.project': {
             'Meta': {'object_name': 'Project'},
+            'commit_browsing_url': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True'}),
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'name': ('django.db.models.fields.CharField', [], {'unique': 'True', 'max_length': '30'}),
             'repo_pass': ('django.db.models.fields.CharField', [], {'max_length': '100', 'blank': 'True'}),

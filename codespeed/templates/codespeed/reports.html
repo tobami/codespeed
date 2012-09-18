@@ -4,7 +4,7 @@
     <tbody>
     {% for report in reports %}  <tr class="status-{{ report.colorcode }}">
         <td><label title="lessisbetter" style="display:none;">{{ report.get_absolute_url }}</label>{{ report.revision }}</td><td>{{ report.executable }}@{{ report.environment}}</td>
-        <td class="summary">{% ifequal report.summary "" %}<span class="nochanges">no significant changes</span>{% else %}{{ report.summary }}{% endifequal %}</td>
+        <td class="summary">{{ report.item_description }}</td>
     </tr>{% endfor %}
     </tbody>
 </table>

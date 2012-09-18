@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime, timedelta
-import copy, json, os
+import copy
+import json
+import os
 
 from django.test import TestCase
 from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.conf import settings
-from codespeed.models import (Project, Benchmark, Revision, Branch,
-    Executable, Environment, Result, Report)
+
+from codespeed.models import (Project, Benchmark, Revision, Branch, Executable,
+                              Environment, Result, Report)
 from codespeed.views import getbaselineexecutables
 from codespeed import settings as default_settings
 
@@ -65,9 +68,9 @@ class AddResult(TestCase):
         modified_data['revision_date'] = revision_date
         result_date = self.cdate + timedelta(minutes=2)
         modified_data['result_date'] = result_date
-        modified_data['std_dev']     = 1.11111
-        modified_data['max']         = 2
-        modified_data['min']         = 1.0
+        modified_data['std_dev'] = 1.11111
+        modified_data['max'] = 2
+        modified_data['min'] = 1.0
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)
         self.assertEquals(response.content, "Result data saved successfully")
@@ -176,37 +179,39 @@ class AddJSONResults(TestCase):
             'executable': 'pypy-c',
             'benchmark': 'Richards',
             'environment': 'bigdog',
-            'result_value': 456,},
+            'result_value': 456},
             {'commitid': '456',
             'project': 'pypy',
             'branch': 'default',
             'executable': 'pypy-c',
             'benchmark': 'Richards',
             'environment': 'bigdog',
-            'result_value': 457,},
+            'result_value': 457},
             {'commitid': '456',
             'project': 'pypy',
             'branch': 'default',
             'executable': 'pypy-c',
             'benchmark': 'Richards2',
             'environment': 'bigdog',
-            'result_value': 34,},
+            'result_value': 34},
             {'commitid': '789',
             'project': 'pypy',
             'branch': 'default',
             'executable': 'pypy-c',
             'benchmark': 'Richards',
             'environment': 'bigdog',
-            'result_value': 458,},
+            'result_value': 458},
         ]
 
     def test_add_correct_results(self):
         """Should add all results when the request data is valid"""
-        response = self.client.post(self.path, {'json' : json.dumps(self.data)})
+        response = self.client.post(self.path,
+                                    {'json': json.dumps(self.data)})
 
         # Check that we get a success response
         self.assertEquals(response.status_code, 202)
-        self.assertEquals(response.content, "All result data saved successfully")
+        self.assertEquals(response.content,
+                          "All result data saved successfully")
 
         # Check that the data was correctly saved
         e = Environment.objects.get(name='bigdog')
@@ -254,7 +259,8 @@ class AddJSONResults(TestCase):
         data = self.data[0]
         bad_name = 'bigdog1'
         data['environment'] = bad_name
-        response = self.client.post(self.path, {'json' : json.dumps(self.data)})
+        response = self.client.post(self.path,
+                                    {'json': json.dumps(self.data)})
 
         self.assertEquals(response.status_code, 400)
         self.assertEquals(response.content, "Environment " + bad_name + " not found")
@@ -267,7 +273,7 @@ class AddJSONResults(TestCase):
             backup = data[key]
             data[key] = ""
             response = self.client.post(self.path,
-                        {'json' : json.dumps(self.data)})
+                                        {'json': json.dumps(self.data)})
             self.assertEquals(response.status_code, 400)
             self.assertEquals(response.content, 'Value for key "' + key + '" empty in request')
             data[key] = backup
@@ -279,7 +285,7 @@ class AddJSONResults(TestCase):
             backup = data[key]
             del(data[key])
             response = self.client.post(self.path,
-                        {'json' : json.dumps(self.data)})
+                                        {'json': json.dumps(self.data)})
             self.assertEquals(response.status_code, 400)
             self.assertEquals(response.content, 'Key "' + key + '" missing from request')
             data[key] = backup
@@ -287,7 +293,8 @@ class AddJSONResults(TestCase):
     def test_report_is_created(self):
         '''Should create a report when adding json results for two revisions
         plus a third revision with one result less than the last one'''
-        response = self.client.post(self.path, {'json' : json.dumps(self.data)})
+        response = self.client.post(self.path,
+                                    {'json': json.dumps(self.data)})
 
         # Check that we get a success response
         self.assertEquals(response.status_code, 202)

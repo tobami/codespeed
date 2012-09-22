@@ -305,7 +305,7 @@ function setValuesOfInputFields(event) {
   });
 
   $("#baselinecolor").css("background-color", baselineColor);
-  $("#equidistant").attr('checked', valueOrDefault(event.parameters.equid, defaults.equidistant === "on"));
+  $("#equidistant").attr('checked', valueOrDefault(event.parameters.equid, defaults.equidistant) === "on");
 }
 
 function init(def) {

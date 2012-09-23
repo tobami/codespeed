@@ -88,6 +88,7 @@ function renderPlot(data) {
           series.push({renderer:$.jqplot.OHLCRenderer, rendererOptions:{errorBar:true}, showLabel: false, showMarker: true,
                      "label": $("label[for*='executable" + getColor(exe_id) + "']").html() + " error", color: "#C0C0C0"});
           errorSeries++;
+          console.log(error);
         }
       // FIXME if (branch !== "default") { label += " - " + branch; }
       var label = $("label[for*='executable" + exe_id + "']").html();

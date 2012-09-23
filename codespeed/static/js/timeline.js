@@ -69,6 +69,8 @@ function OnMarkerClickHandler(ev, gridpos, datapos, neighbor, plot) {
 function renderPlot(data) {
   var plotdata = [],
       series = [],
+      firstdates = [],
+      lastdates = [],
       lastvalues = [];//hopefully the smallest values for determining significant digits.
   seriesindex = [];
   var errorSeries = 0;
@@ -88,14 +90,20 @@ function renderPlot(data) {
           series.push({renderer:$.jqplot.OHLCRenderer, rendererOptions:{errorBar:true}, showLabel: false, showMarker: true,
                      "label": $("label[for*='executable" + getColor(exe_id) + "']").html() + " error", color: "#C0C0C0"});
           errorSeries++;
-          console.log(error);
         }
       // FIXME if (branch !== "default") { label += " - " + branch; }
       var label = $("label[for*='executable" + exe_id + "']").html();
       series.push({"label":  label, "color": getColor(exe_id)});
       seriesindex.push(exe_id);
-      plotdata.push(data.branches[branch][exe_id]);
-      lastvalues.push(data.branches[branch][exe_id][0][1]);
+      var exeData = data.branches[branch][exe_id];
+      plotdata.push(exeData);
+      var startDate = new Date(exeData[exeData.length - 1][0])
+      var endDate = new Date(exeData[0][0]);
+      startDate.setDate(startDate.getDate() - 1);
+      endDate.setDate(endDate.getDate() + 1);
+      firstdates.push(startDate);
+      lastdates.push(endDate);
+      lastvalues.push(exeData[0][1]);
     }
     //determine significant digits
     var digits = 2;
@@ -136,7 +144,8 @@ function renderPlot(data) {
         labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
         tickOptions:{formatString:'%b %d'},
         pad: 1.01,
-        autoscale:true,
+        min: Math.min.apply(Math, firstdates),
+        max: Math.max.apply(Math, lastdates),
         rendererOptions:{sortMergedLabels:true} /* only relevant when
                                 $.jqplot.CategoryAxisRenderer is used */ 
       }
@@ -170,7 +179,9 @@ function renderPlot(data) {
 
 function renderMiniplot(plotid, data) {
   var plotdata = [],
-      series = [];
+      series = [],
+      firstdates = [],
+      lastdates = [];
 
   for (var branch in data.branches) {
     for (var id in data.branches[branch]) {
@@ -178,6 +189,13 @@ function renderMiniplot(plotid, data) {
         "label": $("label[for*='executable" + id + "']").html(),
         "color": getColor(id)
       });
+      var exeData = data.branches[branch][id];
+      var startDate = new Date(exeData[exeData.length - 1][0])
+      var endDate = new Date(exeData[0][0]);
+      startDate.setDate(startDate.getDate() - 1);
+      endDate.setDate(endDate.getDate() + 1);
+      firstdates.push(startDate);
+      lastdates.push(endDate);
       plotdata.push(data.branches[branch][id]);
     }
   }
@@ -202,7 +220,10 @@ function renderMiniplot(plotid, data) {
         renderer:$.jqplot.DateAxisRenderer,
         pad: 1.01,
         autoscale:true,
-        showTicks: false
+        showTicks: false,
+        min: Math.min.apply(Math, firstdates),
+        max: Math.max.apply(Math, lastdates),
+        rendererOptions:{sortMergedLabels:true}
       }
     },
     highlighter: {show:false},

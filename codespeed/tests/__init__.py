@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 import os
 import re
 import unittest
@@ -12,6 +11,7 @@ from django.test.simple import doctestOutputChecker
 loadTestsFromModule = unittest.defaultTestLoader.loadTestsFromModule
 
 DEFAULT_TESTFILE_PATTERN = re.compile(r'^[a-zA-Z0-9].*\.py')
+
 
 def get_suite(*names, **kwargs):
     '''Creates (or updates) a ``TestSuite`` consisting of the tests under one or
@@ -44,7 +44,7 @@ def get_suite(*names, **kwargs):
     suite = kwargs.get('suite') or unittest.TestSuite()
     # determine is_test_module
     is_test_module = kwargs.get('is_test_module', DEFAULT_TESTFILE_PATTERN)
-    if isinstance(is_test_module, basestring): # look for exact match
+    if isinstance(is_test_module, basestring):  # look for exact match
         is_test_module = re.compile(is_test_module + '$').match
     elif hasattr(is_test_module, 'match'):
         is_test_module = is_test_module.match

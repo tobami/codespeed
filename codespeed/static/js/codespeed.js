@@ -43,4 +43,12 @@ $(function() {
             return false;
         });
     });
+
+    $('.togglefold').each(function() {
+        var lis = $(this).parent().children("li");
+        $(this).click(function() {
+            lis.slideToggle();
+            return false;
+        });
+    });
 });

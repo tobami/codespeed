@@ -162,6 +162,14 @@
         }
     }, 
     {
+        "pk": "bdf29cad31fa044f818764178efcba46", 
+        "model": "sessions.session", 
+        "fields": {
+            "expire_date": "2011-09-18T08:34:15.746", 
+            "session_data": "ZDdiNTZjNTM2NmEwZmQ1ZmI4ODU2NGVkYmZiZTdhMDBhODNjMTRhODqAAn1xAShVEl9hdXRoX3Vz\nZXJfYmFja2VuZHECVSlkamFuZ28uY29udHJpYi5hdXRoLmJhY2tlbmRzLk1vZGVsQmFja2VuZHED\nVQ1fYXV0aF91c2VyX2lkcQRLAXUu\n"
+        }
+    }, 
+    {
         "pk": 1, 
         "model": "codespeed.project", 
         "fields": {
@@ -241,7 +249,7 @@
             "commitid": "1", 
             "tag": "", 
             "branch": 1, 
-            "date": "2011-04-12 16:43:20", 
+            "date": "2011-04-12T16:43:20", 
             "message": ""
         }
     }, 
@@ -254,7 +262,7 @@
             "commitid": "2", 
             "tag": "", 
             "branch": 1, 
-            "date": "2011-04-13 17:04:22", 
+            "date": "2011-04-13T17:04:22", 
             "message": ""
         }
     }, 
@@ -267,7 +275,7 @@
             "commitid": "3", 
             "tag": "", 
             "branch": 2, 
-            "date": "2011-04-13 12:03:38", 
+            "date": "2011-04-13T12:03:38", 
             "message": ""
         }
     }, 
@@ -280,7 +288,7 @@
             "commitid": "4", 
             "tag": "", 
             "branch": 2, 
-            "date": "2011-04-14 18:04:51", 
+            "date": "2011-04-14T18:04:51", 
             "message": ""
         }
     }, 
@@ -293,7 +301,7 @@
             "commitid": "5", 
             "tag": "", 
             "branch": 1, 
-            "date": "2011-04-14 19:13:05", 
+            "date": "2011-04-14T19:13:05", 
             "message": ""
         }
     }, 
@@ -306,7 +314,7 @@
             "commitid": "1", 
             "tag": "", 
             "branch": 3, 
-            "date": "2011-04-13 12:05:11", 
+            "date": "2011-04-13T12:05:11", 
             "message": ""
         }
     }, 
@@ -319,7 +327,7 @@
             "commitid": "2", 
             "tag": "", 
             "branch": 3, 
-            "date": "2011-04-14 12:05:22", 
+            "date": "2011-04-14T12:05:22", 
             "message": ""
         }
     }, 
@@ -332,7 +340,7 @@
             "commitid": "444", 
             "tag": "1.0", 
             "branch": 4, 
-            "date": "2011-05-24 09:37:32", 
+            "date": "2011-05-24T09:37:32", 
             "message": ""
         }
     }, 
@@ -364,9 +372,19 @@
         }
     }, 
     {
+        "pk": 4, 
+        "model": "codespeed.executable", 
+        "fields": {
+            "project": 1, 
+            "name": "myexe2", 
+            "description": ""
+        }
+    }, 
+    {
         "pk": 1, 
         "model": "codespeed.benchmark", 
         "fields": {
+            "parent": null, 
             "name": "float", 
             "benchmark_type": "C", 
             "default_on_comparison": true, 
@@ -380,6 +398,7 @@
         "pk": 2, 
         "model": "codespeed.benchmark", 
         "fields": {
+            "parent": null, 
             "name": "int", 
             "benchmark_type": "C", 
             "default_on_comparison": true, 
@@ -421,7 +440,7 @@
             "environment": 1, 
             "val_min": 3995.1, 
             "std_dev": 80.0, 
-            "date": "2011-04-13 19:04:00", 
+            "date": "2011-04-13T19:04:00", 
             "val_max": 4001.6, 
             "revision": 1
         }
@@ -436,7 +455,7 @@
             "environment": 1, 
             "val_min": 1995.1, 
             "std_dev": 40.1, 
-            "date": "2011-04-13 17:06:19", 
+            "date": "2011-04-13T17:06:19", 
             "val_max": 2001.6, 
             "revision": 2
         }
@@ -451,7 +470,7 @@
             "environment": 1, 
             "val_min": 995.1, 
             "std_dev": 70.1, 
-            "date": "2011-04-13 17:06:47", 
+            "date": "2011-04-13T17:06:47", 
             "val_max": 1001.6, 
             "revision": 5
         }
@@ -466,7 +485,7 @@
             "environment": 1, 
             "val_min": 3995.1, 
             "std_dev": 1.11111, 
-            "date": "2011-04-13 19:06:11", 
+            "date": "2011-04-13T19:06:11", 
             "val_max": 4001.6, 
             "revision": 3
         }
@@ -481,7 +500,7 @@
             "environment": 1, 
             "val_min": 995.1, 
             "std_dev": 1.11111, 
-            "date": "2011-04-13 19:11:50", 
+            "date": "2011-04-13T19:11:50", 
             "val_max": 1001.6, 
             "revision": 6
         }
@@ -496,7 +515,7 @@
             "environment": 1, 
             "val_min": 2995.1, 
             "std_dev": 1.11111, 
-            "date": "2011-04-13 19:06:58", 
+            "date": "2011-04-13T19:06:58", 
             "val_max": 3001.6, 
             "revision": 4
         }
@@ -511,7 +530,7 @@
             "environment": 1, 
             "val_min": 495.1, 
             "std_dev": 1.11111, 
-            "date": "2011-04-13 19:12:23", 
+            "date": "2011-04-13T19:12:23", 
             "val_max": 501.6, 
             "revision": 7
         }
@@ -526,7 +545,7 @@
             "environment": 1, 
             "val_min": null, 
             "std_dev": 80.0, 
-            "date": "2011-05-24 09:38:18", 
+            "date": "2011-05-24T09:38:18", 
             "val_max": null, 
             "revision": 8
         }
@@ -541,7 +560,7 @@
             "environment": 1, 
             "val_min": null, 
             "std_dev": null, 
-            "date": "2011-07-03 16:52:15", 
+            "date": "2011-07-03T16:52:15", 
             "val_max": null, 
             "revision": 5
         }
@@ -658,7 +677,7 @@
         "pk": 1, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:44:14", 
+            "applied": "2011-09-04T13:20:15.950", 
             "app_name": "codespeed", 
             "migration": "0001_initial"
         }
@@ -667,7 +686,7 @@
         "pk": 2, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:44:15", 
+            "applied": "2011-09-04T13:20:16.431", 
             "app_name": "codespeed", 
             "migration": "0002_auto__chg_field_report_summary"
         }
@@ -676,7 +695,7 @@
         "pk": 3, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:44:16", 
+            "applied": "2011-09-04T13:20:16.879", 
             "app_name": "codespeed", 
             "migration": "0003_auto__add_field_revision_branch"
         }
@@ -685,7 +704,7 @@
         "pk": 4, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:44:16", 
+            "applied": "2011-09-04T13:20:17.145", 
             "app_name": "codespeed", 
             "migration": "0004_auto__add_branch"
         }
@@ -694,7 +713,7 @@
         "pk": 5, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:44:17", 
+            "applied": "2011-09-04T13:20:17.701", 
             "app_name": "codespeed", 
             "migration": "0005_auto__del_unique_revision_commitid_project__add_unique_revision_commit"
         }
@@ -703,7 +722,7 @@
         "pk": 6, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:48:32", 
+            "applied": "2011-09-04T13:20:18.654", 
             "app_name": "codespeed", 
             "migration": "0006_auto__chg_field_revision_branch"
         }
@@ -712,7 +731,7 @@
         "pk": 7, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:48:33", 
+            "applied": "2011-09-04T13:20:19.094", 
             "app_name": "codespeed", 
             "migration": "0007_auto__del_unique_revision_commitid_project_branch__add_unique_revision"
         }
@@ -721,7 +740,7 @@
         "pk": 8, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:48:33", 
+            "applied": "2011-09-04T13:20:19.442", 
             "app_name": "codespeed", 
             "migration": "0008_auto__chg_field_benchmark_description"
         }
@@ -730,7 +749,7 @@
         "pk": 9, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:48:34", 
+            "applied": "2012-08-24T11:26:17.672", 
             "app_name": "codespeed", 
             "migration": "0009_auto__chg_field_revision_project"
         }
@@ -739,7 +758,7 @@
         "pk": 10, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:48:34", 
+            "applied": "2012-08-24T11:41:59.288", 
             "app_name": "codespeed", 
             "migration": "0010_auto__add_field_benchmark_default_on_comparison"
         }
@@ -748,7 +767,7 @@
         "pk": 11, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:48:35", 
+            "applied": "2012-08-24T11:41:59.841", 
             "app_name": "codespeed", 
             "migration": "0011_auto__add_field_project_commit_browsing_url"
         }
@@ -757,7 +776,7 @@
         "pk": 12, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:48:35", 
+            "applied": "2012-08-24T11:42:00.476", 
             "app_name": "codespeed", 
             "migration": "0011_auto__del_unique_executable_name__add_unique_executable_project_name"
         }
@@ -766,9 +785,18 @@
         "pk": 13, 
         "model": "south.migrationhistory", 
         "fields": {
-            "applied": "2012-08-24 11:48:36", 
+            "applied": "2012-08-24T11:42:00.809", 
             "app_name": "tastypie", 
             "migration": "0001_initial"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "south.migrationhistory", 
+        "fields": {
+            "applied": "2012-10-09T13:53:44.628", 
+            "app_name": "codespeed", 
+            "migration": "0012_auto__add_field_benchmark_parent__add_field_project_commit_browsing_ur"
         }
     }, 
     {
@@ -1267,12 +1295,25 @@
             "is_active": true, 
             "is_superuser": true, 
             "is_staff": true, 
-            "last_login": "2012-08-24 06:44:04", 
+            "last_login": "2011-09-04T08:34:15.671", 
             "groups": [], 
             "user_permissions": [], 
-            "password": "sha1$251fa$210e2456eeadff6207cbd27cee3899bc90fa2d47", 
-            "email": "a@a.com", 
-            "date_joined": "2012-08-24 06:44:04"
+            "password": "sha1$dae8f$07788e65ef50016eb45c52c50ceee4256fc54ebd", 
+            "email": "a@a.es", 
+            "date_joined": "2011-09-04T08:19:57.135"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "admin.logentry", 
+        "fields": {
+            "action_flag": 1, 
+            "action_time": "2011-09-04T08:34:57.341", 
+            "object_repr": "myexe2", 
+            "object_id": "4", 
+            "change_message": "", 
+            "user": 1, 
+            "content_type": 12
         }
     }
 ]

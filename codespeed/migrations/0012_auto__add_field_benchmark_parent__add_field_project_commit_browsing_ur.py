@@ -13,11 +13,6 @@ class Migration(SchemaMigration):
                       self.gf('django.db.models.fields.related.ForeignKey')(default=None, to=orm['codespeed.Benchmark'], null=True),
                       keep_default=False)
 
-        # Adding field 'Project.commit_browsing_url'
-        db.add_column('codespeed_project', 'commit_browsing_url',
-                      self.gf('django.db.models.fields.CharField')(default='', max_length=200, blank=True),
-                      keep_default=False)
-
 
     def backwards(self, orm):
         # Deleting field 'Benchmark.parent'

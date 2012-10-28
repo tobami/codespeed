@@ -11,6 +11,7 @@ from django.template import RequestContext
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.views.decorators.csrf import csrf_exempt
 
 from codespeed.models import (Environment, Report, Project, Revision, Result,
                               Executable, Benchmark, Branch)
@@ -921,6 +922,7 @@ def save_result(data):
     return (rev, exe, env), False
 
 
+@csrf_exempt
 def add_result(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed('POST')
@@ -936,6 +938,7 @@ def add_result(request):
         return HttpResponse("Result data saved successfully", status=202)
 
 
+@csrf_exempt
 def add_json_results(request):
     if request.method != 'POST':
         return HttpResponseNotAllowed('POST')

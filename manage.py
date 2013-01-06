@@ -3,4 +3,4 @@ import os
 import sys
 
 new_file = os.path.join(os.path.dirname(__file__), 'example', 'manage.py')
-os.execl(sys.executable, sys.executable, new_file, *sys.argv)
+os.execl(sys.executable, new_file, new_file, *sys.argv)

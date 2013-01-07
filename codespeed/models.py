@@ -28,7 +28,7 @@ class Project(models.Model):
 
 
 class Branch(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=50)
     project = models.ForeignKey(Project, related_name="branches")
 
     def __unicode__(self):

@@ -104,7 +104,7 @@ class HistoricalValue(object):
 
 @python_2_unicode_compatible
 class Branch(models.Model):
-    name = models.CharField(max_length=32)
+    name = models.CharField(max_length=50)
     project = models.ForeignKey(Project, related_name="branches")
 
     def __str__(self):

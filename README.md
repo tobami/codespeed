@@ -2,7 +2,7 @@
 
 A web application to monitor and analyze the performance of your code.
 
-Known to be used by [PyPy](http://speed.pypy.org), [Twisted](http://speed.twistedmatrix.com), [RubySpec](http://speed.rubyspec.org/) and many more.
+Known to be used by [PyPy](http://speed.pypy.org), [Twisted](http://speed.twistedmatrix.com), [RubySpec](http://speed.rubyspec.org) and many more.
 
 For an overview of some application concepts see the [wiki page](https://github.com/tobami/codespeed/wiki/Overview)
 
@@ -35,7 +35,7 @@ can take a long time. Please be patient.
 # Installation
 
 * Download the last stable release from
-  [http://github.com/tobami/codespeed/downloads](http://github.com/tobami/codespeed/downloads), unpack it and install it with `python setup.py install`.
+  [github.com/tobami/codespeed/tags](https://github.com/tobami/codespeed/tags), unpack it and install it with `python setup.py install`.
 * To get started, you can use the `sample_project` directory as a starting point for your Django project, which can be normally configured by editing `sample_project/settings.py`.
 * For simplicity, you can use the default sqlite configuration, which will save
   the data to a database named `sample_project/data.db`

@@ -1,4 +1,4 @@
 include README.md
 include LICENSE
-recursive-include codespeed/templates/codespeed/ *
-recursive-include codespeed/static/ *
+recursive-include codespeed/templates/codespeed *
+recursive-include codespeed/static *

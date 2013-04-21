@@ -1,7 +1,5 @@
 #!/usr/bin/env python
-
 # -*- coding: utf-8 -*-
-
 """
 Submit a single result via the RESTful API using requests
 
@@ -12,7 +10,9 @@ All resources in the result_data dict need to exist.
 import json
 import requests
 
+
 def get_data():
+    """Helper function to build a valid POST request to save a result"""
     result_data = {
         'commitid': '/api/v1/revision/2/',
         'branch': '/api/v1/branch/1/', # Always use default for trunk/master/tip

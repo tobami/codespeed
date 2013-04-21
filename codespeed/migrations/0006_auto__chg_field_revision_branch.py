@@ -7,11 +7,16 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        
-        # Renaming column for 'Revision.branch' to match new field type.
-        db.rename_column('codespeed_revision', 'branch', 'branch_id')
-        # Changing field 'Revision.branch'
-        db.alter_column('codespeed_revision', 'branch_id', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['codespeed.Branch']))
+
+        # Adding field 'Revision.branch_id'
+        db.add_column('codespeed_revision', 'branch', self.gf('django.db.models.fields.related.ForeignKey')(null=True, to=orm['codespeed.Branch']))
+        # Removing unique constraint on 'Revision', fields ['commitid', 'project', branch']
+        db.delete_unique('codespeed_revision', ['commitid', 'project_id', 'branch'])
+        # Delete field 'Revision.branch'
+        db.delete_column('codespeed_revision', 'branch')
+        # Adding unique constraint on 'Revision', fields ['commitid', 'project_id', 'branch_id']
+        db.create_unique('codespeed_revision', ['commitid', 'project_id', 'branch_id'])
+
 
         # Adding index on 'Revision', fields ['branch']
         # NOTE: commented out because it can cause an
@@ -20,7 +25,7 @@ class Migration(SchemaMigration):
 
 
     def backwards(self, orm):
-        
+
         # Removing index on 'Revision', fields ['branch']
         db.delete_index('codespeed_revision', ['branch_id'])
 

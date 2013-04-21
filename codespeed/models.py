@@ -133,13 +133,15 @@ class Benchmark(models.Model):
 
     name = models.CharField(unique=True, max_length=30)
     parent = models.ForeignKey('self', verbose_name="parent",
-        help_text="allows to group benchmarks in hierarchies", null=True, default=None)
+        help_text="allows to group benchmarks in hierarchies",
+        null=True, blank=True, default=None)
     benchmark_type = models.CharField(max_length=1, choices=B_TYPES, default='C')
     description = models.CharField(max_length=300, blank=True)
     units_title = models.CharField(max_length=30, default='Time')
     units = models.CharField(max_length=20, default='seconds')
     lessisbetter = models.BooleanField("Less is better", default=True)
-    default_on_comparison = models.BooleanField("Default on comparison page", default=True)
+    default_on_comparison = models.BooleanField(
+        "Default on comparison page", default=True)
 
     def __unicode__(self):
         return self.name

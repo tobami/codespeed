@@ -15,7 +15,7 @@ function getConfiguration() {
 }
 
 function permalinkToTimeline(benchmark, environment) {
-    window.location=TIMELINE_URL + "?ben=" + benchmark + "&env=" + environment;
+    window.location=window.TIMELINE_URL + "?ben=" + benchmark + "&env=" + environment;
 }
 
 //colors number based on a threshold

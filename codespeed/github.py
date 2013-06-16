@@ -18,7 +18,8 @@ from django.utils import simplejson as json
 
 logger = logging.getLogger(__name__)
 
-GITHUB_URL_RE = re.compile(r'^(?P<proto>\w+)://github.com/(?P<username>[^/]+)/(?P<project>[^/]+)[.]git$')
+GITHUB_URL_RE = re.compile(
+    r'^(?P<proto>\w+)://github.com/(?P<username>[^/]+)/(?P<project>[^/]+)[.]git$')
 
 # We currently use a simple linear search of on a single parent to retrieve
 # the history. This is often good enough, but might miss the actual starting
@@ -42,7 +43,7 @@ def retrieve_revision(commit_id, username, project, revision=None):
             commit_json = json.load(urllib.urlopen(commit_url))
         except IOError, e:
             logger.exception("Unable to load %s: %s",
-                commit_url, e, exc_info=True)
+                             commit_url, e, exc_info=True)
             raise e
 
         if 'error' in commit_json:

@@ -245,7 +245,7 @@ class ResultBundle(Bundle):
                 ))
             raise ImmediateHttpResponse(
                 response=HttpBadRequest(u"Value needs to be a number"))
-        for key in [k for k in self.mandatory_keys \
+        for key in [k for k in self.mandatory_keys
                     if k not in ('result_value',)]:
             try:
                 #populate
@@ -259,7 +259,7 @@ class ResultBundle(Bundle):
                         key, self.data[key]
                     )))
         # populate optional data
-        for key in [k for k in self.optional_keys \
+        for key in [k for k in self.optional_keys
                     if k not in ('date')]:
             if key in self.data.keys():
                 setattr(self.obj, key, self.data[key])
@@ -282,7 +282,7 @@ class ResultBundle(Bundle):
     def _check_data(self):
         """See if all mandatory data is there"""
         # check if all mandatory keys are there
-        for key in [k for k in self.mandatory_keys\
+        for key in [k for k in self.mandatory_keys
                     if k not in ('revision')]:
             if not key in self.data.keys():
                 error_text = u"You need to provide key: {0}".format(key)
@@ -314,7 +314,7 @@ class ResultBundle(Bundle):
             logging.error(error_text)
             raise ImmediateHttpResponse(response=HttpBadRequest(error_text))
         # check optional data
-        for key in [k for k in self.optional_keys \
+        for key in [k for k in self.optional_keys
                     if k not in ('date',)]:
             if key in self.data.keys():
                 try:

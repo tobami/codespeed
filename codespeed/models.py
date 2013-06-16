@@ -23,9 +23,12 @@ class Project(models.Model):
     repo_type = models.CharField(
         "Repository type", max_length=1, choices=REPO_TYPES, default='N')
     repo_path = models.CharField("Repository URL", blank=True, max_length=200)
-    repo_user = models.CharField("Repository username", blank=True, max_length=100)
-    repo_pass = models.CharField("Repository password", blank=True, max_length=100)
-    commit_browsing_url = models.CharField("Commit browsing URL", blank=True, max_length=200)
+    repo_user = models.CharField("Repository username",
+                                 blank=True, max_length=100)
+    repo_pass = models.CharField("Repository password",
+                                 blank=True, max_length=100)
+    commit_browsing_url = models.CharField("Commit browsing URL",
+                                           blank=True, max_length=200)
     track = models.BooleanField("Track changes", default=False)
 
     def __unicode__(self):
@@ -78,10 +81,9 @@ class Revision(models.Model):
     tag = models.CharField(max_length=20, blank=True)
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
-    project = models.ForeignKey(Project, related_name="revisions", null=True, blank=True)
-    # TODO: Replace author with author name/email or just make it larger so we can do "name <email>"?
+    project = models.ForeignKey(Project, related_name="revisions",
+                                null=True, blank=True)
     author = models.CharField(max_length=30, blank=True)
-    # TODO: Add committer field(s) for DVCSes which make the distinction?
     branch = models.ForeignKey(Branch, related_name="revisions")
 
     def get_short_commitid(self):
@@ -132,7 +134,8 @@ class Benchmark(models.Model):
     )
 
     name = models.CharField(unique=True, max_length=30)
-    parent = models.ForeignKey('self', verbose_name="parent",
+    parent = models.ForeignKey(
+        'self', verbose_name="parent",
         help_text="allows to group benchmarks in hierarchies",
         null=True, blank=True, default=None)
     benchmark_type = models.CharField(max_length=1, choices=B_TYPES, default='C')
@@ -148,8 +151,9 @@ class Benchmark(models.Model):
 
     def clean(self):
         if self.default_on_comparison and self.benchmark_type != 'C':
-            raise ValidationError("Only cross-project benchmarks are shown on the "
-                                  "comparison page. Deactivate 'default_on_comparison' first.")
+            raise ValidationError("Only cross-project benchmarks are shown "
+                                  "on the comparison page. Deactivate "
+                                  "'default_on_comparison' first.")
 
 
 class Environment(models.Model):
@@ -173,8 +177,6 @@ class Result(models.Model):
     executable = models.ForeignKey(Executable, related_name="results")
     benchmark = models.ForeignKey(Benchmark, related_name="results")
     environment = models.ForeignKey(Environment, related_name="results")
-
-    # TODO: Add a benchmark version field
 
     def __unicode__(self):
         return u"%s: %s" % (self.benchmark.name, self.value)
@@ -208,7 +210,7 @@ class Report(models.Model):
         change_threshold = 3.0
         trend_threshold = 5.0
         if (hasattr(settings, 'CHANGE_THRESHOLD') and
-                settings.CHANGE_THRESHOLD != None):
+                settings.CHANGE_THRESHOLD is not None):
             change_threshold = settings.CHANGE_THRESHOLD
         if hasattr(settings, 'TREND_THRESHOLD') and settings.TREND_THRESHOLD:
             trend_threshold = settings.TREND_THRESHOLD
@@ -219,7 +221,8 @@ class Report(models.Model):
             val = units['totals']['change']
             if val == "-":
                 continue
-            color = self.getcolorcode(val, units['lessisbetter'], change_threshold)
+            color = self.getcolorcode(val, units['lessisbetter'],
+                                      change_threshold)
             if self.is_big_change(val, color, average_change, average_change_color):
                 # Do update biggest total change
                 average_change = val
@@ -228,7 +231,8 @@ class Report(models.Model):
             # Total trend
             val = units['totals']['trend']
             if val != "-":
-                color = self.getcolorcode(val, units['lessisbetter'], trend_threshold)
+                color = self.getcolorcode(val, units['lessisbetter'],
+                                          trend_threshold)
                 if self.is_big_change(val, color, average_trend, average_trend_color):
                     # Do update biggest total trend change
                     average_trend = val
@@ -239,7 +243,8 @@ class Report(models.Model):
                 val = row['change']
                 if val == "-":
                     continue
-                color = self.getcolorcode(val, units['lessisbetter'], change_threshold)
+                color = self.getcolorcode(val, units['lessisbetter'],
+                                          change_threshold)
                 if self.is_big_change(val, color, max_change, max_change_color):
                     # Do update biggest single change
                     max_change = val
@@ -287,7 +292,8 @@ class Report(models.Model):
                 and "yellow" or average_trend_color
         # Single benchmark trend
         if max_trend_color != "none" and self.colorcode != "red":
-            if self.colorcode == "none" or (self.colorcode == "green" and "trend" not in self.summary):
+            if (self.colorcode == "none" or
+                    (self.colorcode == "green" and "trend" not in self.summary)):
                 direction = max_trend >= 0 and "+" or ""
                 self.summary = "%s trend %s%.1f%%" % (
                     max_trend_ben, direction, round(max_trend, 1))
@@ -301,8 +307,8 @@ class Report(models.Model):
             return True
         elif color == "red" and abs(val) > abs(current_val):
             return True
-        elif color == "green" and  current_color != "red" and \
-            abs(val) > abs(current_val):
+        elif (color == "green" and current_color != "red"
+              and abs(val) > abs(current_val)):
             return True
         else:
             return False

@@ -23,15 +23,19 @@ logger = logging.getLogger(__name__)
 def no_environment_error(request):
     admin_url = reverse('admin:codespeed_environment_changelist')
     return render_to_response('codespeed/nodata.html', {
-        'message': 'You need to configure at least one Environment. Please go to the <a href="%s">admin interface</a>' % admin_url
+        'message': ('You need to configure at least one Environment. '
+                    'Please go to the '
+                    '<a href="%s">admin interface</a>' % admin_url)
     }, context_instance=RequestContext(request))
 
 
 def no_default_project_error(request):
     admin_url = reverse('admin:codespeed_project_changelist')
     return render_to_response('codespeed/nodata.html', {
-        'message': 'You need to configure at least one one Project as default (checked "Track changes" field).<br />'
-                   'Please go to the <a href="%s">admin interface</a>' % admin_url
+        'message': ('You need to configure at least one one Project as '
+                    'default (checked "Track changes" field).<br />'
+                    'Please go to the '
+                    '<a href="%s">admin interface</a>' % admin_url)
     }, context_instance=RequestContext(request))
 
 
@@ -48,7 +52,12 @@ def no_data_found(request):
 
 
 def getbaselineexecutables():
-    baseline = [{'key': "none", 'name': "None", 'executable': "none", 'revision': "none"}]
+    baseline = [{
+        'key': "none",
+        'name': "None",
+        'executable': "none",
+        'revision': "none",
+    }]
     executables = Executable.objects.select_related('project')
     revs = Revision.objects.exclude(tag="").select_related('branch__project')
     maxlen = 22
@@ -67,14 +76,15 @@ def getbaselineexecutables():
                 'name': name,
             })
     # move default to first place
-    if hasattr(settings, 'DEF_BASELINE') and settings.DEF_BASELINE != None:
+    if hasattr(settings, 'DEF_BASELINE') and settings.DEF_BASELINE is not None:
         try:
             exename = settings.DEF_BASELINE['executable']
             commitid = settings.DEF_BASELINE['revision']
             for base in baseline:
                 if base['key'] == "none":
                     continue
-                if base['executable'].name == exename and base['revision'].commitid == commitid:
+                if (base['executable'].name == exename and
+                        base['revision'].commitid == commitid):
                     baseline.remove(base)
                     baseline.insert(1, base)
                     break
@@ -109,8 +119,8 @@ def get_default_environment(enviros, data, multi=False):
                 break
     # Use settings.py value
     if not defaultenviros and not multi:
-        if hasattr(settings, 'DEF_ENVIRONMENT') and \
-            settings.DEF_ENVIRONMENT != None:
+        if (hasattr(settings, 'DEF_ENVIRONMENT') and
+                settings.DEF_ENVIRONMENT is not None):
             for env in enviros:
                 if settings.DEF_ENVIRONMENT == env.name:
                     defaultenviros.append(env)
@@ -126,12 +136,12 @@ def get_default_environment(enviros, data, multi=False):
 
 def getdefaultexecutable():
     default = None
-    if hasattr(settings, 'DEF_EXECUTABLE') and settings.DEF_EXECUTABLE != None:
+    if hasattr(settings, 'DEF_EXECUTABLE') and settings.DEF_EXECUTABLE is not None:
         try:
             default = Executable.objects.get(name=settings.DEF_EXECUTABLE)
         except Executable.DoesNotExist:
             pass
-    if default == None:
+    if default is None:
         execquery = Executable.objects.filter(project__track=True)
         if len(execquery):
             default = execquery[0]
@@ -149,7 +159,7 @@ def getcomparisonexes():
         maxlen = 20
         # add all tagged revs for any project
         for exe in baselines:
-            if exe['key'] != "none" and exe['executable'].project == proj:
+            if exe['key'] is not "none" and exe['executable'].project == proj:
                 executablekeys.append(exe['key'])
                 executables.append(exe)
 
@@ -242,8 +252,7 @@ def comparison(request):
                 continue
             if i in exekeys:
                 checkedexecutables.append(i)
-    elif hasattr(settings, 'COMP_EXECUTABLES') and\
-        settings.COMP_EXECUTABLES:
+    elif hasattr(settings, 'COMP_EXECUTABLES') and settings.COMP_EXECUTABLES:
         for exe, rev in settings.COMP_EXECUTABLES:
             try:
                 exe = Executable.objects.get(name=exe)
@@ -280,8 +289,11 @@ def comparison(request):
             benchmark_type="C"
         ).filter(units_title=unit)
         units = benchmarks[unit][0].units
-        lessisbetter = benchmarks[unit][0].lessisbetter and ' (less is better)' or ' (more is better)'
-        bench_units[unit] = [[b.id for b in benchmarks[unit]], lessisbetter, units]
+        lessisbetter = (benchmarks[unit][0].lessisbetter and
+                        ' (less is better)' or ' (more is better)')
+        bench_units[unit] = [
+            [b.id for b in benchmarks[unit]], lessisbetter, units
+        ]
     checkedbenchmarks = []
     if 'ben' in data:
         checkedbenchmarks = []
@@ -294,7 +306,8 @@ def comparison(request):
                 pass
     if not checkedbenchmarks:
         # Only include benchmarks marked as cross-project
-        checkedbenchmarks = Benchmark.objects.filter(benchmark_type="C", default_on_comparison=True)
+        checkedbenchmarks = Benchmark.objects.filter(
+            benchmark_type="C", default_on_comparison=True)
 
     charts = ['normal bars', 'stacked bars', 'relative bars']
     # Don't show relative charts as an option if there is only one executable
@@ -314,8 +327,8 @@ def comparison(request):
     elif 'bas' in data:
         # bas is present but is none
         pass
-    elif len(exekeys) > 1 and hasattr(settings, 'NORMALIZATION') and\
-        settings.NORMALIZATION:
+    elif (len(exekeys) > 1 and hasattr(settings, 'NORMALIZATION') and
+            settings.NORMALIZATION):
         try:
             # TODO: Avoid calling twice getbaselineexecutables
             selectedbaseline = getbaselineexecutables()[1]['key']
@@ -328,8 +341,9 @@ def comparison(request):
             pass  # Keep "none" as default baseline
 
     selecteddirection = False
-    if 'hor' in data and data['hor'] == "true" or\
-        hasattr(settings, 'CHART_ORIENTATION') and settings.CHART_ORIENTATION == 'horizontal':
+    if ('hor' in data and data['hor'] == "true" or
+        hasattr(settings, 'CHART_ORIENTATION') and
+            settings.CHART_ORIENTATION == 'horizontal'):
         selecteddirection = True
 
     return render_to_response('codespeed/comparison.html', {
@@ -396,37 +410,40 @@ def gettimelinedata(request):
         trunks = []
         if Branch.objects.filter(name=settings.DEF_BRANCH):
             trunks.append(settings.DEF_BRANCH)
-        #for branch in data2.get('bran', '').split(','): #-- For now, we'll only work with trunk branches
+        # For now, we'll only work with trunk branches
         append = False
         for branch in trunks:
             append = False
             timeline['branches'][branch] = {}
             for executable in executables:
                 resultquery = Result.objects.filter(
-                        benchmark=bench
-                    ).filter(
-                        environment=environment
-                    ).filter(
-                        executable=executable
-                    ).filter(
-                        revision__branch__name=branch
-                    ).select_related(
-                        "revision"
-                    ).order_by('-revision__date')[:number_of_revs]
+                    benchmark=bench
+                ).filter(
+                    environment=environment
+                ).filter(
+                    executable=executable
+                ).filter(
+                    revision__branch__name=branch
+                ).select_related(
+                    "revision"
+                ).order_by('-revision__date')[:number_of_revs]
                 if not len(resultquery):
                     continue
 
                 results = []
                 for res in resultquery:
                     std_dev = ""
-                    if res.std_dev != None:
+                    if res.std_dev is not None:
                         std_dev = res.std_dev
                     results.append(
-                        [str(res.revision.date), res.value, std_dev, res.revision.get_short_commitid(), branch]
+                        [
+                            str(res.revision.date), res.value, std_dev,
+                            res.revision.get_short_commitid(), branch
+                        ]
                     )
                 timeline['branches'][branch][executable] = results
                 append = True
-            if baselinerev != None and append:
+            if baselinerev is not None and append:
                 try:
                     baselinevalue = Result.objects.get(
                         executable=baselineexe,
@@ -437,7 +454,8 @@ def gettimelinedata(request):
                 except Result.DoesNotExist:
                     timeline['baseline'] = "None"
                 else:
-                    # determine start and end revision (x axis) from longest data series
+                    # determine start and end revision (x axis)
+                    # from longest data series
                     results = []
                     for exe in timeline['branches'][branch]:
                         if len(timeline['branches'][branch][exe]) > len(results):
@@ -528,13 +546,13 @@ def timeline(request):
         return no_data_found(request)
     elif len(benchmarks) == 1:
         defaultbenchmark = benchmarks[0]
-    elif hasattr(settings, 'DEF_BENCHMARK') and settings.DEF_BENCHMARK != None:
+    elif hasattr(settings, 'DEF_BENCHMARK') and settings.DEF_BENCHMARK is not None:
         if settings.DEF_BENCHMARK in ['grid', 'show_none']:
             defaultbenchmark = settings.DEF_BENCHMARK
         else:
             try:
                 defaultbenchmark = Benchmark.objects.get(
-                                                name=settings.DEF_BENCHMARK)
+                    name=settings.DEF_BENCHMARK)
             except Benchmark.DoesNotExist:
                 pass
     elif len(benchmarks) >= grid_limit:
@@ -588,7 +606,10 @@ def getchangestable(request):
     tablelist = report.get_changes_table(trendconfig)
 
     if not len(tablelist):
-        return HttpResponse('<table id="results" class="tablesorter" style="height: 232px;"></table><p class="errormessage">No results for this parameters</p>')
+        return HttpResponse('<table id="results" class="tablesorter" '
+                            'style="height: 232px;"></table>'
+                            '<p class="errormessage">No results for this '
+                            'parameters</p>')
 
     return render_to_response('codespeed/changes_table.html', {
         'tablelist': tablelist,
@@ -607,11 +628,11 @@ def changes(request):
     # Configuration of default parameters
     defaultchangethres = 3.0
     defaulttrendthres = 4.0
-    if hasattr(settings, 'CHANGE_THRESHOLD') and \
-                                        settings.CHANGE_THRESHOLD != None:
+    if (hasattr(settings, 'CHANGE_THRESHOLD') and
+            settings.CHANGE_THRESHOLD is not None):
         defaultchangethres = settings.CHANGE_THRESHOLD
-    if hasattr(settings, 'TREND_THRESHOLD') and \
-                                        settings.TREND_THRESHOLD != None:
+    if (hasattr(settings, 'TREND_THRESHOLD') and
+            settings.TREND_THRESHOLD is not None):
         defaulttrendthres = settings.TREND_THRESHOLD
 
     defaulttrend = 10
@@ -744,7 +765,7 @@ def displaylogs(request):
                 if remotelogs[0]['error']:
                     error = remotelogs[0]['message']
             except KeyError:
-                pass#no errors
+                pass  # no errors
             logs = remotelogs
         else:
             error = 'no logs found'
@@ -759,10 +780,11 @@ def displaylogs(request):
     for log in logs:
         log['commit_browse_url'] = project.commit_browsing_url.format(**log)
 
-    return render_to_response('codespeed/changes_logs.html',
-                                {'error': error, 'logs': logs,
-                                 'show_email_address': settings.SHOW_AUTHOR_EMAIL_ADDRESS},
-                                context_instance=RequestContext(request))
+    return render_to_response(
+        'codespeed/changes_logs.html',
+        {'error': error, 'logs': logs,
+         'show_email_address': settings.SHOW_AUTHOR_EMAIL_ADDRESS},
+        context_instance=RequestContext(request))
 
 
 def getcommitlogs(rev, startrev, update=False):
@@ -779,7 +801,7 @@ def getcommitlogs(rev, startrev, update=False):
     else:
         if rev.branch.project.repo_type not in ("N", ""):
             logger.warning("Don't know how to retrieve logs from %s project",
-                                rev.branch.project.get_repo_type_display())
+                           rev.branch.project.get_repo_type_display())
         return logs
 
     if update:
@@ -870,7 +892,7 @@ def save_result(data):
 
     p, created = Project.objects.get_or_create(name=data["project"])
     branch, created = Branch.objects.get_or_create(name=data["branch"],
-                                                    project=p)
+                                                   project=p)
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
     try:
         rev = branch.revisions.get(commitid=data['commitid'])
@@ -890,7 +912,7 @@ def save_result(data):
                 saverevisioninfo(rev)
             except RuntimeError as e:
                 logger.warning("unable to save revision %s info: %s", rev, e,
-                                exc_info=True)
+                               exc_info=True)
         rev.save()
 
     exe, created = Executable.objects.get_or_create(

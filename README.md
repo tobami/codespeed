@@ -8,7 +8,7 @@ For an overview of some application concepts see the [wiki page](https://github.
 
 # Requirements
 
-You will need Python 2.6+ and Django 1.3+ with South and Tastypie.
+You will need Python 2.6+ and Django 1.3+ with South isodate and Tastypie.
 
 In Debian and Ubuntu, they can be installed with:
 
@@ -16,10 +16,7 @@ In Debian and Ubuntu, they can be installed with:
 
 Instead of using distribution packages, you can use pip:
 
-    sudo pip install django
-    sudo pip install South
-    sudo pip install django-tastypie
-    sudo pip install isodate
+    sudo pip install -r requirements.txt
 
 If you want version control integration, there are additional requirements:
 
@@ -58,6 +55,16 @@ The codespeed installation can now be accessed by navigating to `http://localhos
 modify `sample_project/settings.py` and set `DEBUG = False`.
 
 # Codespeed configuration
+
+## Using the provided test data
+
+If you want to test drive Codespeed, you can use the testdata.json fixtures to have a working data set to browse.
+
+* From the `sample_project/` directory, type:
+
+        ./manage.py loaddata ../codespeed/fixtures/testdata.json
+
+## Starting from scratch
 
 Before you can start saving (and displaying) data, you need to first create an
 environment and define a default project.

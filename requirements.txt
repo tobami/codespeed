@@ -1,5 +1,6 @@
-Django>=1.3
-South>=0.7.3
+Django==1.4
+South<=2.0
 isodate==0.4.8
 -e git://github.com/toastdriven/django-tastypie.git@5397dec04fe83092a56ba14a843731f2aa08184d#egg=django-tastypie
+#django-tastypie==0.9.15
 #-e git://github.com/robhudson/django-debug-toolbar.git#egg=django-debug-toolbar

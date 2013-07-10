@@ -202,10 +202,12 @@ several parameters (the file includes comments with full examples).
   are a large number of tags or executables, it is better to only select a few
   so that the plots are not too cluttered.
   Given as a list of tuples containing the name of an executable + commitid of a revision. An 'L' denotes the last revision. Example:
+
 ```python
 COMP_EXECUTABLES = [
     ('myexe', '21df2423ra'),
-    ('myexe', 'L'),]
+    ('myexe', 'L'),
+]
 ```
 
 ## Getting help

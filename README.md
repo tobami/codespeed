@@ -191,6 +191,10 @@ several parameters (the file includes comments with full examples).
     * `grid`: will always show as default the grid of plots
     * `show_none`: will show a text message (better default when there are lots of benchmarks)
     * `mybench`: will select benchmark named "mybench"
+* `DEF_BRANCH`: Defines the default branch to be used when calculating timeline and changes data for presentation.  Example values:
+    * `default`: the default value, and usually mercurial's default branch
+    * `master`: usually git's default branch
+    * `trunk`: usually SVN's default branch
 
 ### Comparison View
 * `CHART_TYPE`: Chooses the default chart type (normal bars, stacked bars or

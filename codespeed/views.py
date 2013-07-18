@@ -894,6 +894,19 @@ def save_result(data):
     branch, created = Branch.objects.get_or_create(name=data["branch"],
                                                    project=p)
     b, created = Benchmark.objects.get_or_create(name=data["benchmark"])
+
+    if created:
+        if "description" in data:
+            b.description = data["description"]
+        if "units" in data:
+            b.units = data["units"]
+        if "units_title" in data:
+            b.units_title = data["units_title"]
+        if "lessisbetter" in data:
+            b.lessisbetter = data["lessisbetter"]
+        b.full_clean()
+        b.save()
+
     try:
         rev = branch.revisions.get(commitid=data['commitid'])
     except Revision.DoesNotExist:

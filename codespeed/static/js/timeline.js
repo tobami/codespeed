@@ -66,6 +66,22 @@ function renderPlot(data) {
       series = [],
       lastvalues = [];//hopefully the smallest values for determining significant digits.
   seriesindex = [];
+  console.debug('data: ', data);
+
+  for (var branch in data.branches) {
+    var dates_seen = {};
+    for (var exe_id in data.branches[branch]) {
+      for (var results_data in data.branches[branch][exe_id].reverse()){
+        var current_date = new Date(data.branches[branch][exe_id][results_data][0]);
+        var date_formatted = current_date.getMonthNumber() + '-' + current_date.getDate()// + '-' + dates_seen[current_date];
+        dates_seen[date_formatted] = dates_seen[date_formatted] ? dates_seen[date_formatted] + 1 : 1;
+        console.log('date: ', date_formatted + '-' + dates_seen[date_formatted]);
+        data.branches[branch][exe_id][results_data][0] = date_formatted + '-' + dates_seen[date_formatted];
+      }
+    }
+    console.log('dates_seen: ', dates_seen);
+  }
+
   for (var branch in data.branches) {
     // NOTE: Currently, only the "default" branch is shown in the timeline
     for (var exe_id in data.branches[branch]) {
@@ -99,24 +115,37 @@ function renderPlot(data) {
     });
     plotdata.push(data.baseline);
   }
+  /*console.log('plotdata: ');
+  console.log('plotdata[0].length: ' + plotdata[0].length);
+  for (var i = 0; i < plotdata[0].length; i++) {
+    plotdata[0][i][0] = '7-29'
+  };
+  console.debug(plotdata[0])*/
   var plotoptions = {
     title: {text: data.benchmark, fontSize: '1.1em'},
     series: series,
+
+    axesDefaults: {
+        tickOptions: {
+          formatString: '%m-%#d',
+        }
+    },
     axes:{
       yaxis:{
         label: data.units + data.lessisbetter,
         labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
         min: 0, autoscale:true,
-        tickOptions:{formatString:'%.' + digits + 'f'}
+        tickOptions:{
+          formatString:'%.' + digits + 'f'
+        }
       },
       xaxis:{
         renderer: (shouldPlotEquidistant()) ? $.jqplot.CategoryAxisRenderer : $.jqplot.DateAxisRenderer,
         label: 'Commit date',
-        labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-        tickOptions:{formatString:'%b %d'},
+        labelRenderer: $.jqplot.CanvasAxisTickRenderer,
         pad: 1.01,
         autoscale:true,
-        rendererOptions:{sortMergedLabels:true} /* only relevant when
+        rendererOptions:{sortMergedLabels:false} /* only relevant when
                                 $.jqplot.CategoryAxisRenderer is used */ 
       }
     },
@@ -177,10 +206,13 @@ function renderMiniplot(plotid, data) {
         min: 0, autoscale:true, showTicks: false
       },
       xaxis: {
-        renderer:$.jqplot.DateAxisRenderer,
+        renderer:$.jqplot.CategoryAxisRenderer,
         pad: 1.01,
         autoscale:true,
-        showTicks: false
+        showTicks: false,
+        tickOptions: {
+          fontSize: '0px',
+        },
       }
     },
     highlighter: {show:false},

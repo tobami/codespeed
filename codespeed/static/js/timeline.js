@@ -61,12 +61,26 @@ function OnMarkerClickHandler(ev, gridpos, datapos, neighbor, plot) {
   }
 }
 
+function is_number(n){
+  if (typeof(n) == 'number'){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+function pad_number(n){
+    if (is_number(n)){
+      return n > 9 ? "" + n: "0" + n;
+    }
+    return '';
+}
+
 function renderPlot(data) {
   var plotdata = [],
       series = [],
       lastvalues = [];//hopefully the smallest values for determining significant digits.
   seriesindex = [];
-  console.debug('data: ', data);
 
   for (var branch in data.branches) {
     var dates_seen = {};
@@ -75,11 +89,10 @@ function renderPlot(data) {
         var current_date = new Date(data.branches[branch][exe_id][results_data][0]);
         var date_formatted = current_date.getMonthNumber() + '-' + current_date.getDate()// + '-' + dates_seen[current_date];
         dates_seen[date_formatted] = dates_seen[date_formatted] ? dates_seen[date_formatted] + 1 : 1;
-        console.log('date: ', date_formatted + '-' + dates_seen[date_formatted]);
-        data.branches[branch][exe_id][results_data][0] = date_formatted + '-' + dates_seen[date_formatted];
+        times_seen = pad_number(dates_seen[date_formatted]);
+        data.branches[branch][exe_id][results_data][0] = date_formatted + '-' + times_seen;
       }
     }
-    console.log('dates_seen: ', dates_seen);
   }
 
   for (var branch in data.branches) {
@@ -115,12 +128,6 @@ function renderPlot(data) {
     });
     plotdata.push(data.baseline);
   }
-  /*console.log('plotdata: ');
-  console.log('plotdata[0].length: ' + plotdata[0].length);
-  for (var i = 0; i < plotdata[0].length; i++) {
-    plotdata[0][i][0] = '7-29'
-  };
-  console.debug(plotdata[0])*/
   var plotoptions = {
     title: {text: data.benchmark, fontSize: '1.1em'},
     series: series,
@@ -142,10 +149,10 @@ function renderPlot(data) {
       xaxis:{
         renderer: (shouldPlotEquidistant()) ? $.jqplot.CategoryAxisRenderer : $.jqplot.DateAxisRenderer,
         label: 'Commit date',
-        labelRenderer: $.jqplot.CanvasAxisTickRenderer,
+        labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
         pad: 1.01,
         autoscale:true,
-        rendererOptions:{sortMergedLabels:false} /* only relevant when
+        rendererOptions:{sortMergedLabels:true} /* only relevant when
                                 $.jqplot.CategoryAxisRenderer is used */ 
       }
     },

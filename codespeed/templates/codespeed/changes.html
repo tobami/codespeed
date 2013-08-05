@@ -4,7 +4,7 @@
 {% block navigation %}
     {{ block.super }}
 {% endblock %}
-{% block nav-changes %}class="current"><a href="{% url changes %}">Changes</a>{% endblock %}
+{% block nav-changes %}class="current"><a href="{% url "changes" %}">Changes</a>{% endblock %}
 
 {% block body %}
 <div id="sidebar">
@@ -66,7 +66,7 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/changes.js"></script>
 <script type="text/javascript">
-    var TIMELINE_URL = "{% url timeline %}";
+    var TIMELINE_URL = "{% url "timeline" %}";
 
     $(function() {
         Changes.config({

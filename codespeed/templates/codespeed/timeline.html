@@ -8,7 +8,7 @@
 {% block navigation %}
     {{ block.super }}
 {% endblock %}
-{% block nav-timeline %}class="current"><a href="{% url timeline %}">Timeline</a>{% endblock %}
+{% block nav-timeline %}class="current"><a href="{% url "timeline" %}">Timeline</a>{% endblock %}
 
 {% block body %}
 <div id="sidebar">
@@ -102,7 +102,7 @@
 <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
 <script type="text/javascript">
-  var CHANGES_URL = "{% url changes %}";
+  var CHANGES_URL = "{% url "changes" %}";
 </script>
 <script type="text/javascript" src="{{ STATIC_URL }}js/timeline.js"></script>
 <script type="text/javascript">

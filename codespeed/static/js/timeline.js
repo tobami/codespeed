@@ -25,7 +25,7 @@ function getColor(exe_id) {
 }
 
 function shouldPlotEquidistant() {
-  return $("#equidistant").is(':checked');
+  return true; //$("#equidistant").is(':checked');
 }
 
 function getConfiguration() {

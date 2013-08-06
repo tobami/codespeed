@@ -1,4 +1,4 @@
-Django==1.5.1
+Django>=1.4
 South<=2.0
 isodate==0.4.8
 -e git://github.com/toastdriven/django-tastypie.git@5397dec04fe83092a56ba14a843731f2aa08184d#egg=django-tastypie

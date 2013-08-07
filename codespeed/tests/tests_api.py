@@ -18,7 +18,7 @@ from django.conf import settings
 from django.contrib.auth.models import User, Permission
 from tastypie.authorization import (Authorization, ReadOnlyAuthorization,
                                     DjangoAuthorization)
-from tastypie.exceptions import ImmediateHttpResponse
+from tastypie.exceptions import ImmediateHttpResponse, Unauthorized
 from tastypie.models import ApiKey, create_api_key
 from tastypie.http import HttpUnauthorized
 from tastypie.authentication import ApiKeyAuthentication
@@ -44,6 +44,20 @@ class FixtureTestCase(test.TestCase):
         authorization = 'ApiKey {0}:{1}'.format(self.api_user.username,
                                                 self.api_user.api_key.key)
         self.post_auth = {'HTTP_AUTHORIZATION': authorization}
+
+    def generic_test_authorized(self, method, request, function_list, function_detail):
+        bundle = self.resource.build_bundle(request=request)
+        bundle.request.method = method
+        self.assertTrue(function_detail(self.resource.get_object_list(bundle.request)[0],
+            bundle))
+
+    def generic_test_unauthorized(self, method, request, function_list, function_detail):
+        bundle = self.resource.build_bundle(request=request)
+        bundle.request.method = method
+        self.assertRaises(Unauthorized, function_detail,
+            self.resource.get_object_list(bundle.request)[0], bundle)
+
+
 
 
 class ApiKeyAuthenticationTestCase(FixtureTestCase):
@@ -177,6 +191,8 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
             [(k, getattr(env_db1, k)) for k in self.env1_data.keys()]
         )
         self.client = Client()
+        self.resource = EnvironmentResource()
+        self.auth = self.resource._meta.authorization
 
     def test_no_perms(self):
         """User() should have only GET permission"""
@@ -186,15 +202,18 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         request = HttpRequest()
         request.method = 'GET'
         request.user = self.api_user
-        # with no permissions, api is read-only
-        self.assertTrue(EnvironmentResource()._meta.authorization.is_authorized(
-            request))
 
-        for method in ('POST', 'PUT', 'DELETE'):
-            request.method = method
-            self.assertFalse(
-                EnvironmentResource()._meta.authorization.is_authorized(request)
-            )
+
+        # with no permissions, api is read-only
+        self.generic_test_authorized('GET',request, self.auth.read_list,
+            self.auth.read_detail)
+
+        for method, function_list, function_detail in \
+        (('POST',self.auth.create_list, self.auth.create_detail),
+         ('PUT',self.auth.update_list, self.auth.update_detail), 
+         ('DELETE',self.auth.delete_list, self.auth.delete_detail)):
+            self.generic_test_unauthorized(method, request, function_list,
+                                           function_detail)
 
     def test_add_perm(self):
         """User() should have add permission granted."""
@@ -203,9 +222,9 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
 
         # give add permission
         request.user.user_permissions.add(self.add)
-        request.method = 'POST'
-        self.assertTrue(
-            EnvironmentResource()._meta.authorization.is_authorized(request))
+
+        self.generic_test_authorized('POST',request, self.auth.create_list,
+            self.auth.create_detail)
 
     def test_change_perm(self):
         """User() should have change permission granted."""
@@ -214,9 +233,9 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
 
         # give change permission
         request.user.user_permissions.add(self.change)
-        request.method = 'PUT'
-        self.assertTrue(
-            EnvironmentResource()._meta.authorization.is_authorized(request))
+
+        self.generic_test_authorized('PUT',request, self.auth.update_list,
+            self.auth.update_detail)
 
     def test_delete_perm(self):
         """User() should have delete permission granted."""
@@ -225,9 +244,9 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
 
         # give delete permission
         request.user.user_permissions.add(self.delete)
-        request.method = 'DELETE'
-        self.assertTrue(
-            EnvironmentResource()._meta.authorization.is_authorized(request))
+        
+        self.generic_test_authorized('DELETE',request, self.auth.delete_list,
+            self.auth.delete_detail)
 
     def test_all(self):
         """User() should have add, change, delete permissions granted."""
@@ -238,12 +257,19 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         request.user.user_permissions.add(self.change)
         request.user.user_permissions.add(self.delete)
 
-        for method in ('GET', 'OPTIONS', 'HEAD', 'POST', 'PUT', 'DELETE',
-                       'PATCH'):
-            request.method = method
-            self.assertTrue(
-                EnvironmentResource()._meta.authorization.is_authorized(request)
-            )
+        for method, function_list, function_detail in \
+        (('GET',self.auth.read_list, self.auth.read_detail),
+         ('OPTIONS',self.auth.read_list, self.auth.read_detail),
+         ('HEAD',self.auth.read_list, self.auth.read_detail),
+         ('POST',self.auth.create_list, self.auth.create_detail),
+         ('PUT',self.auth.update_list, self.auth.update_detail), 
+         ('PATCH',self.auth.read_list, self.auth.read_detail), 
+         ('PATCH',self.auth.update_list, self.auth.update_detail), 
+         ('PATCH',self.auth.delete_list, self.auth.delete_detail), 
+         ('DELETE',self.auth.delete_list, self.auth.delete_detail)):
+            self.generic_test_authorized(method, request, function_list,
+                                           function_detail)
+
 
     def test_patch_perms(self):
         """User() should have patch (add, change, delete) permissions granted."""
@@ -253,20 +279,22 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
 
         # Not enough.
         request.user.user_permissions.add(self.add)
-        self.assertFalse(
-            EnvironmentResource()._meta.authorization.is_authorized(request))
+        self.generic_test_unauthorized('PATCH', request, self.auth.update_list,
+            self.auth.update_detail)
+        self.generic_test_unauthorized('PATCH', request, self.auth.delete_list,
+            self.auth.delete_detail)
 
         # Still not enough.
         request.user.user_permissions.add(self.change)
-        self.assertFalse(
-            EnvironmentResource()._meta.authorization.is_authorized(request))
+        self.generic_test_unauthorized('PATCH', request, self.auth.delete_list,
+            self.auth.delete_detail)
 
         # Much better.
         request.user.user_permissions.add(self.delete)
         # Nuke the perm cache. :/
         del request.user._perm_cache
-        self.assertTrue(
-            EnvironmentResource()._meta.authorization.is_authorized(request))
+        self.generic_test_authorized('PATCH', request, self.auth.delete_list,
+            self.auth.delete_detail)
 
     def test_unrecognized_method(self):
         """User() should not have the permission to call non-existent method."""
@@ -276,8 +304,8 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
 
         # Check a non-existent HTTP method.
         request.method = 'EXPLODE'
-        self.assertFalse(
-            EnvironmentResource()._meta.authorization.is_authorized(request))
+        self.generic_test_unauthorized('EXPLODE', request, self.auth.update_list,
+            self.auth.update_detail)
 
     def test_get_environment(self):
         """Should get an environment when given an existing ID"""
@@ -439,6 +467,8 @@ class ProjectTest(FixtureTestCase):
         self.project = Project(**self.project_data)
         self.project.save()
         self.client = Client()
+        self.resource = ProjectResource()
+        self.auth = self.resource._meta.authorization
 
     def test_all(self):
         """User should have all permissions granted."""
@@ -449,13 +479,18 @@ class ProjectTest(FixtureTestCase):
         request.user.user_permissions.add(self.change)
         request.user.user_permissions.add(self.delete)
 
-        for method in ('GET', 'OPTIONS', 'HEAD', 'POST', 'PUT', 'DELETE',
-                       'PATCH'):
-            request.method = method
-            self.assertTrue(
-                ProjectResource()._meta.authorization.is_authorized(request)
-            )
-
+        for method, function_list, function_detail in \
+        (('GET',self.auth.read_list, self.auth.read_detail),
+         ('OPTIONS',self.auth.read_list, self.auth.read_detail),
+         ('HEAD',self.auth.read_list, self.auth.read_detail),
+         ('POST',self.auth.create_list, self.auth.create_detail),
+         ('PUT',self.auth.update_list, self.auth.update_detail), 
+         ('PATCH',self.auth.read_list, self.auth.read_detail), 
+         ('PATCH',self.auth.update_list, self.auth.update_detail), 
+         ('PATCH',self.auth.delete_list, self.auth.delete_detail), 
+         ('DELETE',self.auth.delete_list, self.auth.delete_detail)):
+            self.generic_test_authorized(method, request, function_list,
+                                           function_detail)
     def test_get_project(self):
         """Should get an existing project"""
         response = self.client.get('/api/v1/project/{0}/'.format(

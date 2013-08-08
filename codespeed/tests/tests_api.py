@@ -1224,6 +1224,8 @@ class ResultBundleTestCase(FixtureTestCase):
 
     def setUp(self):
         super(ResultBundleTestCase, self).setUp()
+        self.request = HttpRequest()
+        self.request.user = self.api_user
         self.data1 = {
             'commitid': '/api/v1/revision/2/',
             'branch': '/api/v1/branch/1/', # Always use default for trunk/master/tip
@@ -1254,7 +1256,7 @@ class ResultBundleTestCase(FixtureTestCase):
 
     def test_populate_and_save(self):
         """Should populate ResultBundle() with data"""
-        bundle = ResultBundle(**self.data1)
+        bundle = ResultBundle(request=self.request,**self.data1)
         bundle._populate_obj_by_data()
         # should raise exception if not OK
         bundle.hydrate_and_save()
@@ -1265,7 +1267,7 @@ class ResultBundleTestCase(FixtureTestCase):
         modified_data = copy.deepcopy(self.data1)
         modified_data['environment'] = '/api/v1/environment/1/'
         modified_data['project'] = '/api/v1/project/1/'
-        bundle = ResultBundle(**modified_data)
+        bundle = ResultBundle(request=self.request,**modified_data)
         bundle._populate_obj_by_data()
         self.assertRaises(IntegrityError, bundle.hydrate_and_save)
 
@@ -1287,12 +1289,12 @@ class ResultBundleTestCase(FixtureTestCase):
         """Should add date attr to Result() obj if date is not given"""
         # date is set automatically
         modified_data = copy.deepcopy(self.data1)
-        bundle = ResultBundle(**modified_data)
+        bundle = ResultBundle(request=self.request,**modified_data)
         bundle.hydrate_and_save()
         self.assertIsInstance(bundle.obj.date, datetime)
         # date set by value
         modified_data['date'] = '2011-05-05 03:01:45'
-        ResultBundle(**modified_data)
+        bundle = ResultBundle(request=self.request,**modified_data)
         # wrong date string
         modified_data['date'] = '2011-05-05T03:01:45'
         self.assertRaises(ImmediateHttpResponse, ResultBundle, **modified_data)
@@ -1300,7 +1302,7 @@ class ResultBundleTestCase(FixtureTestCase):
     def test_optional_data(self):
         """Should save optional data."""
         data = dict(self.data1.items() + self.data_optional.items())
-        bundle = ResultBundle(**data)
+        bundle = ResultBundle(request=self.request,**data)
         bundle.hydrate_and_save()
         self.assertIsInstance(bundle.obj.date, datetime)
         self.assertEqual(bundle.obj.std_dev,
@@ -1364,11 +1366,6 @@ class ResultBundleResourceTestCase(FixtureTestCase):
         response = self.client.post('/api/v1/benchmark-result/',
                                     data=json.dumps(self.data1),
                                     content_type='application/json')
-        self.assertEquals(response.status_code, 401)
-        response = self.client.post('/api/v1/benchmark-result/',
-                                    data=json.dumps(self.data1),
-                                    content_type='application/json',
-                                    **self.post_auth)
         self.assertEquals(response.status_code, 201)
         id = response['Location'].rsplit('/', 2)[-2]
         result = Result.objects.get(pk=int(id))
@@ -1387,11 +1384,6 @@ class ResultBundleResourceTestCase(FixtureTestCase):
         response = self.client.post('/api/v1/benchmark-result/',
                                     data=json.dumps(data),
                                     content_type='application/json')
-        self.assertEquals(response.status_code, 401)
-        response = self.client.post('/api/v1/benchmark-result/',
-                                    data=json.dumps(data),
-                                    content_type='application/json',
-                                    **self.post_auth)
         self.assertEquals(response.status_code, 201)
 
     def test_post_invalid_data(self):

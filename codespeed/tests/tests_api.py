@@ -48,16 +48,15 @@ class FixtureTestCase(test.TestCase):
     def generic_test_authorized(self, method, request, function_list, function_detail):
         bundle = self.resource.build_bundle(request=request)
         bundle.request.method = method
-        self.assertTrue(function_detail(self.resource.get_object_list(bundle.request)[0],
-            bundle))
+        self.assertTrue(
+            function_detail(self.resource.get_object_list(bundle.request)[0],
+                            bundle))
 
     def generic_test_unauthorized(self, method, request, function_list, function_detail):
         bundle = self.resource.build_bundle(request=request)
         bundle.request.method = method
         self.assertRaises(Unauthorized, function_detail,
-            self.resource.get_object_list(bundle.request)[0], bundle)
-
-
+                          self.resource.get_object_list(bundle.request)[0], bundle)
 
 
 class ApiKeyAuthenticationTestCase(FixtureTestCase):
@@ -104,6 +103,7 @@ class ApiKeyAuthenticationTestCase(FixtureTestCase):
 
 
 class UserTest(FixtureTestCase):
+
     """Test api user related stuff"""
 
     def test_has_apikey(self):
@@ -160,6 +160,7 @@ class UserTest(FixtureTestCase):
 
 
 class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
+
     """Test Environment() API"""
 
     def setUp(self):
@@ -203,15 +204,14 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         request.method = 'GET'
         request.user = self.api_user
 
-
         # with no permissions, api is read-only
-        self.generic_test_authorized('GET',request, self.auth.read_list,
-            self.auth.read_detail)
+        self.generic_test_authorized('GET', request, self.auth.read_list,
+                                     self.auth.read_detail)
 
         for method, function_list, function_detail in \
-        (('POST',self.auth.create_list, self.auth.create_detail),
-         ('PUT',self.auth.update_list, self.auth.update_detail), 
-         ('DELETE',self.auth.delete_list, self.auth.delete_detail)):
+            (('POST', self.auth.create_list, self.auth.create_detail),
+             ('PUT', self.auth.update_list, self.auth.update_detail),
+             ('DELETE', self.auth.delete_list, self.auth.delete_detail)):
             self.generic_test_unauthorized(method, request, function_list,
                                            function_detail)
 
@@ -223,8 +223,8 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         # give add permission
         request.user.user_permissions.add(self.add)
 
-        self.generic_test_authorized('POST',request, self.auth.create_list,
-            self.auth.create_detail)
+        self.generic_test_authorized('POST', request, self.auth.create_list,
+                                     self.auth.create_detail)
 
     def test_change_perm(self):
         """User() should have change permission granted."""
@@ -234,8 +234,8 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         # give change permission
         request.user.user_permissions.add(self.change)
 
-        self.generic_test_authorized('PUT',request, self.auth.update_list,
-            self.auth.update_detail)
+        self.generic_test_authorized('PUT', request, self.auth.update_list,
+                                     self.auth.update_detail)
 
     def test_delete_perm(self):
         """User() should have delete permission granted."""
@@ -244,9 +244,9 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
 
         # give delete permission
         request.user.user_permissions.add(self.delete)
-        
-        self.generic_test_authorized('DELETE',request, self.auth.delete_list,
-            self.auth.delete_detail)
+
+        self.generic_test_authorized('DELETE', request, self.auth.delete_list,
+                                     self.auth.delete_detail)
 
     def test_all(self):
         """User() should have add, change, delete permissions granted."""
@@ -258,18 +258,17 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         request.user.user_permissions.add(self.delete)
 
         for method, function_list, function_detail in \
-        (('GET',self.auth.read_list, self.auth.read_detail),
-         ('OPTIONS',self.auth.read_list, self.auth.read_detail),
-         ('HEAD',self.auth.read_list, self.auth.read_detail),
-         ('POST',self.auth.create_list, self.auth.create_detail),
-         ('PUT',self.auth.update_list, self.auth.update_detail), 
-         ('PATCH',self.auth.read_list, self.auth.read_detail), 
-         ('PATCH',self.auth.update_list, self.auth.update_detail), 
-         ('PATCH',self.auth.delete_list, self.auth.delete_detail), 
-         ('DELETE',self.auth.delete_list, self.auth.delete_detail)):
+            (('GET', self.auth.read_list, self.auth.read_detail),
+             ('OPTIONS', self.auth.read_list, self.auth.read_detail),
+             ('HEAD', self.auth.read_list, self.auth.read_detail),
+             ('POST', self.auth.create_list, self.auth.create_detail),
+             ('PUT', self.auth.update_list, self.auth.update_detail),
+             ('PATCH', self.auth.read_list, self.auth.read_detail),
+             ('PATCH', self.auth.update_list, self.auth.update_detail),
+             ('PATCH', self.auth.delete_list, self.auth.delete_detail),
+             ('DELETE', self.auth.delete_list, self.auth.delete_detail)):
             self.generic_test_authorized(method, request, function_list,
-                                           function_detail)
-
+                                         function_detail)
 
     def test_patch_perms(self):
         """User() should have patch (add, change, delete) permissions granted."""
@@ -280,21 +279,21 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         # Not enough.
         request.user.user_permissions.add(self.add)
         self.generic_test_unauthorized('PATCH', request, self.auth.update_list,
-            self.auth.update_detail)
+                                       self.auth.update_detail)
         self.generic_test_unauthorized('PATCH', request, self.auth.delete_list,
-            self.auth.delete_detail)
+                                       self.auth.delete_detail)
 
         # Still not enough.
         request.user.user_permissions.add(self.change)
         self.generic_test_unauthorized('PATCH', request, self.auth.delete_list,
-            self.auth.delete_detail)
+                                       self.auth.delete_detail)
 
         # Much better.
         request.user.user_permissions.add(self.delete)
         # Nuke the perm cache. :/
         del request.user._perm_cache
         self.generic_test_authorized('PATCH', request, self.auth.delete_list,
-            self.auth.delete_detail)
+                                     self.auth.delete_detail)
 
     def test_unrecognized_method(self):
         """User() should not have the permission to call non-existent method."""
@@ -304,7 +303,8 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
 
         # Check a non-existent HTTP method.
         request.method = 'EXPLODE'
-        self.generic_test_unauthorized('EXPLODE', request, self.auth.update_list,
+        self.generic_test_unauthorized(
+            'EXPLODE', request, self.auth.update_list,
             self.auth.update_detail)
 
     def test_get_environment(self):
@@ -361,8 +361,8 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
             self.assertEqual(
                 json.loads(response.content)[k], v)
         response = self.client.delete('/api/v1/environment/{0}/'.format(id),
-                                    content_type='application/json',
-                                    **self.post_auth)
+                                      content_type='application/json',
+                                      **self.post_auth)
         self.assertEquals(response.status_code, 204)
 
     def test_put(self):
@@ -440,6 +440,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
 
 
 class ProjectTest(FixtureTestCase):
+
     """Test Project() API"""
 
     def setUp(self):
@@ -463,7 +464,7 @@ class ProjectTest(FixtureTestCase):
             repo_path="ssh://hg@bitbucket.org/pypy/pypy",
             repo_user="alpha",
             repo_pass="beta",
-            )
+        )
         self.project = Project(**self.project_data)
         self.project.save()
         self.client = Client()
@@ -480,17 +481,18 @@ class ProjectTest(FixtureTestCase):
         request.user.user_permissions.add(self.delete)
 
         for method, function_list, function_detail in \
-        (('GET',self.auth.read_list, self.auth.read_detail),
-         ('OPTIONS',self.auth.read_list, self.auth.read_detail),
-         ('HEAD',self.auth.read_list, self.auth.read_detail),
-         ('POST',self.auth.create_list, self.auth.create_detail),
-         ('PUT',self.auth.update_list, self.auth.update_detail), 
-         ('PATCH',self.auth.read_list, self.auth.read_detail), 
-         ('PATCH',self.auth.update_list, self.auth.update_detail), 
-         ('PATCH',self.auth.delete_list, self.auth.delete_detail), 
-         ('DELETE',self.auth.delete_list, self.auth.delete_detail)):
+            (('GET', self.auth.read_list, self.auth.read_detail),
+             ('OPTIONS', self.auth.read_list, self.auth.read_detail),
+             ('HEAD', self.auth.read_list, self.auth.read_detail),
+             ('POST', self.auth.create_list, self.auth.create_detail),
+             ('PUT', self.auth.update_list, self.auth.update_detail),
+             ('PATCH', self.auth.read_list, self.auth.read_detail),
+             ('PATCH', self.auth.update_list, self.auth.update_detail),
+             ('PATCH', self.auth.delete_list, self.auth.delete_detail),
+             ('DELETE', self.auth.delete_list, self.auth.delete_detail)):
             self.generic_test_authorized(method, request, function_list,
-                                           function_detail)
+                                         function_detail)
+
     def test_get_project(self):
         """Should get an existing project"""
         response = self.client.get('/api/v1/project/{0}/'.format(
@@ -556,6 +558,7 @@ class ProjectTest(FixtureTestCase):
 
 
 class ExecutableTest(FixtureTestCase):
+
     """Test Executable() API"""
 
     def setUp(self):
@@ -617,6 +620,7 @@ class ExecutableTest(FixtureTestCase):
 
 
 class BranchTest(FixtureTestCase):
+
     """Test Branch() API"""
 
     def setUp(self):
@@ -634,7 +638,7 @@ class BranchTest(FixtureTestCase):
             repo_path="ssh://hg@bitbucket.org/pypy/pypy",
             repo_user="fridolin",
             repo_pass="secret",
-            )
+        )
         self.project = Project(**self.project_data)
         self.project.save()
         self.branch2_data = dict(
@@ -734,6 +738,7 @@ class BranchTest(FixtureTestCase):
 
 
 class RevisionTest(FixtureTestCase):
+
     """Test Revision() API"""
 
     def setUp(self):
@@ -869,6 +874,7 @@ class RevisionTest(FixtureTestCase):
 
 
 class ExecutableTest(FixtureTestCase):
+
     """Test Executable() API"""
 
     def setUp(self):
@@ -987,6 +993,7 @@ class ExecutableTest(FixtureTestCase):
 
 
 class BenchmarkTest(FixtureTestCase):
+
     """Test Benchmark() API"""
 
     def setUp(self):
@@ -1045,7 +1052,7 @@ class BenchmarkTest(FixtureTestCase):
                                     data=json.dumps(modified_data),
                                     content_type='application/json',
                                     **self.post_auth
-        )
+                                    )
         self.assertEquals(response.status_code, 201)
         id = response['Location'].rsplit('/', 2)[-2]
         response = self.client.get('/api/v1/benchmark/{0}/'.format(id))
@@ -1105,6 +1112,7 @@ class BenchmarkTest(FixtureTestCase):
 
 
 class ReportTest(FixtureTestCase):
+
     """Test Report() API"""
 
     def setUp(self):
@@ -1220,6 +1228,7 @@ class ReportTest(FixtureTestCase):
 
 
 class ResultBundleTestCase(FixtureTestCase):
+
     """Test CRUD of results via API"""
 
     def setUp(self):
@@ -1256,7 +1265,7 @@ class ResultBundleTestCase(FixtureTestCase):
 
     def test_populate_and_save(self):
         """Should populate ResultBundle() with data"""
-        bundle = ResultBundle(request=self.request,**self.data1)
+        bundle = ResultBundle(request=self.request, **self.data1)
         bundle._populate_obj_by_data()
         # should raise exception if not OK
         bundle.hydrate_and_save()
@@ -1267,7 +1276,7 @@ class ResultBundleTestCase(FixtureTestCase):
         modified_data = copy.deepcopy(self.data1)
         modified_data['environment'] = '/api/v1/environment/1/'
         modified_data['project'] = '/api/v1/project/1/'
-        bundle = ResultBundle(request=self.request,**modified_data)
+        bundle = ResultBundle(request=self.request, **modified_data)
         bundle._populate_obj_by_data()
         self.assertRaises(IntegrityError, bundle.hydrate_and_save)
 
@@ -1289,12 +1298,12 @@ class ResultBundleTestCase(FixtureTestCase):
         """Should add date attr to Result() obj if date is not given"""
         # date is set automatically
         modified_data = copy.deepcopy(self.data1)
-        bundle = ResultBundle(request=self.request,**modified_data)
+        bundle = ResultBundle(request=self.request, **modified_data)
         bundle.hydrate_and_save()
         self.assertIsInstance(bundle.obj.date, datetime)
         # date set by value
         modified_data['date'] = '2011-05-05 03:01:45'
-        bundle = ResultBundle(request=self.request,**modified_data)
+        bundle = ResultBundle(request=self.request, **modified_data)
         # wrong date string
         modified_data['date'] = '2011-05-05T03:01:45'
         self.assertRaises(ImmediateHttpResponse, ResultBundle, **modified_data)
@@ -1302,7 +1311,7 @@ class ResultBundleTestCase(FixtureTestCase):
     def test_optional_data(self):
         """Should save optional data."""
         data = dict(self.data1.items() + self.data_optional.items())
-        bundle = ResultBundle(request=self.request,**data)
+        bundle = ResultBundle(request=self.request, **data)
         bundle.hydrate_and_save()
         self.assertIsInstance(bundle.obj.date, datetime)
         self.assertEqual(bundle.obj.std_dev,
@@ -1314,6 +1323,7 @@ class ResultBundleTestCase(FixtureTestCase):
 
 
 class ResultBundleResourceTestCase(FixtureTestCase):
+
     """Submitting new benchmark results"""
 
     DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
@@ -1405,11 +1415,11 @@ class ResultBundleResourceTestCase(FixtureTestCase):
     def test_get_one(self):
         """Should get a result bundle"""
         response = self.client.get('/api/v1/benchmark-result/1/',
-                                    content_type='application/json')
+                                   content_type='application/json')
         self.assertEquals(response.status_code, 200)
         response_data = json.loads(response.content)
         for k in ('project', 'result', 'branch', 'benchmark', 'environment',
-            'executable', 'revision'):
+                  'executable', 'revision'):
             self.assertEqual(
                 response_data[k],
                 '/api/v1/{0}/1/'.format(k,))

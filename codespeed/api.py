@@ -224,17 +224,23 @@ class ResultBundle(Bundle):
         """
         def populate(key):
             return {'project': lambda: ProjectResource().get_via_uri(
-                        self.data['project'], request=self.request),
+                    self.data['project'], request=self.request),
+
                     'executable': lambda: ExecutableResource().get_via_uri(
-                        self.data['executable'], request=self.request),
+                    self.data['executable'], request=self.request),
+
                     'benchmark': lambda: BenchmarkResource().get_via_uri(
-                        self.data['benchmark'], request=self.request),
+                    self.data['benchmark'], request=self.request),
+
                     'environment': lambda: EnvironmentResource().get_via_uri(
-                        self.data['environment'], request=self.request),
+                    self.data['environment'], request=self.request),
+
                     'branch': lambda: BranchResource().get_via_uri(
-                        self.data['branch'], request=self.request),
+                    self.data['branch'], request=self.request),
+
                     'revision': lambda: RevisionResource().get_via_uri(
-                        self.data['commitid'], request=self.request)}.get(key, None)()
+                    self.data['commitid'],
+                    request=self.request)}.get(key, None)()
 
         try:
             self.obj.value = float(self.data['result_value'])
@@ -440,7 +446,8 @@ class ResultBundleResource(Resource):
             format=request.META.get('CONTENT_TYPE', 'application/json')
         )
         deserialized = self.alter_deserialized_list_data(request, deserialized)
-        bundle = ResultBundle(request=request, **dict_strip_unicode_keys(deserialized))
+        bundle = ResultBundle(request=request,
+                              **dict_strip_unicode_keys(deserialized))
         self.is_valid(bundle)
         updated_bundle = self.obj_create(bundle, request=request)
         return HttpCreated(location=self.get_resource_uri(updated_bundle))

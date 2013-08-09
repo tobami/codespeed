@@ -208,10 +208,11 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         self.generic_test_authorized('GET', request, self.auth.read_list,
                                      self.auth.read_detail)
 
-        for method, function_list, function_detail in \
-            (('POST', self.auth.create_list, self.auth.create_detail),
-             ('PUT', self.auth.update_list, self.auth.update_detail),
-             ('DELETE', self.auth.delete_list, self.auth.delete_detail)):
+        methods = [('POST', self.auth.create_list, self.auth.create_detail),
+                   ('PUT', self.auth.update_list, self.auth.update_detail),
+                   ('DELETE', self.auth.delete_list, self.auth.delete_detail)]
+
+        for method, function_list, function_detail in methods:
             self.generic_test_unauthorized(method, request, function_list,
                                            function_detail)
 
@@ -257,8 +258,7 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
         request.user.user_permissions.add(self.change)
         request.user.user_permissions.add(self.delete)
 
-        for method, function_list, function_detail in \
-            (('GET', self.auth.read_list, self.auth.read_detail),
+        methods = [('GET', self.auth.read_list, self.auth.read_detail),
              ('OPTIONS', self.auth.read_list, self.auth.read_detail),
              ('HEAD', self.auth.read_list, self.auth.read_detail),
              ('POST', self.auth.create_list, self.auth.create_detail),
@@ -266,7 +266,9 @@ class EnvironmentDjangoAuthorizationTestCase(FixtureTestCase):
              ('PATCH', self.auth.read_list, self.auth.read_detail),
              ('PATCH', self.auth.update_list, self.auth.update_detail),
              ('PATCH', self.auth.delete_list, self.auth.delete_detail),
-             ('DELETE', self.auth.delete_list, self.auth.delete_detail)):
+             ('DELETE', self.auth.delete_list, self.auth.delete_detail)]
+
+        for method, function_list, function_detail in methods:
             self.generic_test_authorized(method, request, function_list,
                                          function_detail)
 
@@ -480,8 +482,7 @@ class ProjectTest(FixtureTestCase):
         request.user.user_permissions.add(self.change)
         request.user.user_permissions.add(self.delete)
 
-        for method, function_list, function_detail in \
-            (('GET', self.auth.read_list, self.auth.read_detail),
+        methods = [('GET', self.auth.read_list, self.auth.read_detail),
              ('OPTIONS', self.auth.read_list, self.auth.read_detail),
              ('HEAD', self.auth.read_list, self.auth.read_detail),
              ('POST', self.auth.create_list, self.auth.create_detail),
@@ -489,7 +490,9 @@ class ProjectTest(FixtureTestCase):
              ('PATCH', self.auth.read_list, self.auth.read_detail),
              ('PATCH', self.auth.update_list, self.auth.update_detail),
              ('PATCH', self.auth.delete_list, self.auth.delete_detail),
-             ('DELETE', self.auth.delete_list, self.auth.delete_detail)):
+             ('DELETE', self.auth.delete_list, self.auth.delete_detail)]
+
+        for method, function_list, function_detail in methods:
             self.generic_test_authorized(method, request, function_list,
                                          function_detail)
 

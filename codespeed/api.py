@@ -39,7 +39,6 @@ from django.db import models
 from django.http import Http404
 from django.shortcuts import get_object_or_404
 from tastypie.bundle import Bundle
-from tastypie.bundle import Bundle
 from tastypie.exceptions import ImmediateHttpResponse
 from tastypie.http import HttpBadRequest, HttpCreated, HttpNotImplemented
 from tastypie.resources import ModelResource, Resource
@@ -136,9 +135,8 @@ class EnvironmentResource(ModelResource):
         queryset = Environment.objects.all()
         resource_name = 'environment'
         authorization = DjangoAuthorization()
-        authentication = ApiKeyAuthentication()
-        #authentication = MultiAuthentication(Authentication(),
-                                              #ApiKeyAuthentication())
+        authentication = MultiAuthentication(ApiKeyAuthentication(),
+                                             Authentication())
 
 
 class ResultResource(ModelResource):
@@ -201,8 +199,9 @@ class ResultBundle(Bundle):
         'date',
     )
 
-    def __init__(self, obj=None, **kwargs):
+    def __init__(self, obj=None, request=None, **kwargs):
         self.data = kwargs
+        self.request = request
 
         if isinstance(obj, Result):
             self.obj = obj
@@ -215,7 +214,8 @@ class ResultBundle(Bundle):
         if self.data:
             self._check_data()
         self.__data_validated = False  # not used for now
-        super(ResultBundle, self).__init__(data=self.data, obj=self.obj)
+        super(ResultBundle, self).__init__(data=self.data, obj=self.obj,
+                                           request=self.request)
 
     def _populate_obj_by_data(self):
         """Database lookup
@@ -224,17 +224,23 @@ class ResultBundle(Bundle):
         """
         def populate(key):
             return {'project': lambda: ProjectResource().get_via_uri(
-                        self.data['project']),
+                    self.data['project'], request=self.request),
+
                     'executable': lambda: ExecutableResource().get_via_uri(
-                        self.data['executable']),
+                    self.data['executable'], request=self.request),
+
                     'benchmark': lambda: BenchmarkResource().get_via_uri(
-                        self.data['benchmark']),
+                    self.data['benchmark'], request=self.request),
+
                     'environment': lambda: EnvironmentResource().get_via_uri(
-                        self.data['environment']),
+                    self.data['environment'], request=self.request),
+
                     'branch': lambda: BranchResource().get_via_uri(
-                        self.data['branch']),
+                    self.data['branch'], request=self.request),
+
                     'revision': lambda: RevisionResource().get_via_uri(
-                        self.data['commitid'])}.get(key, None)()
+                    self.data['commitid'],
+                    request=self.request)}.get(key, None)()
 
         try:
             self.obj.value = float(self.data['result_value'])
@@ -299,7 +305,7 @@ class ResultBundle(Bundle):
         # Check that the Environment exists
         try:
             self.obj.environment = EnvironmentResource().get_via_uri(
-                self.data['environment'])
+                self.data['environment'], request=self.request)
         except Environment.DoesNotExist:
             error_text = 'Environment: {0} not found in database.'.format(
                 self.data['environment'])
@@ -400,7 +406,7 @@ class ResultBundleResource(Resource):
     def get_object_list(self, request):
         results = Result.objects.all()
 
-        return [ResultBundle(obj=r).obj for r in results]
+        return [ResultBundle(obj=r, request=request).obj for r in results]
 
     def obj_get_list(self, request=None, **kwargs):
         """Return all benchmark results ever"""
@@ -440,8 +446,9 @@ class ResultBundleResource(Resource):
             format=request.META.get('CONTENT_TYPE', 'application/json')
         )
         deserialized = self.alter_deserialized_list_data(request, deserialized)
-        bundle = ResultBundle(**dict_strip_unicode_keys(deserialized))
-        self.is_valid(bundle, request)
+        bundle = ResultBundle(request=request,
+                              **dict_strip_unicode_keys(deserialized))
+        self.is_valid(bundle)
         updated_bundle = self.obj_create(bundle, request=request)
         return HttpCreated(location=self.get_resource_uri(updated_bundle))
 

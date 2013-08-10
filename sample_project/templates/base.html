@@ -1,3 +1,4 @@
+{% load url from future %}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
   <head>
@@ -31,9 +32,9 @@
 <div id="nav">
 {% block navigation %}
 <ul class="inline">
-  <li {% block nav-changes %}><a href=" {% url changes %}">Changes</a>{% endblock %}</li>
-  <li {% block nav-timeline %}><a href=" {% url timeline %}">Timeline</a>{% endblock %}</li>
-  <li {% block nav-comparison %}><a href=" {% url comparison %}">Comparison</a>{% endblock %}</li>
+  <li {% block nav-changes %}><a href=" {% url "changes" %}">Changes</a>{% endblock %}</li>
+  <li {% block nav-timeline %}><a href=" {% url "timeline" %}">Timeline</a>{% endblock %}</li>
+  <li {% block nav-comparison %}><a href=" {% url "comparison" %}">Comparison</a>{% endblock %}</li>
 </ul>
 {% endblock %}
 </div>

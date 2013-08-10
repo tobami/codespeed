@@ -26,23 +26,23 @@ class AddResult(TestCase):
         self.cdate = datetime(
             temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
         self.data = {
-                'commitid': '23',
-                'branch': 'default',
-                'project': 'MyProject',
-                'executable': 'myexe O3 64bits',
-                'benchmark': 'float',
-                'environment': 'Dual Core',
-                'result_value': 456,
+            'commitid': '23',
+            'branch': 'default',
+            'project': 'MyProject',
+            'executable': 'myexe O3 64bits',
+            'benchmark': 'float',
+            'environment': 'Dual Core',
+            'result_value': 456,
         }
 
     def test_add_correct_result(self):
         """Add correct result data"""
         response = self.client.post(self.path, self.data)
-        
+
         # Check that we get a success response
         self.assertEquals(response.status_code, 202)
         self.assertEquals(response.content, "Result data saved successfully")
-        
+
         # Check that the data was correctly saved
         e = Environment.objects.get(name='Dual Core')
         b = Benchmark.objects.get(name='float')
@@ -171,36 +171,36 @@ class AddJSONResults(TestCase):
         temp = datetime.today()
         self.cdate = datetime(
             temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)
-        
+
         self.data = [
             {'commitid': '123',
-            'project': 'pypy',
-            'branch': 'default',
-            'executable': 'pypy-c',
-            'benchmark': 'Richards',
-            'environment': 'bigdog',
-            'result_value': 456},
+             'project': 'pypy',
+             'branch': 'default',
+             'executable': 'pypy-c',
+             'benchmark': 'Richards',
+             'environment': 'bigdog',
+             'result_value': 456},
             {'commitid': '456',
-            'project': 'pypy',
-            'branch': 'default',
-            'executable': 'pypy-c',
-            'benchmark': 'Richards',
-            'environment': 'bigdog',
-            'result_value': 457},
+             'project': 'pypy',
+             'branch': 'default',
+             'executable': 'pypy-c',
+             'benchmark': 'Richards',
+             'environment': 'bigdog',
+             'result_value': 457},
             {'commitid': '456',
-            'project': 'pypy',
-            'branch': 'default',
-            'executable': 'pypy-c',
-            'benchmark': 'Richards2',
-            'environment': 'bigdog',
-            'result_value': 34},
+             'project': 'pypy',
+             'branch': 'default',
+             'executable': 'pypy-c',
+             'benchmark': 'Richards2',
+             'environment': 'bigdog',
+             'result_value': 34},
             {'commitid': '789',
-            'project': 'pypy',
-            'branch': 'default',
-            'executable': 'pypy-c',
-            'benchmark': 'Richards',
-            'environment': 'bigdog',
-            'result_value': 458},
+             'project': 'pypy',
+             'branch': 'default',
+             'executable': 'pypy-c',
+             'benchmark': 'Richards',
+             'environment': 'bigdog',
+             'result_value': 458},
         ]
 
     def test_add_correct_results(self):
@@ -390,7 +390,8 @@ class TestViewHelpers(TestCase):
 
     def setUp(self):
         self.project = Project.objects.create(name='Test')
-        self.executable = Executable.objects.create(name='TestExecutable', project=self.project)
+        self.executable = Executable.objects.create(
+            name='TestExecutable', project=self.project)
         self.branch = Branch.objects.create(name='master', project=self.project)
 
     def test_get_baseline_executables(self):
@@ -421,7 +422,8 @@ class ProjectTest(TestCase):
     """Test project model"""
 
     def setUp(self):
-        self.github_project = Project(repo_type='H', repo_path='https://github.com/tobami/codespeed.git')
+        self.github_project = Project(repo_type='H',
+                                      repo_path='https://github.com/tobami/codespeed.git')
         self.git_project = Project(repo_type='G', repo_path='/home/foo/codespeed')
 
     def test_repo_name(self):
@@ -435,7 +437,8 @@ class ProjectTest(TestCase):
         """Test that only projects with local repositories have a working_copy attribute
         """
         self.assertEqual(self.git_project.working_copy,
-                         os.path.join(settings.REPOSITORY_BASE_PATH, self.git_project.repo_name))
+                         os.path.join(settings.REPOSITORY_BASE_PATH,
+                                      self.git_project.repo_name))
 
         self.assertRaises(
             AttributeError, getattr, self.github_project, 'working_copy')

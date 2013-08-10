@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls.defaults import *
 from django.core.urlresolvers import reverse
-from django.views.generic.simple import direct_to_template
+from django.views.generic import TemplateView
 from tastypie.api import Api
 
 from codespeed.feeds import LatestEntries
@@ -25,8 +25,8 @@ rest_api.register(ReportResource())
 rest_api.register(ResultBundleResource())
 
 urlpatterns = patterns('',
-    (r'^$', direct_to_template, {'template': 'home.html'}),
-    (r'^about/$', direct_to_template, {'template': 'about.html'}),
+    (r'^$', TemplateView.as_view(template_name='home.html')),
+    (r'^about/$', TemplateView.as_view(template_name='about.html')),
     # RSS for reports
     (r'^feeds/(?P<url>.*)/$', LatestEntries()),
 )

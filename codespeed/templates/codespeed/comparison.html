@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load url from future %}
 {% block title %}{{ block.super }}: Comparison{% endblock %}
 
 {% block extra_head %}
@@ -9,7 +10,7 @@
 {% block navigation %}
     {{ block.super }}
 {% endblock %}
-{% block nav-comparison %}class="current"><a href="{% url comparison %}">Comparison</a>{% endblock %}
+{% block nav-comparison %}class="current"><a href="{% url "comparison" %}">Comparison</a>{% endblock %}
 
 {% block body %}
 <div id="sidebar">

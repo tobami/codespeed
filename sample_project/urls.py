@@ -4,7 +4,7 @@ import os.path
 
 from django.conf import settings
 from django.conf.urls.defaults import patterns, include, handler404, handler500
-from django.views.generic.simple import redirect_to
+from django.views.generic import RedirectView
 from django.core.urlresolvers import reverse
 from django.contrib import admin
 
@@ -16,7 +16,7 @@ urlpatterns = patterns('',
 
 urlpatterns += patterns(
     '',
-    #('^$', redirect_to, {'url': '/speed/'}),
+    #('^$',  RedirectView.as_view(url='/speed/')),
 )
 
 urlpatterns += patterns(

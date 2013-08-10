@@ -1,23 +1,24 @@
 {% extends "base.html" %}
+{% load url from future %}
 
 {% block navigation %}
 {% endblock navigation %}
 
 {% block body %}
 <div id="presentation" class="clearfix">
-    <a href="{% url changes %}">
+    <a href="{% url "changes" %}">
         <div id="changes" class="menubox">
           <h2>Changes</h2>
           <p>Track performance changes in the latest revisions</p>
         </div>
     </a>
-    <a href="{% url timeline %}">
+    <a href="{% url "timeline" %}">
         <div id="timeline" class="menubox">
           <h2>Timeline</h2>
           <p>Analyze performance over time</p>
         </div>
     </a>
-    <a href="{% url comparison %}">
+    <a href="{% url "comparison" %}">
         <div id="comparison" class="menubox">
           <h2>Comparison</h2>
           <p>Compare different executables and revisions</p>
@@ -53,7 +54,7 @@
 
     $(function() {
         $("#reports").html(getLoadText("Loading...", 0, true))
-            .load("{% url reports %}", function(responseText) { updateTable(); });
+            .load("{% url "reports" %}", function(responseText) { updateTable(); });
   });
 </script>
 {% endblock %}

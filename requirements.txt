@@ -1,9 +1,4 @@
 Django>=1.4
 South<=2.0
 isodate==0.4.8
-# version 0.9.12
-#-e git://github.com/toastdriven/django-tastypie.git@5397dec04fe83092a56ba14a843731f2aa08184d#egg=django-tastypie
-#django-tastypie==0.9.15
-# version 0.10.0 with astimezone() bug resolved by an added commit
--e git://github.com/toastdriven/django-tastypie.git@b78175d4c401e99f814fb6f287853a650542cbb8#egg=django-tastypie
-#-e git://github.com/robhudson/django-debug-toolbar.git#egg=django-debug-toolbar
+django-tastypie==0.9.15

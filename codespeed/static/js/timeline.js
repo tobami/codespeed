@@ -25,7 +25,7 @@ function getColor(exe_id) {
 }
 
 function shouldPlotEquidistant() {
-  return $("#equidistant").is(':checked');
+  return true; //$("#equidistant").is(':checked');
 }
 
 function getConfiguration() {
@@ -61,11 +61,40 @@ function OnMarkerClickHandler(ev, gridpos, datapos, neighbor, plot) {
   }
 }
 
+function is_number(n){
+  if (typeof(n) == 'number'){
+    return true;
+  }else{
+    return false;
+  }
+}
+
+function pad_number(n){
+    if (is_number(n)){
+      return n > 9 ? "" + n: "0" + n;
+    }
+    return '';
+}
+
 function renderPlot(data) {
   var plotdata = [],
       series = [],
       lastvalues = [];//hopefully the smallest values for determining significant digits.
   seriesindex = [];
+
+  for (var branch in data.branches) {
+    var dates_seen = {};
+    for (var exe_id in data.branches[branch]) {
+      for (var results_data in data.branches[branch][exe_id].reverse()){
+        var current_date = new Date(data.branches[branch][exe_id][results_data][0]);
+        var date_formatted = current_date.getMonthNumber() + '-' + current_date.getDate()// + '-' + dates_seen[current_date];
+        dates_seen[date_formatted] = dates_seen[date_formatted] ? dates_seen[date_formatted] + 1 : 1;
+        times_seen = pad_number(dates_seen[date_formatted]);
+        data.branches[branch][exe_id][results_data][0] = date_formatted + '-' + times_seen;
+      }
+    }
+  }
+
   for (var branch in data.branches) {
     // NOTE: Currently, only the "default" branch is shown in the timeline
     for (var exe_id in data.branches[branch]) {
@@ -102,18 +131,25 @@ function renderPlot(data) {
   var plotoptions = {
     title: {text: data.benchmark, fontSize: '1.1em'},
     series: series,
+
+    axesDefaults: {
+        tickOptions: {
+          formatString: '%m-%#d',
+        }
+    },
     axes:{
       yaxis:{
         label: data.units + data.lessisbetter,
         labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
         min: 0, autoscale:true,
-        tickOptions:{formatString:'%.' + digits + 'f'}
+        tickOptions:{
+          formatString:'%.' + digits + 'f'
+        }
       },
       xaxis:{
         renderer: (shouldPlotEquidistant()) ? $.jqplot.CategoryAxisRenderer : $.jqplot.DateAxisRenderer,
         label: 'Commit date',
         labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-        tickOptions:{formatString:'%b %d'},
         pad: 1.01,
         autoscale:true,
         rendererOptions:{sortMergedLabels:true} /* only relevant when
@@ -177,10 +213,13 @@ function renderMiniplot(plotid, data) {
         min: 0, autoscale:true, showTicks: false
       },
       xaxis: {
-        renderer:$.jqplot.DateAxisRenderer,
+        renderer:$.jqplot.CategoryAxisRenderer,
         pad: 1.01,
         autoscale:true,
-        showTicks: false
+        showTicks: false,
+        tickOptions: {
+          fontSize: '0px',
+        },
       }
     },
     highlighter: {show:false},

@@ -19,7 +19,7 @@ from django.utils import simplejson as json
 logger = logging.getLogger(__name__)
 
 GITHUB_URL_RE = re.compile(
-    r'^(?P<proto>\w+)://github.com/(?P<username>[^/]+)/(?P<project>[^/]+)[.]git$')
+    r'^(?P<proto>\w+)://github.com/(?P<username>[^/]+)/(?P<project>[^/]+)([.]git)?$')
 
 # We currently use a simple linear search of on a single parent to retrieve
 # the history. This is often good enough, but might miss the actual starting
@@ -33,7 +33,7 @@ def updaterepo(project, update=True):
 
 
 def retrieve_revision(commit_id, username, project, revision=None):
-    commit_url = 'http://github.com/api/v2/json/commits/show/%s/%s/%s' % (
+    commit_url = 'https://api.github.com/repos/%s/%s/git/commits/%s' % (
         username, project, commit_id)
 
     commit_json = cache.get(commit_url)
@@ -46,7 +46,7 @@ def retrieve_revision(commit_id, username, project, revision=None):
                              commit_url, e, exc_info=True)
             raise e
 
-        if 'error' in commit_json:
+        if commit_json["message"] in ("Not Found", "Server Error",):
             # We'll still cache these for a brief period of time to avoid making too many requests:
             cache.set(commit_url, commit_json, 300)
         else:
@@ -54,12 +54,10 @@ def retrieve_revision(commit_id, username, project, revision=None):
             # SCM diffs shouldn't change:
             cache.set(commit_url, commit_json, 86400 * 30)
 
-    if 'error' in commit_json:
-        raise RuntimeError("Unable to load %s: %s" % (commit_url, commit_json['error']))
+    if commit_json["message"] in ("Not Found", "Server Error",):
+         raise RuntimeError("Unable to load %s: %s" % (commit_url, commit_json["message"]))
 
-    commit = commit_json['commit']
-
-    date = isodate.parse_datetime(commit['committed_date'])
+    date = isodate.parse_datetime(commit_json['committer']['date'])
 
     if revision:
         # Overwrite any existing data we might have for this revision since
@@ -68,19 +66,19 @@ def retrieve_revision(commit_id, username, project, revision=None):
         # We need to convert the timezone-aware date to a naive (i.e.
         # timezone-less) date in UTC to avoid killing MySQL:
         revision.date = date.astimezone(isodate.tzinfo.Utc()).replace(tzinfo=None)
-        revision.author = commit['author']['name']
-        revision.message = commit['message']
+        revision.author = commit_json['author']['name']
+        revision.message = commit_json['message']
         revision.full_clean()
         revision.save()
 
     return {'date':         date,
-            'message':      commit['message'],
+            'message':      commit_json['message'],
             'body':         "",   # TODO: pretty-print diffs
-            'author':       commit['author']['name'],
-            'author_email': commit['author']['email'],
-            'commitid':     commit['id'],
-            'short_commit_id': commit['id'][0:7],
-            'parents':      commit['parents']}
+            'author':       commit_json['author']['name'],
+            'author_email': commit_json['author']['email'],
+            'commit_id':     commit_json['sha'],
+            'short_commit_id': commit_json['sha'][0:7],
+            'parents':      commit_json['parents']}
 
 
 def getlogs(endrev, startrev):
@@ -89,6 +87,9 @@ def getlogs(endrev, startrev):
                         date__lte=endrev.date, date__gte=startrev.date)
     else:
         revisions = [i for i in (startrev, endrev) if i.commitid]
+
+    if endrev.branch.project.repo_path[-1] == '/':
+        endrev.branch.project.repo_path = endrev.branch.project.repo_path[:-1]
 
     m = GITHUB_URL_RE.match(endrev.branch.project.repo_path)
 
@@ -110,16 +111,16 @@ def getlogs(endrev, startrev):
         last_rev_data = retrieve_revision(revision.commitid, username, project, revision)
         logs.append(last_rev_data)
         revision_count += 1
-        ancestor_found = (startrev.commitid in [rev['id'] for rev in last_rev_data['parents']])
+        ancestor_found = (startrev.commitid in [rev['sha'] for rev in last_rev_data['parents']])
 
     # Simple approach to find the startrev, stop after found or after
     # #GITHUB_REVISION_LIMIT revisions are fetched
     while (revision_count < GITHUB_REVISION_LIMIT
             and not ancestor_found
             and len(last_rev_data['parents']) > 0):
-        last_rev_data = retrieve_revision(last_rev_data['parents'][0]['id'], username, project)
+        last_rev_data = retrieve_revision(last_rev_data['parents'][0]['sha'], username, project)
         logs.append(last_rev_data)
         revision_count += 1
-        ancestor_found = (startrev.commitid in [rev['id'] for rev in last_rev_data['parents']])
+        ancestor_found = (startrev.commitid in [rev['sha'] for rev in last_rev_data['parents']])
 
     return sorted(logs, key=lambda i: i['date'], reverse=True)

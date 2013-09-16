@@ -12,9 +12,9 @@
                 {% endif %}
                 commited
                 {% if log.commit_browse_url %}
-                    <a class="commit-id" title="{{ log.commitid }}" href="{{ log.commit_browse_url }}">{{ log.short_commit_id|default:log.commitid }}</a>:
+                    <a class="commit-id" title="{{ log.commit_id }}" href="{{ log.commit_browse_url }}">{{ log.short_commit_id|default:log.commit_id }}</a>:
                 {% else %}
-                    <abbr class="commit-id" title="{{ log.commitid }}">{{ log.short_commit_id|default:log.commitid }}</abbr>:
+                    <abbr class="commit-id" title="{{ log.commit_id }}">{{ log.short_commit_id|default:log.commit_id }}</abbr>:
                 {% endif %}
 
                 <pre class="message">{{ log.message|linebreaksbr|urlize }}</pre>

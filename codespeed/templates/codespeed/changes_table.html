@@ -76,7 +76,7 @@
 <tbody>
   <tr class="commit-id">
     <th class="infofirst">Commit</th>
-    <td>{% if rev.get_browsing_url %}<a href="{{ rev.get_browsing_url }}">{{ rev.commitid }}</a>{% else %}{{ rev.commitid }}{% endif %}</td>
+    <td>{% if rev.get_browsing_url %}<a href="{{ rev.get_browsing_url }}">{{ rev.commit_id }}</a>{% else %}{{ rev.commit_id }}{% endif %}</td>
   </tr>
   <tr class="date"><th class="infofirst">Date</td><td>{{ rev.date }}</td></tr>
   {% ifnotequal rev.branch.project.repo_type "N" %}
@@ -94,12 +94,12 @@
         <th colspan="2">Commit logs</th>
       </tr>
     </thead>
-    <tbody class="commits" data-commitid="{{ rev.id }}">
+    <tbody class="commits" data-commit_id="{{ rev.id }}">
       <tr><td colspan="2" style="text-align:center;">Loading... <img src="{{ STATIC_URL}}images/ajax-loader.gif" align="bottom"></td></tr>
     </tbody>
     <script type="text/javascript">
       var el = $("tbody.commits");
-      el.load("logs/", "revisionid=" + el.data("commitid"));
+      el.load("logs/", "revisionid=" + el.data("commit_id"));
     </script>
 </table>
 {% endifnotequal %}

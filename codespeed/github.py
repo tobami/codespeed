@@ -76,7 +76,7 @@ def retrieve_revision(commit_id, username, project, revision=None):
             'body':         "",   # TODO: pretty-print diffs
             'author':       commit_json['author']['name'],
             'author_email': commit_json['author']['email'],
-            'commit_id':     commit_json['sha'],
+            'commitid':     commit_json['sha'],
             'short_commit_id': commit_json['sha'][0:7],
             'parents':      commit_json['parents']}
 

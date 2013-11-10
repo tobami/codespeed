@@ -1,4 +1,5 @@
-Django>=1.4
+Django==1.5.5
 South<=2.0
 isodate==0.4.8
 django-tastypie==0.10.0
+mimeparse

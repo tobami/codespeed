@@ -12,17 +12,7 @@ admin.autodiscover()
 
 urlpatterns = patterns('',
     (r'^admin/', include(admin.site.urls)),
-)
-
-urlpatterns += patterns(
-    '',
-    #('^$',  RedirectView.as_view(url='/speed/')),
-)
-
-urlpatterns += patterns(
-    '',
     (r'^', include('codespeed.urls')),
-    #(r'^speed/', include('codespeed.urls')),
 )
 
 if settings.DEBUG:

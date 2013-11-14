@@ -6,6 +6,10 @@ Known to be used by [PyPy](http://speed.pypy.org), [Twisted](http://speed.twiste
 
 For an overview of some application concepts see the [wiki page](https://github.com/tobami/codespeed/wiki/Overview)
 
+# Build Status
+
+The current build status on Travis CI is: [![Build Status](https://travis-ci.org/tobami/codespeed.png?branch=master)](https://travis-ci.org/tobami/codespeed)
+
 # Requirements
 
 You will need Python 2.6+ and Django 1.3+ with South isodate and Tastypie.

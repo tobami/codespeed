@@ -1,14 +1,11 @@
 # Codespeed
+[![Build Status](https://travis-ci.org/tobami/codespeed.png?branch=master)](https://travis-ci.org/tobami/codespeed)
 
 A web application to monitor and analyze the performance of your code.
 
 Known to be used by [PyPy](http://speed.pypy.org), [Twisted](http://speed.twistedmatrix.com), [RubySpec](http://speed.rubyspec.org) and many more.
 
 For an overview of some application concepts see the [wiki page](https://github.com/tobami/codespeed/wiki/Overview)
-
-# Build Status
-
-The current build status on Travis CI is: [![Build Status](https://travis-ci.org/tobami/codespeed.png?branch=master)](https://travis-ci.org/tobami/codespeed)
 
 # Requirements
 

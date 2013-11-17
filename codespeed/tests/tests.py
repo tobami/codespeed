@@ -5,7 +5,6 @@ import json
 import os
 
 from django.test import TestCase
-from django.test.client import Client
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
@@ -15,11 +14,10 @@ from codespeed.views import getbaselineexecutables
 from codespeed import settings as default_settings
 
 
-class AddResult(TestCase):
+class TestAddResult(TestCase):
 
     def setUp(self):
         self.path = reverse('codespeed.views.add_result')
-        self.client = Client()
         self.e = Environment(name='Dual Core', cpu='Core 2 Duo 8200')
         self.e.save()
         temp = datetime.today()
@@ -162,10 +160,10 @@ class AddResult(TestCase):
         self.assertEquals(response.content, "Result data saved successfully")
 
 
-class AddJSONResults(TestCase):
+class TestAddJSONResults(TestCase):
+
     def setUp(self):
         self.path = reverse('codespeed.views.add_json_results')
-        self.client = Client()
         self.e = Environment(name='bigdog', cpu='Core 2 Duo 8200')
         self.e.save()
         temp = datetime.today()
@@ -306,11 +304,8 @@ class AddJSONResults(TestCase):
         self.assertEquals(number_of_reports, 1)
 
 
-class Timeline(TestCase):
-    fixtures = ["gettimeline_unittest.json"]
-
-    def setUp(self):
-        self.client = Client()
+class TestTimeline(TestCase):
+    fixtures = ["timeline_tests.json"]
 
     def test_fixture(self):
         """Test the loaded fixture data
@@ -355,7 +350,7 @@ class Timeline(TestCase):
             "Wrong data returned: ")
 
 
-class CodespeedSettings(TestCase):
+class TestCodespeedSettings(TestCase):
     """Test codespeed.settings
     """
 
@@ -418,8 +413,7 @@ class TestViewHelpers(TestCase):
         self.assertEqual(len(result), 3)
 
 
-class ProjectTest(TestCase):
-    """Test project model"""
+class TestProject(TestCase):
 
     def setUp(self):
         self.github_project = Project(repo_type='H',

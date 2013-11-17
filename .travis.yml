@@ -11,7 +11,7 @@ env:
   - DJANGO_VERSION=1.4.4
   - DJANGO_VERSION=1.5.1
   - DJANGO_VERSION=1.6
-  
+
 # command to install dependencies
 install:
   - pip install -q Django==$DJANGO_VERSION
@@ -21,4 +21,4 @@ install:
 script:
   - python setup.py test
   - cd sample_project
-  - python manage.py test
+  - python manage.py test codespeed

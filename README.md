@@ -1,4 +1,5 @@
 # Codespeed
+[![Build Status](https://travis-ci.org/tobami/codespeed.png?branch=master)](https://travis-ci.org/tobami/codespeed)
 
 A web application to monitor and analyze the performance of your code.
 

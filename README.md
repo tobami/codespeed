@@ -9,15 +9,15 @@ For an overview of some application concepts see the [wiki page](https://github.
 
 # Requirements
 
-You will need Python 2.6+ and Django 1.3+ with South isodate and Tastypie.
+You will need Python 2.6+ and Django 1.4+ with South and isodate
 
-In Debian and Ubuntu, they can be installed with:
+To install all needed dependencies using pip:
 
-    sudo apt-get install python-django python-django-south python-tastypie
+    pip install -r requirements.txt
 
-Instead of using distribution packages, you can use pip:
+To install dependencies and the codespeed Django app:
 
-    sudo pip install -r requirements.txt
+    python setup.py install
 
 If you want version control integration, there are additional requirements:
 

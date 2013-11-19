@@ -66,11 +66,6 @@ TEMPLATE_LOADERS = (
 
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
-    #    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-)
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -88,7 +83,7 @@ if DEBUG:
                                  (request.build_absolute_uri(),
                                   traceback.format_exc()))
     # And add it to the middleware classes
-    MIDDLEWARE_CLASSES += ('settings.LogUncatchedErrors',)
+    MIDDLEWARE_CLASSES += ('sample_project.settings.LogUncatchedErrors',)
 
     # set shown level of logging output to debug
     logging.basicConfig(level=logging.DEBUG)

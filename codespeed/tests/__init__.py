@@ -4,9 +4,6 @@ import re
 import unittest
 
 from django.utils.importlib import import_module
-from django.test._doctest import DocTestSuite
-from django.test.testcases import DocTestRunner
-from django.test.simple import doctestOutputChecker
 
 loadTestsFromModule = unittest.defaultTestLoader.loadTestsFromModule
 
@@ -68,11 +65,6 @@ def get_suite(*names, **kwargs):
             suite.addTest(module.suite())
         else: # otherwise build the test suite ourselves.
             suite.addTest(loadTestsFromModule(module))
-            try:
-                suite.addTest(DocTestSuite(module, runner=DocTestRunner,
-                                           checker=doctestOutputChecker))
-            except ValueError: # No doc tests
-                pass
     return suite
 
 suite = lambda: get_suite(__name__)

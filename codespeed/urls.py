@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls.defaults import *
+from django.conf.urls import patterns, include, url
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
 

@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import os
+import json
 
 from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.utils import simplejson as json
 from django.conf import settings
 
 from codespeed.github import GITHUB_URL_RE

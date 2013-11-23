@@ -20,5 +20,4 @@ install:
 # command to run tests
 script:
   - python setup.py test
-  - cd sample_project
   - python manage.py test codespeed

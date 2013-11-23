@@ -9,15 +9,15 @@ For an overview of some application concepts see the [wiki page](https://github.
 
 # Requirements
 
-You will need Python 2.6+ and Django 1.3+ with South isodate and Tastypie.
+You will need Python 2.6+ and Django 1.4+ with South and isodate
 
-In Debian and Ubuntu, they can be installed with:
+To install all needed dependencies using pip:
 
-    sudo apt-get install python-django python-django-south python-tastypie
+    pip install -r requirements.txt
 
-Instead of using distribution packages, you can use pip:
+To install dependencies and the codespeed Django app:
 
-    sudo pip install -r requirements.txt
+    python setup.py install
 
 If you want version control integration, there are additional requirements:
 
@@ -36,8 +36,8 @@ can take a long time. Please be patient.
   [github.com/tobami/codespeed/tags](https://github.com/tobami/codespeed/tags), unpack it and install it with `python setup.py install`.
 * To get started, you can use the `sample_project` directory as a starting point for your Django project, which can be normally configured by editing `sample_project/settings.py`.
 * For simplicity, you can use the default sqlite configuration, which will save
-  the data to a database named `sample_project/data.db`
-* Create the DB by changing to the `sample_project/` directory and running:
+  the data to a database named `data.db`
+* Create the DB by typing from the root directory:
 
         python manage.py syncdb
 
@@ -61,9 +61,9 @@ modify `sample_project/settings.py` and set `DEBUG = False`.
 
 If you want to test drive Codespeed, you can use the testdata.json fixtures to have a working data set to browse.
 
-* From the `sample_project/` directory, type:
+* From the root directory, type:
 
-        ./manage.py loaddata ../codespeed/fixtures/testdata.json
+        ./manage.py loaddata codespeed/fixtures/testdata.json
 
 ## Starting from scratch
 

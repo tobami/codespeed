@@ -8,13 +8,10 @@ git installed, the ability to write files, etc.
 import logging
 import urllib
 import re
+import json
+
 import isodate
-
 from django.core.cache import cache
-
-# Import from here on the off-chance someone is using a really old Python:
-from django.utils import simplejson as json
-
 
 logger = logging.getLogger(__name__)
 

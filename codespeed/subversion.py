@@ -33,9 +33,8 @@ def getlogs(newrev, startrev):
                     pysvn.opt_revision_kind.number, newrev.commitid
                 )
             )
-    except pysvn.ClientError:
-        raise RuntimeError(
-            "Could not resolve '" + newrev.branch.project.repo_path + "'")
+    except pysvn.ClientError as e:
+        raise RuntimeError(e.args)
     except ValueError:
         raise RuntimeError(
             "'%s' is an invalid subversion revision number" % newrev.commitid)

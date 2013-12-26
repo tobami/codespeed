@@ -115,8 +115,7 @@ values needed for your customizations:
 
 ### Site-wide Changes
 
-All pages inherit from the `site_base.html` template, which
-extends `base.html`. To change every page on the site simply edit (`sample_project/templates/site_base.html`) which extends `base.html` and override
+All pages inherit from the `base.html` template. To change every page on the site simply edit (`sample_project/templates/base.html`) and override
 the appropriate block:
 
 * Custom title: you may replace the default "My Speed Center" for the title
@@ -152,7 +151,7 @@ same name.
 
 * About page: create `sample_project/override/templates/about.html`:
 
-        {% extends "site_base.html" %}
+        {% extends "base.html" %}
         {% block title %}{{ block.super }}: About this project{% endblock %}
         {% block body %}
             <div id="sidebar"></div>

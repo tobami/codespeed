@@ -1,5 +1,18 @@
 == Change Log ==
 
+=== Version 0.10.0, December 27, 2013 ===
+* NEW #108: AlekSi made executable names uniques per project instead of globally
+* NEW #148: staticfloat added the ability to set benchmark fields when saving results for a new benchmark
+* NEW #149, #161: rchikhi and others fixed Django compatibility with versions 1.4-1.6
+* NEW #158: smarr added initial travis configuration. Continuous integration is now enabled for Codespeed
+* NEW #32: squiddy added option to control display of authors email address
+* OPTIMIZATION #98: squiddy greatly reduced the number of necessary queries for getting comparison data, getting down the response time by an order of magnitude
+* FIX #86: a8 fixed timeline plot failing when more than 4 series were selected
+* FIX #130: alkino fixed migrations 0006 and 0012
+* FIX #151: philangist migrated Github integration to API v3
+* FIX #85: a8 fixed timeline view on IE
+
+
 === Version 0.9.1, September 11, 2011 ===
 * NEW: Stefan added the possibility to name the default branch other than "default"
 * NEW: Danilo added executable grouping by project

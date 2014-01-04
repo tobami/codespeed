@@ -4,8 +4,6 @@ Codespeed uses the Web framework [Django](http://djangoproject.com/). To get a
 Codespeed instance running you need to set up a Django Project. This directory
 is just such a project for your reference and a jump start to create your own.
 
-This file is written in Markdown.
-
 ## For the impatient
 
 Warning: It is recommended to use [virtualenv](http://pypi.python.org/pypi/virtualenv) to avoid installing
@@ -15,35 +13,33 @@ environments.
 
 ### Testing with the built-in Development Server
 That will give you *just* the Django development server version. Please
-refer to *Installing for Production* for serious installations. You have been warned!
+refer to *Installing for Production* for serious installations.
 
 It is assumed you are in the root directory of the Codespeed software.
 
 1. Install the Python pip module
    `which pip >/dev/null || easy_install pip`
    (You might be required to use sudo)
-2. You *must* copy the example directory to your project. (Prevents updates on
+2. You *must* copy the `sample_project` directory to your project. (Prevents updates on
    git tracked files in the future.) Let's call it speedcenter
-   `cp -r example speedcenter`
-3. Enter that directory
-   `cd speedcenter`
-4. Install Django, Codespeed and other dependencies using pip
-   `pip install -r requirements.txt`
-   (You might be required to use sudo)
-5. Add codespeed to your Python path
+   `cp -r sample_project speedcenter`
+3a. (When configuring your own project) `pip install codespeeed`
+3b. (For Codespeed development) Install Django and other dependencies using pip
+   `pip install -r requirements.txt`. This will not install codespeed itself, as we want runserver to only "see" the local codespeed copy
+4. Add codespeed to your Python path
    Either
    `export PYTHONPATH=../:$PYTHONPATH`
    or
-   `ln -s ../codespeed .`
-6. Initialise the Django Database
+   `ln -s ./codespeed ./sample_project`
+5. Initialise the Django Database
    `python manage.py syncdb`
    (Yes, add a superuser.)
    `python manage.py migrate`
    Optionally, you may want to load the fixture data for a try
    `python manage.py loaddata ../codespeed/fixtures/testdata.json`
-7. Finally, start the Django development server.
+6. Finally, start the Django development server.
    `python manage.py runserver`
-8. Enjoy.
+7. Enjoy.
    `python -m webbrowser -n http://localhost:8000`
 
 ## Installing for production
@@ -133,12 +129,4 @@ Please, also refer to the [Django URL dispatcher docu]
 
 ### Codespeed settings
 The main config file is `settings.py`. There you configure everything related
-to your set up. It FIXME (a8) to be continued...
-
-FIXME (a8 <fb@alien8.de> 2011-04-29): Write more ...
-
-* Point to Django docu for DB, template engine, ...
-* Point to codespeed config in settings.py
-* Point to wsgi config for Apache ...
-* Write up "Installing for production" section
-...
+to your set up.

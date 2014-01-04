@@ -7,17 +7,13 @@ Known to be used by [PyPy](http://speed.pypy.org), [Twisted](http://speed.twiste
 
 For an overview of some application concepts see the [wiki page](https://github.com/tobami/codespeed/wiki/Overview)
 
-# Requirements
+# Installation
 
-You will need Python 2.6+ and Django 1.4+ with South and isodate
-
-To install all needed dependencies using pip:
-
-    pip install -r requirements.txt
+You will need Python 2.6 or 2.7.
 
 To install dependencies and the codespeed Django app:
 
-    python setup.py install
+    pip install codespeed
 
 If you want version control integration, there are additional requirements:
 
@@ -30,8 +26,6 @@ If you want version control integration, there are additional requirements:
 Codespeed will try to clone the repo, which depending on the size of the project
 can take a long time. Please be patient.
 
-# Installation
-
 * Download the last stable release from
   [github.com/tobami/codespeed/tags](https://github.com/tobami/codespeed/tags), unpack it and install it with `python setup.py install`.
 * To get started, you can use the `sample_project` directory as a starting point for your Django project, which can be normally configured by editing `sample_project/settings.py`.
@@ -42,7 +36,7 @@ can take a long time. Please be patient.
         python manage.py syncdb
 
 * Create an admin user in the process.
-* Migrate to the new DB Schema:
+* Execute DB migrations:
 
         python manage.py migrate
 
@@ -54,6 +48,7 @@ The codespeed installation can now be accessed by navigating to `http://localhos
 
 **Note**: for production, you should configure a real server like Apache or nginx (refer to the [Django docs](http://docs.djangoproject.com/en/dev/howto/deployment/)). You should also
 modify `sample_project/settings.py` and set `DEBUG = False`.
+[`sample_project/README.md`](https://github.com/tobami/codespeed/tree/master/sample_project/README.md) also describes some production settings.
 
 # Codespeed configuration
 

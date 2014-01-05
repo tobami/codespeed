@@ -110,14 +110,14 @@ Assumed you have a [Debian](http://www.debian.org) like system.
 
 ### Using your own Templates
 Just edit your very own Django templates in `speedcenter/templates`. A good
-start is `base.html` the root of all templates.
+start is `codespeed/base.html` the root of all templates.
 
 If you need to change the codespeed templates:
 1. Copy the templates from the codespeed module into your Django project folder.
    `cp -r codespeed/templates/codespeed  speedcenter/templates/`
 2. Edit the templates in speedcenter/templates/codespeed/*html
 Please, also refer to the [Django template docu]
-(http://docs.djangoproject.com/en/1.3/ref/templates/)
+(http://docs.djangoproject.com/en/1.4/ref/templates/)
 
 ### Changing the URL Scheme
 If you don't want to have your speedcenter in the root url you can change urls.py.
@@ -125,7 +125,7 @@ Comment (add a '#' at the beginning) line number 25 `(r'^', include('cod...`
 and uncomment the next line `(r'^speed/', include('cod...` (Note, Python is
 picky about indentation).
 Please, also refer to the [Django URL dispatcher docu]
-(http://docs.djangoproject.com/en/1.3/topics/http/urls/).
+(http://docs.djangoproject.com/en/1.4/topics/http/urls/).
 
 ### Codespeed settings
 The main config file is `settings.py`. There you configure everything related

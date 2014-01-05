@@ -99,8 +99,8 @@ section).
 
 ## Custom Settings
 
-You may override any of the default settings by creating the file
-`sample_project/override/settings.py`. It is strongly recommended that you only override the
+You may override any of the default settings by setting them in
+`sample_project/settings.py`. It is strongly recommended that you only override the
 settings you need by importing the default settings and replacing only the
 values needed for your customizations:
 
@@ -110,13 +110,14 @@ values needed for your customizations:
 
 ### Site-wide Changes
 
-All pages inherit from the `base.html` template. To change every page on the site simply edit (`sample_project/templates/base.html`) and override
+All pages inherit from the `base.html` template. To change every page on the site 
+simply edit (`sample_project/templates/codespeed/base_site.html`) and override
 the appropriate block:
 
 * Custom title: you may replace the default "My Speed Center" for the title
   block with your prefered value:
 
-        {% block title}
+        {% block title %}
             My Project's Speed Center
         {% endblock %}
 
@@ -146,7 +147,7 @@ same name.
 
 * About page: create `sample_project/override/templates/about.html`:
 
-        {% extends "base.html" %}
+        {% extends "codespeed/base_site.html" %}
         {% block title %}{{ block.super }}: About this project{% endblock %}
         {% block body %}
             <div id="sidebar"></div>

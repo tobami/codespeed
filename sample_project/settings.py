@@ -117,6 +117,9 @@ SOUTH_TESTS_MIGRATE = False
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
+STATICFILES_DIRS = (
+    os.path.join(BASEDIR, 'static'),
+)
 
 # Codespeed settings that can be overwritten here.
 from codespeed.settings import *

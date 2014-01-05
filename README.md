@@ -121,31 +121,32 @@ the appropriate block:
             My Project's Speed Center
         {% endblock %}
 
-* Custom logo: Place your logo in `sample_project/override/media/img` and add a block like
-  this:
+* Replacing logo.png: Place your logo in `sample_project/static/images/logo.png`
+* Logo with custom filename: Place your logo in `sample_project/static/images/` and add a block like
+  this to `base_site.html`:
 
         {% block logo %}
-            <img src="{{ MEDIA_URL }}override/img/my-logo.png" width="120" height="48" alt="My Project">
+            <img src="{{ MEDIA_URL }}images/my-logo.jpg" width="120" height="48" alt="My Project">
         {% endblock logo %}
 
   n.b. the layout will stay exactly the same for any image with a height of
   48px (any width will do)
 
-* Custom JavaScript or CSS: add your files to the `sample_project/override/media` directory
+* Custom JavaScript or CSS: add your files to the `sample_project/static/js` directory
   and extend the `extra_head` template block:
 
         {% block extra_head %}
             {{ block.super }}
-            <script type="text/javascript" src="{{ MEDIA_URL }}override/js/my_cool_tweaks.js">
+            <script type="text/javascript" src="{{ MEDIA_URL }}static/js/my_cool_tweaks.js">
         {% endblock extra_head %}
 
 ### Specific Pages
 
-Since `sample_project/override/templates` is the first entry in `settings.TEMPLATE_DIRS` you
+Since `sample_project/templates/codespeed` is the first entry in `settings.TEMPLATE_DIRS` you
 may override any template on the site simply by creating a new one with the
 same name.
 
-* About page: create `sample_project/override/templates/about.html`:
+* About page: create `sample_project/templates/about.html`:
 
         {% extends "codespeed/base_site.html" %}
         {% block title %}{{ block.super }}: About this project{% endblock %}

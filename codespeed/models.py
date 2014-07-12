@@ -83,7 +83,7 @@ class Revision(models.Model):
     message = models.TextField(blank=True)
     project = models.ForeignKey(Project, related_name="revisions",
                                 null=True, blank=True)
-    author = models.CharField(max_length=30, blank=True)
+    author = models.CharField(max_length=100, blank=True)
     branch = models.ForeignKey(Branch, related_name="revisions")
 
     def get_short_commitid(self):
@@ -133,7 +133,7 @@ class Benchmark(models.Model):
         ('O', 'Own-project'),
     )
 
-    name = models.CharField(unique=True, max_length=30)
+    name = models.CharField(unique=True, max_length=100)
     parent = models.ForeignKey(
         'self', verbose_name="parent",
         help_text="allows to group benchmarks in hierarchies",
@@ -157,11 +157,11 @@ class Benchmark(models.Model):
 
 
 class Environment(models.Model):
-    name = models.CharField(unique=True, max_length=30)
-    cpu = models.CharField(max_length=30, blank=True)
-    memory = models.CharField(max_length=30, blank=True)
-    os = models.CharField(max_length=30, blank=True)
-    kernel = models.CharField(max_length=30, blank=True)
+    name = models.CharField(unique=True, max_length=100)
+    cpu = models.CharField(max_length=100, blank=True)
+    memory = models.CharField(max_length=100, blank=True)
+    os = models.CharField(max_length=100, blank=True)
+    kernel = models.CharField(max_length=100, blank=True)
 
     def __unicode__(self):
         return self.name

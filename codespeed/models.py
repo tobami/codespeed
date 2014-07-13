@@ -366,16 +366,16 @@ class Report(models.Model):
         )
 
         tablelist = []
-        for units in Benchmark.objects.all().values('units').distinct():
+        for units_title in Benchmark.objects.all().values_list('units_title', flat=True).distinct():
             currentlist = []
-            units_title = ""
+            units = ""
             hasmin = False
             hasmax = False
             has_stddev = False
             smallest = 1000
             totals = {'change': [], 'trend': []}
-            for bench in Benchmark.objects.filter(units=units['units']):
-                units_title = bench.units_title
+            for bench in Benchmark.objects.filter(units_title=units_title):
+                units = bench.units
                 lessisbetter = bench.lessisbetter
                 resultquery = result_list.filter(benchmark=bench, value__gt=0)
                 if not len(resultquery):
@@ -470,7 +470,7 @@ class Report(models.Model):
                 digits += 1
 
             tablelist.append({
-                'units': units['units'],
+                'units': units,
                 'units_title': units_title,
                 'lessisbetter': lessisbetter,
                 'has_stddev': has_stddev,

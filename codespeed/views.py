@@ -677,9 +677,9 @@ def changes(request):
         executables[proj] = Executable.objects.filter(project=proj)
         projectlist.append(proj)
         branch = Branch.objects.filter(name=settings.DEF_BRANCH, project=proj)
-        revisionlists[proj.name] = Revision.objects.filter(
+        revisionlists[proj.name] = list(Revision.objects.filter(
             branch=branch
-        ).order_by('-date')[:revlimit]
+        ).order_by('-date')[:revlimit])
     # Get lastest revisions for this project and it's "default" branch
     lastrevisions = revisionlists.get(defaultexecutable.project.name)
     if not len(lastrevisions):
@@ -692,9 +692,8 @@ def changes(request):
             selectedrevision = Revision.objects.get(
                 commitid__startswith=commitid, branch=branch
             )
-            if not selectedrevision in lastrevisions:
-                lastrevisions = list(chain(lastrevisions))
-                lastrevisions.append(selectedrevision)
+            if not selectedrevision in revisionlists[selectedrevision.project.name]:
+                revisionlists[selectedrevision.project.name].append(selectedrevision)
         except Revision.DoesNotExist:
             selectedrevision = lastrevisions[0]
     # This variable is used to know when the newly selected executable

@@ -83,7 +83,7 @@ class Revision(models.Model):
     message = models.TextField(blank=True)
     project = models.ForeignKey(Project, related_name="revisions",
                                 null=True, blank=True)
-    author = models.CharField(max_length=30, blank=True)
+    author = models.CharField(max_length=100, blank=True)
     branch = models.ForeignKey(Branch, related_name="revisions")
 
     def get_short_commitid(self):
@@ -133,7 +133,7 @@ class Benchmark(models.Model):
         ('O', 'Own-project'),
     )
 
-    name = models.CharField(unique=True, max_length=30)
+    name = models.CharField(unique=True, max_length=100)
     parent = models.ForeignKey(
         'self', verbose_name="parent",
         help_text="allows to group benchmarks in hierarchies",
@@ -157,11 +157,11 @@ class Benchmark(models.Model):
 
 
 class Environment(models.Model):
-    name = models.CharField(unique=True, max_length=30)
-    cpu = models.CharField(max_length=30, blank=True)
-    memory = models.CharField(max_length=30, blank=True)
-    os = models.CharField(max_length=30, blank=True)
-    kernel = models.CharField(max_length=30, blank=True)
+    name = models.CharField(unique=True, max_length=100)
+    cpu = models.CharField(max_length=100, blank=True)
+    memory = models.CharField(max_length=100, blank=True)
+    os = models.CharField(max_length=100, blank=True)
+    kernel = models.CharField(max_length=100, blank=True)
 
     def __unicode__(self):
         return self.name
@@ -366,18 +366,18 @@ class Report(models.Model):
         )
 
         tablelist = []
-        for units in Benchmark.objects.all().values('units').distinct():
+        for units_title in Benchmark.objects.all().values_list('units_title', flat=True).distinct():
             currentlist = []
-            units_title = ""
+            units = ""
             hasmin = False
             hasmax = False
             has_stddev = False
             smallest = 1000
             totals = {'change': [], 'trend': []}
-            for bench in Benchmark.objects.filter(units=units['units']):
-                units_title = bench.units_title
+            for bench in Benchmark.objects.filter(units_title=units_title):
+                units = bench.units
                 lessisbetter = bench.lessisbetter
-                resultquery = result_list.filter(benchmark=bench, value__gt=0)
+                resultquery = result_list.filter(benchmark=bench)
                 if not len(resultquery):
                     continue
 
@@ -470,7 +470,7 @@ class Report(models.Model):
                 digits += 1
 
             tablelist.append({
-                'units': units['units'],
+                'units': units,
                 'units_title': units_title,
                 'lessisbetter': lessisbetter,
                 'has_stddev': has_stddev,

@@ -57,8 +57,14 @@ class ResultAdmin(admin.ModelAdmin):
 admin.site.register(Result, ResultAdmin)
 
 
+def recalculate_report(modeladmin, request, queryset):
+    for report in queryset:
+        report.save()
+recalculate_report.short_description = "Recalculate reports"
+
 class ReportAdmin(admin.ModelAdmin):
     list_display = ('revision', 'summary', 'colorcode')
     ordering = ['-revision']
+    actions = [recalculate_report]
 
 admin.site.register(Report, ReportAdmin)

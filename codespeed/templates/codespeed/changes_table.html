@@ -1,3 +1,5 @@
+{% load percentages %}
+
 <div class="leftcolumn">
 {% for units in tablelist %}
 <table class="tablesorter" data-lessisbetter="{{ units.lessisbetter }}">
@@ -13,25 +15,25 @@
   </tr>
 </thead>
 <tfoot>
-  <tr data-change="{{ units.totals.change }}" data-trend="{{ units.totals.trend }}">
+  <tr data-change="{{ units.totals.change|fix_infinity }}" data-trend="{{ units.totals.trend|fix_infinity }}">
     <td title="Arithmetic mean">Average</td>
     <td></td>
     {% if units.hasmin %}<td></td>
     {% endif%}{% if units.has_stddev %}<td>{{ units.totals.min }}</td>
     {% endif%}{% if units.hasmax %}<td>{{ units.totals.max }}</td>
-    {% endif%}<td>{% ifnotequal units.totals.change "-" %}{{ units.totals.change|floatformat:2 }}%{% else %}{{ units.totals.change }}{% endifnotequal %}</td>
+    {% endif%}<td>{{ units.totals.change|percentage }}</td>
     <td>{% ifnotequal units.totals.trend "-" %}{{ units.totals.trend|floatformat:2 }}%{% else %}{{ units.totals.trend }}{% endifnotequal %}</td>
   </tr>
 </tfoot>
 <tbody>
 {% for row in units.rows|dictsort:"bench_name" %}
-  <tr data-change="{{ row.change }}" data-trend="{{ row.trend }}">
+  <tr data-change="{{ row.change|fix_infinity }}" data-trend="{{ row.trend|fix_infinity }}">
     <td title="{{ row.bench_description }}">{{ row.bench_name }}</td>
     <td>{{ row.result|floatformat:units.precission }}</td>
     {% if units.has_stddev %}<td>{{ row.std_dev|floatformat:units.precission }}</td>
     {% endif%}{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>
     {% endif%}{% if units.hasmax %}<td>{{ row.val_max|floatformat:units.precission }}</td>
-    {% endif%}<td>{% ifequal row.change "-" %}-{% else %}{{ row.change|floatformat:2 }}%{% endifequal %}</td>
+    {% endif%}<td>{{ row.change|percentage }}</td>
     <td>{% ifequal row.trend "-" %}-{% else %}{{ row.trend|floatformat:2 }}%{% endifequal %}</td>
   </tr>{% endfor %}
 </tbody>

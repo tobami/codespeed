@@ -267,40 +267,44 @@ class Report(models.Model):
         # Save summary in order of priority
         # Average change
         if average_change_color != "none":
-            #Substitute plus/minus with up/down
-            direction = average_change >= 0 and "+" or "-"
-            self.summary = "Average %s %s%.1f%%" % (
+            self.summary = "Average %s %s" % (
                 average_change_units.lower(),
-                direction,
-                round(abs(average_change), 1))
+                self.updown(average_change))
             self.colorcode = average_change_color
         # Single benchmark change
         if max_change_color != "none" and self.colorcode != "red":
-            #Substitute plus/minus with up/down
-            direction = max_change >= 0 and "+" or "-"
-            self.summary = "%s %s%.1f%%" % (
-                max_change_ben, direction, round(abs(max_change), 1))
+            self.summary = "%s %s" % (
+                max_change_ben,
+                self.updown(max_change))
             self.colorcode = max_change_color
 
         # Average trend
         if average_trend_color != "none" and self.colorcode == "none":
-            #Substitute plus/minus with up/down
-            direction = average_trend >= 0 and "+" or ""
-            self.summary = "Average %s trend %s%.1f%%" % (
-                average_trend_units.lower(), direction, round(average_trend, 1))
+            self.summary = "Average %s trend %s" % (
+                average_trend_units.lower(),
+                self.updown(average_trend))
             self.colorcode = average_trend_color == "red"\
                 and "yellow" or average_trend_color
         # Single benchmark trend
         if max_trend_color != "none" and self.colorcode != "red":
             if (self.colorcode == "none" or
                     (self.colorcode == "green" and "trend" not in self.summary)):
-                direction = max_trend >= 0 and "+" or ""
-                self.summary = "%s trend %s%.1f%%" % (
-                    max_trend_ben, direction, round(max_trend, 1))
+                self.summary = "%s trend %s" % (
+                    max_trend_ben,
+                    self.updown(max_trend))
                 self.colorcode = max_trend_color == "red"\
                     and "yellow" or max_trend_color
 
         super(Report, self).save(*args, **kwargs)
+
+    def updown(self,val):
+        #Substitute plus/minus with up/down
+        direction = val >= 0 and "up" or "down"
+        aval = abs(val)
+        if aval == float("inf"):
+            return u"%s ∞%%" % direction
+        else:
+            return "%s %.1f%%" % (direction, aval)
 
     def is_big_change(self, val, color, current_val, current_color):
         if color == "red" and current_color != "red":
@@ -316,12 +320,12 @@ class Report(models.Model):
     def getcolorcode(self, val, lessisbetter, threshold):
         if lessisbetter:
             val = -val
-        colorcode = "none"
         if val < -threshold:
-            colorcode = "red"
+            return "red"
         elif val > threshold:
-            colorcode = "green"
-        return colorcode
+            return "green"
+        else:
+            return "none"
 
     def get_changes_table(self, trend_depth=10, force_save=False):
         # Determine whether required trend value is the default one
@@ -406,9 +410,16 @@ class Report(models.Model):
                 change = "-"
                 if len(change_list):
                     c = change_list.filter(benchmark=bench)
-                    if c.count() and c[0].value and result:
-                        change = (result - c[0].value) * 100 / c[0].value
-                        totals['change'].append(result / c[0].value)
+                    if c.count() and result is not None:
+                        if c[0].value != 0:
+                            change = (result - c[0].value) * 100 / c[0].value
+                            totals['change'].append(result / c[0].value)
+                        elif c[0].value == 0:
+                            change = float("inf")
+                            totals['change'].append(float("inf"))
+                        else:
+                            # no previous result, no change available
+                            pass
 
                 # Calculate trend:
                 # percentage change relative to average of 3 previous results

@@ -415,8 +415,14 @@ class Report(models.Model):
                             change = (result - c[0].value) * 100 / c[0].value
                             totals['change'].append(result / c[0].value)
                         elif c[0].value == 0:
-                            change = float("inf")
-                            totals['change'].append(float("inf"))
+                            if result == 0:
+                                # 0/0 = 1, in our world
+                                change = 0
+                                totals['change'].append(1)
+                            else:
+                                # n/0 = ∞
+                                change = float("inf")
+                                totals['change'].append(float("inf"))
                         else:
                             # no previous result, no change available
                             pass

@@ -265,21 +265,24 @@ class Report(models.Model):
         self.colorcode = "none"
 
         # Save summary in order of priority
+        # (changes results before trends, averages before individual results)
+
         # Average change
         if average_change_color != "none":
             self.summary = "Average %s %s" % (
                 average_change_units.lower(),
                 self.updown(average_change))
             self.colorcode = average_change_color
+
         # Single benchmark change
-        if max_change_color != "none" and self.colorcode != "red":
+        elif max_change_color != "none":
             self.summary = "%s %s" % (
                 max_change_ben,
                 self.updown(max_change))
             self.colorcode = max_change_color
 
         # Average trend
-        if average_trend_color != "none" and self.colorcode == "none":
+        elif average_trend_color != "none":
             self.summary = "Average %s trend %s" % (
                 average_trend_units.lower(),
                 self.updown(average_trend))
@@ -288,18 +291,17 @@ class Report(models.Model):
                 self.colorcode = "yellow"
             elif average_trend_color == "green":
                 self.colorcode = "lightgreen"
+
         # Single benchmark trend
-        if max_trend_color != "none" and self.colorcode != "red":
-            if (self.colorcode == "none" or
-                    (self.colorcode == "green" and "trend" not in self.summary)):
-                self.summary = "%s trend %s" % (
-                    max_trend_ben,
-                    self.updown(max_trend))
-                # use lighter colors for trend results:
-                if max_trend_color == "red":
-                    self.colorcode = "yellow"
-                elif max_trend_color == "green":
-                    self.colorcode = "lightgreen"
+        elif max_trend_color != "none":
+            self.summary = "%s trend %s" % (
+                max_trend_ben,
+                self.updown(max_trend))
+            # use lighter colors for trend results:
+            if max_trend_color == "red":
+                self.colorcode = "yellow"
+            elif max_trend_color == "green":
+                self.colorcode = "lightgreen"
 
         super(Report, self).save(*args, **kwargs)
 

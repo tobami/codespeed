@@ -611,7 +611,7 @@ def getchangestable(request):
                             '<p class="errormessage">No results for this '
                             'parameters</p>')
 
-    return render_to_response('codespeed/changes_table.html', {
+    return render_to_response('codespeed/changes_data.html', {
         'tablelist': tablelist,
         'trendconfig': trendconfig,
         'rev': selectedrev,

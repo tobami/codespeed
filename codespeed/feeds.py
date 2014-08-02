@@ -2,6 +2,8 @@ from django.contrib.syndication.views import Feed
 from codespeed.models import Report
 from django.conf import settings
 from django.db.models import Q
+from django.shortcuts import render_to_response
+
 
 class ResultFeed(Feed):
     title = settings.WEBSITE_NAME
@@ -13,13 +15,23 @@ class ResultFeed(Feed):
             .order_by('-revision__date')[:10]
 
     def item_title(self, item):
-        return unicode(item.revision)
+        return "%s: %s" % (item.revision.get_short_commitid(), item.item_description())
 
-    def item_description(self, item):
-        if item.summary:
-            return item.summary
-        else:
-            return "No significant changes"
+    description_template = "codespeed/changes_table.html"
+
+    def get_context_data(self, **kwargs):
+        report = kwargs['item']
+        trendconfig = settings.TREND
+
+        tablelist = report.get_changes_table(trendconfig)
+
+        return {
+            'tablelist': tablelist,
+            'trendconfig': trendconfig,
+            'rev': report.revision,
+            'exe': report.executable,
+            'env': report.environment,
+        }
 
 class LatestEntries(ResultFeed):
     description = "Last benchmark runs"

@@ -12,6 +12,15 @@ class ResultFeed(Feed):
             .filter(self.result_filter())\
             .order_by('-revision__date')[:10]
 
+    def item_title(self, item):
+        return unicode(item.revision)
+
+    def item_description(self, item):
+        if item.summary:
+            return item.summary
+        else:
+            return "No significant changes"
+
 class LatestEntries(ResultFeed):
     description = "Last benchmark runs"
 

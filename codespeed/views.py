@@ -730,11 +730,21 @@ def reports(request):
     if request.method != 'GET':
         return HttpResponseNotAllowed('GET')
 
-    return render_to_response('codespeed/reports.html', {
-        'reports': Report.objects.filter(
+    context = {}
+
+    context['reports'] = \
+        Report.objects.filter(
             revision__branch__name=settings.DEF_BRANCH
-        ).order_by('-revision__date')[:10],
-    }, context_instance=RequestContext(request))
+        ).order_by('-revision__date')[:10]
+
+    context['significant_reports'] = \
+        Report.objects.filter(
+            revision__branch__name=settings.DEF_BRANCH,
+            colorcode__in = ('red','green')
+        ).order_by('-revision__date')[:10]
+
+    return render_to_response('codespeed/reports.html',
+        context, context_instance=RequestContext(request))
 
 
 def displaylogs(request):

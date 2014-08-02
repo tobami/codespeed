@@ -285,6 +285,10 @@ table.tablesorter, table.info, table.revision, table.reports {
     background-color: #fafafa;
 }
 
+table.reports {
+    margin-bottom: 2em
+}
+
 /*table.reports {
     border-width: 2px;
 }*/

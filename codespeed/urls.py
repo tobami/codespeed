@@ -3,15 +3,15 @@ from django.conf.urls import patterns, include, url
 from django.core.urlresolvers import reverse
 from django.views.generic import TemplateView
 
-from codespeed.feeds import LatestEntries
+from codespeed.feeds import *
 
-feeds = {'latest': LatestEntries}
 
 urlpatterns = patterns('',
     (r'^$', TemplateView.as_view(template_name='home.html')),
     (r'^about/$', TemplateView.as_view(template_name='about.html')),
     # RSS for reports
-    (r'^feeds/(?P<url>.*)/$', LatestEntries()),
+    url(r'^feeds/latest/$', LatestEntries(), name='latest_feeds'),
+    url(r'^feeds/latest_significant/$', LatestSignificantEntries(), name='latest_significant_feeds'),
 )
 
 urlpatterns += patterns('codespeed.views',

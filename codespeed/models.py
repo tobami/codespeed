@@ -283,8 +283,11 @@ class Report(models.Model):
             self.summary = "Average %s trend %s" % (
                 average_trend_units.lower(),
                 self.updown(average_trend))
-            self.colorcode = average_trend_color == "red"\
-                and "yellow" or average_trend_color
+            # use lighter colors for trend results:
+            if average_trend_color == "red":
+                self.colorcode = "yellow"
+            elif average_trend_color == "green":
+                self.colorcode = "lightgreen"
         # Single benchmark trend
         if max_trend_color != "none" and self.colorcode != "red":
             if (self.colorcode == "none" or
@@ -292,8 +295,11 @@ class Report(models.Model):
                 self.summary = "%s trend %s" % (
                     max_trend_ben,
                     self.updown(max_trend))
-                self.colorcode = max_trend_color == "red"\
-                    and "yellow" or max_trend_color
+                # use lighter colors for trend results:
+                if max_trend_color == "red":
+                    self.colorcode = "yellow"
+                elif max_trend_color == "green":
+                    self.colorcode = "lightgreen"
 
         super(Report, self).save(*args, **kwargs)
 

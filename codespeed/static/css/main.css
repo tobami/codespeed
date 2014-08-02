@@ -358,6 +358,8 @@ table.tablesorter tbody tr td.status-green, td.status-green { background-color: 
 tr.status-green td.summary { color: #9FD54D; font-weight: bold; }
 table.tablesorter tbody tr td.status-yellow, td.status-yellow { background-color: #FFD843; }
 tr.status-yellow td.summary { color: #FFD843; font-weight: bold; }
+table.tablesorter tbody tr td.status-lightgreen, td.status-lightgreen { background-color: #c2e927; }
+tr.status-lightgreen td.summary { color: #c2e927; font-weight: bold; }
 
 table.tablesorter tbody tr.highlight td, tr.highlight td {
     background-color: #9DADC6 !important;

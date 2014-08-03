@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
-from itertools import chain
 import json
 import logging
 
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from django.http import (HttpResponse, Http404, HttpResponseNotAllowed,
                          HttpResponseBadRequest)
 from django.shortcuts import get_object_or_404, render_to_response
-from django.template import RequestContext
-from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
-from django.conf import settings
+from django.views.decorators.http import require_GET
 from django.views.decorators.csrf import csrf_exempt
+from django.template import RequestContext
+from django.conf import settings
 
 from codespeed.models import (Environment, Report, Project, Revision, Result,
                               Executable, Benchmark, Branch)
@@ -193,11 +193,8 @@ def getcomparisonexes():
     return all_executables, exekeys
 
 
+@require_GET
 def getcomparisondata(request):
-    if request.method != 'GET':
-        return HttpResponseNotAllowed('GET')
-    data = request.GET
-
     executables, exekeys = getcomparisonexes()
     benchmarks = Benchmark.objects.all()
     environments = Environment.objects.all()
@@ -226,9 +223,8 @@ def getcomparisondata(request):
     return HttpResponse(json.dumps(compdata))
 
 
+@require_GET
 def comparison(request):
-    if request.method != 'GET':
-        return HttpResponseNotAllowed('GET')
     data = request.GET
 
     # Configuration of default parameters
@@ -361,9 +357,8 @@ def comparison(request):
     }, context_instance=RequestContext(request))
 
 
+@require_GET
 def gettimelinedata(request):
-    if request.method != 'GET':
-        return HttpResponseNotAllowed('GET')
     data = request.GET
 
     timeline_list = {'error': 'None', 'timelines': []}
@@ -475,9 +470,8 @@ def gettimelinedata(request):
     return HttpResponse(json.dumps(timeline_list))
 
 
+@require_GET
 def timeline(request):
-    if request.method != 'GET':
-        return HttpResponseNotAllowed('GET')
     data = request.GET
 
     ## Configuration of default parameters ##
@@ -590,6 +584,7 @@ def timeline(request):
     }, context_instance=RequestContext(request))
 
 
+@require_GET
 def getchangestable(request):
     executable = get_object_or_404(Executable, pk=request.GET.get('exe'))
     environment = get_object_or_404(Environment, pk=request.GET.get('env'))
@@ -620,9 +615,8 @@ def getchangestable(request):
     }, context_instance=RequestContext(request))
 
 
+@require_GET
 def changes(request):
-    if request.method != 'GET':
-        return HttpResponseNotAllowed('GET')
     data = request.GET
 
     # Configuration of default parameters
@@ -726,10 +720,8 @@ def changes(request):
     }, context_instance=RequestContext(request))
 
 
+@require_GET
 def reports(request):
-    if request.method != 'GET':
-        return HttpResponseNotAllowed('GET')
-
     context = {}
 
     context['reports'] = \
@@ -747,6 +739,7 @@ def reports(request):
         context, context_instance=RequestContext(request))
 
 
+@require_GET
 def displaylogs(request):
     rev = get_object_or_404(Revision, pk=request.GET.get('revisionid'))
     logs = []
@@ -796,6 +789,7 @@ def displaylogs(request):
         context_instance=RequestContext(request))
 
 
+@require_GET
 def getcommitlogs(rev, startrev, update=False):
     logs = []
 
@@ -853,7 +847,6 @@ def validate_result(item):
         'result_value',
     ]
 
-    response = {}
     error = True
     for key in mandatory_data:
         if not key in item:

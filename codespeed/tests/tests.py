@@ -18,8 +18,7 @@ class TestAddResult(TestCase):
 
     def setUp(self):
         self.path = reverse('codespeed.views.add_result')
-        self.e = Environment(name='Dual Core', cpu='Core 2 Duo 8200')
-        self.e.save()
+        self.e = Environment.objects.create(name='Dual Core', cpu='Core 2 Duo 8200')
         temp = datetime.today()
         self.cdate = datetime(
             temp.year, temp.month, temp.day, temp.hour, temp.minute, temp.second)

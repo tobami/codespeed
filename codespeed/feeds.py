@@ -3,6 +3,7 @@ from codespeed.models import Report
 from django.conf import settings
 from django.db.models import Q
 
+
 class ResultFeed(Feed):
     title = settings.WEBSITE_NAME
     link = "/changes/"
@@ -13,7 +14,8 @@ class ResultFeed(Feed):
             .order_by('-revision__date')[:10]
 
     def item_title(self, item):
-        return "%s: %s" % (item.revision.get_short_commitid(), item.item_description())
+        return "%s: %s" % (item.revision.get_short_commitid(),
+                           item.item_description())
 
     description_template = "codespeed/changes_table.html"
 
@@ -31,15 +33,17 @@ class ResultFeed(Feed):
             'env': report.environment,
         }
 
+
 class LatestEntries(ResultFeed):
     description = "Last benchmark runs"
 
     def result_filter(self):
         return Q(revision__branch__name=settings.DEF_BRANCH)
 
+
 class LatestSignificantEntries(ResultFeed):
     description = "Last benchmark runs with significant changes"
 
     def result_filter(self):
         return Q(revision__branch__name=settings.DEF_BRANCH,
-                 colorcode__in = ('red','green'))
+                 colorcode__in=('red', 'green'))

@@ -2,8 +2,6 @@ from django.contrib.syndication.views import Feed
 from codespeed.models import Report
 from django.conf import settings
 from django.db.models import Q
-from django.shortcuts import render_to_response
-
 
 class ResultFeed(Feed):
     title = settings.WEBSITE_NAME
@@ -40,7 +38,7 @@ class LatestEntries(ResultFeed):
         return Q(revision__branch__name=settings.DEF_BRANCH)
 
 class LatestSignificantEntries(ResultFeed):
-    description = "Last significant benchmark runs"
+    description = "Last benchmark runs with significant changes"
 
     def result_filter(self):
         return Q(revision__branch__name=settings.DEF_BRANCH,

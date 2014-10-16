@@ -789,7 +789,6 @@ def displaylogs(request):
         context_instance=RequestContext(request))
 
 
-@require_GET
 def getcommitlogs(rev, startrev, update=False):
     logs = []
 

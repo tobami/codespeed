@@ -14,13 +14,14 @@ admin.site.register(Project, ProjectAdmin)
 
 class BranchAdmin(admin.ModelAdmin):
     list_display = ('name', 'project')
+    list_filter = ('project',)
 
 admin.site.register(Branch, BranchAdmin)
 
 
 class RevisionAdmin(admin.ModelAdmin):
     list_display = ('commitid', 'branch', 'tag', 'date')
-    list_filter = ('branch', 'tag', 'date')
+    list_filter = ('branch__project', 'branch', 'tag', 'date')
     search_fields = ('commitid', 'tag')
 
 admin.site.register(Revision, RevisionAdmin)
@@ -28,6 +29,7 @@ admin.site.register(Revision, RevisionAdmin)
 
 class ExecutableAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'id', 'project')
+    list_filter = ('project',)
     search_fields = ('name', 'description', 'project')
 
 admin.site.register(Executable, ExecutableAdmin)
@@ -36,6 +38,7 @@ admin.site.register(Executable, ExecutableAdmin)
 class BenchmarkAdmin(admin.ModelAdmin):
     list_display = ('name', 'benchmark_type', 'description', 'units_title',
                     'units', 'lessisbetter', 'default_on_comparison')
+    list_filter = ('lessisbetter',)
     ordering = ['name']
     search_fields = ('name', 'description')
 
@@ -52,7 +55,7 @@ admin.site.register(Environment, EnvironmentAdmin)
 class ResultAdmin(admin.ModelAdmin):
     list_display = ('revision', 'benchmark', 'executable', 'environment',
                     'value', 'date', 'environment')
-    list_filter = ('date', 'environment', 'executable', 'benchmark')
+    list_filter = ('environment', 'executable', 'date', 'benchmark')
 
 admin.site.register(Result, ResultAdmin)
 
@@ -62,8 +65,10 @@ def recalculate_report(modeladmin, request, queryset):
         report.save()
 recalculate_report.short_description = "Recalculate reports"
 
+
 class ReportAdmin(admin.ModelAdmin):
     list_display = ('revision', 'summary', 'colorcode')
+    list_filter = ('environment', 'executable')
     ordering = ['-revision']
     actions = [recalculate_report]
 

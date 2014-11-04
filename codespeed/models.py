@@ -73,6 +73,7 @@ class Branch(models.Model):
 
     class Meta:
         unique_together = ("name", "project")
+        verbose_name_plural = "branches"
 
 
 class Revision(models.Model):

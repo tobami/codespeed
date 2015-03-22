@@ -30,7 +30,8 @@ admin.site.register(Revision, RevisionAdmin)
 class ExecutableAdmin(admin.ModelAdmin):
     list_display = ('name', 'description', 'id', 'project')
     list_filter = ('project',)
-    search_fields = ('name', 'description', 'project')
+    ordering = ['name']
+    search_fields = ('name', 'description', 'project__name')
 
 admin.site.register(Executable, ExecutableAdmin)
 
@@ -47,6 +48,7 @@ admin.site.register(Benchmark, BenchmarkAdmin)
 
 class EnvironmentAdmin(admin.ModelAdmin):
     list_display = ('name', 'cpu', 'memory', 'os', 'kernel')
+    ordering = ['name']
     search_fields = ('name', 'cpu', 'memory', 'os', 'kernel')
 
 admin.site.register(Environment, EnvironmentAdmin)

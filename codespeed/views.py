@@ -233,7 +233,7 @@ def comparison(request):
         return no_environment_error(request)
     checkedenviros = get_default_environment(enviros, data, multi=True)
 
-    if not len(Project.objects.all()):
+    if not len(Project.objects.filter(track=True)):
         return no_default_project_error(request)
 
     # Check whether there exist appropiate executables
@@ -638,6 +638,9 @@ def changes(request):
     if not enviros:
         return no_environment_error(request)
     defaultenv = get_default_environment(enviros, data)
+
+    if not len(Project.objects.filter(track=True)):
+        return no_default_project_error(request)
 
     defaultexecutable = getdefaultexecutable()
     if not defaultexecutable:

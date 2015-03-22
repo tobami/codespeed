@@ -29,7 +29,7 @@ class Project(models.Model):
                                  blank=True, max_length=100)
     commit_browsing_url = models.CharField("Commit browsing URL",
                                            blank=True, max_length=200)
-    track = models.BooleanField("Track changes", default=False)
+    track = models.BooleanField("Track changes", default=True)
 
     def __unicode__(self):
         return self.name

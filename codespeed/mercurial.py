@@ -45,8 +45,7 @@ def getlogs(endrev, startrev):
     updaterepo(endrev.branch.project, update=False)
 
     cmd = ["hg", "log",
-            "-r", "%s:%s" % (endrev.commitid, startrev.commitid),
-            "-b", "default",
+            "-r", "%s::%s" % (startrev.commitid, endrev.commitid),
             "--template", "{rev}:{node|short}\n{node}\n{author|user}\n{author|email}\n{date}\n{desc}\n=newlog=\n"]
 
     working_copy = endrev.branch.project.working_copy

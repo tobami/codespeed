@@ -3,10 +3,9 @@ import json
 import logging
 
 from django.core.urlresolvers import reverse
-from django.http import (HttpResponse, Http404, HttpResponseNotAllowed,
-                         HttpResponseBadRequest)
+from django.http import HttpResponse, Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render_to_response
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.template import RequestContext
 from django.conf import settings
@@ -652,12 +651,9 @@ def displaylogs(request):
 
 
 @csrf_exempt
+@require_POST
 def add_result(request):
-    if request.method != 'POST':
-        return HttpResponseNotAllowed('POST')
-    data = request.POST
-
-    response, error = save_result(data)
+    response, error = save_result(request.POST)
     if error:
         logger.error("Could not save result: " + response)
         return HttpResponseBadRequest(response)
@@ -668,9 +664,8 @@ def add_result(request):
 
 
 @csrf_exempt
+@require_POST
 def add_json_results(request):
-    if request.method != 'POST':
-        return HttpResponseNotAllowed('POST')
     if not request.POST.get('json'):
         return HttpResponseBadRequest("No key 'json' in POST payload")
     data = json.loads(request.POST['json'])

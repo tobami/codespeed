@@ -199,6 +199,12 @@ class TestAddJSONResults(TestCase):
              'result_value': 458},
         ]
 
+    def test_get_returns_405(self):
+        response = self.client.get(self.path,
+                                   {'json': json.dumps(self.data)})
+
+        self.assertEquals(response.status_code, 405)
+
     def test_add_correct_results(self):
         """Should add all results when the request data is valid"""
         response = self.client.post(self.path,

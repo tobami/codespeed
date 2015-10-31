@@ -15,7 +15,8 @@ from django.conf import settings
 
 from codespeed.models import (Environment, Report, Project, Revision, Result,
                               Executable, Benchmark, Branch)
-
+from codespeed.domain import (get_default_environment, getbaselineexecutables,
+                              getdefaultexecutable)
 
 logger = logging.getLogger(__name__)
 
@@ -49,104 +50,6 @@ def no_data_found(request):
     return render_to_response('codespeed/nodata.html', {
         'message': 'No data found'
     }, context_instance=RequestContext(request))
-
-
-def getbaselineexecutables():
-    baseline = [{
-        'key': "none",
-        'name': "None",
-        'executable': "none",
-        'revision': "none",
-    }]
-    executables = Executable.objects.select_related('project')
-    revs = Revision.objects.exclude(tag="").select_related('branch__project')
-    maxlen = 22
-    for rev in revs:
-        # Add executables that correspond to each tagged revision.
-        for exe in [e for e in executables if e.project == rev.branch.project]:
-            exestring = str(exe)
-            if len(exestring) > maxlen:
-                exestring = str(exe)[0:maxlen] + "..."
-            name = exestring + " " + rev.tag
-            key = str(exe.id) + "+" + str(rev.id)
-            baseline.append({
-                'key': key,
-                'executable': exe,
-                'revision': rev,
-                'name': name,
-            })
-    # move default to first place
-    if hasattr(settings, 'DEF_BASELINE') and settings.DEF_BASELINE is not None:
-        try:
-            exename = settings.DEF_BASELINE['executable']
-            commitid = settings.DEF_BASELINE['revision']
-            for base in baseline:
-                if base['key'] == "none":
-                    continue
-                if (base['executable'].name == exename and
-                        base['revision'].commitid == commitid):
-                    baseline.remove(base)
-                    baseline.insert(1, base)
-                    break
-        except KeyError:
-            # TODO: write to server logs
-            #error in settings.DEF_BASELINE
-            pass
-    return baseline
-
-
-def get_default_environment(enviros, data, multi=False):
-    """Returns the default environment. Preference level is:
-        * Present in URL parameters (permalinks)
-        * Value in settings.py
-        * First Environment ID
-
-    """
-    defaultenviros = []
-    # Use permalink values
-    if 'env' in data:
-        for env_value in data['env'].split(","):
-            for env in enviros:
-                try:
-                    env_id = int(env_value)
-                except ValueError:
-                    # Not an int
-                    continue
-                for env in enviros:
-                    if env_id == env.id:
-                        defaultenviros.append(env)
-            if not multi:
-                break
-    # Use settings.py value
-    if not defaultenviros and not multi:
-        if (hasattr(settings, 'DEF_ENVIRONMENT') and
-                settings.DEF_ENVIRONMENT is not None):
-            for env in enviros:
-                if settings.DEF_ENVIRONMENT == env.name:
-                    defaultenviros.append(env)
-                    break
-    # Last fallback
-    if not defaultenviros:
-        defaultenviros = enviros
-    if multi:
-        return defaultenviros
-    else:
-        return defaultenviros[0]
-
-
-def getdefaultexecutable():
-    default = None
-    if hasattr(settings, 'DEF_EXECUTABLE') and settings.DEF_EXECUTABLE is not None:
-        try:
-            default = Executable.objects.get(name=settings.DEF_EXECUTABLE)
-        except Executable.DoesNotExist:
-            pass
-    if default is None:
-        execquery = Executable.objects.filter(project__track=True)
-        if len(execquery):
-            default = execquery[0]
-
-    return default
 
 
 def getcomparisonexes():
@@ -689,7 +592,7 @@ def changes(request):
             selectedrevision = Revision.objects.get(
                 commitid__startswith=commitid, branch=branch
             )
-            if not selectedrevision in revisionlists[selectedrevision.project.name]:
+            if selectedrevision not in revisionlists[selectedrevision.project.name]:
                 revisionlists[selectedrevision.project.name].append(selectedrevision)
         except Revision.DoesNotExist:
             selectedrevision = lastrevisions[0]
@@ -735,11 +638,11 @@ def reports(request):
     context['significant_reports'] = \
         Report.objects.filter(
             revision__branch__name=settings.DEF_BRANCH,
-            colorcode__in = ('red','green')
+            colorcode__in=('red', 'green')
         ).order_by('-revision__date')[:10]
 
-    return render_to_response('codespeed/reports.html',
-        context, context_instance=RequestContext(request))
+    return render_to_response('codespeed/reports.html', context,
+                              context_instance=RequestContext(request))
 
 
 @require_GET
@@ -780,7 +683,7 @@ def displaylogs(request):
             rev, e, exc_info=True)
         error = repr(e)
 
-    # add commit browsing url to logs
+    # Add commit browsing url to logs
     project = rev.branch.project
     for log in logs:
         log['commit_browse_url'] = project.commit_browsing_url.format(**log)
@@ -851,7 +754,7 @@ def validate_result(item):
 
     error = True
     for key in mandatory_data:
-        if not key in item:
+        if key not in item:
             return 'Key "' + key + '" missing from request', error
         elif key in item and item[key] == "":
             return 'Value for key "' + key + '" empty in request', error
@@ -995,7 +898,7 @@ def add_json_results(request):
         if error:
             logger.debug(
                 "add_json_results: could not save item %d because %s" % (
-                i, response))
+                    i, response))
             return HttpResponseBadRequest(response)
         else:
             unique_reports.add(response)

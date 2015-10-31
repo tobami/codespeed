@@ -8,7 +8,6 @@ from django.core.urlresolvers import reverse
 
 from codespeed.models import (Project, Benchmark, Revision, Branch, Executable,
                               Environment, Result, Report)
-from codespeed.views import getbaselineexecutables
 
 
 class TestAddResult(TestCase):
@@ -362,7 +361,8 @@ class TestReports(TestCase):
             'environment': 'Dual Core',
             'result_value': 200,
         }
-        resp = self.client.post(reverse('codespeed.views.add_result'), self.data)
+        resp = self.client.post(reverse('codespeed.views.add_result'),
+                                self.data)
         self.assertEqual(resp.status_code, 202)
         self.data['commitid'] = "abcd2"
         self.data['result_value'] = 150
@@ -381,36 +381,3 @@ class TestReports(TestCase):
         response = self.client.post(reverse('codespeed.views.reports'), {})
 
         self.assertEqual(response.status_code, 405)
-
-
-class TestViewHelpers(TestCase):
-    """Test helper functions in codespeed.views"""
-
-    def setUp(self):
-        self.project = Project.objects.create(name='Test')
-        self.executable = Executable.objects.create(
-            name='TestExecutable', project=self.project)
-        self.branch = Branch.objects.create(name='master', project=self.project)
-
-    def test_get_baseline_executables(self):
-        # No revisions, no baseline
-        result = getbaselineexecutables()
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]['executable'], 'none')
-
-        # Check that a tagged revision will be included as baseline
-        revision1 = Revision.objects.create(commitid='1', tag='0.1', branch=self.branch)
-        result = getbaselineexecutables()
-        self.assertEqual(len(result), 2)
-        self.assertEqual(result[0]['executable'], 'none')
-        self.assertEqual(result[1]['executable'], self.executable)
-        self.assertEqual(result[1]['revision'], revision1)
-
-        revision2 = Revision.objects.create(commitid='2', tag='0.2', branch=self.branch)
-        result = getbaselineexecutables()
-        self.assertEqual(len(result), 3)
-
-        # An untagged revision will not be available as baseline
-        Revision.objects.create(commitid='3', branch=self.branch)
-        result = getbaselineexecutables()
-        self.assertEqual(len(result), 3)

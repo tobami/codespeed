@@ -234,7 +234,7 @@ def gettimelinedata(request):
         Http404()
 
     benchmarks = []
-    number_of_revs = data.get('revs', 10)
+    number_of_revs = int(data.get('revs', 10))
 
     if data['ben'] == 'grid':
         benchmarks = Benchmark.objects.all().order_by('name')

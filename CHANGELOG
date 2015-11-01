@@ -1,5 +1,11 @@
 == Change Log ==
 
+=== Version 0.11a0 ===
+* NEW #191: Django 1.7 and 1.8 support
+* NEW #192: Python 3.4 support
+* FIX #190: Upgrade to jqPlot 1.0.8 and jQuery 1.8
+
+
 === Version 0.10.1, November 1, 2015 ===
 * NEW #169: nomeata added admin action to recalculate reports
 * NEW #169: nomeata increased allowed length for benchmark names to 100 chars

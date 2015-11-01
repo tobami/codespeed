@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='codespeed',
-    version='0.10.0',
+    version='0.10.1',
     author='Miquel Torres',
     author_email='tobami@gmail.com',
     url='https://github.com/tobami/codespeed',
@@ -14,7 +14,7 @@ setup(
     description='A web application to monitor and analyze the performance of your code',
     include_package_data=True,
     zip_safe=False,
-    classifiers =[
+    classifiers=[
         'Environment :: Web Environment',
         'Framework :: Django',
         'Intended Audience :: Developers',

@@ -1,5 +1,13 @@
 == Change Log ==
 
+=== Version 0.10.1, November 1, 2015 ===
+* NEW #169: nomeata added admin action to recalculate reports
+* NEW #169: nomeata increased allowed length for benchmark names to 100 chars
+* FIX #186: pepsiman fixed getting commit logs for non-default branches on mercurial
+* FIX #170: Show infinite increase instead of "-"
+* FIX: various admin fixes
+
+
 === Version 0.10.0, December 27, 2013 ===
 * NEW #108: AlekSi made executable names uniques per project instead of globally
 * NEW #148: staticfloat added the ability to set benchmark fields when saving results for a new benchmark

@@ -1,15 +1,15 @@
 # Codespeed
 [![Build Status](https://travis-ci.org/tobami/codespeed.png?branch=master)](https://travis-ci.org/tobami/codespeed)
 
-A web application to monitor and analyze the performance of your code.
+Codespeed is a web application to monitor and analyze the performance of your code.
 
-Known to be used by [PyPy](http://speed.pypy.org), [Twisted](http://speed.twistedmatrix.com), [RubySpec](http://speed.rubyspec.org) and many more.
+Known to be used by [PyPy](http://speed.pypy.org), [Twisted](http://speed.twistedmatrix.com) and others.
 
 For an overview of some application concepts see the [wiki page](https://github.com/tobami/codespeed/wiki/Overview)
 
 # Installation
 
-You will need Python 2.7.
+You will need Python 2.7 or 3.4+.
 
 To install dependencies and the codespeed Django app:
 
@@ -33,13 +33,9 @@ can take a long time. Please be patient.
   the data to a database named `data.db`
 * Create the DB by typing from the root directory:
 
-        python manage.py syncdb
-
-* Create an admin user in the process.
-* Execute DB migrations:
-
         python manage.py migrate
 
+* Create an admin user in the process.
 * For testing purposes, you can now start the development server:
 
         python manage.py runserver 8000

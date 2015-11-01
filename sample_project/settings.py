@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Django settings for a speedcenter project.
+# Django settings for a Codespeed project.
 import os
 
 DEBUG = True
@@ -23,45 +23,25 @@ DATABASES = {
     }
 }
 
-# Local time zone for this installation. Choices can be found here:
-# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
-# although not all choices may be available on all operating systems.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
 TIME_ZONE = 'America/Chicago'
 
-# Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
 
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
 USE_I18N = False
 
-# Absolute path to the directory that holds media.
-# Example: "/home/media/media.lawrence.com/"
 MEDIA_ROOT = os.path.join(BASEDIR, "media")
 
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash if there is a path component (optional in other cases).
-# Examples: "http://media.lawrence.com", "http://example.com/media/"
 MEDIA_URL = '/media/'
 
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
 ADMIN_MEDIA_PREFIX = '/static/admin/'
 
-# Make this unique, and don't share it with anybody.
 SECRET_KEY = 'as%n_m#)^vee2pe91^^@c))sl7^c6t-9r8n)_69%)2yt+(la2&'
 
-# List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-    # 'django.template.loaders.eggs.load_template_source',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -111,9 +91,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.staticfiles',
     'codespeed',
-    'south',
 )
-SOUTH_TESTS_MIGRATE = False
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
@@ -123,67 +101,3 @@ STATICFILES_DIRS = (
 
 # Codespeed settings that can be overwritten here.
 from codespeed.settings import *
-
-## General default options ##
-WEBSITE_NAME = "MySpeedSite" # This name will be used in the reports RSS feed
-
-#DEF_ENVIRONMENT = None #Name of the environment which should be selected as default
-
-
-#DEF_BASELINE = None # Which executable + revision should be default as a baseline
-                    # Given as the name of the executable and commitid of the revision
-                    # Example: defaultbaseline = {'executable': 'myexe', 'revision': '21'}
-
-#TREND = 10 # Default value for the depth of the trend
-           # Used by reports for the latest runs and changes view
-
-# Threshold that determines when a performance change over the last result is significant
-#CHANGE_THRESHOLD = 3.0
-
-# Threshold that determines when a performance change
-# over a number of revisions is significant
-#TREND_THRESHOLD  = 5.0
-
-## Changes view options ##
-#DEF_EXECUTABLE = None # Executable that should be chosen as default in the changes view
-                      # Given as the name of the executable.
-                      # Example: defaultexecutable = "myexe"
-
-#SHOW_AUTHOR_EMAIL_ADDRESS = True # Whether to show the authors email address in the
-                                 # changes log
-
-## Timeline view options ##
-#DEF_BENCHMARK = "grid" # Default selected benchmark. Possible values:
-                       #   "grid": will show the grid of plots
-                       #   "show_none": will just show a text message
-                       #   "mybench": will select benchmark "mybench"
-
-#DEF_TIMELINE_LIMIT = 50  # Default number of revisions to be plotted
-                         # Possible values 10,50,200,1000
-
-#TIMELINE_BRANCHES = True # NOTE: Only the default branch is currently shown
-                         # Get timeline results for specific branches
-                         # Set to False if you want timeline plots and results only for trunk.
-
-## Comparison view options ##
-#CHART_TYPE = 'normal bars' # The options are 'normal bars', 'stacked bars' and 'relative bars'
-
-#NORMALIZATION = False # True will enable normalization as the default selection
-                      # in the Comparison view. The default normalization can be
-                      # chosen in the defaultbaseline setting
-
-#CHART_ORIENTATION = 'vertical' # 'vertical' or 'horizontal can be chosen as
-                              # default chart orientation
-
-#COMP_EXECUTABLES = None  # Which executable + revision should be checked as default
-                         # Given as a list of tuples containing the
-                         # name of an executable + commitid of a revision
-                         # An 'L' denotes the last revision
-                         # Example:
-                         # COMP_EXECUTABLES = [
-                         #     ('myexe', '21df2423ra'),
-                         #     ('myexe', 'L'),]
-
-#DEF_BRANCH = "default" # Defines the default branch to be used.
-                       # In git projects, this branch is usually be calles
-                       # "master"

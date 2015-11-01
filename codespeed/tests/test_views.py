@@ -36,7 +36,7 @@ class TestAddResult(TestCase):
 
         # Check that we get a success response
         self.assertEquals(response.status_code, 202)
-        self.assertEquals(response.content, "Result data saved successfully")
+        self.assertEquals(response.content.decode(), "Result data saved successfully")
 
         # Check that the data was correctly saved
         e = Environment.objects.get(name='Dual Core')
@@ -68,7 +68,7 @@ class TestAddResult(TestCase):
         modified_data['min'] = 1.0
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)
-        self.assertEquals(response.content, "Result data saved successfully")
+        self.assertEquals(response.content.decode(), "Result data saved successfully")
         e = Environment.objects.get(name='Dual Core')
         p = Project.objects.get(name='MyProject')
         branch = Branch.objects.get(name='default', project=p)
@@ -96,7 +96,8 @@ class TestAddResult(TestCase):
         self.data['environment'] = bad_name
         response = self.client.post(self.path, self.data)
         self.assertEquals(response.status_code, 400)
-        self.assertEquals(response.content, "Environment " + bad_name + " not found")
+        self.assertEquals(response.content.decode(),
+                          "Environment " + bad_name + " not found")
         self.data['environment'] = 'Dual Core'
 
     def test_empty_argument(self):
@@ -107,7 +108,7 @@ class TestAddResult(TestCase):
             response = self.client.post(self.path, self.data)
             self.assertEquals(response.status_code, 400)
             self.assertEquals(
-                response.content, 'Value for key "' + key + '" empty in request')
+                response.content.decode(), 'Value for key "' + key + '" empty in request')
             self.data[key] = backup
 
     def test_missing_argument(self):
@@ -118,7 +119,7 @@ class TestAddResult(TestCase):
             response = self.client.post(self.path, self.data)
             self.assertEquals(response.status_code, 400)
             self.assertEquals(
-                response.content, 'Key "' + key + '" missing from request')
+                response.content.decode(), 'Key "' + key + '" missing from request')
             self.data[key] = backup
 
     def test_report_is_not_created(self):
@@ -155,7 +156,7 @@ class TestAddResult(TestCase):
         modified_data['executable'] = "My new executable"
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)
-        self.assertEquals(response.content, "Result data saved successfully")
+        self.assertEquals(response.content.decode(), "Result data saved successfully")
 
 
 class TestAddJSONResults(TestCase):
@@ -212,7 +213,7 @@ class TestAddJSONResults(TestCase):
 
         # Check that we get a success response
         self.assertEquals(response.status_code, 202)
-        self.assertEquals(response.content,
+        self.assertEquals(response.content.decode(),
                           "All result data saved successfully")
 
         # Check that the data was correctly saved
@@ -265,7 +266,7 @@ class TestAddJSONResults(TestCase):
                                     {'json': json.dumps(self.data)})
 
         self.assertEquals(response.status_code, 400)
-        self.assertEquals(response.content, "Environment " + bad_name + " not found")
+        self.assertEquals(response.content.decode(), "Environment " + bad_name + " not found")
         data['environment'] = 'bigdog'
 
     def test_empty_argument(self):
@@ -277,7 +278,7 @@ class TestAddJSONResults(TestCase):
             response = self.client.post(self.path,
                                         {'json': json.dumps(self.data)})
             self.assertEquals(response.status_code, 400)
-            self.assertEquals(response.content, 'Value for key "' + key + '" empty in request')
+            self.assertEquals(response.content.decode(), 'Value for key "' + key + '" empty in request')
             data[key] = backup
 
     def test_missing_argument(self):
@@ -289,7 +290,7 @@ class TestAddJSONResults(TestCase):
             response = self.client.post(self.path,
                                         {'json': json.dumps(self.data)})
             self.assertEquals(response.status_code, 400)
-            self.assertEquals(response.content, 'Key "' + key + '" missing from request')
+            self.assertEquals(response.content.decode(), 'Key "' + key + '" missing from request')
             data[key] = backup
 
     def test_report_is_created(self):
@@ -335,7 +336,7 @@ class TestTimeline(TestCase):
         }
         response = self.client.get(path, data)
         self.assertEquals(response.status_code, 200)
-        responsedata = json.loads(response.content)
+        responsedata = json.loads(response.content.decode())
         self.assertEquals(
             responsedata['error'], "None", "there should be no errors")
         self.assertEquals(
@@ -379,9 +380,10 @@ class TestReports(TestCase):
         response = self.client.get(reverse('codespeed.views.reports'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertIn('Latest Results', response.content)
-        self.assertIn('Latest Significant Results', response.content)
-        self.assertIn(self.data['commitid'], response.content)
+        content = response.content.decode()
+        self.assertIn('Latest Results', content)
+        self.assertIn('Latest Significant Results', content)
+        self.assertIn(self.data['commitid'], content)
 
     def test_reports_post_returns_405(self):
         response = self.client.post(reverse('codespeed.views.reports'), {})

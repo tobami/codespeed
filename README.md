@@ -9,7 +9,7 @@ For an overview of some application concepts see the [wiki page](https://github.
 
 # Installation
 
-You will need Python 2.6 or 2.7.
+You will need Python 2.7.
 
 To install dependencies and the codespeed Django app:
 

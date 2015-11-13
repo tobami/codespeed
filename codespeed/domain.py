@@ -160,13 +160,13 @@ def getcommitlogs(rev, startrev, update=False):
     logs = []
 
     if rev.branch.project.repo_type == 'S':
-        from subversion import getlogs, updaterepo
+        from codespeed.subversion import getlogs, updaterepo
     elif rev.branch.project.repo_type == 'M':
-        from mercurial import getlogs, updaterepo
+        from codespeed.mercurial import getlogs, updaterepo
     elif rev.branch.project.repo_type == 'G':
-        from git import getlogs, updaterepo
+        from codespeed.git import getlogs, updaterepo
     elif rev.branch.project.repo_type == 'H':
-        from github import getlogs, updaterepo
+        from codespeed.github import getlogs, updaterepo
     else:
         if rev.branch.project.repo_type not in ("N", ""):
             logger.warning("Don't know how to retrieve logs from %s project",

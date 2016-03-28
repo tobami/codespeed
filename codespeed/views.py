@@ -12,12 +12,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.template import RequestContext
 from django.conf import settings
 
-from codespeed.models import (Environment, Report, Project, Revision, Result,
-                              Executable, Benchmark, Branch)
-from codespeed.domain import (get_default_environment, getbaselineexecutables,
-                              getdefaultexecutable, getcomparisonexes,
-                              getcommitlogs, save_result,
-                              create_report_if_enough_data)
+from .models import (Environment, Report, Project, Revision, Result,
+                     Executable, Benchmark, Branch)
+from .views_data import (get_default_environment, getbaselineexecutables,
+                         getdefaultexecutable, getcomparisonexes)
+from .results import save_result, create_report_if_enough_data
+from . import commits
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,8 @@ def getcomparisondata(request):
                 ).values_list('benchmark', 'value'))
 
                 for bench in benchmarks:
-                    compdata[exe['key']][env.id][bench.id] = results.get(bench.id, None)
+                    compdata[exe['key']][env.id][bench.id] = results.get(
+                        bench.id, None)
 
     compdata['error'] = "None"
 
@@ -334,7 +335,7 @@ def gettimelinedata(request):
 def timeline(request):
     data = request.GET
 
-    ## Configuration of default parameters ##
+    # Configuration of default parameters #
     # Default Environment
     enviros = Environment.objects.all()
     if not enviros:
@@ -564,7 +565,7 @@ def changes(request):
 
     for project, revisions in revisionlists.items():
         revisionlists[project] = [
-            (unicode(rev), rev.commitid) for rev in revisions
+            (str(rev), rev.commitid) for rev in revisions
         ]
     revisionlists = json.dumps(revisionlists)
 
@@ -624,7 +625,7 @@ def displaylogs(request):
         else:
             startrev = startrev[0]
 
-        remotelogs = getcommitlogs(rev, startrev)
+        remotelogs = commits.get_logs(rev, startrev)
         if len(remotelogs):
             try:
                 if remotelogs[0]['error']:
@@ -633,12 +634,11 @@ def displaylogs(request):
                 pass  # no errors
             logs = remotelogs
         else:
-            error = 'no logs found'
-    except (StandardError, RuntimeError) as e:
-        logger.error(
-            "Unhandled exception displaying logs for %s: %s",
-            rev, e, exc_info=True)
-        error = repr(e)
+            error = 'No logs found'
+    except commits.exceptions.CommitLogError as e:
+        logger.error('Unhandled exception displaying logs for %s: %s',
+                     rev, e, exc_info=True)
+        error = str(e)
 
     # Add commit browsing url to logs
     project = rev.branch.project
@@ -647,8 +647,10 @@ def displaylogs(request):
 
     return render_to_response(
         'codespeed/changes_logs.html',
-        {'error': error, 'logs': logs,
-         'show_email_address': settings.SHOW_AUTHOR_EMAIL_ADDRESS},
+        {
+            'error': error, 'logs': logs,
+            'show_email_address': settings.SHOW_AUTHOR_EMAIL_ADDRESS
+        },
         context_instance=RequestContext(request))
 
 

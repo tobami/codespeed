@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
-'''Subversion commit logs support'''
+"""Subversion commit logs support"""
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 from datetime import datetime
+
+from .exceptions import CommitLogError
 
 
 def updaterepo(project):
@@ -34,9 +39,9 @@ def getlogs(newrev, startrev):
                 )
             )
     except pysvn.ClientError as e:
-        raise RuntimeError(e.args)
+        raise CommitLogError(e.args)
     except ValueError:
-        raise RuntimeError(
+        raise CommitLogError(
             "'%s' is an invalid subversion revision number" % newrev.commitid)
     log_messages.reverse()
     s = len(log_messages)

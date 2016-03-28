@@ -16,8 +16,8 @@ from codespeed.models import (Environment, Report, Project, Revision, Result,
                               Executable, Benchmark, Branch)
 from codespeed.domain import (get_default_environment, getbaselineexecutables,
                               getdefaultexecutable, getcomparisonexes,
-                              getcommitlogs, save_result,
-                              create_report_if_enough_data)
+                              save_result, create_report_if_enough_data)
+from codespeed import commits
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +76,8 @@ def getcomparisondata(request):
                 ).values_list('benchmark', 'value'))
 
                 for bench in benchmarks:
-                    compdata[exe['key']][env.id][bench.id] = results.get(bench.id, None)
+                    compdata[exe['key']][env.id][bench.id] = results.get(
+                        bench.id, None)
 
     compdata['error'] = "None"
 
@@ -334,7 +335,7 @@ def gettimelinedata(request):
 def timeline(request):
     data = request.GET
 
-    ## Configuration of default parameters ##
+    # Configuration of default parameters #
     # Default Environment
     enviros = Environment.objects.all()
     if not enviros:
@@ -564,7 +565,7 @@ def changes(request):
 
     for project, revisions in revisionlists.items():
         revisionlists[project] = [
-            (unicode(rev), rev.commitid) for rev in revisions
+            (str(rev), rev.commitid) for rev in revisions
         ]
     revisionlists = json.dumps(revisionlists)
 
@@ -624,7 +625,7 @@ def displaylogs(request):
         else:
             startrev = startrev[0]
 
-        remotelogs = getcommitlogs(rev, startrev)
+        remotelogs = commits.get_logs(rev, startrev)
         if len(remotelogs):
             try:
                 if remotelogs[0]['error']:

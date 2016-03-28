@@ -59,9 +59,8 @@ if DEBUG:
     # Define a class that logs unhandled errors
     class LogUncatchedErrors:
         def process_exception(self, request, exception):
-            logging.error("Unhandled Exception on request for %s\n%s" %
-                                 (request.build_absolute_uri(),
-                                  traceback.format_exc()))
+            logging.error("Unhandled Exception on request for %s\n%s",
+                          request.build_absolute_uri(), traceback.format_exc())
     # And add it to the middleware classes
     MIDDLEWARE_CLASSES += ('sample_project.settings.LogUncatchedErrors',)
 

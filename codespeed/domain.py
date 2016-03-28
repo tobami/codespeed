@@ -4,11 +4,12 @@ from __future__ import absolute_import
 import logging
 from datetime import datetime
 from django.core.exceptions import ValidationError
-
 from django.conf import settings
+
 from codespeed.models import (Environment, Executable, Revision,
                               Project, Branch, Benchmark,
                               Result, Report)
+from codespeed import commits
 
 logger = logging.getLogger(__name__)
 
@@ -156,45 +157,6 @@ def getcomparisonexes():
     return all_executables, exekeys
 
 
-def getcommitlogs(rev, startrev, update=False):
-    logs = []
-
-    if rev.branch.project.repo_type == 'S':
-        from codespeed.subversion import getlogs, updaterepo
-    elif rev.branch.project.repo_type == 'M':
-        from codespeed.mercurial import getlogs, updaterepo
-    elif rev.branch.project.repo_type == 'G':
-        from codespeed.git import getlogs, updaterepo
-    elif rev.branch.project.repo_type == 'H':
-        from codespeed.github import getlogs, updaterepo
-    else:
-        if rev.branch.project.repo_type not in ("N", ""):
-            logger.warning("Don't know how to retrieve logs from %s project",
-                           rev.branch.project.get_repo_type_display())
-        return logs
-
-    if update:
-        updaterepo(rev.branch.project)
-
-    logs = getlogs(rev, startrev)
-
-    # Remove last log because the startrev log shouldn't be shown
-    if len(logs) > 1 and logs[-1].get('commitid') == startrev.commitid:
-        logs.pop()
-
-    return logs
-
-
-def saverevisioninfo(rev):
-    log = getcommitlogs(rev, rev, update=True)
-
-    if log:
-        log = log[0]
-        rev.author = log['author']
-        rev.date = log['date']
-        rev.message = log['message']
-
-
 def validate_result(item):
     """
     Validates that a result dictionary has all needed parameters
@@ -290,10 +252,17 @@ def save_result(data):
             return str(e), True
         if p.repo_type not in ("N", ""):
             try:
-                saverevisioninfo(rev)
+                commit_logs = commits.get_logs(rev, rev, update=True)
             except RuntimeError as e:
                 logger.warning("unable to save revision %s info: %s", rev, e,
                                exc_info=True)
+            else:
+                if commit_logs:
+                    log = commit_logs[0]
+                    rev.author = log['author']
+                    rev.date = log['date']
+                    rev.message = log['message']
+
         rev.save()
 
     exe, created = Executable.objects.get_or_create(

@@ -14,8 +14,8 @@ from django.conf import settings
 
 from .models import (Environment, Report, Project, Revision, Result,
                      Executable, Benchmark, Branch)
-from .domain import (get_default_environment, getbaselineexecutables,
-                     getdefaultexecutable, getcomparisonexes)
+from .views_data import (get_default_environment, getbaselineexecutables,
+                         getdefaultexecutable, getcomparisonexes)
 from .results import save_result, create_report_if_enough_data
 from . import commits
 

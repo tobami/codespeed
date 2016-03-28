@@ -8,19 +8,19 @@ logger = logging.getLogger(__name__)
 
 def get_logs(rev, startrev, update=False):
     logs = []
-
-    if rev.branch.project.repo_type == 'S':
+    project = rev.branch.project
+    if project.repo_type == project.SUBVERSION:
         from .subversion import getlogs, updaterepo
-    elif rev.branch.project.repo_type == 'M':
+    elif project.repo_type == project.MERCURIAL:
         from .mercurial import getlogs, updaterepo
-    elif rev.branch.project.repo_type == 'G':
+    elif project.repo_type == project.GIT:
         from .git import getlogs, updaterepo
-    elif rev.branch.project.repo_type == 'H':
+    elif project.repo_type == project.GITHUB:
         from .github import getlogs, updaterepo
     else:
-        if rev.branch.project.repo_type not in ("N", ""):
+        if project.repo_type not in (project.NO_LOGS, ""):
             logger.warning("Don't know how to retrieve logs from %s project",
-                           rev.branch.project.get_repo_type_display())
+                           project.get_repo_type_display())
         return logs
 
     if update:

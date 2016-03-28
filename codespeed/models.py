@@ -13,17 +13,22 @@ from codespeed.github import GITHUB_URL_RE
 
 
 class Project(models.Model):
+    NO_LOGS = 'N'
+    GIT = 'G'
+    GITHUB = 'H'
+    MERCURIAL = 'M'
+    SUBVERSION = 'S'
     REPO_TYPES = (
-        ('N', 'none'),
-        ('G', 'git'),
-        ('H', 'Github.com'),
-        ('M', 'mercurial'),
-        ('S', 'subversion'),
+        (NO_LOGS, 'none'),
+        (GIT, 'git'),
+        (GITHUB, 'Github.com'),
+        (MERCURIAL, 'mercurial'),
+        (SUBVERSION, 'subversion'),
     )
 
     name = models.CharField(unique=True, max_length=30)
     repo_type = models.CharField(
-        "Repository type", max_length=1, choices=REPO_TYPES, default='N')
+        "Repository type", max_length=1, choices=REPO_TYPES, default=NO_LOGS)
     repo_path = models.CharField("Repository URL", blank=True, max_length=200)
     repo_user = models.CharField("Repository username",
                                  blank=True, max_length=100)

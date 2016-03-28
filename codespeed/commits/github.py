@@ -5,6 +5,8 @@ Specialized Git backend which uses Github.com for all of the heavy work
 Among other things, this means that the codespeed server doesn't need to have
 git installed, the ability to write files, etc.
 """
+from __future__ import absolute_import
+
 import logging
 import urllib
 import re
@@ -12,6 +14,8 @@ import json
 
 import isodate
 from django.core.cache import cache
+
+from .exceptions import CommitLogError
 
 logger = logging.getLogger(__name__)
 
@@ -52,7 +56,7 @@ def retrieve_revision(commit_id, username, project, revision=None):
             cache.set(commit_url, commit_json, 86400 * 30)
 
     if commit_json["message"] in ("Not Found", "Server Error",):
-         raise RuntimeError("Unable to load %s: %s" % (commit_url, commit_json["message"]))
+         raise CommitLogError("Unable to load %s: %s" % (commit_url, commit_json["message"]))
 
     date = isodate.parse_datetime(commit_json['committer']['date'])
 

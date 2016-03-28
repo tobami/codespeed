@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+
 import os
 import datetime
 from subprocess import Popen, PIPE
@@ -5,6 +8,7 @@ import logging
 
 from django.conf import settings
 
+from .exceptions import CommitLogError
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +23,8 @@ def updaterepo(project, update=True):
         stdout, stderr = p.communicate()
 
         if p.returncode != 0 or stderr:
-            raise RuntimeError("hg pull returned %s: %s" % (p.returncode,
-                                                                stderr))
+            raise CommitLogError("hg pull returned %s: %s" % (p.returncode,
+                                                              stderr))
         else:
             return [{'error': False}]
     else:
@@ -34,9 +38,9 @@ def updaterepo(project, update=True):
         stdout, stderr = p.communicate()
 
         if p.returncode != 0:
-            raise RuntimeError("%s returned %s: %s" % (" ".join(cmd),
-                                                        p.returncode,
-                                                        stderr))
+            raise CommitLogError("%s returned %s: %s" % (" ".join(cmd),
+                                                         p.returncode,
+                                                         stderr))
         else:
             return [{'error': False}]
 
@@ -53,7 +57,7 @@ def getlogs(endrev, startrev):
     stdout, stderr = p.communicate()
 
     if p.returncode != 0:
-        raise RuntimeError(str(stderr))
+        raise CommitLogError(str(stderr))
     else:
         stdout = stdout.rstrip('\n')  # Remove last newline
         logs = []

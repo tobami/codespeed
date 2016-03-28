@@ -634,12 +634,11 @@ def displaylogs(request):
                 pass  # no errors
             logs = remotelogs
         else:
-            error = 'no logs found'
-    except (StandardError, RuntimeError) as e:
-        logger.error(
-            "Unhandled exception displaying logs for %s: %s",
-            rev, e, exc_info=True)
-        error = repr(e)
+            error = 'No logs found'
+    except commits.exceptions.CommitLogError as e:
+        logger.error('Unhandled exception displaying logs for %s: %s',
+                     rev, e, exc_info=True)
+        error = str(e)
 
     # Add commit browsing url to logs
     project = rev.branch.project
@@ -648,8 +647,10 @@ def displaylogs(request):
 
     return render_to_response(
         'codespeed/changes_logs.html',
-        {'error': error, 'logs': logs,
-         'show_email_address': settings.SHOW_AUTHOR_EMAIL_ADDRESS},
+        {
+            'error': error, 'logs': logs,
+            'show_email_address': settings.SHOW_AUTHOR_EMAIL_ADDRESS
+        },
         context_instance=RequestContext(request))
 
 

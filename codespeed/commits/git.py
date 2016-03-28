@@ -5,6 +5,7 @@ import logging
 
 from django.conf import settings
 
+from .exceptions import CommitLogError
 
 logger = logging.getLogger(__name__)
 
@@ -19,8 +20,8 @@ def updaterepo(project, update=True):
 
         stdout, stderr = p.communicate()
         if p.returncode != 0:
-            raise RuntimeError("git pull returned %s: %s" % (p.returncode,
-                                                                stderr))
+            raise CommitLogError("git pull returned %s: %s" % (p.returncode,
+                                                               stderr))
         else:
             return [{'error': False}]
     else:
@@ -32,7 +33,7 @@ def updaterepo(project, update=True):
         stdout, stderr = p.communicate()
 
         if p.returncode != 0:
-            raise RuntimeError("%s returned %s: %s" % (
+            raise CommitLogError("%s returned %s: %s" % (
                 " ".join(cmd), p.returncode, stderr))
         else:
             return [{'error': False}]
@@ -58,8 +59,8 @@ def getlogs(endrev, startrev):
     stdout, stderr = p.communicate()
 
     if p.returncode != 0:
-        raise RuntimeError("%s returned %s: %s" % (
-                            " ".join(cmd), p.returncode, stderr))
+        raise CommitLogError("%s returned %s: %s" % (
+                             " ".join(cmd), p.returncode, stderr))
     logs = []
     for log in filter(None, stdout.split("\x1e")):
         (short_commit_id, commit_id, date_t, author_name, author_email,

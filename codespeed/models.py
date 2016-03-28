@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from django.db import models
 from django.conf import settings
 
-from codespeed.github import GITHUB_URL_RE
+from .commits.github import GITHUB_URL_RE
 
 
 class Project(models.Model):
@@ -61,7 +61,7 @@ class Project(models.Model):
 
     def save(self, *args, **kwargs):
         """Provide a default for commit browsing url in github repositories."""
-        if not self.commit_browsing_url and self.repo_type == 'H':
+        if not self.commit_browsing_url and self.repo_type == self.GITHUB:
             m = GITHUB_URL_RE.match(self.repo_path)
             if m:
                 url = 'https://github.com/%s/%s/commit/{commitid}' % (

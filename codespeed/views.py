@@ -12,12 +12,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.template import RequestContext
 from django.conf import settings
 
-from codespeed.models import (Environment, Report, Project, Revision, Result,
-                              Executable, Benchmark, Branch)
-from codespeed.domain import (get_default_environment, getbaselineexecutables,
-                              getdefaultexecutable, getcomparisonexes,
-                              save_result, create_report_if_enough_data)
-from codespeed import commits
+from .models import (Environment, Report, Project, Revision, Result,
+                     Executable, Benchmark, Branch)
+from .domain import (get_default_environment, getbaselineexecutables,
+                     getdefaultexecutable, getcomparisonexes)
+from .results import save_result, create_report_if_enough_data
+from . import commits
 
 logger = logging.getLogger(__name__)
 

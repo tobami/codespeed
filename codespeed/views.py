@@ -293,7 +293,8 @@ def gettimelinedata(request):
                         std_dev = res.std_dev
                     results.append(
                         [
-                            res.revision.date.isoformat(), res.value, std_dev,
+                            res.revision.date.strftime('%Y/%m/%d %H:%M:%S %z'),
+                            res.value, std_dev,
                             res.revision.get_short_commitid(), branch
                         ]
                     )

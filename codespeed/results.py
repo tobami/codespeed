@@ -122,6 +122,8 @@ def save_result(data):
     r.std_dev = data.get('std_dev')
     r.val_min = data.get('min')
     r.val_max = data.get('max')
+    r.q1 = data.get('q1')
+    r.q3 = data.get('q3')
 
     r.full_clean()
     r.save()

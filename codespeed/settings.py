@@ -66,3 +66,5 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
                          # COMP_EXECUTABLES = [
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
+
+USE_MEDIAN_BANDS = True # True to enable median bands on Timeline view

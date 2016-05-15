@@ -83,6 +83,16 @@
     <input id="equidistant" name="equidistant" type="checkbox" />
     <label for="equidistant">Equidistant</label>
   </span>
+  {% if use_median_bands %}
+  <span class="options median" title="Shows quartile bands in the plots" style="display: none">
+    <input id="show_quartile_bands" type="checkbox" name="show_quartile_bands" checked="checked"/>
+    <label for="show_quartile_bands">Show quartile bands</label>
+  </span>
+  <span class="options median" title="Shows extrema bands in the plots" style="display: none">
+    <input id="show_extrema_bands" type="checkbox" name="show_extrema_bands" checked="checked"/>
+    <label for="show_extrema_bands">Show extrema bands</label>
+  </span>
+  {% endif %}
   <a id="permalink" href="#">Permalink</a>
 </div>
 <div id="content" class="clearfix">
@@ -115,7 +125,9 @@
       branches: [{% for b in branch_list %}"{{ branch }}", {% endfor %}],
       benchmark: "{{ defaultbenchmark }}",
       environment: {{ defaultenvironment.id }},
-      equidistant: "{{ defaultequid }}"
+      equidistant: "{{ defaultequid }}",
+      quartiles: "{{ defaultquarts }}",
+      extrema: "{{ defaultextr }}"
     });
   });
 </script>

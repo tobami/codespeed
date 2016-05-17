@@ -28,6 +28,10 @@ function shouldPlotEquidistant() {
   return $("#equidistant").is(':checked');
 }
 
+function shouldPlotErrorBars() {
+  return $("#show_error_bars").is(':checked');
+}
+
 function getConfiguration() {
   var config = {
     exe: readCheckbox("input[name='executable']:checked"),
@@ -35,7 +39,8 @@ function getConfiguration() {
     ben: $("input[name='benchmark']:checked").val(),
     env: $("input[name='environments']:checked").val(),
     revs: $("#revisions option:selected").val(),
-    equid: $("#equidistant").is(':checked') ? "on" : "off"
+    equid: $("#equidistant").is(':checked') ? "on" : "off",
+    error: $("#show_error_bars").is(':checked') ? "on" : "off"
   };
 
   var branch = readCheckbox("input[name='branch']:checked");
@@ -64,17 +69,41 @@ function OnMarkerClickHandler(ev, gridpos, datapos, neighbor, plot) {
 function renderPlot(data) {
   var plotdata = [],
       series = [],
+      firstdates = [],
+      lastdates = [],
       lastvalues = [];//hopefully the smallest values for determining significant digits.
   seriesindex = [];
+  var errorSeries = 0;
   for (var branch in data.branches) {
     // NOTE: Currently, only the "default" branch is shown in the timeline
     for (var exe_id in data.branches[branch]) {
+        if (shouldPlotErrorBars()) {
+          marker = false;
+          var error = new Array();
+          for (res in data["branches"][branch][exe_id]) {
+            var date = data["branches"][branch][exe_id][res][0];
+            var value = data["branches"][branch][exe_id][res][1];
+            var std_dev = data["branches"][branch][exe_id][res][2];
+            error.push([date, value - std_dev, value + std_dev, data["branches"][branch][exe_id][res][3]]);
+          }
+          plotdata.push(error);
+          series.push({renderer:$.jqplot.OHLCRenderer, rendererOptions:{errorBar:true}, showLabel: false, showMarker: true,
+                     "label": $("label[for*='executable" + getColor(exe_id) + "']").html() + " error", color: "#C0C0C0"});
+          errorSeries++;
+        }
       // FIXME if (branch !== "default") { label += " - " + branch; }
       var label = $("label[for*='executable" + exe_id + "']").html();
       series.push({"label":  label, "color": getColor(exe_id)});
       seriesindex.push(exe_id);
-      plotdata.push(data.branches[branch][exe_id]);
-      lastvalues.push(data.branches[branch][exe_id][0][1]);
+      var exeData = data.branches[branch][exe_id];
+      plotdata.push(exeData);
+      var startDate = new Date(exeData[exeData.length - 1][0])
+      var endDate = new Date(exeData[0][0]);
+      startDate.setDate(startDate.getDate() - 1);
+      endDate.setDate(endDate.getDate() + 1);
+      firstdates.push(startDate);
+      lastdates.push(endDate);
+      lastvalues.push(exeData[0][1]);
     }
     //determine significant digits
     var digits = 2;
@@ -115,20 +144,22 @@ function renderPlot(data) {
         labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
         tickOptions:{formatString:'%b %d'},
         pad: 1.01,
-        autoscale:true,
+        min: Math.min.apply(Math, firstdates),
+        max: Math.max.apply(Math, lastdates),
         rendererOptions:{sortMergedLabels:true} /* only relevant when
                                 $.jqplot.CategoryAxisRenderer is used */ 
       }
     },
     legend: {show: true, location: 'nw'},
     highlighter: {
+      show: true,
       tooltipLocation: 'nw',
       yvalues: 4,
       formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
     },
-    cursor:{zoom:true, showTooltip:false, clickReset:true}
+    cursor:{show:true, zoom:true, showTooltip:false, clickReset:true}
   };
-  if (series.length > 4) {
+  if (series.length > 4 + errorSeries) {
       // Move legend outside plot area to unclutter
       var labels = [];
       for (var l in series) {
@@ -148,7 +179,9 @@ function renderPlot(data) {
 
 function renderMiniplot(plotid, data) {
   var plotdata = [],
-      series = [];
+      series = [],
+      firstdates = [],
+      lastdates = [];
 
   for (var branch in data.branches) {
     for (var id in data.branches[branch]) {
@@ -156,6 +189,13 @@ function renderMiniplot(plotid, data) {
         "label": $("label[for*='executable" + id + "']").html(),
         "color": getColor(id)
       });
+      var exeData = data.branches[branch][id];
+      var startDate = new Date(exeData[exeData.length - 1][0])
+      var endDate = new Date(exeData[0][0]);
+      startDate.setDate(startDate.getDate() - 1);
+      endDate.setDate(endDate.getDate() + 1);
+      firstdates.push(startDate);
+      lastdates.push(endDate);
       plotdata.push(data.branches[branch][id]);
     }
   }
@@ -180,7 +220,10 @@ function renderMiniplot(plotid, data) {
         renderer:$.jqplot.DateAxisRenderer,
         pad: 1.01,
         autoscale:true,
-        showTicks: false
+        showTicks: false,
+        min: Math.min.apply(Math, firstdates),
+        max: Math.max.apply(Math, lastdates),
+        rendererOptions:{sortMergedLabels:true}
       }
     },
     highlighter: {show:false},
@@ -192,6 +235,7 @@ function renderMiniplot(plotid, data) {
 function render(data) {
   $("#revisions").attr("disabled", false);
   $("#equidistant").attr("disabled", false);
+  $("#show_error_bars").attr("disabled", false);
   $("#plotgrid").html("");
   if(data.error !== "None") {
     var h = $("#content").height();//get height for error message
@@ -207,6 +251,7 @@ function render(data) {
     //Render Grid of plots
     $("#revisions").attr("disabled",true);
     $("#equidistant").attr("disabled", true);
+    $("#show_error_bars").attr("disabled",true);
     for (var bench in data.timelines) {
       var plotid = "plot_" + data.timelines[bench].benchmark_id;
       $("#plotgrid").append('<div id="' + plotid + '" class="miniplot"></div>');
@@ -253,6 +298,7 @@ function initializeSite(event) {
   $("input[name='benchmark']"   ).change(updateUrl);
   $("input[name='environments']").change(updateUrl);
   $("#equidistant"              ).change(updateUrl);
+  $("#show_error_bars"          ).change(updateUrl);
 }
 
 function refreshSite(event) {
@@ -305,7 +351,8 @@ function setValuesOfInputFields(event) {
   });
 
   $("#baselinecolor").css("background-color", baselineColor);
-  $("#equidistant").attr('checked', valueOrDefault(event.parameters.equid, defaults.equidistant) === "on");
+  $("#equidistant").attr('checked', valueOrDefault(event.parameters.equid, defaults.equidistant) == "on");
+  $("#show_error_bars").attr('checked', valueOrDefault(event.parameters.error, defaults.error) == "on");
 }
 
 function init(def) {

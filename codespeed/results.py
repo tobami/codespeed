@@ -88,7 +88,7 @@ def save_result(data):
         if p.repo_type not in ("N", ""):
             try:
                 commit_logs = commits.get_logs(rev, rev, update=True)
-            except CommitLogError as e:
+            except commits.exceptions.CommitLogError as e:
                 logger.warning("unable to save revision %s info: %s", rev, e,
                                exc_info=True)
             else:

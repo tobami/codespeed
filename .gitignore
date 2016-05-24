@@ -4,3 +4,5 @@ sample_project/repos/*
 override
 build
 dist
+codespeed.egg-info/
+

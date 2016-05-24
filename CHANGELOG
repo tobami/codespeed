@@ -1,9 +1,9 @@
 == Change Log ==
 
-=== Version 0.11a0 ===
+=== Version 0.11a1 ===
 * NEW #191: Django 1.7 and 1.8 support
-* NEW #192: Python 3.4 support
-* FIX #190: Upgrade to jqPlot 1.0.8 and jQuery 1.8
+* NEW #192: Initial Python 3.4 support
+* FIX #199: str4d upgraded all javascript libraries. Most importantly jqPlot to 1.0.9 and jQuery to 1.12.3
 
 
 === Version 0.10.1, November 1, 2015 ===

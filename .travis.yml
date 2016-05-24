@@ -3,7 +3,7 @@ python:
   - 2.7
   - 3.4
 env:
-  - DJANGO_VERSION=1.8.5
+  - DJANGO_VERSION=1.8.8
   - DJANGO_VERSION=1.6.11
 install:
   - pip install -q Django==$DJANGO_VERSION
@@ -11,3 +11,4 @@ install:
 script:
   - python setup.py test
   - python manage.py test codespeed
+

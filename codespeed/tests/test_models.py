@@ -11,9 +11,17 @@ class TestProject(TestCase):
 
     def setUp(self):
         self.github_project = Project(
-            repo_type='H', repo_path='https://github.com/tobami/codespeed.git')
-        self.git_project = Project(repo_type='G',
-                                   repo_path='/home/foo/codespeed')
+            name='Some Project',
+            repo_type='H',
+            repo_path='https://github.com/tobami/codespeed.git'
+        )
+        self.git_project = Project(
+            repo_type='G',
+            repo_path='/home/foo/codespeed'
+        )
+
+    def test_str(self):
+        self.assertEqual(str(self.github_project), 'Some Project')
 
     def test_repo_name(self):
         """Test that only projects with local repositories have a repo_name attribute

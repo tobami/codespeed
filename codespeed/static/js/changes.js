@@ -60,7 +60,7 @@ function updateTable() {
             permalinkToTimeline($(this).children("td:eq(0)").text(), environment);
         })
         //Add hover effect to rows
-        .on("hover", "tr", function() {
+        .on("mouseenter mouseleave", "tr", function() {
             $(this).toggleClass("highlight");
         });
 
@@ -118,10 +118,10 @@ function init(defaults) {
     $("#trend").val(defaults.trend);
     $("#trend").change(refreshContent);
 
-    $("#executable" + defaults.executable).attr('checked', true);
+    $("#executable" + defaults.executable).prop('checked', true);
     $("input[name='executable']").change(changeRevisions);
 
-    $("#env" + defaults.environment).attr('checked', true);
+    $("#env" + defaults.environment).prop('checked', true);
     $("input[name='environment']").change(refreshContent);
 
     $("#revision").html(revisionboxes[defaults.project]);

@@ -122,11 +122,12 @@ function renderPlot(data) {
     },
     legend: {show: true, location: 'nw'},
     highlighter: {
+      show: true,
       tooltipLocation: 'nw',
       yvalues: 4,
       formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
     },
-    cursor:{zoom:true, showTooltip:false, clickReset:true}
+    cursor:{show:true, zoom:true, showTooltip:false, clickReset:true}
   };
   if (series.length > 4) {
       // Move legend outside plot area to unclutter
@@ -212,7 +213,7 @@ function render(data) {
       $("#plotgrid").append('<div id="' + plotid + '" class="miniplot"></div>');
       $("#" + plotid).click(function() {
         var benchid = $(this).attr("id").slice(5);
-        $("#benchmark_" + benchid).attr('checked', true);
+        $("#benchmark_" + benchid).prop('checked', true);
         updateUrl();
       });
       renderMiniplot(plotid, data.timelines[bench]);
@@ -264,7 +265,7 @@ function setValuesOfInputFields(event) {
   // Either set the default value, or the one parsed from the url
 
   // Reset all checkboxes
-  $("input:checkbox").removeAttr('checked');
+  $("input:checkbox").prop('checked', false);
 
   $("#revisions").val(valueOrDefault(event.parameters.revs, defaults.revisions));
   $("#baseline").val(valueOrDefault(event.parameters.base, defaults.baseline));
@@ -274,7 +275,7 @@ function setValuesOfInputFields(event) {
   var sel = $("input[name='executable']");
 
   $.each(executables, function(i, exe) {
-    sel.filter("[value='" + exe + "']").attr('checked', true);
+    sel.filter("[value='" + exe + "']").prop('checked', true);
   });
 
   // Set default selected branches
@@ -282,20 +283,20 @@ function setValuesOfInputFields(event) {
   sel = $("input[name='branch']");
 
   $.each(branches, function(i, b) {
-    sel.filter("[value='" + b + "']").attr('checked', true);
+    sel.filter("[value='" + b + "']").prop('checked', true);
   });
 
   // Set default selected benchmark
   var benchmark = valueOrDefault(event.parameters.ben, defaults.benchmark);
   $("input:radio[name='benchmark']")
       .filter("[value='" + benchmark + "']")
-      .attr('checked', true);
+      .prop('checked', true);
 
   // Set default selected environment
   var environment = valueOrDefault(event.parameters.env, defaults.environment);
   $("input:radio[name='environments']")
       .filter("[value='" + environment + "']")
-      .attr('checked', true);
+      .prop('checked', true);
 
   // Add color legend to executable list
   $("#executable div.boxbody > ul > ul > li > input").each(function() {
@@ -305,7 +306,7 @@ function setValuesOfInputFields(event) {
   });
 
   $("#baselinecolor").css("background-color", baselineColor);
-  $("#equidistant").attr('checked', valueOrDefault(event.parameters.equid, defaults.equidistant) === "on");
+  $("#equidistant").prop('checked', valueOrDefault(event.parameters.equid, defaults.equidistant) === "on");
 }
 
 function init(def) {

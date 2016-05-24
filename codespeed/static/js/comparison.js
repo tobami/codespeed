@@ -389,21 +389,21 @@ function init(defaults) {
     // Set default values
     $("#chart_type").val(defaults.chart_type);
     $("#baseline").val(defaults.baseline);
-    $("#direction").attr("checked", defaults.direction === "True");
+    $("#direction").prop('checked', defaults.direction === "True");
 
     var sel = $("input[name='executables']");
     $.each(defaults.executables, function(i, exe) {
-        sel.filter("[value='" + exe + "']").attr('checked', true);
+        sel.filter("[value='" + exe + "']").prop('checked', true);
     });
 
     sel = $("input[name='benchmarks']");
     $.each(defaults.benchmarks, function(i, bench) {
-        sel.filter("[value='" + bench + "']").attr('checked', true);
+        sel.filter("[value='" + bench + "']").prop('checked', true);
     });
 
     sel = $("input[name='environments']");
     $.each(defaults.environments, function(i, env) {
-        sel.filter("[value='" + env + "']").attr('checked', true);
+        sel.filter("[value='" + env + "']").prop('checked', true);
     });
 
     $("#chart_type, #baseline, #direction, input[name='executables']," +

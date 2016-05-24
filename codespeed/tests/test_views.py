@@ -351,7 +351,7 @@ class TestTimeline(TestCase):
             "There are 2 datapoints")
         self.assertEquals(
             responsedata['timelines'][0]['branches']['default']['1'][1],
-            [u'2011-04-13T17:04:22', 2000.0, 1.11111, u'2', u'default'],
+            [u'2011/04/13 17:04:22 ', 2000.0, 1.11111, u'2', u'default'],
             "Wrong data returned: ")
 
 

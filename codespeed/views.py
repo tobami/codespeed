@@ -257,6 +257,7 @@ def gettimelinedata(request):
             'benchmark':             bench.name,
             'benchmark_id':          bench.id,
             'benchmark_description': bench.description,
+            'data_type':             bench.data_type,
             'units':                 bench.units,
             'lessisbetter':          lessisbetter,
             'branches':              {},
@@ -288,16 +289,37 @@ def gettimelinedata(request):
 
                 results = []
                 for res in resultquery:
-                    std_dev = ""
-                    if res.std_dev is not None:
-                        std_dev = res.std_dev
-                    results.append(
-                        [
-                            res.revision.date.strftime('%Y/%m/%d %H:%M:%S %z'),
-                            res.value, std_dev,
-                            res.revision.get_short_commitid(), branch
-                        ]
-                    )
+                    if bench.data_type == 'M':
+                        val_min = ""
+                        if res.val_min is not None:
+                            val_min = res.val_min
+                        val_max = ""
+                        if res.val_max is not None:
+                            val_max = res.val_max
+                        q1 = ""
+                        if res.q1 is not None:
+                            q1 = res.q1
+                        q3 = ""
+                        if res.q3 is not None:
+                            q3 = res.q3
+                        results.append(
+                            [
+                                res.revision.date.strftime('%Y/%m/%d %H:%M:%S %z'),
+                                res.value, val_max, q3, q1, val_min,
+                                res.revision.get_short_commitid(), branch
+                            ]
+                        )
+                    else:
+                        std_dev = ""
+                        if res.std_dev is not None:
+                            std_dev = res.std_dev
+                        results.append(
+                            [
+                                res.revision.date.strftime('%Y/%m/%d %H:%M:%S %z'),
+                                res.value, std_dev,
+                                res.revision.get_short_commitid(), branch
+                            ]
+                        )
                 timeline['branches'][branch][executable] = results
                 append = True
             if baselinerev is not None and append:
@@ -424,11 +446,20 @@ def timeline(request):
         defaultequid = data['equid']
     else:
         defaultequid = "off"
+    if 'quarts' in data:
+        defaultquarts = data['quarts']
+    else:
+        defaultquarts = "on"
+    if 'extr' in data:
+        defaultextr = data['extr']
+    else:
+        defaultextr = "on"
 
     # Information for template
     executables = {}
     for proj in Project.objects.filter(track=True):
         executables[proj] = Executable.objects.filter(project=proj)
+    use_median_bands = hasattr(settings, 'USE_MEDIAN_BANDS') and settings.USE_MEDIAN_BANDS
     return render_to_response('codespeed/timeline.html', {
         'checkedexecutables': checkedexecutables,
         'defaultbaseline': defaultbaseline,
@@ -442,7 +473,10 @@ def timeline(request):
         'environments': enviros,
         'branch_list': branch_list,
         'defaultbranch': defaultbranch,
-        'defaultequid': defaultequid
+        'defaultequid': defaultequid,
+        'defaultquarts': defaultquarts,
+        'defaultextr': defaultextr,
+        'use_median_bands': use_median_bands,
     }, context_instance=RequestContext(request))
 
 

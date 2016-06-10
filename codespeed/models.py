@@ -146,6 +146,10 @@ class Benchmark(models.Model):
         ('C', 'Cross-project'),
         ('O', 'Own-project'),
     )
+    D_TYPES = (
+        ('U', 'Mean'),
+        ('M', 'Median'),
+    )
 
     name = models.CharField(unique=True, max_length=100)
     parent = models.ForeignKey(
@@ -153,6 +157,7 @@ class Benchmark(models.Model):
         help_text="allows to group benchmarks in hierarchies",
         null=True, blank=True, default=None)
     benchmark_type = models.CharField(max_length=1, choices=B_TYPES, default='C')
+    data_type = models.CharField(max_length=1, choices=D_TYPES, default='U')
     description = models.CharField(max_length=300, blank=True)
     units_title = models.CharField(max_length=30, default='Time')
     units = models.CharField(max_length=20, default='seconds')
@@ -188,6 +193,8 @@ class Result(models.Model):
     std_dev = models.FloatField(blank=True, null=True)
     val_min = models.FloatField(blank=True, null=True)
     val_max = models.FloatField(blank=True, null=True)
+    q1 = models.FloatField(blank=True, null=True)
+    q3 = models.FloatField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
     revision = models.ForeignKey(Revision, related_name="results")
     executable = models.ForeignKey(Executable, related_name="results")

@@ -284,14 +284,14 @@ function render(data) {
   $("#plotgrid").html("");
   if(data.error !== "None") {
     var h = $("#content").height();//get height for error message
-    $("#plotgrid").html(getLoadText(data.error, h, false));
+    $("#plotgrid").html(getLoadText(data.error, h));
     return 1;
   } else if ($("input[name='benchmark']:checked").val() === "show_none") {
     var h = $("#content").height();//get height for error message
-    $("#plotgrid").html(getLoadText("Please select a benchmark on the left", h, false));
+    $("#plotgrid").html(getLoadText("Please select a benchmark on the left", h));
   } else if (data.timelines.length === 0) {
     var h = $("#content").height();//get height for error message
-    $("#plotgrid").html(getLoadText("No data available", h, false));
+    $("#plotgrid").html(getLoadText("No data available", h));
   } else if ($("input[name='benchmark']:checked").val() === "grid"){
     //Render Grid of plots
     $("#revisions").attr("disabled",true);
@@ -316,7 +316,7 @@ function render(data) {
 function refreshContent() {
   var h = $("#content").height();//get height for loading text
   $("#plotgrid").fadeOut("fast", function() {
-    $("#plotgrid").html(getLoadText("Loading...", h, true)).show();
+    $("#plotgrid").html(getLoadText("Loading...", h)).show();
     $.getJSON("json/", getConfiguration(), render);
   });
 }

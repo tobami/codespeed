@@ -5,7 +5,6 @@ body {
     margin: 0;
     padding: 0;
     background-color: #596A74;
-    background-image: url(../images/vgradient.png);
     background-repeat: repeat-x;
     font-size: 16px;
     margin-bottom: 0.8em;
@@ -108,7 +107,7 @@ div#presentation div.menubox {
     background-image: url(../images/vgradient.png);
     background-repeat: repeat-x;
     background-color: #FFFFFF;
-    color: white;
+    color: black;
     width: 220px;
     cursor: pointer;
     text-align: center;
@@ -288,6 +287,9 @@ table.reports {
     margin-bottom: 2em
 }
 
+a.feed {
+  text-decoration: underline;
+}
 /*table.reports {
     border-width: 2px;
 }*/
@@ -467,8 +469,11 @@ p.note, p.warning {
     border-radius: 10px;
 }
 p.warning {
-    padding-left: 42px;
-    background-image: url(../images/warning.png);
+    margin-left: 10px;
+}
+p.warning::before{
+    content: '⚠ ';
+    color: #f53535;
 }
 p.note {
     margin-top: 20px;

@@ -1,6 +1,8 @@
 {% if reports|length %}
 <table class="reports">
-    <caption>Latest Results <a href="feeds/latest/"><img src="{{ STATIC_URL }}images/rss.png" alt="RSS feed" title="Subscribe to the results RSS feed" /></a></caption>
+    <caption>Latest Results
+      (<a class="feed" href="feeds/latest/">rss</a>)
+    </caption>
     <tbody>
     {% for report in reports %}  <tr class="status-{{ report.colorcode }}">
         <td><label title="lessisbetter" style="display:none;">{{ report.get_absolute_url }}</label>{{ report.revision }}</td><td>{{ report.executable }}@{{ report.environment}}</td>
@@ -12,7 +14,9 @@
 
 {% if significant_reports|length %}
 <table class="reports">
-    <caption>Latest Significant Results <a href="feeds/latest_significant/"><img src="{{ STATIC_URL }}images/rss.png" alt="RSS feed" title="Subscribe to the significant results RSS feed" /></a></caption>
+    <caption>Latest Significant Results
+      (<a class="feed" href="feeds/latest_significant/">rss</a>)
+    </caption>
     <tbody>
     {% for report in significant_reports %}  <tr class="status-{{ report.colorcode }}">
         <td><label title="lessisbetter" style="display:none;">{{ report.get_absolute_url }}</label>{{ report.revision }}</td><td>{{ report.executable }}@{{ report.environment}}</td>

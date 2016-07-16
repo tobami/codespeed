@@ -1,4 +1,7 @@
 *.pyc
+*.swp
+*.swo
+.DS_Store
 *.db
 sample_project/repos/*
 override

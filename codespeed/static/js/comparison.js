@@ -337,6 +337,8 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
 
     plotoptions.legend = {show: true, location: 'ne'};
     plotoptions.series = series;
+    plotoptions.grid = {borderColor: '#9DADC6', shadow: false, drawBorder: true};
+    plotoptions.seriesDefaults.shadow = false;
 
     // determine conditions for rendering the legend outside the plot area
     var offplot = false;

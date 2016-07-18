@@ -9,7 +9,7 @@ function readCheckbox(el) {
     return config;
 }
 
-function getLoadText(text, h, showloader) {
+function getLoadText(text, h) {
     var loadtext = '<div style="text-align:center;">';
     var pstyle = "";
     if (h > 0) {
@@ -19,9 +19,6 @@ function getLoadText(text, h, showloader) {
         pstyle = ' style="line-height:' + h + 'px;"';
     }
     loadtext += '<p' + pstyle + '>'+ text;
-    if (showloader) {
-        loadtext += ' <img src="' + window.STATIC_URL +'images/ajax-loader.gif" align="bottom">';
-    }
     loadtext += '</p></div>';
     return loadtext;
 }

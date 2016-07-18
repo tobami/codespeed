@@ -53,7 +53,7 @@
     }
 
     $(function() {
-        $("#reports").html(getLoadText("Loading...", 0, true))
+        $("#reports").html(getLoadText("Loading...", 0))
             .load("{% url "reports" %}", function(responseText) { updateTable(); });
   });
 </script>

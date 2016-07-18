@@ -337,6 +337,9 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
 
     plotoptions.legend = {show: true, location: 'ne'};
     plotoptions.series = series;
+    plotoptions.grid = {borderColor: '#9DADC6', shadow: false, drawBorder: true};
+    plotoptions.seriesDefaults.shadow = false;
+    plotoptions.axesDefaults.tickOptions = {fontFamily:'Arial'};
 
     // determine conditions for rendering the legend outside the plot area
     var offplot = false;
@@ -417,7 +420,7 @@ function init(defaults) {
 
     // Get comparison data
     var h = $("#content").height();//get height for loading text
-    $("#cplot").html(getLoadText("Loading...", h, true));
+    $("#cplot").html(getLoadText("Loading...", h));
     $.getJSON("json/", savedata);
 
     $("#permalink").click(function() {

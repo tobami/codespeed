@@ -72,7 +72,7 @@ function refreshContent() {
     var h = $("#content").height();//get height for loading text
     $("#contentwrap").fadeOut("fast", function() {
         $(this).show();
-        $(this).html(getLoadText("Loading...", h, true));
+        $(this).html(getLoadText("Loading...", h));
         $(this).load("table/", $.param(getConfiguration()), function() { updateTable(); });
     });
 }

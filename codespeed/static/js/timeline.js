@@ -181,28 +181,35 @@ function renderPlot(data) {
   }
   var plotoptions = {
     title: {text: data.benchmark, fontSize: '1.1em'},
+    grid: {borderColor: '#9DADC6', shadow: false, drawBorder: true},
     series: series,
+    axesDefaults: {
+      tickOptions: {
+        fontFamily: 'Arial'
+      }
+    },
     axes:{
       yaxis:{
         label: data.units + data.lessisbetter,
         labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-        min: 0, autoscale:true,
-        tickOptions:{formatString:'%.' + digits + 'f'}
+        min: 0,
+        autoscale: true,
+        tickOptions: {formatString:'%.' + digits + 'f'}
       },
       xaxis:{
         renderer: (shouldPlotEquidistant()) ? $.jqplot.CategoryAxisRenderer : $.jqplot.DateAxisRenderer,
         label: 'Commit date',
         labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-        tickOptions:{formatString:'%b %d'},
+        tickOptions: {formatString:'%b %d'},
         pad: 1.01,
-        autoscale:true,
-        rendererOptions:{sortMergedLabels:true} /* only relevant when
-                                $.jqplot.CategoryAxisRenderer is used */ 
+        autoscale: true,
+        rendererOptions: {sortMergedLabels:true} /* only relevant when
+                                $.jqplot.CategoryAxisRenderer is used */
       }
     },
     legend: {show: true, location: 'nw'},
     highlighter: getHighlighterConfig(median),
-    cursor:{show:true, zoom:true, showTooltip:false, clickReset:true}
+    cursor: {show:true, zoom:true, showTooltip:false, clickReset:true}
   };
   if (series.length > 4 + hiddenSeries) {
       // Move legend outside plot area to unclutter
@@ -246,7 +253,12 @@ function renderMiniplot(plotid, data) {
 
   var plotoptions = {
     title: {text: data.benchmark, fontSize: '1.1em'},
-    seriesDefaults: {lineWidth: 2, markerOptions:{style:'circle', size: 6}},
+    grid: {borderColor: '#9DADC6', shadow: false, drawBorder: true},
+    seriesDefaults: {
+      shadow: false,
+      lineWidth: 2,
+      markerOptions: {style:'circle', size: 6}
+    },
     series: series,
     axes: {
       yaxis: {
@@ -272,14 +284,14 @@ function render(data) {
   $("#plotgrid").html("");
   if(data.error !== "None") {
     var h = $("#content").height();//get height for error message
-    $("#plotgrid").html(getLoadText(data.error, h, false));
+    $("#plotgrid").html(getLoadText(data.error, h));
     return 1;
   } else if ($("input[name='benchmark']:checked").val() === "show_none") {
     var h = $("#content").height();//get height for error message
-    $("#plotgrid").html(getLoadText("Please select a benchmark on the left", h, false));
+    $("#plotgrid").html(getLoadText("Please select a benchmark on the left", h));
   } else if (data.timelines.length === 0) {
     var h = $("#content").height();//get height for error message
-    $("#plotgrid").html(getLoadText("No data available", h, false));
+    $("#plotgrid").html(getLoadText("No data available", h));
   } else if ($("input[name='benchmark']:checked").val() === "grid"){
     //Render Grid of plots
     $("#revisions").attr("disabled",true);
@@ -304,7 +316,7 @@ function render(data) {
 function refreshContent() {
   var h = $("#content").height();//get height for loading text
   $("#plotgrid").fadeOut("fast", function() {
-    $("#plotgrid").html(getLoadText("Loading...", h, true)).show();
+    $("#plotgrid").html(getLoadText("Loading...", h)).show();
     $.getJSON("json/", getConfiguration(), render);
   });
 }

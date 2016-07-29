@@ -1,7 +1,6 @@
 from django.contrib.syndication.views import Feed
 from codespeed.models import Report
 from django.conf import settings
-from django.db.models import Q
 
 
 class ResultFeed(Feed):

@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 
 from .commits.github import GITHUB_URL_RE
@@ -552,7 +553,7 @@ class Report(models.Model):
         return json.loads(self._tablecache)
 
     @staticmethod
-    def default_filter(self):
+    def default_filter():
         default_branch = settings.DEF_BRANCH[None]
         explicit = reduce(
             lambda q1,q2: q1 | q2,
@@ -564,5 +565,5 @@ class Report(models.Model):
         return explicit | implicit
 
     @staticmethod
-    def significant_default_filter(self):
-        return self.reports_filter() & Q(colorcode__in=('red', 'green'))
+    def significant_default_filter():
+        return Report.reports_filter() & Q(colorcode__in=('red', 'green'))

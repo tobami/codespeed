@@ -5,6 +5,7 @@ import json
 import logging
 
 from django.core.urlresolvers import reverse
+from django.db.models import Q
 from django.http import HttpResponse, Http404, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404, render_to_response
 from django.views.decorators.http import require_GET, require_POST
@@ -271,8 +272,9 @@ def gettimelinedata(request):
         # For now, we'll only work with trunk branches
         append = False
         for branch in trunks:
-            append = False
-            timeline['branches'][branch.name] = {}
+            # We append if we found any executable for any branch
+            append = append or len(executables) > 0
+            timeline['branches'].setdefault(branch.name, {})
             for executable in executables:
                 resultquery = Result.objects.filter(
                     benchmark=bench
@@ -324,7 +326,6 @@ def gettimelinedata(request):
                             ]
                         )
                 timeline['branches'][branch.name][executable] = results
-                append = True
             if baselinerev is not None and append:
                 try:
                     baselinevalue = Result.objects.get(

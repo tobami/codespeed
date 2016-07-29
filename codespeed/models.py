@@ -557,7 +557,7 @@ class Report(models.Model):
         default_branch = settings.DEF_BRANCH[None]
         explicit = reduce(
             lambda q1,q2: q1 | q2,
-            [Q(revision__branch__name=settings.DEF_BRANCH[name],
+            [Q(revision__branch__name=settings.DEF_BRANCH[projectname],
                revision__project__name=projectname) for projectname in settings.DEF_BRANCH.keys()])
         implicit = Q(revision__branch__name=default_branch) & (reduce(
             lambda q1,q2: q1 & q2,
@@ -566,4 +566,4 @@ class Report(models.Model):
 
     @staticmethod
     def significant_default_filter():
-        return Report.reports_filter() & Q(colorcode__in=('red', 'green'))
+        return Report.default_filter() & Q(colorcode__in=('red', 'green'))

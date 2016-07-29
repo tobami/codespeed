@@ -1,7 +1,6 @@
 from django.contrib.syndication.views import Feed
 from codespeed.models import Report
 from django.conf import settings
-from django.db.models import Q
 
 
 class ResultFeed(Feed):
@@ -38,12 +37,11 @@ class LatestEntries(ResultFeed):
     description = "Last benchmark runs"
 
     def result_filter(self):
-        return Q(revision__branch__name=settings.DEF_BRANCH)
+        return Report.default_filter()
 
 
 class LatestSignificantEntries(ResultFeed):
     description = "Last benchmark runs with significant changes"
 
     def result_filter(self):
-        return Q(revision__branch__name=settings.DEF_BRANCH,
-                 colorcode__in=('red', 'green'))
+        return Report.significant_default_filter()

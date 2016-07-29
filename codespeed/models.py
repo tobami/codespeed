@@ -8,6 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.utils.encoding import python_2_unicode_compatible
 
 from .commits.github import GITHUB_URL_RE
@@ -110,7 +111,7 @@ class Revision(models.Model):
         else:
             date = self.date.strftime("%b %d, %H:%M")
         string = " - ".join(filter(None, (date, self.commitid, self.tag)))
-        if self.branch.name != settings.DEF_BRANCH:
+        if self.branch.name != settings.DEF_BRANCH[self.project.name]:
             string += " - " + self.branch.name
         return string
 
@@ -551,3 +552,17 @@ class Report(models.Model):
             return {}
         return json.loads(self._tablecache)
 
+    @staticmethod
+    def default_filter():
+        default_branch = settings.DEF_BRANCH[None]
+        explicit = Q()
+        implicit = Q(revision__branch__name=default_branch)
+        for projectname in settings.DEF_BRANCH.keys():
+            explicit |= Q(revision__branch__name=settings.DEF_BRANCH[projectname],
+                          revision__project__name=projectname)
+            implicit &= ~Q(revision__project__name=projectname)
+        return explicit | implicit
+
+    @staticmethod
+    def significant_default_filter():
+        return Report.default_filter() & Q(colorcode__in=('red', 'green'))

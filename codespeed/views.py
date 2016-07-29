@@ -253,9 +253,9 @@ def gettimelinedata(request):
         baselinerev = Revision.objects.get(id=revid)
         baselineexe = Executable.objects.get(id=exeid)
     # Temporary
-    trunkquery = reduce(
-        lambda q1, q2: q1 | q2,
-        [Q(name=settings.DEF_BRANCH[p.name], project=p) for p in Project.objects.all()])
+    trunkquery = Q()
+    for p in Project.objects.all():
+        trunkquery |= Q(name=settings.DEF_BRANCH[p.name], project=p)
     trunks = Branch.objects.filter(trunkquery)
     for bench in benchmarks:
         lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'

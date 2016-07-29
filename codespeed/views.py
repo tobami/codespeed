@@ -251,6 +251,11 @@ def gettimelinedata(request):
         exeid, revid = data['base'].split("+")
         baselinerev = Revision.objects.get(id=revid)
         baselineexe = Executable.objects.get(id=exeid)
+    # Temporary
+    trunkquery = reduce(
+        lambda q1, q2: q1 | q2,
+        [Q(name=settings.DEF_BRANCH[p.name], project=p) for p in Project.objects.all()])
+    trunks = Branch.objects.filter(trunkquery)
     for bench in benchmarks:
         lessisbetter = bench.lessisbetter and ' (less is better)' or ' (more is better)'
         timeline = {
@@ -263,15 +268,11 @@ def gettimelinedata(request):
             'branches':              {},
             'baseline':              "None",
         }
-        # Temporary
-        trunks = []
-        if Branch.objects.filter(name=settings.DEF_BRANCH):
-            trunks.append(settings.DEF_BRANCH)
         # For now, we'll only work with trunk branches
         append = False
         for branch in trunks:
             append = False
-            timeline['branches'][branch] = {}
+            timeline['branches'][branch.name] = {}
             for executable in executables:
                 resultquery = Result.objects.filter(
                     benchmark=bench
@@ -280,7 +281,9 @@ def gettimelinedata(request):
                 ).filter(
                     executable=executable
                 ).filter(
-                    revision__branch__name=branch
+                    revision__branch__name=branch.name
+                ).filter(
+                    revision__project__name=branch.project.name
                 ).select_related(
                     "revision"
                 ).order_by('-revision__date')[:number_of_revs]
@@ -306,7 +309,7 @@ def gettimelinedata(request):
                             [
                                 res.revision.date.strftime('%Y/%m/%d %H:%M:%S %z'),
                                 res.value, val_max, q3, q1, val_min,
-                                res.revision.get_short_commitid(), branch
+                                res.revision.get_short_commitid(), branch.name
                             ]
                         )
                     else:
@@ -317,10 +320,10 @@ def gettimelinedata(request):
                             [
                                 res.revision.date.strftime('%Y/%m/%d %H:%M:%S %z'),
                                 res.value, std_dev,
-                                res.revision.get_short_commitid(), branch
+                                res.revision.get_short_commitid(), branch.name
                             ]
                         )
-                timeline['branches'][branch][executable] = results
+                timeline['branches'][branch.name][executable] = results
                 append = True
             if baselinerev is not None and append:
                 try:
@@ -336,9 +339,9 @@ def gettimelinedata(request):
                     # determine start and end revision (x axis)
                     # from longest data series
                     results = []
-                    for exe in timeline['branches'][branch]:
-                        if len(timeline['branches'][branch][exe]) > len(results):
-                            results = timeline['branches'][branch][exe]
+                    for exe in timeline['branches'][branch.name]:
+                        if len(timeline['branches'][branch.name][exe]) > len(results):
+                            results = timeline['branches'][branch.name][exe]
                     end = results[0][0]
                     start = results[len(results) - 1][0]
                     timeline['baseline'] = [
@@ -395,7 +398,7 @@ def timeline(request):
 
     defaultbranch = ""
     if "default" in branch_list:
-        defaultbranch = settings.DEF_BRANCH
+        defaultbranch = settings.DEF_BRANCH[defaultproject.name]
     if data.get('bran') in branch_list:
         defaultbranch = data.get('bran')
 
@@ -569,7 +572,7 @@ def changes(request):
     for proj in Project.objects.filter(track=True):
         executables[proj] = Executable.objects.filter(project=proj)
         projectlist.append(proj)
-        branch = Branch.objects.filter(name=settings.DEF_BRANCH, project=proj)
+        branch = Branch.objects.filter(name=settings.DEF_BRANCH[proj.name], project=proj)
         revisionlists[proj.name] = list(Revision.objects.filter(
             branch=branch
         ).order_by('-date')[:revlimit])
@@ -625,13 +628,12 @@ def reports(request):
 
     context['reports'] = \
         Report.objects.filter(
-            revision__branch__name=settings.DEF_BRANCH
+            Report.default_filter()
         ).order_by('-revision__date')[:10]
 
     context['significant_reports'] = \
         Report.objects.filter(
-            revision__branch__name=settings.DEF_BRANCH,
-            colorcode__in=('red', 'green')
+            Report.significant_default_filter()
         ).order_by('-revision__date')[:10]
 
     return render_to_response('codespeed/reports.html', context,

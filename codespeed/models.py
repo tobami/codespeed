@@ -110,7 +110,7 @@ class Revision(models.Model):
         else:
             date = self.date.strftime("%b %d, %H:%M")
         string = " - ".join(filter(None, (date, self.commitid, self.tag)))
-        if self.branch.name != settings.DEF_BRANCH:
+        if self.branch.name != settings.DEF_BRANCH[self.project.name]:
             string += " - " + self.branch.name
         return string
 
@@ -551,3 +551,18 @@ class Report(models.Model):
             return {}
         return json.loads(self._tablecache)
 
+    @staticmethod
+    def default_filter(self):
+        default_branch = settings.DEF_BRANCH[None]
+        explicit = reduce(
+            lambda q1,q2: q1 | q2,
+            [Q(revision__branch__name=settings.DEF_BRANCH[name],
+               revision__project__name=projectname) for projectname in settings.DEF_BRANCH.keys()])
+        implicit = Q(revision__branch__name=default_branch) & (reduce(
+            lambda q1,q2: q1 & q2,
+            [~Q(revision__project__name=projectname) for projectname in settings.DEF_BRANCH.keys()]))
+        return explicit | implicit
+
+    @staticmethod
+    def significant_default_filter(self):
+        return self.reports_filter() & Q(colorcode__in=('red', 'green'))

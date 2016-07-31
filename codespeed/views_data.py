@@ -3,8 +3,7 @@ from __future__ import absolute_import
 
 from django.conf import settings
 
-from codespeed.models import (Executable, Revision, Project, Branch, Benchmark,
-                              Result, Report)
+from codespeed.models import Executable, Revision, Project, Branch
 
 
 def get_default_environment(enviros, data, multi=False):

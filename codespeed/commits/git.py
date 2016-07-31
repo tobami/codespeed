@@ -16,7 +16,7 @@ def updaterepo(project, update=True):
             return
 
         p = Popen(['git', 'pull'], stdout=PIPE, stderr=PIPE,
-                    cwd=project.working_copy)
+                  cwd=project.working_copy)
 
         stdout, stderr = p.communicate()
         if p.returncode != 0:
@@ -27,7 +27,7 @@ def updaterepo(project, update=True):
     else:
         cmd = ['git', 'clone', project.repo_path, project.repo_name]
         p = Popen(cmd, stdout=PIPE, stderr=PIPE,
-                    cwd=settings.REPOSITORY_BASE_PATH)
+                  cwd=settings.REPOSITORY_BASE_PATH)
         logger.debug('Cloning Git repo {0} for project {1}'.format(
             project.repo_path, project))
         stdout, stderr = p.communicate()
@@ -43,9 +43,9 @@ def getlogs(endrev, startrev):
     updaterepo(endrev.branch.project, update=False)
 
     cmd = ["git", "log",
-            # NULL separated values delimited by 0x1e record separators
-            # See PRETTY FORMATS in git-log(1):
-            '--format=format:%h%x00%H%x00%at%x00%an%x00%ae%x00%s%x00%b%x1e']
+           # NULL separated values delimited by 0x1e record separators
+           # See PRETTY FORMATS in git-log(1):
+           '--format=format:%h%x00%H%x00%at%x00%an%x00%ae%x00%s%x00%b%x1e']
 
     if endrev.commitid != startrev.commitid:
         cmd.append("%s...%s" % (startrev.commitid, endrev.commitid))
@@ -67,7 +67,7 @@ def getlogs(endrev, startrev):
             subject, body) = log.split("\x00", 7)
 
         date = datetime.datetime.fromtimestamp(
-                                    int(date_t)).strftime("%Y-%m-%d %H:%M:%S")
+            int(date_t)).strftime("%Y-%m-%d %H:%M:%S")
 
         logs.append({'date': date, 'message': subject, 'commitid': commit_id,
                      'author': author_name, 'author_email': author_email,

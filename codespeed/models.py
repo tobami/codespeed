@@ -329,8 +329,8 @@ class Report(models.Model):
 
         super(Report, self).save(*args, **kwargs)
 
-    def updown(self,val):
-        #Substitute plus/minus with up/down
+    def updown(self, val):
+        """Substitutes plus/minus with up/down"""
         direction = val >= 0 and "up" or "down"
         aval = abs(val)
         if aval == float("inf"):
@@ -343,8 +343,8 @@ class Report(models.Model):
             return True
         elif color == "red" and abs(val) > abs(current_val):
             return True
-        elif (color == "green" and current_color != "red"
-              and abs(val) > abs(current_val)):
+        elif (color == "green" and current_color != "red" and
+                abs(val) > abs(current_val)):
             return True
         else:
             return False
@@ -402,7 +402,8 @@ class Report(models.Model):
         )
 
         tablelist = []
-        for units_title in Benchmark.objects.all().values_list('units_title', flat=True).distinct():
+        for units_title in Benchmark.objects.all().values_list(
+                'units_title', flat=True).distinct():
             currentlist = []
             units = ""
             hasmin = False
@@ -550,4 +551,3 @@ class Report(models.Model):
         if self._tablecache == '':
             return {}
         return json.loads(self._tablecache)
-

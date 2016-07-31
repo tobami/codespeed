@@ -48,7 +48,8 @@ def retrieve_revision(commit_id, username, project, revision=None):
             raise e
 
         if commit_json["message"] in ("Not Found", "Server Error",):
-            # We'll still cache these for a brief period of time to avoid making too many requests:
+            # We'll still cache these for a brief period of time to avoid
+            # making too many requests:
             cache.set(commit_url, commit_json, 300)
         else:
             # We'll cache successes for a very long period of time since
@@ -56,7 +57,8 @@ def retrieve_revision(commit_id, username, project, revision=None):
             cache.set(commit_url, commit_json, 86400 * 30)
 
     if commit_json["message"] in ("Not Found", "Server Error",):
-         raise CommitLogError("Unable to load %s: %s" % (commit_url, commit_json["message"]))
+        raise CommitLogError(
+            "Unable to load %s: %s" % (commit_url, commit_json["message"]))
 
     date = isodate.parse_datetime(commit_json['committer']['date'])
 
@@ -66,7 +68,8 @@ def retrieve_revision(commit_id, username, project, revision=None):
 
         # We need to convert the timezone-aware date to a naive (i.e.
         # timezone-less) date in UTC to avoid killing MySQL:
-        revision.date = date.astimezone(isodate.tzinfo.Utc()).replace(tzinfo=None)
+        revision.date = date.astimezone(
+            isodate.tzinfo.Utc()).replace(tzinfo=None)
         revision.author = commit_json['author']['name']
         revision.message = commit_json['message']
         revision.full_clean()
@@ -85,7 +88,7 @@ def retrieve_revision(commit_id, username, project, revision=None):
 def getlogs(endrev, startrev):
     if endrev != startrev:
         revisions = endrev.branch.revisions.filter(
-                        date__lte=endrev.date, date__gte=startrev.date)
+            date__lte=endrev.date, date__gte=startrev.date)
     else:
         revisions = [i for i in (startrev, endrev) if i.commitid]
 
@@ -105,23 +108,29 @@ def getlogs(endrev, startrev):
     last_rev_data = None
     revision_count = 0
     ancestor_found = False
-    #TODO: get all revisions between endrev and startrev,
+    # TODO: get all revisions between endrev and startrev,
     # not only those present in the Codespeed DB
 
     for revision in revisions:
-        last_rev_data = retrieve_revision(revision.commitid, username, project, revision)
+        last_rev_data = retrieve_revision(
+            revision.commitid, username, project, revision)
         logs.append(last_rev_data)
         revision_count += 1
-        ancestor_found = (startrev.commitid in [rev['sha'] for rev in last_rev_data['parents']])
+        ancestor_found = (
+            startrev.commitid in [
+                rev['sha'] for rev in last_rev_data['parents']])
 
     # Simple approach to find the startrev, stop after found or after
     # #GITHUB_REVISION_LIMIT revisions are fetched
     while (revision_count < GITHUB_REVISION_LIMIT
             and not ancestor_found
             and len(last_rev_data['parents']) > 0):
-        last_rev_data = retrieve_revision(last_rev_data['parents'][0]['sha'], username, project)
+        last_rev_data = retrieve_revision(
+            last_rev_data['parents'][0]['sha'], username, project)
         logs.append(last_rev_data)
         revision_count += 1
-        ancestor_found = (startrev.commitid in [rev['sha'] for rev in last_rev_data['parents']])
+        ancestor_found = (
+            startrev.commitid in [
+                rev['sha'] for rev in last_rev_data['parents']])
 
     return sorted(logs, key=lambda i: i['date'], reverse=True)

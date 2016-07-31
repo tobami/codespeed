@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls import patterns, include, url
-from django.core.urlresolvers import reverse
+from django.conf.urls import patterns, url
 from django.views.generic import TemplateView
 
 from codespeed.feeds import LatestEntries, LatestSignificantEntries
 
 
 urlpatterns = patterns('',
-    (r'^$', TemplateView.as_view(template_name='home.html')),
-    (r'^about/$', TemplateView.as_view(template_name='about.html')),
+    url(r'^$', TemplateView.as_view(template_name='home.html')),
+    url(r'^about/$', TemplateView.as_view(template_name='about.html')),
     # RSS for reports
     url(r'^feeds/latest/$', LatestEntries(), name='latest_feeds'),
-    url(r'^feeds/latest_significant/$', LatestSignificantEntries(), name='latest_significant_feeds'),
+    url(r'^feeds/latest_significant/$', LatestSignificantEntries(),
+        name='latest_significant_feeds'),
 )
 
 urlpatterns += patterns('codespeed.views',
@@ -27,6 +27,6 @@ urlpatterns += patterns('codespeed.views',
 
 urlpatterns += patterns('codespeed.views',
     # URLs for adding results
-    (r'^result/add/json/$', 'add_json_results'),
-    (r'^result/add/$', 'add_result'),
+    url(r'^result/add/json/$', 'add_json_results'),
+    url(r'^result/add/$', 'add_result'),
 )

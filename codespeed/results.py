@@ -97,6 +97,7 @@ def save_result(data):
                     rev.author = log['author']
                     rev.date = log['date']
                     rev.message = log['message']
+                    rev.tag = log['tag']
 
         rev.save()
 

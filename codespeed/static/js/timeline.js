@@ -82,15 +82,15 @@ function getHighlighterConfig(median) {
     return {
       show: true,
       tooltipLocation: 'nw',
-      yvalues: 7,
-      formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>median:</td><td>%s</td></tr> <tr><td>max:</td><td>%s</td></tr> <tr><td>Q3:</td><td>%s</td></tr> <tr><td>Q1:</td><td>%s</td></tr> <tr><td>min:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
+      yvalues: 8,
+      formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>median:</td><td>%s</td></tr> <tr><td>max:</td><td>%s</td></tr> <tr><td>Q3:</td><td>%s</td></tr> <tr><td>Q1:</td><td>%s</td></tr> <tr><td>min:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr><tr><td>tag:</td><td>%s</td></tr></table>'
     };
   } else {
     return {
       show: true,
       tooltipLocation: 'nw',
-      yvalues: 4,
-      formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr></table>'
+      yvalues: 5,
+      formatString:'<table class="jqplot-highlighter">    <tr><td>date:</td><td>%s</td></tr> <tr><td>result:</td><td>%s</td></tr> <tr><td>std dev:</td><td>%s</td></tr> <tr><td>commit:</td><td>%s</td></tr><tr><td>tag:</td><td>%s</td></tr></table>'
     };
   }
 }

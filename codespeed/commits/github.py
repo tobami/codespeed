@@ -33,34 +33,53 @@ def updaterepo(project, update=True):
     return
 
 
+def fetch_json(url):
+    json_obj = cache.get(url)
+
+    if json_obj is None:
+        try:
+            json_obj = json.load(urllib.urlopen(url))
+        except IOError as e:
+            logger.exception("Unable to load %s: %s",
+                             url, e, exc_info=True)
+            raise e
+
+        if "message" in json_obj and \
+           json_obj["message"] in ("Not Found", "Server Error",):
+            # We'll still cache these for a brief period of time to avoid
+            # making too many requests:
+            cache.set(url, json_obj, 300)
+        else:
+            # We'll cache successes for a very long period of time since
+            # SCM diffs shouldn't change:
+            cache.set(url, json_obj, 86400 * 30)
+
+    if "message" in json_obj and \
+       json_obj["message"] in ("Not Found", "Server Error",):
+        raise CommitLogError(
+            "Unable to load %s: %s" % (url, json_obj["message"]))
+
+    return json_obj
+
+
+def retrieve_tag(commit_id, username, project):
+    tags_url = 'https://api.github.com/repos/%s/%s/git/refs/tags' % (
+        username, project)
+
+    tags_json = fetch_json(tags_url)
+    for tag in tags_json:
+        if tag['object']['sha'] == commit_id:
+            return tag['ref'].split("refs/tags/")[-1]
+
+
 def retrieve_revision(commit_id, username, project, revision=None):
     commit_url = 'https://api.github.com/repos/%s/%s/git/commits/%s' % (
         username, project, commit_id)
 
-    commit_json = cache.get(commit_url)
-
-    if commit_json is None:
-        try:
-            commit_json = json.load(urllib.urlopen(commit_url))
-        except IOError as e:
-            logger.exception("Unable to load %s: %s",
-                             commit_url, e, exc_info=True)
-            raise e
-
-        if commit_json["message"] in ("Not Found", "Server Error",):
-            # We'll still cache these for a brief period of time to avoid
-            # making too many requests:
-            cache.set(commit_url, commit_json, 300)
-        else:
-            # We'll cache successes for a very long period of time since
-            # SCM diffs shouldn't change:
-            cache.set(commit_url, commit_json, 86400 * 30)
-
-    if commit_json["message"] in ("Not Found", "Server Error",):
-        raise CommitLogError(
-            "Unable to load %s: %s" % (commit_url, commit_json["message"]))
+    commit_json = fetch_json(commit_url)
 
     date = isodate.parse_datetime(commit_json['committer']['date'])
+    tag = retrieve_tag(commit_id, username, project)
 
     if revision:
         # Overwrite any existing data we might have for this revision since
@@ -82,7 +101,8 @@ def retrieve_revision(commit_id, username, project, revision=None):
             'author_email': commit_json['author']['email'],
             'commitid':     commit_json['sha'],
             'short_commit_id': commit_json['sha'][0:7],
-            'parents':      commit_json['parents']}
+            'parents':      commit_json['parents'],
+            'tag':          tag}
 
 
 def getlogs(endrev, startrev):

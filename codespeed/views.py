@@ -306,7 +306,7 @@ def gettimelinedata(request):
                             [
                                 res.revision.date.strftime('%Y/%m/%d %H:%M:%S %z'),
                                 res.value, val_max, q3, q1, val_min,
-                                res.revision.get_short_commitid(), branch
+                                res.revision.get_short_commitid(), res.revision.tag, branch
                             ]
                         )
                     else:
@@ -317,7 +317,7 @@ def gettimelinedata(request):
                             [
                                 res.revision.date.strftime('%Y/%m/%d %H:%M:%S %z'),
                                 res.value, std_dev,
-                                res.revision.get_short_commitid(), branch
+                                res.revision.get_short_commitid(), res.revision.tag, branch
                             ]
                         )
                 timeline['branches'][branch][executable] = results

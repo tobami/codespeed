@@ -13,6 +13,17 @@ def updaterepo(project):
     return [{'error': False}]
 
 
+def get_tag(rev_num, repo_path, client):
+    tags_url = repo_path + '/tags'
+    tags = client.ls(tags_url)
+
+    for tag in tags:
+        if 'created_rev' in tag and tag['created_rev'].number == rev_num:
+            if 'name' in tag:
+                return tag['name'].split('/')[-1]
+    return ''
+
+
 def getlogs(newrev, startrev):
     import pysvn
 
@@ -56,8 +67,10 @@ def getlogs(newrev, startrev):
             author = ""
         date = datetime.fromtimestamp(log.date).strftime("%Y-%m-%d %H:%M:%S")
         message = log.message
+        tag = get_tag(log.revision.number,
+                      newrev.branch.project.repo_path, client)
         # Add log unless it is the last commit log, which has already been tested
         logs.append({
             'date': date, 'author': author, 'message': message,
-            'commitid': log.revision.number})
+            'commitid': log.revision.number, 'tag': tag})
     return logs

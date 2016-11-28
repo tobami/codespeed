@@ -50,7 +50,7 @@ def getlogs(endrev, startrev):
 
     cmd = ["hg", "log",
             "-r", "%s::%s" % (startrev.commitid, endrev.commitid),
-            "--template", "{rev}:{node|short}\n{node}\n{author|user}\n{author|email}\n{date}\n{desc}\n=newlog=\n"]
+            "--template", "{rev}:{node|short}\n{node}\n{author|user}\n{author|email}\n{date}\n{tags}\n{desc}\n=newlog=\n"]
 
     working_copy = endrev.branch.project.working_copy
     p = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=working_copy)
@@ -64,7 +64,7 @@ def getlogs(endrev, startrev):
         for log in stdout.split("=newlog=\n"):
             elements = []
             elements = log.split('\n')[:-1]
-            if len(elements) < 6:
+            if len(elements) < 7:
                 # "Malformed" log
                 logs.append(
                     {'date': '-', 'message': 'error parsing log', 'commitid': '-'})
@@ -74,6 +74,8 @@ def getlogs(endrev, startrev):
                 author_name = elements.pop(0)
                 author_email = elements.pop(0)
                 date = elements.pop(0)
+                tag = elements.pop(0)
+                tag = "" if tag == "tip" else tag
                 # All other newlines should belong to the description text. Join.
                 message = '\n'.join(elements)
 
@@ -85,7 +87,7 @@ def getlogs(endrev, startrev):
                 logs.append({
                     'date': date, 'author': author_name,
                     'author_email': author_email, 'message': message,
-                    'short_commit_id': short_commit_id, 'commitid': commit_id})
+                    'short_commit_id': short_commit_id, 'commitid': commit_id, 'tag': tag})
     # Remove last log here because mercurial saves the short hast as commitid now
     if len(logs) > 1 and logs[-1].get('short_commit_id') == startrev.commitid:
         logs.pop()

@@ -328,10 +328,10 @@ class TestTimeline(TestCase):
         """
         path = reverse('codespeed.views.gettimelinedata')
         data = {
-            "exe":  "1,2",
+            "exe": "1,2",
             "base": "2+4",
-            "ben":  "float",
-            "env":  "1",
+            "ben": "float",
+            "env": "1",
             "revs": 2
         }
         response = self.client.get(path, data)
@@ -351,8 +351,7 @@ class TestTimeline(TestCase):
             "There are 2 datapoints")
         self.assertEquals(
             responsedata['timelines'][0]['branches']['default']['1'][1],
-            [u'2011/04/13 17:04:22 ', 2000.0, 1.11111, u'2', u'default'],
-            "Wrong data returned: ")
+            [u'2011/04/13 17:04:22 ', 2000.0, 1.11111, u'2', u'', u'default'])
 
 
 class TestReports(TestCase):

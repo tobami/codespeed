@@ -5,7 +5,7 @@
 * NEW #192: Initial Python 3.4 support
 * NEW #199: str4d upgraded all javascript libraries. Most importantly jqPlot to 1.0.9 and jQuery to 1.12.3
 * NEW #203: str4d implemented displaying of quartile and extrema bands on median benchmarks
-* NEW #295: javierhonduco gave the application a more modern look
+* NEW #205: javierhonduco gave the application a more modern look
 
 === Version 0.10.1, November 1, 2015 ===
 * NEW #169: nomeata added admin action to recalculate reports

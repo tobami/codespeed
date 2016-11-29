@@ -3,9 +3,11 @@ from __future__ import absolute_import, unicode_literals
 
 import json
 import logging
+import django
 
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, Http404, HttpResponseBadRequest
+from django.http import HttpResponse, Http404, HttpResponseBadRequest,\
+    HttpResponseNotFound
 from django.shortcuts import get_object_or_404, render_to_response
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -18,6 +20,12 @@ from .views_data import (get_default_environment, getbaselineexecutables,
                          getdefaultexecutable, getcomparisonexes)
 from .results import save_result, create_report_if_enough_data
 from . import commits
+
+import cStringIO
+from matplotlib.figure import Figure
+from matplotlib.ticker import FormatStrFormatter
+from matplotlib.backends.backend_agg import FigureCanvasAgg
+
 
 logger = logging.getLogger(__name__)
 
@@ -731,3 +739,239 @@ def add_json_results(request):
     logger.debug("add_json_results: completed")
 
     return HttpResponse("All result data saved successfully", status=202)
+
+
+def django_has_content_type():
+    return (django.VERSION[0] > 1 or
+            (django.VERSION[0] == 1 and django.VERSION[1] >= 6))
+
+
+def validate_results_request(data):
+    """
+    Validates that a result request dictionary has all needed parameters
+
+    It returns a tuple
+        "", False  when no errors where found
+        Error_message, True when there is an error
+    """
+    mandatory_data = [
+        'env',
+        'proj',
+        'branch',
+        'exe',
+        'ben',
+    ]
+
+    for key in mandatory_data:
+        if key not in data:
+            return 'Key "' + key + '" missing from GET request', True
+        elif data[key] == '':
+            return 'Value for key "' + key + '" empty in GET request', True
+
+    # Check that 'revs' is the correct format (if it exists)
+    if 'revs' in data:
+        try:
+            rev_value = int(data['revs'])
+        except:
+            return 'Value for key "revs" is not an integer', True
+        if rev_value <= 0:
+            return 'Value for key "revs" should be a strictly positive '\
+                   'integer', True
+
+    return '', False
+
+
+def get_benchmark_results(data):
+    try:
+        environment = Environment.objects.get(name=data['env'])
+        project = Project.objects.get(name=data['proj'])
+        executable = Executable.objects.get(name=data['exe'], project=project)
+        branch = Branch.objects.get(name=data['branch'], project=project)
+        benchmark = Benchmark.objects.get(name=data['ben'])
+    except Environment.DoesNotExist:
+        return None, HttpResponseNotFound(
+                        'Environment "' + data['env'] + '" does not exist!')
+    except Project.DoesNotExist:
+        return None, HttpResponseNotFound(
+                        'Project "' + data['proj'] + '" does not exist!')
+    except Executable.DoesNotExist:
+        return None, HttpResponseNotFound(
+                        'Executable "' + data['exe'] + '" does not exist!')
+    except Branch.DoesNotExist:
+        return None, HttpResponseNotFound(
+                        'Branch "' + data['branch'] + '" does not exist!')
+    except Benchmark.DoesNotExist:
+        return None, HttpResponseNotFound(
+                        'Benchmark "' + data['ben'] + '" does not exist!')
+
+    number_of_revs = int(data.get('revs', 10))
+
+    baseline_commit_name = (data['base_commit'] if 'base_commit' in data
+                            else None)
+    relative_results = (
+        ('relative' in data and data['relative'] in ['1', 'yes']) or
+        baseline_commit_name is not None)
+
+    result_query = Result.objects.filter(
+        benchmark=benchmark
+    ).filter(
+        environment=environment
+    ).filter(
+        executable=executable
+    ).filter(
+        revision__project=project
+    ).filter(
+        revision__branch=branch
+    ).select_related(
+        "revision"
+    ).order_by('-date')[:number_of_revs]
+
+    if len(result_query) == 0:
+        return None, HttpResponseNotFound("No results were found!")
+
+    result_list = [item for item in result_query]
+    result_list.reverse()
+
+    if relative_results:
+        ref_value = result_list[0].value
+
+    if baseline_commit_name is not None:
+        baseline_env = environment
+        baseline_proj = project
+        baseline_exe = executable
+        baseline_branch = branch
+
+        try:
+            if 'base_env' in data:
+                baseline_env = Environment.objects.get(name=data['base_env'])
+            if 'base_proj' in data:
+                baseline_proj = Project.objects.get(name=data['base_proj'])
+            if 'base_exe' in data:
+                baseline_exe = Executable.objects.get(name=data['base_exe'],
+                                                      project=baseline_proj)
+            if 'base_branch' in data:
+                baseline_branch = Branch.objects.get(name=data['base_branch'],
+                                                     project=baseline_proj)
+        except Environment.DoesNotExist:
+            return None, HttpResponseNotFound(
+                            'Baseline environment "' + data['base_env'] +
+                            '" does not exist!')
+        except Project.DoesNotExist:
+            return None, HttpResponseNotFound(
+                            'Baseline project "' + data['base_proj'] +
+                            '" does not exist!')
+        except Executable.DoesNotExist:
+            return None, HttpResponseNotFound(
+                            'Baseline executable "' + data['base_exe'] +
+                            '"does not exist!')
+        except Branch.DoesNotExist:
+            return None, HttpResponseNotFound(
+                            'Baseline branch "' + data['base_branch'] +
+                            '" does not exist!')
+
+        base_data = Result.objects.get(
+                                benchmark=benchmark,
+                                environment=baseline_env,
+                                executable=baseline_exe,
+                                revision__project=baseline_proj,
+                                revision__branch=baseline_branch,
+                                revision__commitid=baseline_commit_name)
+
+        if base_data:
+            ref_value = base_data.value
+        else:
+            return None, HttpResponseNotFound(
+                            'Result for revision "' + baseline_commit +
+                            '" does not exist !')
+
+    if relative_results:
+        for element in result_list:
+            element.value = (100 * (element.value - ref_value)) / ref_value
+
+    return {
+            'environment': environment,
+            'project': project,
+            'executable': executable,
+            'branch': branch,
+            'benchmark': benchmark,
+            'results': result_list,
+            'relative': relative_results,
+           }, None
+
+
+@require_GET
+def makeimage(request):
+    data = request.GET
+
+    err_msg, err = validate_results_request(data)
+
+    if err:
+        return HttpResponseBadRequest(err_msg)
+
+    result_data, error = get_benchmark_results(data)
+
+    if error is not None:
+        return error
+
+    canvas_width = int(data['width']) if 'width' in data else 600
+    canvas_height = int(data['height']) if 'height' in data else 500
+
+    canvas_width = max(canvas_width, 400)
+    canvas_height = max(canvas_height, 300)
+
+    values = [element.value for element in result_data['results']]
+
+    max_value = max(values)
+    min_value = min(values)
+    value_range = max_value - min_value
+    range_increment = 0.05 * abs(value_range)
+
+    fig = Figure(figsize=(canvas_width / 100, canvas_height / 100), dpi=100)
+    ax = fig.add_axes([.1, .15, .85, .75])
+    ax.set_ylim(min_value - range_increment, max_value + range_increment)
+
+    xax = range(0, len(values))
+    yax = values
+
+    ax.set_xticks(xax)
+    ax.set_xticklabels([element.date.strftime('%d %b') for element in
+                       result_data['results']], rotation=75)
+    ax.set_title(result_data['benchmark'].name)
+
+    if result_data['relative']:
+        ax.yaxis.set_major_formatter(FormatStrFormatter('%.3f%%'))
+
+    font_sizes = [16, 16]
+    dimensions = [canvas_width, canvas_height]
+
+    for idx, value in enumerate(dimensions):
+        if value < 500:
+            font_sizes[idx] = 8
+        elif value < 1000:
+            font_sizes[idx] = 12
+
+    for item in ax.get_yticklabels():
+        item.set_fontsize(font_sizes[0])
+
+    for item in ax.get_xticklabels():
+        item.set_fontsize(font_sizes[1])
+
+    ax.title.set_fontsize(font_sizes[1] + 4)
+
+    ax.scatter(xax, yax)
+    ax.plot(xax, yax)
+
+    canvas = FigureCanvasAgg(fig)
+    buf = cStringIO.StringIO()
+    canvas.print_png(buf)
+    buf_data = buf.getvalue()
+
+    if django_has_content_type():
+        response = HttpResponse(content=buf_data, content_type='image/png')
+    else:
+        response = HttpResponse(content=buf_data, mimetype='image/png')
+
+    response['Content-Length'] = len(buf_data)
+    response['Content-Disposition'] = 'attachment; filename=image.png'
+
+    return response

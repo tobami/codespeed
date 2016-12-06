@@ -2,8 +2,9 @@
 from __future__ import absolute_import
 
 from django.conf import settings
-
-from codespeed.models import Executable, Revision, Project, Branch
+from django.core.exceptions import ObjectDoesNotExist
+from codespeed.models import Executable, Revision, Project, Branch,\
+        Environment, Benchmark, Result
 
 
 def get_default_environment(enviros, data, multi=False):
@@ -147,3 +148,83 @@ def getcomparisonexes():
         all_executables[proj] = executables
         exekeys += executablekeys
     return all_executables, exekeys
+
+
+def get_benchmark_results(data):
+    environment = Environment.objects.get(name=data['env'])
+    project = Project.objects.get(name=data['proj'])
+    executable = Executable.objects.get(name=data['exe'], project=project)
+    branch = Branch.objects.get(name=data['branch'], project=project)
+    benchmark = Benchmark.objects.get(name=data['ben'])
+
+    number_of_revs = int(data.get('revs', 10))
+
+    baseline_commit_name = (data['base_commit'] if 'base_commit' in data
+                            else None)
+    relative_results = (
+        ('relative' in data and data['relative'] in ['1', 'yes']) or
+        baseline_commit_name is not None)
+
+    result_query = Result.objects.filter(
+        benchmark=benchmark
+    ).filter(
+        environment=environment
+    ).filter(
+        executable=executable
+    ).filter(
+        revision__project=project
+    ).filter(
+        revision__branch=branch
+    ).select_related(
+        "revision"
+    ).order_by('-date')[:number_of_revs]
+
+    if len(result_query) == 0:
+        raise ObjectDoesNotExist("No results were found!")
+
+    result_list = [item for item in result_query]
+    result_list.reverse()
+
+    if relative_results:
+        ref_value = result_list[0].value
+
+    if baseline_commit_name is not None:
+        baseline_env = environment
+        baseline_proj = project
+        baseline_exe = executable
+        baseline_branch = branch
+
+        if 'base_env' in data:
+            baseline_env = Environment.objects.get(name=data['base_env'])
+        if 'base_proj' in data:
+            baseline_proj = Project.objects.get(name=data['base_proj'])
+        if 'base_exe' in data:
+            baseline_exe = Executable.objects.get(name=data['base_exe'],
+                                                  project=baseline_proj)
+        if 'base_branch' in data:
+            baseline_branch = Branch.objects.get(name=data['base_branch'],
+                                                 project=baseline_proj)
+
+        base_data = Result.objects.get(
+                                benchmark=benchmark,
+                                environment=baseline_env,
+                                executable=baseline_exe,
+                                revision__project=baseline_proj,
+                                revision__branch=baseline_branch,
+                                revision__commitid=baseline_commit_name)
+
+        ref_value = base_data.value
+
+    if relative_results:
+        for element in result_list:
+            element.value = (100 * (element.value - ref_value)) / ref_value
+
+    return {
+            'environment': environment,
+            'project': project,
+            'executable': executable,
+            'branch': branch,
+            'benchmark': benchmark,
+            'results': result_list,
+            'relative': relative_results,
+           }

@@ -6,7 +6,7 @@ import logging
 import django
 
 from django.core.urlresolvers import reverse
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import HttpResponse, Http404, HttpResponseBadRequest,\
     HttpResponseNotFound
 from django.shortcuts import get_object_or_404, render_to_response
@@ -18,7 +18,8 @@ from django.conf import settings
 from .models import (Environment, Report, Project, Revision, Result,
                      Executable, Benchmark, Branch)
 from .views_data import (get_default_environment, getbaselineexecutables,
-                         getdefaultexecutable, getcomparisonexes)
+                         getdefaultexecutable, getcomparisonexes,
+                         get_benchmark_results)
 from .results import save_result, create_report_if_enough_data
 from . import commits
 from .validators import validate_results_request
@@ -748,124 +749,6 @@ def django_has_content_type():
             (django.VERSION[0] == 1 and django.VERSION[1] >= 6))
 
 
-def get_benchmark_results(data):
-    try:
-        environment = Environment.objects.get(name=data['env'])
-        project = Project.objects.get(name=data['proj'])
-        executable = Executable.objects.get(name=data['exe'], project=project)
-        branch = Branch.objects.get(name=data['branch'], project=project)
-        benchmark = Benchmark.objects.get(name=data['ben'])
-    except Environment.DoesNotExist:
-        return None, HttpResponseNotFound(
-                        'Environment "' + data['env'] + '" does not exist!')
-    except Project.DoesNotExist:
-        return None, HttpResponseNotFound(
-                        'Project "' + data['proj'] + '" does not exist!')
-    except Executable.DoesNotExist:
-        return None, HttpResponseNotFound(
-                        'Executable "' + data['exe'] + '" does not exist!')
-    except Branch.DoesNotExist:
-        return None, HttpResponseNotFound(
-                        'Branch "' + data['branch'] + '" does not exist!')
-    except Benchmark.DoesNotExist:
-        return None, HttpResponseNotFound(
-                        'Benchmark "' + data['ben'] + '" does not exist!')
-
-    number_of_revs = int(data.get('revs', 10))
-
-    baseline_commit_name = (data['base_commit'] if 'base_commit' in data
-                            else None)
-    relative_results = (
-        ('relative' in data and data['relative'] in ['1', 'yes']) or
-        baseline_commit_name is not None)
-
-    result_query = Result.objects.filter(
-        benchmark=benchmark
-    ).filter(
-        environment=environment
-    ).filter(
-        executable=executable
-    ).filter(
-        revision__project=project
-    ).filter(
-        revision__branch=branch
-    ).select_related(
-        "revision"
-    ).order_by('-date')[:number_of_revs]
-
-    if len(result_query) == 0:
-        return None, HttpResponseNotFound("No results were found!")
-
-    result_list = [item for item in result_query]
-    result_list.reverse()
-
-    if relative_results:
-        ref_value = result_list[0].value
-
-    if baseline_commit_name is not None:
-        baseline_env = environment
-        baseline_proj = project
-        baseline_exe = executable
-        baseline_branch = branch
-
-        try:
-            if 'base_env' in data:
-                baseline_env = Environment.objects.get(name=data['base_env'])
-            if 'base_proj' in data:
-                baseline_proj = Project.objects.get(name=data['base_proj'])
-            if 'base_exe' in data:
-                baseline_exe = Executable.objects.get(name=data['base_exe'],
-                                                      project=baseline_proj)
-            if 'base_branch' in data:
-                baseline_branch = Branch.objects.get(name=data['base_branch'],
-                                                     project=baseline_proj)
-        except Environment.DoesNotExist:
-            return None, HttpResponseNotFound(
-                            'Baseline environment "' + data['base_env'] +
-                            '" does not exist!')
-        except Project.DoesNotExist:
-            return None, HttpResponseNotFound(
-                            'Baseline project "' + data['base_proj'] +
-                            '" does not exist!')
-        except Executable.DoesNotExist:
-            return None, HttpResponseNotFound(
-                            'Baseline executable "' + data['base_exe'] +
-                            '"does not exist!')
-        except Branch.DoesNotExist:
-            return None, HttpResponseNotFound(
-                            'Baseline branch "' + data['base_branch'] +
-                            '" does not exist!')
-
-        base_data = Result.objects.get(
-                                benchmark=benchmark,
-                                environment=baseline_env,
-                                executable=baseline_exe,
-                                revision__project=baseline_proj,
-                                revision__branch=baseline_branch,
-                                revision__commitid=baseline_commit_name)
-
-        if base_data:
-            ref_value = base_data.value
-        else:
-            return None, HttpResponseNotFound(
-                            'Result for revision "' + baseline_commit +
-                            '" does not exist !')
-
-    if relative_results:
-        for element in result_list:
-            element.value = (100 * (element.value - ref_value)) / ref_value
-
-    return {
-            'environment': environment,
-            'project': project,
-            'executable': executable,
-            'branch': branch,
-            'benchmark': benchmark,
-            'results': result_list,
-            'relative': relative_results,
-           }, None
-
-
 @require_GET
 def makeimage(request):
     data = request.GET
@@ -875,10 +758,10 @@ def makeimage(request):
     except ValidationError as err:
         return HttpResponseBadRequest(str(err))
 
-    result_data, error = get_benchmark_results(data)
-
-    if error is not None:
-        return error
+    try:
+        result_data = get_benchmark_results(data)
+    except ObjectDoesNotExist as err:
+        return HttpResponseNotFound(str(err))
 
     canvas_width = int(data['width']) if 'width' in data else 600
     canvas_height = int(data['height']) if 'height' in data else 500

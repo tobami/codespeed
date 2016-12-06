@@ -6,6 +6,7 @@ import logging
 import django
 
 from django.core.urlresolvers import reverse
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse, Http404, HttpResponseBadRequest,\
     HttpResponseNotFound
 from django.shortcuts import get_object_or_404, render_to_response
@@ -20,6 +21,7 @@ from .views_data import (get_default_environment, getbaselineexecutables,
                          getdefaultexecutable, getcomparisonexes)
 from .results import save_result, create_report_if_enough_data
 from . import commits
+from .validators import validate_results_request
 
 import cStringIO
 from matplotlib.figure import Figure
@@ -746,41 +748,6 @@ def django_has_content_type():
             (django.VERSION[0] == 1 and django.VERSION[1] >= 6))
 
 
-def validate_results_request(data):
-    """
-    Validates that a result request dictionary has all needed parameters
-
-    It returns a tuple
-        "", False  when no errors where found
-        Error_message, True when there is an error
-    """
-    mandatory_data = [
-        'env',
-        'proj',
-        'branch',
-        'exe',
-        'ben',
-    ]
-
-    for key in mandatory_data:
-        if key not in data:
-            return 'Key "' + key + '" missing from GET request', True
-        elif data[key] == '':
-            return 'Value for key "' + key + '" empty in GET request', True
-
-    # Check that 'revs' is the correct format (if it exists)
-    if 'revs' in data:
-        try:
-            rev_value = int(data['revs'])
-        except:
-            return 'Value for key "revs" is not an integer', True
-        if rev_value <= 0:
-            return 'Value for key "revs" should be a strictly positive '\
-                   'integer', True
-
-    return '', False
-
-
 def get_benchmark_results(data):
     try:
         environment = Environment.objects.get(name=data['env'])
@@ -903,10 +870,10 @@ def get_benchmark_results(data):
 def makeimage(request):
     data = request.GET
 
-    err_msg, err = validate_results_request(data)
-
-    if err:
-        return HttpResponseBadRequest(err_msg)
+    try:
+        validate_results_request(data)
+    except ValidationError as err:
+        return HttpResponseBadRequest(str(err))
 
     result_data, error = get_benchmark_results(data)
 

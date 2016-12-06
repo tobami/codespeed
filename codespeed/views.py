@@ -23,12 +23,7 @@ from .views_data import (get_default_environment, getbaselineexecutables,
 from .results import save_result, create_report_if_enough_data
 from . import commits
 from .validators import validate_results_request
-
-import cStringIO
-from matplotlib.figure import Figure
-from matplotlib.ticker import FormatStrFormatter
-from matplotlib.backends.backend_agg import FigureCanvasAgg
-
+from .images import gen_image_from_results
 
 logger = logging.getLogger(__name__)
 
@@ -763,65 +758,17 @@ def makeimage(request):
     except ObjectDoesNotExist as err:
         return HttpResponseNotFound(str(err))
 
-    canvas_width = int(data['width']) if 'width' in data else 600
-    canvas_height = int(data['height']) if 'height' in data else 500
-
-    canvas_width = max(canvas_width, 400)
-    canvas_height = max(canvas_height, 300)
-
-    values = [element.value for element in result_data['results']]
-
-    max_value = max(values)
-    min_value = min(values)
-    value_range = max_value - min_value
-    range_increment = 0.05 * abs(value_range)
-
-    fig = Figure(figsize=(canvas_width / 100, canvas_height / 100), dpi=100)
-    ax = fig.add_axes([.1, .15, .85, .75])
-    ax.set_ylim(min_value - range_increment, max_value + range_increment)
-
-    xax = range(0, len(values))
-    yax = values
-
-    ax.set_xticks(xax)
-    ax.set_xticklabels([element.date.strftime('%d %b') for element in
-                       result_data['results']], rotation=75)
-    ax.set_title(result_data['benchmark'].name)
-
-    if result_data['relative']:
-        ax.yaxis.set_major_formatter(FormatStrFormatter('%.3f%%'))
-
-    font_sizes = [16, 16]
-    dimensions = [canvas_width, canvas_height]
-
-    for idx, value in enumerate(dimensions):
-        if value < 500:
-            font_sizes[idx] = 8
-        elif value < 1000:
-            font_sizes[idx] = 12
-
-    for item in ax.get_yticklabels():
-        item.set_fontsize(font_sizes[0])
-
-    for item in ax.get_xticklabels():
-        item.set_fontsize(font_sizes[1])
-
-    ax.title.set_fontsize(font_sizes[1] + 4)
-
-    ax.scatter(xax, yax)
-    ax.plot(xax, yax)
-
-    canvas = FigureCanvasAgg(fig)
-    buf = cStringIO.StringIO()
-    canvas.print_png(buf)
-    buf_data = buf.getvalue()
+    image_data = gen_image_from_results(
+                    result_data,
+                    int(data['width']) if 'width' in data else None,
+                    int(data['height']) if 'height' in data else None)
 
     if django_has_content_type():
-        response = HttpResponse(content=buf_data, content_type='image/png')
+        response = HttpResponse(content=image_data, content_type='image/png')
     else:
-        response = HttpResponse(content=buf_data, mimetype='image/png')
+        response = HttpResponse(content=image_data, mimetype='image/png')
 
-    response['Content-Length'] = len(buf_data)
+    response['Content-Length'] = len(image_data)
     response['Content-Disposition'] = 'attachment; filename=image.png'
 
     return response

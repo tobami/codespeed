@@ -122,7 +122,7 @@ class Revision(models.Model):
             raise ValidationError("Invalid commit id %s" % self.commitid)
         if self.branch.project.repo_type == "S":
             try:
-                long(self.commitid)
+                int(self.commitid)
             except ValueError:
                 raise ValidationError("Invalid SVN commit id %s" % self.commitid)
 

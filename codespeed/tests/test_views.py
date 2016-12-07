@@ -108,7 +108,8 @@ class TestAddResult(TestCase):
             response = self.client.post(self.path, self.data)
             self.assertEquals(response.status_code, 400)
             self.assertEquals(
-                response.content.decode(), 'Value for key "' + key + '" empty in request')
+                response.content.decode(),
+                'Value for key "' + key + '" empty in request')
             self.data[key] = backup
 
     def test_missing_argument(self):
@@ -119,7 +120,8 @@ class TestAddResult(TestCase):
             response = self.client.post(self.path, self.data)
             self.assertEquals(response.status_code, 400)
             self.assertEquals(
-                response.content.decode(), 'Key "' + key + '" missing from request')
+                response.content.decode(),
+                'Key "' + key + '" missing from request')
             self.data[key] = backup
 
     def test_report_is_not_created(self):
@@ -156,7 +158,8 @@ class TestAddResult(TestCase):
         modified_data['executable'] = "My new executable"
         response = self.client.post(self.path, modified_data)
         self.assertEquals(response.status_code, 202)
-        self.assertEquals(response.content.decode(), "Result data saved successfully")
+        self.assertEquals(
+            response.content.decode(), "Result data saved successfully")
 
 
 class TestAddJSONResults(TestCase):
@@ -266,7 +269,8 @@ class TestAddJSONResults(TestCase):
                                     {'json': json.dumps(self.data)})
 
         self.assertEquals(response.status_code, 400)
-        self.assertEquals(response.content.decode(), "Environment " + bad_name + " not found")
+        self.assertEquals(
+            response.content.decode(), "Environment " + bad_name + " not found")
         data['environment'] = 'bigdog'
 
     def test_empty_argument(self):
@@ -278,7 +282,9 @@ class TestAddJSONResults(TestCase):
             response = self.client.post(self.path,
                                         {'json': json.dumps(self.data)})
             self.assertEquals(response.status_code, 400)
-            self.assertEquals(response.content.decode(), 'Value for key "' + key + '" empty in request')
+            self.assertEquals(
+                response.content.decode(),
+                'Value for key "' + key + '" empty in request')
             data[key] = backup
 
     def test_missing_argument(self):
@@ -290,7 +296,8 @@ class TestAddJSONResults(TestCase):
             response = self.client.post(self.path,
                                         {'json': json.dumps(self.data)})
             self.assertEquals(response.status_code, 400)
-            self.assertEquals(response.content.decode(), 'Key "' + key + '" missing from request')
+            self.assertEquals(
+                response.content.decode(), 'Key "' + key + '" missing from request')
             data[key] = backup
 
     def test_report_is_created(self):

@@ -3,9 +3,12 @@ from __future__ import absolute_import, unicode_literals
 
 import json
 import logging
+import django
 
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, Http404, HttpResponseBadRequest
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.http import HttpResponse, Http404, HttpResponseBadRequest,\
+    HttpResponseNotFound
 from django.shortcuts import get_object_or_404, render_to_response
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
@@ -15,9 +18,12 @@ from django.conf import settings
 from .models import (Environment, Report, Project, Revision, Result,
                      Executable, Benchmark, Branch)
 from .views_data import (get_default_environment, getbaselineexecutables,
-                         getdefaultexecutable, getcomparisonexes)
+                         getdefaultexecutable, getcomparisonexes,
+                         get_benchmark_results)
 from .results import save_result, create_report_if_enough_data
 from . import commits
+from .validators import validate_results_request
+from .images import gen_image_from_results
 
 logger = logging.getLogger(__name__)
 
@@ -731,3 +737,38 @@ def add_json_results(request):
     logger.debug("add_json_results: completed")
 
     return HttpResponse("All result data saved successfully", status=202)
+
+
+def django_has_content_type():
+    return (django.VERSION[0] > 1 or
+            (django.VERSION[0] == 1 and django.VERSION[1] >= 6))
+
+
+@require_GET
+def makeimage(request):
+    data = request.GET
+
+    try:
+        validate_results_request(data)
+    except ValidationError as err:
+        return HttpResponseBadRequest(str(err))
+
+    try:
+        result_data = get_benchmark_results(data)
+    except ObjectDoesNotExist as err:
+        return HttpResponseNotFound(str(err))
+
+    image_data = gen_image_from_results(
+                    result_data,
+                    int(data['width']) if 'width' in data else None,
+                    int(data['height']) if 'height' in data else None)
+
+    if django_has_content_type():
+        response = HttpResponse(content=image_data, content_type='image/png')
+    else:
+        response = HttpResponse(content=image_data, mimetype='image/png')
+
+    response['Content-Length'] = len(image_data)
+    response['Content-Disposition'] = 'attachment; filename=image.png'
+
+    return response

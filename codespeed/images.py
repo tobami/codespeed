@@ -1,4 +1,4 @@
-import cStringIO
+from io import BytesIO
 from matplotlib.figure import Figure
 from matplotlib.ticker import FormatStrFormatter
 from matplotlib.backends.backend_agg import FigureCanvasAgg
@@ -63,7 +63,7 @@ def gen_image_from_results(result_data, width, height):
     ax.plot(xax, yax)
 
     canvas = FigureCanvasAgg(fig)
-    buf = cStringIO.StringIO()
+    buf = BytesIO()
     canvas.print_png(buf)
     buf_data = buf.getvalue()
 

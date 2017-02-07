@@ -3,7 +3,7 @@
 
 Codespeed is a web application to monitor and analyze the performance of your code.
 
-Known to be used by [PyPy](http://speed.pypy.org), [Twisted](http://speed.twistedmatrix.com) and others.
+Known to be used by [CPython](https://speed.python.org), [PyPy](http://speed.pypy.org), [Twisted](http://speed.twistedmatrix.com) and others.
 
 For an overview of some application concepts see the [wiki page](https://github.com/tobami/codespeed/wiki/Overview)
 

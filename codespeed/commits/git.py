@@ -62,16 +62,20 @@ def getlogs(endrev, startrev):
         raise CommitLogError("%s returned %s: %s" % (
                              " ".join(cmd), p.returncode, stderr))
     logs = []
-    for log in filter(None, stdout.split("\x1e")):
+    for log in filter(None, stdout.split(b'\x1e')):
         (short_commit_id, commit_id, date_t, author_name, author_email,
-            subject, body) = log.split("\x00", 7)
+            subject, body) = log.split(b'\x00', 7)
 
         tag = ""
 
         cmd = ["git", "describe", "--tags", commit_id]
-        proc = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=working_copy)
+        Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=working_copy)
 
-        stdout, stderr = p.communicate()
+        try:
+            stdout, stderr = p.communicate()
+        except ValueError:
+            stdout = b''
+            stderr = b''
 
         if p.returncode == 0:
             tag = stdout
@@ -81,6 +85,7 @@ def getlogs(endrev, startrev):
 
         logs.append({'date': date, 'message': subject, 'commitid': commit_id,
                      'author': author_name, 'author_email': author_email,
-                     'body': body, 'short_commit_id': short_commit_id, 'tag': tag})
+                     'body': body, 'short_commit_id': short_commit_id,
+                     'tag': tag})
 
     return logs

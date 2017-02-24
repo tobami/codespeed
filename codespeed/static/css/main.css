@@ -104,10 +104,8 @@ div#presentation div {
     vertical-align: middle;
 }
 div#presentation div.menubox {
-    background-image: url(../images/vgradient.png);
-    background-repeat: repeat-x;
-    background-color: #FFFFFF;
-    color: black;
+    background-color: #6b808c;
+    color: white;
     width: 220px;
     cursor: pointer;
     text-align: center;

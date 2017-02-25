@@ -104,8 +104,8 @@ div#presentation div {
     vertical-align: middle;
 }
 div#presentation div.menubox {
-    background-color: #6b808c;
-    color: white;
+    background-color: #FFFFFF;
+    color: black;
     width: 220px;
     cursor: pointer;
     text-align: center;

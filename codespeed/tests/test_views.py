@@ -3,13 +3,14 @@ from datetime import datetime, timedelta
 import copy
 import json
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.core.urlresolvers import reverse
 
 from codespeed.models import (Project, Benchmark, Revision, Branch, Executable,
                               Environment, Result, Report)
 
 
+@override_settings(ALLOW_ANONYMOUS_POST=True)
 class TestAddResult(TestCase):
 
     def setUp(self):
@@ -162,6 +163,7 @@ class TestAddResult(TestCase):
             response.content.decode(), "Result data saved successfully")
 
 
+@override_settings(ALLOW_ANONYMOUS_POST=True)
 class TestAddJSONResults(TestCase):
 
     def setUp(self):
@@ -361,6 +363,7 @@ class TestTimeline(TestCase):
             [u'2011/04/13 17:04:22 ', 2000.0, 1.11111, u'2', u'', u'default'])
 
 
+@override_settings(ALLOW_ANONYMOUS_POST=True)
 class TestReports(TestCase):
 
     def setUp(self):

@@ -68,3 +68,6 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
                          #     ('myexe', 'L'),]
 
 USE_MEDIAN_BANDS = True # True to enable median bands on Timeline view
+
+
+ALLOW_ANONYMOUS_POST = False  # Whether anonymous users be allowed to post results

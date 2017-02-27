@@ -47,7 +47,7 @@ def gen_image_from_results(result_data, width, height):
             font_sizes[idx] = 8
         elif value < 1000:
             font_sizes[idx] = 12
-    
+
     if result_data['relative']:
         font_sizes[0] -= 2
 

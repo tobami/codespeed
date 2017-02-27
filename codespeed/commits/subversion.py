@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """Subversion commit logs support"""
-# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
 from datetime import datetime
@@ -32,7 +31,9 @@ def getlogs(newrev, startrev):
     loglimit = 200
 
     def get_login(realm, username, may_save):
-        return True, newrev.branch.project.repo_user, newrev.branch.project.repo_pass, False
+        repo_user = newrev.branch.project.repo_user
+        repo_pass = newrev.branch.project.repo_pass
+        return True, repo_user, repo_pass, False
 
     client = pysvn.Client()
     if newrev.branch.project.repo_user != "":
@@ -43,7 +44,7 @@ def getlogs(newrev, startrev):
             client.log(
                 newrev.branch.project.repo_path,
                 revision_start=pysvn.Revision(
-                        pysvn.opt_revision_kind.number, startrev.commitid
+                    pysvn.opt_revision_kind.number, startrev.commitid
                 ),
                 revision_end=pysvn.Revision(
                     pysvn.opt_revision_kind.number, newrev.commitid

@@ -14,6 +14,7 @@ from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.template import RequestContext
 from django.conf import settings
+from .auth import basic_auth_required
 
 from .models import (Environment, Report, Project, Revision, Result,
                      Executable, Benchmark, Branch)
@@ -697,6 +698,7 @@ def displaylogs(request):
 
 @csrf_exempt
 @require_POST
+@basic_auth_required('results')
 def add_result(request):
     response, error = save_result(request.POST)
     if error:
@@ -710,6 +712,7 @@ def add_result(request):
 
 @csrf_exempt
 @require_POST
+@basic_auth_required('results')
 def add_json_results(request):
     if not request.POST.get('json'):
         return HttpResponseBadRequest("No key 'json' in POST payload")

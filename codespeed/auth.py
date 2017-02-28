@@ -1,6 +1,6 @@
 import logging
 from functools import wraps
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login
 from django.http import HttpResponse, HttpResponseForbidden
 from django.conf import settings
 from base64 import b64decode
@@ -24,9 +24,10 @@ def basic_auth_required(realm='default'):
                 if authmeth.lower() == 'basic':
                     username, password = decode_basic_auth(auth)
                     user = authenticate(username=username, password=password)
-                    if user is None:
+                    if user is not None and user.is_active:
                         logging.info(
                             'Authentication succeeded for {}'.format(username))
+                        login(request, user)
                         allowed = True
                     else:
                         return HttpResponseForbidden()

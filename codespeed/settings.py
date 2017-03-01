@@ -70,5 +70,5 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
 USE_MEDIAN_BANDS = True # True to enable median bands on Timeline view
 
 
-ALLOW_ANONYMOUS_POST = False  # Whether anonymous users can post results
+ALLOW_ANONYMOUS_POST = True  # Whether anonymous users can post results
 REQUIRE_SECURE_AUTH = True  # Whether auth needs to be over a secure channel

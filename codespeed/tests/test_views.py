@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import copy
 import json
 
+from django.conf import settings
 from django.test import TestCase, override_settings
 from django.core.urlresolvers import reverse
 
@@ -351,16 +352,16 @@ class TestTimeline(TestCase):
         self.assertEquals(
             len(responsedata['timelines']), 1, "there should be 1 benchmark")
         self.assertEquals(
-            len(responsedata['timelines'][0]['branches']['default']),
+            len(responsedata['timelines'][0]['branches']['master']),
             2,
             "there should be 2 timelines")
         self.assertEquals(
-            len(responsedata['timelines'][0]['branches']['default']['1']),
+            len(responsedata['timelines'][0]['branches']['master']['1']),
             2,
             "There are 2 datapoints")
         self.assertEquals(
-            responsedata['timelines'][0]['branches']['default']['1'][1],
-            [u'2011/04/13 17:04:22 ', 2000.0, 1.11111, u'2', u'', u'default'])
+            responsedata['timelines'][0]['branches']['master']['1'][1],
+            [u'2011/04/13 17:04:22 ', 2000.0, 1.11111, u'2', u'', u'master'])
 
 
 @override_settings(ALLOW_ANONYMOUS_POST=True)
@@ -370,7 +371,7 @@ class TestReports(TestCase):
         Environment.objects.create(name='Dual Core', cpu='Core 2 Duo 8200')
         self.data = {
             'commitid': 'abcd1',
-            'branch': 'default',
+            'branch': settings.DEF_BRANCH,
             'project': 'MyProject',
             'executable': 'myexe O3 64bits',
             'benchmark': 'float',

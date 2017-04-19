@@ -68,7 +68,7 @@ def getlogs(endrev, startrev):
 
         tag = ""
 
-        cmd = ["git", "describe", "--tags", commit_id]
+        cmd = ["git", "tag", "--points-at", commit_id]
         proc = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=working_copy)
 
         try:

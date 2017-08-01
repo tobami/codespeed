@@ -117,6 +117,6 @@ if __name__ == "__main__":
     try:
         save_to_speedcenter(**kwargs)
         sys.exit(0)
-    except StandardError, e:
+    except StandardError as e:
         logging.error("Error saving results: %s", e)
         sys.exit(1)

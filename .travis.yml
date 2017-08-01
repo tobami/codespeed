@@ -15,5 +15,4 @@ install:
 before_script:
    flake8 codespeed
 script:
-  - python setup.py test
   - python manage.py test codespeed

@@ -6,8 +6,8 @@ branches:
   only:
     - master
 env:
-  - DJANGO_VERSION=1.8.17
-  - DJANGO_VERSION=1.9.12
+  - DJANGO_VERSION=1.8.18
+  - DJANGO_VERSION=1.9.13
   - DJANGO_SETTINGS_MODULE=sample_project.settings
 install:
   - pip install flake8

@@ -6,9 +6,11 @@ branches:
   only:
     - master
 env:
-  - DJANGO_VERSION=1.8.18
-  - DJANGO_VERSION=1.9.13
-  - DJANGO_SETTINGS_MODULE=sample_project.settings
+  global:
+    - DJANGO_SETTINGS_MODULE=sample_project.settings
+  matrix:
+    - DJANGO_VERSION=1.8.18
+    - DJANGO_VERSION=1.9.13
 install:
   - pip install flake8
   - pip install -q Django==$DJANGO_VERSION

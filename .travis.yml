@@ -6,8 +6,11 @@ branches:
   only:
     - master
 env:
-  - DJANGO_VERSION=1.8.17
-  - DJANGO_VERSION=1.9.12
+  global:
+    - DJANGO_SETTINGS_MODULE=sample_project.settings
+  matrix:
+    - DJANGO_VERSION=1.8.18
+    - DJANGO_VERSION=1.9.13
 install:
   - pip install flake8
   - pip install -q Django==$DJANGO_VERSION
@@ -15,5 +18,4 @@ install:
 before_script:
    flake8 codespeed
 script:
-  - python setup.py test
   - python manage.py test codespeed

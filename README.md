@@ -1,5 +1,6 @@
 # Codespeed
 [![Build Status](https://travis-ci.org/tobami/codespeed.png?branch=master)](https://travis-ci.org/tobami/codespeed)
+[![PyPI version](https://img.shields.io/pypi/v/codespeed.svg)](https://pypi.python.org/pypi/codespeed)
 
 Codespeed is a web application to monitor and analyze the performance of your code.
 

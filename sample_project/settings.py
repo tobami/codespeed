@@ -89,6 +89,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.admin',
     'django.contrib.staticfiles',
+    'rest_framework',
     'codespeed',
 )
 

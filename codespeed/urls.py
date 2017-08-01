@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.conf.urls import patterns, url
+from django.conf.urls import include, patterns, url
 from django.views.generic import TemplateView
 
 from codespeed.feeds import LatestEntries, LatestSignificantEntries
@@ -29,4 +29,9 @@ urlpatterns += patterns('codespeed.views',
     # URLs for adding results
     url(r'^result/add/json/$', 'add_json_results'),
     url(r'^result/add/$', 'add_result'),
+)
+
+from .api.urls import urlpatterns as api_urls
+urlpatterns += patterns('',
+    url(r'^api/', include(api_urls)),
 )

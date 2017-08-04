@@ -139,7 +139,7 @@ class Revision(models.Model):
         else:
             date = self.date.strftime("%b %d, %H:%M")
         string = " - ".join(filter(None, (date, self.commitid, self.tag)))
-        if self.branch.name != settings.DEF_BRANCH:
+        if self.branch.name != self.branch.project.default_branch:
             string += " - " + self.branch.name
         return string
 

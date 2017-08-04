@@ -3,8 +3,9 @@ from __future__ import absolute_import
 
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from codespeed.models import Executable, Revision, Project, Branch,\
-        Environment, Benchmark, Result
+from codespeed.models import (
+    Executable, Revision, Project, Branch,
+    Environment, Benchmark, Result)
 
 
 def get_default_environment(enviros, data, multi=False):

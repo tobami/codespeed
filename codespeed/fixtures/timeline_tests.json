@@ -3,26 +3,28 @@
         "pk": 1,
         "model": "codespeed.project",
         "fields": {
-            "repo_type": "N",
+            "repo_type": "G",
             "name": "MyProject",
             "commit_browsing_url": "",
             "repo_user": "",
             "track": true,
             "repo_pass": "",
-            "repo_path": ""
+            "repo_path": "",
+            "default_branch": "master"
         }
     },
     {
         "pk": 2,
         "model": "codespeed.project",
         "fields": {
-            "repo_type": "N",
+            "repo_type": "M",
             "name": "Other",
             "commit_browsing_url": "",
             "repo_user": "",
             "track": true,
             "repo_pass": "",
-            "repo_path": ""
+            "repo_path": "",
+            "default_branch": "default"
         }
     },
     {

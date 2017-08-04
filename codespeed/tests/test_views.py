@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 import copy
 import json
 
-from django.conf import settings
 from django.test import TestCase, override_settings
 from django.core.urlresolvers import reverse
 
@@ -371,7 +370,7 @@ class TestReports(TestCase):
         Environment.objects.create(name='Dual Core', cpu='Core 2 Duo 8200')
         self.data = {
             'commitid': 'abcd1',
-            'branch': settings.DEF_BRANCH,
+            'branch': 'master',
             'project': 'MyProject',
             'executable': 'myexe O3 64bits',
             'benchmark': 'float',

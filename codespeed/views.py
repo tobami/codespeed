@@ -231,8 +231,18 @@ def gettimelinedata(request):
 
     timeline_list = {'error': 'None', 'timelines': []}
 
-    executables = data.get('exe', "").split(",")
-    if not filter(None, executables):
+    executable_ids = data.get('exe', '').split(',')
+
+    executables = []
+    for i in executable_ids:
+        if not i:
+            continue
+        try:
+            executables.append(Executable.objects.get(id=int(i)))
+        except Executable.DoesNotExist:
+            pass
+
+    if not executables:
         timeline_list['error'] = "No executables selected"
         return HttpResponse(json.dumps(timeline_list))
     environment = None
@@ -270,22 +280,19 @@ def gettimelinedata(request):
             'branches':              {},
             'baseline':              "None",
         }
-        # Temporary
-        trunks = []
+        append = False
         for proj in Project.objects.filter(track=True):
             try:
-                default_branch = Branch.objects.get(
+                branch = Branch.objects.get(
                     project=proj, name=proj.default_branch)
             except Branch.DoesNotExist:
                 continue
-            else:
-                trunks.append(default_branch)
-        # For now, we'll only work with trunk branches
-        append = False
-        for branch in trunks:
-            append = False
-            timeline['branches'][branch.name] = {}
+
+            # For now, we'll only work with trunk branches
             for executable in executables:
+                if executable.project != proj:
+                    continue
+
                 resultquery = Result.objects.filter(
                     benchmark=bench
                 ).filter(
@@ -299,6 +306,7 @@ def gettimelinedata(request):
                 ).order_by('-revision__date')[:number_of_revs]
                 if not len(resultquery):
                     continue
+                timeline['branches'].setdefault(branch.name, {})
 
                 results = []
                 for res in resultquery:
@@ -333,32 +341,34 @@ def gettimelinedata(request):
                                 res.revision.get_short_commitid(), res.revision.tag, branch.name
                             ]
                         )
-                timeline['branches'][branch.name][executable] = results
+                timeline['branches'][branch.name][executable.id] = results
                 append = True
 
-            if baselinerev is not None and append:
-                try:
-                    baselinevalue = Result.objects.get(
-                        executable=baselineexe,
-                        benchmark=bench,
-                        revision=baselinerev,
-                        environment=environment
-                    ).value
-                except Result.DoesNotExist:
-                    timeline['baseline'] = "None"
-                else:
-                    # determine start and end revision (x axis)
-                    # from longest data series
-                    results = []
-                    for exe in timeline['branches'][branch.name]:
-                        if len(timeline['branches'][branch.name][exe]) > len(results):
-                            results = timeline['branches'][branch.name][exe]
-                    end = results[0][0]
-                    start = results[len(results) - 1][0]
-                    timeline['baseline'] = [
-                        [str(start), baselinevalue],
-                        [str(end), baselinevalue]
-                    ]
+        if baselinerev is not None and append:
+            try:
+                baselinevalue = Result.objects.get(
+                    executable=baselineexe,
+                    benchmark=bench,
+                    revision=baselinerev,
+                    environment=environment
+                ).value
+            except Result.DoesNotExist:
+                timeline['baseline'] = "None"
+            else:
+                # determine start and end revision (x axis)
+                # from longest data series
+                results = []
+                for branch in timeline['branches']:
+                    for exe in timeline['branches'][branch]:
+                        if len(timeline['branches'][branch][exe]) > len(results):
+                            results = timeline['branches'][branch][exe]
+                end = results[0][0]
+                start = results[len(results) - 1][0]
+                timeline['baseline'] = [
+                    [str(start), baselinevalue],
+                    [str(end), baselinevalue]
+                ]
+
         if append:
             timeline_list['timelines'].append(timeline)
 

@@ -37,7 +37,8 @@
             "repo_user": "",
             "track": false,
             "repo_pass": "",
-            "repo_path": ""
+            "repo_path": "",
+            "default_branch": "master"
         }
     },
     {
@@ -61,7 +62,7 @@
         "model": "codespeed.branch",
         "fields": {
             "project": 2,
-            "name": "master"
+            "name": "default"
         }
     },
     {

@@ -341,19 +341,24 @@ class TestTimeline(TestCase):
             "base": "2+4",
             "ben": "float",
             "env": "1",
-            "revs": 2
+            "revs": "2"
         }
         response = self.client.get(path, data)
         self.assertEquals(response.status_code, 200)
         responsedata = json.loads(response.content.decode())
+
         self.assertEquals(
             responsedata['error'], "None", "there should be no errors")
         self.assertEquals(
             len(responsedata['timelines']), 1, "there should be 1 benchmark")
         self.assertEquals(
-            len(responsedata['timelines'][0]['branches']['master']),
+            len(responsedata['timelines'][0]['branches']),
             2,
-            "there should be 2 timelines")
+            "there should be 2 branches")
+        self.assertEquals(
+            len(responsedata['timelines'][0]['branches']['default']),
+            1,
+            "there should be 1 timeline for master")
         self.assertEquals(
             len(responsedata['timelines'][0]['branches']['master']['1']),
             2,

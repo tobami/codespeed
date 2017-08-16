@@ -28,6 +28,6 @@ urlpatterns += patterns('codespeed.views',
 
 urlpatterns += patterns('codespeed.views',
     # URLs for adding results
-    url(r'^result/add/json/$', 'add_json_results'),
-    url(r'^result/add/$', 'add_result'),
+    url(r'^result/add/json/$', 'add_json_results', name='add-json-results'),
+    url(r'^result/add/$', 'add_result', name='add-result'),
 )

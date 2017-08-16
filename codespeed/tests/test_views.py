@@ -14,7 +14,7 @@ from codespeed.models import (Project, Benchmark, Revision, Branch, Executable,
 class TestAddResult(TestCase):
 
     def setUp(self):
-        self.path = reverse('codespeed.views.add_result')
+        self.path = reverse('add-result')
         self.e = Environment.objects.create(name='Dual Core',
                                             cpu='Core 2 Duo 8200')
         temp = datetime.today()
@@ -167,7 +167,7 @@ class TestAddResult(TestCase):
 class TestAddJSONResults(TestCase):
 
     def setUp(self):
-        self.path = reverse('codespeed.views.add_json_results')
+        self.path = reverse('add-json-results')
         self.e = Environment(name='bigdog', cpu='Core 2 Duo 8200')
         self.e.save()
         temp = datetime.today()
@@ -335,7 +335,7 @@ class TestTimeline(TestCase):
     def test_gettimelinedata(self):
         """Test that gettimelinedata returns correct timeline data
         """
-        path = reverse('codespeed.views.gettimelinedata')
+        path = reverse('gettimelinedata')
         data = {
             "exe": "1,2",
             "base": "2+4",
@@ -382,16 +382,15 @@ class TestReports(TestCase):
             'environment': 'Dual Core',
             'result_value': 200,
         }
-        resp = self.client.post(reverse('codespeed.views.add_result'),
-                                self.data)
+        resp = self.client.post(reverse('add-result'), self.data)
         self.assertEqual(resp.status_code, 202)
         self.data['commitid'] = "abcd2"
         self.data['result_value'] = 150
-        self.client.post(reverse('codespeed.views.add_result'), self.data)
+        self.client.post(reverse('add-result'), self.data)
         self.assertEqual(resp.status_code, 202)
 
     def test_reports(self):
-        response = self.client.get(reverse('codespeed.views.reports'))
+        response = self.client.get(reverse('reports'))
 
         self.assertEqual(response.status_code, 200)
         content = response.content.decode()
@@ -400,7 +399,7 @@ class TestReports(TestCase):
         self.assertIn(self.data['commitid'], content)
 
     def test_reports_post_returns_405(self):
-        response = self.client.post(reverse('codespeed.views.reports'), {})
+        response = self.client.post(reverse('reports'), {})
 
         self.assertEqual(response.status_code, 405)
 

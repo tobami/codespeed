@@ -403,3 +403,13 @@ class TestReports(TestCase):
         response = self.client.post(reverse('codespeed.views.reports'), {})
 
         self.assertEqual(response.status_code, 405)
+
+
+class TestFeeds(TestCase):
+
+    def test_latest_result_feed(self):
+        response = self.client.get(reverse('latest-results'))
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('<atom:link ', content)

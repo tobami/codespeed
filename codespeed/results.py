@@ -134,6 +134,9 @@ def save_result(data):
 
 def create_report_if_enough_data(rev, exe, e):
     """Triggers Report creation when there are enough results"""
+    if exe.project.track is not True:
+        return False
+
     last_revs = Revision.objects.filter(
         branch=rev.branch
     ).order_by('-date')[:2]

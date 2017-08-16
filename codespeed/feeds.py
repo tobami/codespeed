@@ -35,15 +35,14 @@ class ResultFeed(Feed):
 
 
 class LatestEntries(ResultFeed):
-    description = "Last benchmark runs"
+    description = "Last Results"
 
     def result_filter(self):
-        return Q(revision__branch__name=settings.DEF_BRANCH)
+        return Q()
 
 
 class LatestSignificantEntries(ResultFeed):
-    description = "Last benchmark runs with significant changes"
+    description = "Last results with significant changes"
 
     def result_filter(self):
-        return Q(revision__branch__name=settings.DEF_BRANCH,
-                 colorcode__in=('red', 'green'))
+        return Q(colorcode__in=('red', 'green'))

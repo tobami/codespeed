@@ -1,14 +1,38 @@
 # -*- coding: utf-8 -*-
 
+from django import forms
+from django.contrib import admin
+
 from codespeed.models import (Project, Revision, Executable, Benchmark, Branch,
                               Result, Environment, Report)
 
-from django.contrib import admin
+
+class ProjectForm(forms.ModelForm):
+
+    default_branch = forms.CharField(max_length=32, required=False)
+
+    def clean(self):
+        if not self.cleaned_data.get('default_branch'):
+            repo_type = self.cleaned_data['repo_type']
+            if repo_type in [Project.GIT, Project.GITHUB]:
+                self.cleaned_data['default_branch'] = "master"
+            elif repo_type == Project.MERCURIAL:
+                self.cleaned_data['default_branch'] = "default"
+            elif repo_type == Project.SUBVERSION:
+                self.cleaned_data['default_branch'] = "trunk"
+            else:
+                self.add_error('default_branch', 'This field is required.')
+
+    class Meta:
+        model = Project
+        fields = '__all__'
 
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('name', 'repo_type', 'repo_path', 'track')
+
+    form = ProjectForm
 
 
 @admin.register(Branch)

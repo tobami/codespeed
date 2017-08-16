@@ -9,7 +9,7 @@ setup(
     download_url="https://github.com/tobami/codespeed/tags",
     license='GNU Lesser General Public License version 2.1',
     keywords=['benchmarking', 'visualization'],
-    install_requires=['django>=1.6,<1.10', 'isodate>=0.4.7,<0.6', 'matplotlib>=1.4.3,<2.0'],
+    install_requires=['django>=1.7,<1.12', 'isodate>=0.4.7,<0.6', 'matplotlib>=1.4.3,<2.0'],
     packages=find_packages(exclude=['ez_setup', 'sample_project']),
     description='A web application to monitor and analyze the performance of your code',
     include_package_data=True,

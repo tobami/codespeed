@@ -5,17 +5,18 @@ import json
 import logging
 import django
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import HttpResponse, Http404, HttpResponseBadRequest,\
     HttpResponseNotFound
+from django.db.models import F
 from django.shortcuts import get_object_or_404, render_to_response
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.template import RequestContext
-from django.conf import settings
-from .auth import basic_auth_required
 
+from .auth import basic_auth_required
 from .models import (Environment, Report, Project, Revision, Result,
                      Executable, Benchmark, Branch)
 from .views_data import (get_default_environment, getbaselineexecutables,
@@ -281,16 +282,11 @@ def gettimelinedata(request):
             'baseline':              "None",
         }
         append = False
-        for proj in Project.objects.filter(track=True):
-            try:
-                branch = Branch.objects.get(
-                    project=proj, name=proj.default_branch)
-            except Branch.DoesNotExist:
-                continue
-
-            # For now, we'll only work with trunk branches
+        for branch in Branch.objects.filter(
+                project__track=True, name=F('project__default_branch')):
+            # For now, we'll only work with default branches
             for executable in executables:
-                if executable.project != proj:
+                if executable.project != branch.project:
                     continue
 
                 resultquery = Result.objects.filter(

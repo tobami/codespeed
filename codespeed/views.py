@@ -497,6 +497,47 @@ def getchangestable(request):
         raise Http404()
     selectedrev = get_object_or_404(Revision, commitid=request.GET.get('rev'),
                                     branch__project=executable.project)
+    prevrev = Revision.objects.filter(
+        branch=selectedrev.branch,
+        date__lt=selectedrev.date,
+    ).order_by('-date').first()
+    if prevrev:
+        try:
+            summary = Report.objects.get(
+                revision=prevrev,
+                executable=executable,
+                environment=environment).item_description
+        except Report.DoesNotExist:
+            summary = ''
+        prevrev = {
+            'desc': str(prevrev),
+            'rev': prevrev.commitid,
+            'short_rev': prevrev.get_short_commitid(),
+            'summary': summary,
+        }
+    else:
+        prevrev = None
+
+    nextrev = Revision.objects.filter(
+        branch=selectedrev.branch,
+        date__gt=selectedrev.date,
+    ).order_by('date').first()
+    if nextrev:
+        try:
+            summary = Report.objects.get(
+                revision=nextrev,
+                executable=executable,
+                environment=environment).item_description
+        except Report.DoesNotExist:
+            summary = ''
+        nextrev = {
+            'desc': str(nextrev),
+            'rev': nextrev.commitid,
+            'short_rev': nextrev.get_short_commitid(),
+            'summary': summary,
+        }
+    else:
+        nextrev = None
 
     report, created = Report.objects.get_or_create(
         executable=executable, environment=environment, revision=selectedrev
@@ -515,6 +556,8 @@ def getchangestable(request):
         'rev': selectedrev,
         'exe': executable,
         'env': environment,
+        'prev': prevrev,
+        'next': nextrev,
     }, context_instance=RequestContext(request))
 
 

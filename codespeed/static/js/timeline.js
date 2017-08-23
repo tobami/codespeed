@@ -165,7 +165,11 @@ function renderPlot(data) {
         digits++;
       }
     }
-    $("#plotgrid").html('<div id="plot"></div><div id="plotdescription"></div>');
+    $("#plotgrid").html('<div id="plot"></div><div class="plotpng"><a id="pnglink" href="#">PNG</a></div><div id="plotdescription"></div>');
+
+    $("#pnglink").click(function() {
+        window.location = $("#plot").jqplotToImageStr();
+    });
 
     if (data.benchmark_description) {
       $("#plotdescription").html('<p class="note"><i>' + data.benchmark + '</i>: ' + data.benchmark_description + '</p>');

@@ -463,11 +463,17 @@ def timeline(request):
         defaultextr = "on"
 
     # Information for template
+    if defaultbenchmark in ['grid', 'show_none']:
+        pagedesc = None
+    else:
+        pagedesc = "Results timeline for the '%s' benchmark (project %s)" % \
+            (defaultbenchmark, defaultproject)
     executables = {}
     for proj in Project.objects.filter(track=True):
         executables[proj] = Executable.objects.filter(project=proj)
     use_median_bands = hasattr(settings, 'USE_MEDIAN_BANDS') and settings.USE_MEDIAN_BANDS
     return render_to_response('codespeed/timeline.html', {
+        'pagedesc': pagedesc,
         'checkedexecutables': checkedexecutables,
         'defaultbaseline': defaultbaseline,
         'baseline': baseline,
@@ -611,7 +617,10 @@ def changes(request):
         ]
     revisionlists = json.dumps(revisionlists)
 
+    pagedesc = "Report of %s performance changes for commit %s on branch %s" % \
+        (defaultexecutable, selectedrevision.commitid, selectedrevision.branch)
     return render_to_response('codespeed/changes.html', {
+        'pagedesc': pagedesc,
         'defaultenvironment': defaultenv,
         'defaultexecutable': defaultexecutable,
         'selectedrevision': selectedrevision,

@@ -60,7 +60,12 @@ function refreshContent() {
       renderComparisonPlot(plotid, benchmarks, exes, enviros, conf.bas, conf.chart, conf.hor);
       $("#" + pngid).data("plot", plotid);
       $("#" + pngid).click(function() {
-        window.location = $("#" + $(this).data("plot")).jqplotToImageStr();
+        var string = $("#" + $(this).data("plot")).jqplotToImageStr();
+        var iframe = "<iframe width='100%' height='100%' src='" + string + "'></iframe>"
+        var x = window.open();
+        x.document.open();
+        x.document.write(iframe);
+        x.document.close();
       });
     }
   });

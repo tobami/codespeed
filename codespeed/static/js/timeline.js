@@ -69,7 +69,7 @@ function permalinkToChanges(commitid, executableid, environment) {
 function OnMarkerClickHandler(ev, gridpos, datapos, neighbor, plot) {
   if($("input[name='benchmark']:checked").val() === "grid") { return false; }
   if (neighbor) {
-    var commitid = neighbor.data[neighbor.data.length-2];
+    var commitid = neighbor.data[neighbor.data.length-3];
     // Get executable ID from the seriesindex array
     var executableid = seriesindex[neighbor.seriesIndex];
     var environment = $("input[name='environments']:checked").val();

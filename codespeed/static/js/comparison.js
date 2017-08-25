@@ -54,9 +54,14 @@ function refreshContent() {
       if (benchmarks.length === 0) { continue; }
 
       var plotid = "plot" + plotcounter;
-      $("#plotwrapper").append('<div id="' + plotid + '" class="compplot"></div>');
+      var pngid = "pnglink" + plotcounter;
+      $("#plotwrapper").append('<div class="plotpng"><a id="' + pngid + '" href="#">PNG</a></div><div id="' + plotid + '" class="compplot"></div>');
       plotcounter++;
       renderComparisonPlot(plotid, benchmarks, exes, enviros, conf.bas, conf.chart, conf.hor);
+      $("#" + pngid).data("plot", plotid);
+      $("#" + pngid).click(function() {
+        window.location = $("#" + $(this).data("plot")).jqplotToImageStr();
+      });
     }
   });
 }

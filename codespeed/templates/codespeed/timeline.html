@@ -1,6 +1,7 @@
 {% extends "codespeed/base_site.html" %}
 
 {% block title %}{{ block.super }}: Timeline{% endblock %}
+{% block description %}{% if pagedesc %}{{ pagedesc }}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block extra_head %}
 {{ block.super }}

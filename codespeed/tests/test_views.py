@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 import copy
 import json
 
-from django.conf import settings
 from django.test import TestCase, override_settings
 from django.core.urlresolvers import reverse
 
@@ -342,19 +341,24 @@ class TestTimeline(TestCase):
             "base": "2+4",
             "ben": "float",
             "env": "1",
-            "revs": 2
+            "revs": "2"
         }
         response = self.client.get(path, data)
         self.assertEquals(response.status_code, 200)
         responsedata = json.loads(response.content.decode())
+
         self.assertEquals(
             responsedata['error'], "None", "there should be no errors")
         self.assertEquals(
             len(responsedata['timelines']), 1, "there should be 1 benchmark")
         self.assertEquals(
-            len(responsedata['timelines'][0]['branches']['master']),
+            len(responsedata['timelines'][0]['branches']),
             2,
-            "there should be 2 timelines")
+            "there should be 2 branches")
+        self.assertEquals(
+            len(responsedata['timelines'][0]['branches']['default']),
+            1,
+            "there should be 1 timeline for master")
         self.assertEquals(
             len(responsedata['timelines'][0]['branches']['master']['1']),
             2,
@@ -371,7 +375,7 @@ class TestReports(TestCase):
         Environment.objects.create(name='Dual Core', cpu='Core 2 Duo 8200')
         self.data = {
             'commitid': 'abcd1',
-            'branch': settings.DEF_BRANCH,
+            'branch': 'master',
             'project': 'MyProject',
             'executable': 'myexe O3 64bits',
             'benchmark': 'float',
@@ -399,3 +403,13 @@ class TestReports(TestCase):
         response = self.client.post(reverse('codespeed.views.reports'), {})
 
         self.assertEqual(response.status_code, 405)
+
+
+class TestFeeds(TestCase):
+
+    def test_latest_result_feed(self):
+        response = self.client.get(reverse('latest-results'))
+
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('<atom:link ', content)

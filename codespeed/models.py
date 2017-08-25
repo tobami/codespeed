@@ -42,6 +42,7 @@ class Project(models.Model):
     commit_browsing_url = models.CharField("Commit browsing URL",
                                            blank=True, max_length=200)
     track = models.BooleanField("Track changes", default=True)
+    default_branch = models.CharField(max_length=32)
 
     def __str__(self):
         return self.name
@@ -103,7 +104,7 @@ class HistoricalValue(object):
 
 @python_2_unicode_compatible
 class Branch(models.Model):
-    name = models.CharField(max_length=20)
+    name = models.CharField(max_length=32)
     project = models.ForeignKey(Project, related_name="branches")
 
     def __str__(self):
@@ -138,7 +139,7 @@ class Revision(models.Model):
         else:
             date = self.date.strftime("%b %d, %H:%M")
         string = " - ".join(filter(None, (date, self.commitid, self.tag)))
-        if self.branch.name != settings.DEF_BRANCH:
+        if self.branch.name != self.branch.project.default_branch:
             string += " - " + self.branch.name
         return string
 

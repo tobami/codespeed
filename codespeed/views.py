@@ -5,17 +5,18 @@ import json
 import logging
 import django
 
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import HttpResponse, Http404, HttpResponseBadRequest,\
     HttpResponseNotFound
+from django.db.models import F
 from django.shortcuts import get_object_or_404, render_to_response
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.template import RequestContext
-from django.conf import settings
-from .auth import basic_auth_required
 
+from .auth import basic_auth_required
 from .models import (Environment, Report, Project, Revision, Result,
                      Executable, Benchmark, Branch)
 from .views_data import (get_default_environment, getbaselineexecutables,
@@ -231,8 +232,18 @@ def gettimelinedata(request):
 
     timeline_list = {'error': 'None', 'timelines': []}
 
-    executables = data.get('exe', "").split(",")
-    if not filter(None, executables):
+    executable_ids = data.get('exe', '').split(',')
+
+    executables = []
+    for i in executable_ids:
+        if not i:
+            continue
+        try:
+            executables.append(Executable.objects.get(id=int(i)))
+        except Executable.DoesNotExist:
+            pass
+
+    if not executables:
         timeline_list['error'] = "No executables selected"
         return HttpResponse(json.dumps(timeline_list))
     environment = None
@@ -270,16 +281,14 @@ def gettimelinedata(request):
             'branches':              {},
             'baseline':              "None",
         }
-        # Temporary
-        trunks = []
-        if Branch.objects.filter(name=settings.DEF_BRANCH):
-            trunks.append(settings.DEF_BRANCH)
-        # For now, we'll only work with trunk branches
         append = False
-        for branch in trunks:
-            append = False
-            timeline['branches'][branch] = {}
+        for branch in Branch.objects.filter(
+                project__track=True, name=F('project__default_branch')):
+            # For now, we'll only work with default branches
             for executable in executables:
+                if executable.project != branch.project:
+                    continue
+
                 resultquery = Result.objects.filter(
                     benchmark=bench
                 ).filter(
@@ -287,12 +296,13 @@ def gettimelinedata(request):
                 ).filter(
                     executable=executable
                 ).filter(
-                    revision__branch__name=branch
+                    revision__branch=branch
                 ).select_related(
                     "revision"
                 ).order_by('-revision__date')[:number_of_revs]
                 if not len(resultquery):
                     continue
+                timeline['branches'].setdefault(branch.name, {})
 
                 results = []
                 for res in resultquery:
@@ -313,7 +323,7 @@ def gettimelinedata(request):
                             [
                                 res.revision.date.strftime('%Y/%m/%d %H:%M:%S %z'),
                                 res.value, val_max, q3, q1, val_min,
-                                res.revision.get_short_commitid(), res.revision.tag, branch
+                                res.revision.get_short_commitid(), res.revision.tag, branch.name
                             ]
                         )
                     else:
@@ -324,34 +334,37 @@ def gettimelinedata(request):
                             [
                                 res.revision.date.strftime('%Y/%m/%d %H:%M:%S %z'),
                                 res.value, std_dev,
-                                res.revision.get_short_commitid(), res.revision.tag, branch
+                                res.revision.get_short_commitid(), res.revision.tag, branch.name
                             ]
                         )
-                timeline['branches'][branch][executable] = results
+                timeline['branches'][branch.name][executable.id] = results
                 append = True
-            if baselinerev is not None and append:
-                try:
-                    baselinevalue = Result.objects.get(
-                        executable=baselineexe,
-                        benchmark=bench,
-                        revision=baselinerev,
-                        environment=environment
-                    ).value
-                except Result.DoesNotExist:
-                    timeline['baseline'] = "None"
-                else:
-                    # determine start and end revision (x axis)
-                    # from longest data series
-                    results = []
+
+        if baselinerev is not None and append:
+            try:
+                baselinevalue = Result.objects.get(
+                    executable=baselineexe,
+                    benchmark=bench,
+                    revision=baselinerev,
+                    environment=environment
+                ).value
+            except Result.DoesNotExist:
+                timeline['baseline'] = "None"
+            else:
+                # determine start and end revision (x axis)
+                # from longest data series
+                results = []
+                for branch in timeline['branches']:
                     for exe in timeline['branches'][branch]:
                         if len(timeline['branches'][branch][exe]) > len(results):
                             results = timeline['branches'][branch][exe]
-                    end = results[0][0]
-                    start = results[len(results) - 1][0]
-                    timeline['baseline'] = [
-                        [str(start), baselinevalue],
-                        [str(end), baselinevalue]
-                    ]
+                end = results[0][0]
+                start = results[len(results) - 1][0]
+                timeline['baseline'] = [
+                    [str(start), baselinevalue],
+                    [str(end), baselinevalue]
+                ]
+
         if append:
             timeline_list['timelines'].append(timeline)
 
@@ -401,8 +414,8 @@ def timeline(request):
     branch_list.sort()
 
     defaultbranch = ""
-    if settings.DEF_BRANCH in branch_list:
-        defaultbranch = settings.DEF_BRANCH
+    if defaultproject.default_branch in branch_list:
+        defaultbranch = defaultproject.default_branch
     if data.get('bran') in branch_list:
         defaultbranch = data.get('bran')
 
@@ -576,7 +589,7 @@ def changes(request):
     for proj in Project.objects.filter(track=True):
         executables[proj] = Executable.objects.filter(project=proj)
         projectlist.append(proj)
-        branch = Branch.objects.filter(name=settings.DEF_BRANCH, project=proj)
+        branch = Branch.objects.filter(name=proj.default_branch, project=proj)
         revisionlists[proj.name] = list(Revision.objects.filter(
             branch=branch
         ).order_by('-date')[:revlimit])
@@ -631,15 +644,11 @@ def reports(request):
     context = {}
 
     context['reports'] = \
-        Report.objects.filter(
-            revision__branch__name=settings.DEF_BRANCH
-        ).order_by('-revision__date')[:10]
+        Report.objects.order_by('-revision__date')[:10]
 
-    context['significant_reports'] = \
-        Report.objects.filter(
-            revision__branch__name=settings.DEF_BRANCH,
-            colorcode__in=('red', 'green')
-        ).order_by('-revision__date')[:10]
+    context['significant_reports'] = Report.objects.filter(
+        colorcode__in=('red', 'green')
+    ).order_by('-revision__date')[:10]
 
     return render_to_response('codespeed/reports.html', context,
                               context_instance=RequestContext(request))

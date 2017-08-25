@@ -9,9 +9,9 @@ urlpatterns = patterns('',
     url(r'^$', TemplateView.as_view(template_name='home.html'), name='home'),
     url(r'^about/$', TemplateView.as_view(template_name='about.html'), name='about'),
     # RSS for reports
-    url(r'^feeds/latest/$', LatestEntries(), name='latest_feeds'),
+    url(r'^feeds/latest/$', LatestEntries(), name='latest-results'),
     url(r'^feeds/latest_significant/$', LatestSignificantEntries(),
-        name='latest_significant_feeds'),
+        name='latest-significant-results'),
 )
 
 urlpatterns += patterns('codespeed.views',

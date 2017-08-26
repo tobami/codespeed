@@ -1,5 +1,10 @@
 {% load percentages %}
 
+<div id="contentnav">
+  {% if prev %}<a id="previous" href="#" data-revision="{{ prev.rev }}" data-desc="{{ prev.desc }}">← {{ prev.short_rev }}{% if prev.summary %} ({{ prev.summary }}){% endif %}</a>{% endif %}
+  {% if next %}<a id="next" href="#" data-revision="{{ next.rev }}" data-desc="{{ next.desc }}">{{ next.short_rev }}{% if next.summary %} ({{ next.summary }}){% endif %} →</a>{% endif %}
+</div>
+
 {% for units in tablelist %}
 <table class="tablesorter" data-lessisbetter="{{ units.lessisbetter }}">
 <thead>

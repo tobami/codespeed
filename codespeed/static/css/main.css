@@ -165,6 +165,18 @@ div#configbar span.options {
     padding-right: 1.8em; font-size: 90%; white-space: nowrap; }
 div#configbar input { margin-right: 0; vertical-align: middle; }
 
+div#contentnav a {
+    font-size: small;
+    padding-bottom: 0.25em;
+}
+div#contentnav a:hover { text-decoration: underline; }
+div#contentnav #previous {
+    float: left;
+}
+div#contentnav #next {
+    float: right;
+}
+
 div#content, div.about_content {
     margin-left: 14.5em;
     text-align: center;

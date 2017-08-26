@@ -5,10 +5,10 @@ var TIMELINE_URL = window.TIMELINE_URL, getLoadText = window.getLoadText;
 
 var currentproject, changethres, trendthres, projectmatrix, revisionboxes = {};
 
-function getConfiguration() {
+function getConfiguration(revision) {
     return {
         tre: $("#trend option:selected").val(),
-        rev: $("#revision option:selected").val(),
+        rev: revision || $("#revision option:selected").val(),
         exe: $("input[name='executable']:checked").val(),
         env: $("input[name='environment']:checked").val()
     };
@@ -66,14 +66,40 @@ function updateTable() {
 
     //Configure table as tablesorter
     $(".tablesorter").tablesorter({widgets: ['zebra']});
+
+    // Set prev and next links
+    $("#previous").click(function() {
+        refreshContentRev(
+            $("#previous").data("revision"),
+            $("#previous").data("desc")
+        );
+    });
+    $("#next").click(function() {
+        refreshContentRev(
+            $("#next").data("revision"),
+            $("#next").data("desc")
+        );
+    });
 }
 
 function refreshContent() {
+    refreshContentTable($("#revision option:selected").val());
+}
+
+function refreshContentRev(revision, desc) {
+    if ($('#revision option[value='+revision+']').length == 0) {
+        $("#revision").append($("<option value='" + revision + "'>" + desc + "</option>"));
+    }
+    $("#revision").val(revision);
+    refreshContentTable(revision);
+}
+
+function refreshContentTable(revision) {
     var h = $("#content").height();//get height for loading text
     $("#contentwrap").fadeOut("fast", function() {
         $(this).show();
         $(this).html(getLoadText("Loading...", h));
-        $(this).load("table/", $.param(getConfiguration()), function() { updateTable(); });
+        $(this).load("table/", $.param(getConfiguration(revision)), function() { updateTable(); });
     });
 }
 

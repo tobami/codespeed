@@ -466,6 +466,10 @@ def timeline(request):
         defaultequid = data['equid']
     else:
         defaultequid = "off"
+    if 'error' in data:
+        defaulterr = data['error']
+    else:
+        defaulterr = "on"
     if 'quarts' in data:
         defaultquarts = data['quarts']
     else:
@@ -484,6 +488,7 @@ def timeline(request):
     executables = {}
     for proj in Project.objects.filter(track=True):
         executables[proj] = Executable.objects.filter(project=proj)
+    use_error_bars = hasattr(settings, 'USE_ERROR_BARS') and settings.USE_ERROR_BARS
     use_median_bands = hasattr(settings, 'USE_MEDIAN_BANDS') and settings.USE_MEDIAN_BANDS
     return render_to_response('codespeed/timeline.html', {
         'pagedesc': pagedesc,
@@ -500,8 +505,10 @@ def timeline(request):
         'branch_list': branch_list,
         'defaultbranch': defaultbranch,
         'defaultequid': defaultequid,
+        'defaulterr': defaulterr,
         'defaultquarts': defaultquarts,
         'defaultextr': defaultextr,
+        'use_error_bars': use_error_bars,
         'use_median_bands': use_median_bands,
     }, context_instance=RequestContext(request))
 

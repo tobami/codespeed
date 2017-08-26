@@ -63,6 +63,7 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
 
+USE_ERROR_BARS = True # True to enable error bars on Timeline view
 USE_MEDIAN_BANDS = True # True to enable median bands on Timeline view
 
 

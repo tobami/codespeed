@@ -165,7 +165,16 @@ function renderPlot(data) {
         digits++;
       }
     }
-    $("#plotgrid").html('<div id="plot"></div><div id="plotdescription"></div>');
+    $("#plotgrid").html('<div id="plot"></div><div class="plotpng"><a id="pnglink" href="#">PNG</a></div><div id="plotdescription"></div>');
+
+    $("#pnglink").click(function() {
+      var string = $("#plot").jqplotToImageStr();
+      var iframe = "<iframe width='100%' height='100%' src='" + string + "'></iframe>"
+      var x = window.open();
+      x.document.open();
+      x.document.write(iframe);
+      x.document.close();
+    });
 
     if (data.benchmark_description) {
       $("#plotdescription").html('<p class="note"><i>' + data.benchmark + '</i>: ' + data.benchmark_description + '</p>');

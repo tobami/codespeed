@@ -1,3 +1,6 @@
 select#baseline {
     width: 100%;
 }
+div#plotdescription {
+    margin-right: 55px;
+}

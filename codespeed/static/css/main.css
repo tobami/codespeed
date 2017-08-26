@@ -496,6 +496,22 @@ p.note {
     background-image: url(../images/note.png);
 }
 
+div.plotpng a {
+    background-color: #F1F1F1;
+    background-repeat: no-repeat;
+    background-position: 3px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    -moz-box-shadow: 3px 3px 3px #888;
+    -webkit-box-shadow: 3px 3px 3px #888;
+    box-shadow: 3px 3px 3px #888;
+    float: right;
+    margin-top: 20px;
+    padding: 1em;
+    text-decoration: underline;
+}
+
 div.footer{
     color: white;
     font-size: small;

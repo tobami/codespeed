@@ -1,11 +1,26 @@
 == Change Log ==
 
+=== Version 0.12.0, November 11, 2017 ===
+* NEW #230: Added support for Django 1.11
+* NEW #226: Added previous and next commit navigation to the changes view
+* NEW #228: Customise the meta description to describe the URL
+* NEW #224: Default banch is now configured in db, per project
+* NEW #221: Added support for Django 1.9
+* NEW #214: Added optional http basic authentication to results API calls
+* NEW #209: Addeds the 'makeimage' service
+* NEW #207: Commit tag saving features
+* FIX #219: Made git tag identification more conservative
+* FIX #212: Improved py3 compat by adding b'' literals
+* FIX #212: Fix git tag error
+
+
 === Version 0.11.0, July 31, 2016 ===
 * NEW #191: Django 1.7 and 1.8 support
 * NEW #192: Initial Python 3.4 support
 * NEW #199: str4d upgraded all javascript libraries. Most importantly jqPlot to 1.0.9 and jQuery to 1.12.3
 * NEW #203: str4d implemented displaying of quartile and extrema bands on median benchmarks
 * NEW #205: javierhonduco gave the application a more modern look
+
 
 === Version 0.10.1, November 1, 2015 ===
 * NEW #169: nomeata added admin action to recalculate reports
@@ -41,7 +56,7 @@
 * NEW: Upgraded to jQuery 1.6
 * NEW #44: Stefan added an option to the timeline view for equidistant data point plotting
 * NEW: Permalinks are now id based for Environment, to shorten the length and avoid problems related to url encoding, as well as to allow changing the name without beaking the permalink
-* FIX: Frank added a check for revision_date = "None" (as string), caused by the 
+* FIX: Frank added a check for revision_date = "None" (as string), caused by the
     save_single_result.py sample script
 
 
@@ -52,7 +67,7 @@
 * NEW #45: Stefan Marr added support for browser-button navigation on timeline
 * FIX: Stefan Marr improved the GitHub plugin
 * FIX: Improvements in the Changes View layout that prevent overlapping in some cases
-* FIX: Stefan Marr fixed a bug where links to a changes view revision from the 
+* FIX: Stefan Marr fixed a bug where links to a changes view revision from the
     timeline view would not work because they used short commit ids
 * FIX: Stefan Marr prevented some infinite loops caused when results were equal or less than 0
 
@@ -110,7 +125,7 @@ Bug fix release
     - Fix benchmark/legend ordering
     - Improve error messages
     - Issue correctness warning for normalized stacked bars.
-    
+
 * Known bugs:
     - There are several bugs in the comparison view related to the plotting library jqplot
     - Bad autoscaling under some circumstancies. Issue#199 (http://bitbucket.org/cleonello/jqplot/issue/199/autoscale-breaks-negative-values)

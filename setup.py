@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='codespeed',
-    version='0.11.0',
+    version='0.12.0',
     author='Miquel Torres',
     author_email='tobami@gmail.com',
     url='https://github.com/tobami/codespeed',

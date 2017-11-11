@@ -9,7 +9,7 @@ setup(
     download_url="https://github.com/tobami/codespeed/tags",
     license='GNU Lesser General Public License version 2.1',
     keywords=['benchmarking', 'visualization'],
-    install_requires=['django>=1.6,<1.10', 'isodate>=0.4.7,<0.6', 'matplotlib>=1.4.3,<2.0'],
+    install_requires=['django>=1.8,<2.0', 'isodate>=0.4.7,<0.6', 'matplotlib>=1.4.3,<2.0'],
     packages=find_packages(exclude=['ez_setup', 'sample_project']),
     setup_requires=['setuptools-markdown'],
     long_description_markdown_filename='README.md',

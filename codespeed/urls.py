@@ -29,6 +29,6 @@ urlpatterns += [
 
 urlpatterns += [
     # URLs for adding results
-    url(r'^result/add/json/$', views.add_json_results),
-    url(r'^result/add/$', views.add_result),
+    url(r'^result/add/json/$', views.add_json_results, name='add-json-results'),
+    url(r'^result/add/$', views.add_result, name='add-result'),
 ]

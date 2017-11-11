@@ -702,8 +702,7 @@ def reports(request):
         colorcode__in=('red', 'green')
     ).order_by('-revision__date')[:10]
 
-    return render_to_response('codespeed/reports.html', context,
-                              context_instance=RequestContext(request))
+    return render_to_response('codespeed/reports.html', context)
 
 
 @require_GET

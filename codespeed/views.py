@@ -14,7 +14,6 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404, render_to_response
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.template import RequestContext
 
 from .auth import basic_auth_required
 from .models import (Environment, Report, Project, Revision, Result,
@@ -36,7 +35,7 @@ def no_environment_error(request):
         'message': ('You need to configure at least one Environment. '
                     'Please go to the '
                     '<a href="%s">admin interface</a>' % admin_url)
-    }, context_instance=RequestContext(request))
+    })
 
 
 def no_default_project_error(request):
@@ -46,19 +45,19 @@ def no_default_project_error(request):
                     'default (checked "Track changes" field).<br />'
                     'Please go to the '
                     '<a href="%s">admin interface</a>' % admin_url)
-    }, context_instance=RequestContext(request))
+    })
 
 
 def no_executables_error(request):
     return render_to_response('codespeed/nodata.html', {
         'message': 'There needs to be at least one executable'
-    }, context_instance=RequestContext(request))
+    })
 
 
 def no_data_found(request):
     return render_to_response('codespeed/nodata.html', {
         'message': 'No data found'
-    }, context_instance=RequestContext(request))
+    })
 
 
 @require_GET
@@ -223,7 +222,7 @@ def comparison(request):
         'selectedbaseline': selectedbaseline,
         'selectedchart': selectedchart,
         'selecteddirection': selecteddirection
-    }, context_instance=RequestContext(request))
+    })
 
 
 @require_GET
@@ -503,7 +502,7 @@ def timeline(request):
         'defaultquarts': defaultquarts,
         'defaultextr': defaultextr,
         'use_median_bands': use_median_bands,
-    }, context_instance=RequestContext(request))
+    })
 
 
 @require_GET
@@ -577,7 +576,7 @@ def getchangestable(request):
         'env': environment,
         'prev': prevrev,
         'next': nextrev,
-    }, context_instance=RequestContext(request))
+    })
 
 
 @require_GET
@@ -688,7 +687,7 @@ def changes(request):
         'projectmatrix': projectmatrix,
         'revisionlists': revisionlists,
         'trends': trends,
-    }, context_instance=RequestContext(request))
+    })
 
 
 @require_GET
@@ -702,8 +701,7 @@ def reports(request):
         colorcode__in=('red', 'green')
     ).order_by('-revision__date')[:10]
 
-    return render_to_response('codespeed/reports.html', context,
-                              context_instance=RequestContext(request))
+    return render_to_response('codespeed/reports.html', context)
 
 
 @require_GET
@@ -753,8 +751,7 @@ def displaylogs(request):
         {
             'error': error, 'logs': logs,
             'show_email_address': settings.SHOW_AUTHOR_EMAIL_ADDRESS
-        },
-        context_instance=RequestContext(request))
+        })
 
 
 @csrf_exempt

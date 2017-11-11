@@ -1,10 +1,12 @@
 {% extends "codespeed/base_site.html" %}
 
+{% load static %}
+
 {% block title %}{{ block.super }}: Comparison{% endblock %}
 
 {% block extra_head %}
 {{ block.super }}
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/jqplot/jquery.jqplot.min.css" />
+<link rel="stylesheet" type="text/css" href="{% static 'js/jqplot/jquery.jqplot.min.css' %}" />
 {% endblock %}
 
 {% block navigation %}
@@ -80,14 +82,14 @@
 
 {% block extra_body %}
 {{ block.super }}
-<!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqplot/excanvas.min.js"></script><![endif]-->
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jquery.jqplot.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.barRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisTickRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/comparison.js"></script>
+<!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{% static 'js/jqplot/excanvas.min.js' %}"></script><![endif]-->
+<script type="text/javascript" src="{% static 'js/jqplot/jquery.jqplot.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jqplot/jqplot.barRenderer.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jqplot/jqplot.categoryAxisRenderer.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jqplot/jqplot.canvasTextRenderer.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jqplot/jqplot.canvasAxisTickRenderer.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jqplot/jqplot.canvasAxisLabelRenderer.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/comparison.js' %}"></script>
 
 <script type="text/javascript">
   $(function() {

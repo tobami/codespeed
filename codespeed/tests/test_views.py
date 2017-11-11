@@ -333,6 +333,13 @@ class TestTimeline(TestCase):
         results = benchmarks[0].results.all()
         self.assertEquals(len(results), 8)
 
+    def test_timeline(self):
+        path = reverse('timeline')
+        response = self.client.get(path)
+        self.assertEquals(response.status_code, 200)
+        responsedata = response.content.decode()
+        self.assertIn('My Own Title\n: Timeline', responsedata)
+
     def test_gettimelinedata(self):
         """Test that gettimelinedata returns correct timeline data
         """

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html>
   <head>
@@ -5,7 +6,7 @@
     <meta name="description" content="{% block description %}A performance analysis tool for software projects. It shows performance regresions and allows comparing different applications or implementations{% endblock %}">
     <meta name="keywords" content="performance, test, plots, charts">
     <meta charset="UTF-8">
-    <link href="{{ STATIC_URL }}css/main.css" rel="stylesheet" type="text/css">
+    <link href="{% static 'css/main.css' %}" rel="stylesheet" type="text/css">
     {% block extra_head %}{% endblock %}
   </head>
   <body>
@@ -15,7 +16,7 @@
         {% block page_header %}
         <a href="{% url 'home' %}">
           {% block logo %}
-            <img src="{{ STATIC_URL }}images/logo.png" height="48" alt="logo"/>
+            <img src="{% static 'images/logo.png' %}" height="48" alt="logo"/>
           {% endblock logo %}
           </a>
           <h2>{% block page_title %}SPEED CENTER{% endblock page_title %}</h2>
@@ -48,11 +49,8 @@
 {% endblock %}
 </div>
 
-  <script type='text/javascript'>
-    var STATIC_URL = '{{ STATIC_URL }}';
-  </script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.12.3.min.js"></script>
-  <script type="text/javascript" src="{{ STATIC_URL }}js/codespeed.js"></script>
+  <script type="text/javascript" src="{% static 'js/jquery-1.12.3.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/codespeed.js' %}"></script>
   {% block extra_body %}{% endblock %}
 </body>
 </html>

@@ -1,5 +1,7 @@
 {% extends "codespeed/base_site.html" %}
 
+{% load static %}
+
 {% block title %}{{ block.super }}: Changes{% endblock %}
 {% block description %}{% if pagedesc %}{{ pagedesc }}{% else %}{{ block.super }}{% endif %}{% endblock %}
 
@@ -65,8 +67,8 @@
 
 {% block extra_body %}
 {{ block.super }}
-<script type="text/javascript" src="{{ STATIC_URL }}js/jquery.tablesorter.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/changes.js"></script>
+<script type="text/javascript" src="{% static 'js/jquery.tablesorter.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/changes.js' %}"></script>
 <script type="text/javascript">
     var TIMELINE_URL = "{% url "timeline" %}";
 

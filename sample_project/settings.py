@@ -66,7 +66,6 @@ TEMPLATES = [
     },
 ]
 
-
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -77,11 +76,13 @@ INSTALLED_APPS = (
     'codespeed',
 )
 
+
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASEDIR, "sitestatic")
 STATICFILES_DIRS = (
     os.path.join(BASEDIR, 'static'),
 )
+
 
 # Codespeed settings that can be overwritten here.
 from codespeed.settings import *

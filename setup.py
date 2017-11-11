@@ -11,6 +11,8 @@ setup(
     keywords=['benchmarking', 'visualization'],
     install_requires=['django>=1.6,<1.10', 'isodate>=0.4.7,<0.6', 'matplotlib>=1.4.3,<2.0'],
     packages=find_packages(exclude=['ez_setup', 'sample_project']),
+    setup_requires=['setuptools-markdown'],
+    long_description_markdown_filename='README.md',
     description='A web application to monitor and analyze the performance of your code',
     include_package_data=True,
     zip_safe=False,

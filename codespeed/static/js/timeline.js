@@ -95,10 +95,20 @@ function getHighlighterConfig(median) {
   }
 }
 
+function determineSignificantDigits(value, digits) {
+  var val = Math.abs(value);
+
+  while (val < 1) {
+    val *= 10;
+    digits++;
+  }
+  return digits;
+}
+
 function renderPlot(data) {
   var plotdata = [],
       series = [],
-      lastvalues = [];//hopefully the smallest values for determining significant digits.
+      smallestValue = Number.MAX_SAFE_INTEGER; // hopefully the smallest values for determining significant digits.
   seriesindex = [];
   var hiddenSeries = 0;
   var median = data['data_type'] === 'M';
@@ -154,17 +164,17 @@ function renderPlot(data) {
       series.push(seriesConfig);
       seriesindex.push(exe_id);
       plotdata.push(data.branches[branch][exe_id]);
-      lastvalues.push(data.branches[branch][exe_id][0][1]);
-    }
-    //determine significant digits
-    var digits = 2;
-    var value = Math.min.apply( Math, lastvalues );
-    if (value !== 0) {
-      while( value < 1 ) {
-        value *= 10;
-        digits++;
+
+      // determine smallest non-negative value in lastvalues
+      // (missing values can be represented as -1)
+      var val = data.branches[branch][exe_id][0][1];
+      if (val > 0 && val < smallestValue) {
+        smallestValue = val;
       }
     }
+
+    var digits = determineSignificantDigits(smallestValue, 2);
+
     $("#plotgrid").html('<div id="plot"></div><div id="plotdescription"></div>');
 
     if (data.benchmark_description) {

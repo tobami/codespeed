@@ -4,25 +4,25 @@
 
 === Projects, revisions, branches and tags ===
 
-A **project** is a software project that has a version control repository. Within that repository will be multiple **branch**es, each of which contains a sequence of **revision**s.
+A '''project''' is a software project that has a version control repository. Within that repository will be multiple '''branches''', each of which contains a sequence of '''revisions'''.
 
-An **executable** is a compilation of a **project**, which benchmarks are run against. The concept of executables historically comes from testing multiple implementations of Python - CPython, PyPy, etc. In that context, there were multiple executables that had been compiled from different projects (cpython/pypy), with different versions (cpython 2.6.2, pypy 1.3, 1.4, 1.5, latest) and different compilation options (cpython can optionally use psyco-profile, pypy can optionally use a jit). Each of these executables were meant to be interchangeable...
+An '''executable''' is a compilation of a '''project''', which benchmarks are run against. The concept of executables historically comes from testing multiple implementations of Python - CPython, PyPy, etc. In that context, there were multiple executables that had been compiled from different projects (cpython/pypy), with different versions (cpython 2.6.2, pypy 1.3, 1.4, 1.5, latest) and different compilation options (cpython can optionally use psyco-profile, pypy can optionally use a jit). Each of these executables were meant to be interchangeable...
 
-Certain **revision**s can optionally be given a **tag**. They then make the results from the executables of their project available as baselines to compare other results against on the timeline and comparison screens.
+Certain '''revisions''' can optionally be given a '''tag'''. They then make the results from the executables of their project available as baselines to compare other results against on the timeline and comparison screens.
 
 === Benchmarks ===
 
-A **benchmark** is a particular test that returns a metric on performance. The benchmark specifies the units of that metric, and whether //less is better// (e.g. for time, a lower number of seconds is usually optimal), or not (e.g. for throughput). Benchmarks come in two kinds: //cross-project// and //own-project//. Only cross-project benchmarks are shown on the comparison screen.
+A '''benchmark''' is a particular test that returns a metric on performance. The benchmark specifies the units of that metric, and whether //less is better// (e.g. for time, a lower number of seconds is usually optimal), or not (e.g. for throughput). Benchmarks come in two kinds: //cross-project// and //own-project//. Only cross-project benchmarks are shown on the comparison screen.
 
 === Environment ===
 
-An **environment** is a particular context in which tests are executed - a machine with a given CPU, operating system, and speed. Recording this is significant to ensure that comparison between results is meaningful.
+An '''environment''' is a particular context in which tests are executed - a machine with a given CPU, operating system, and speed. Recording this is significant to ensure that comparison between results is meaningful.
 
 === Results ===
 
-The **result**s of running a particular **benchmark** in a particular **environment**, on an **executable** compiled from a particular **revision** of a **project**, are uploaded to the server. Each **result** must have a //value//, and can optionally also have a //minimum//, //maximum//, and //standard deviation//.
+The '''results''' of running a particular '''benchmark''' in a particular '''environment''', on an '''executable''' compiled from a particular '''revision''' of a '''project''', are uploaded to the server. Each '''result''' must have a //value//, and can optionally also have a //minimum//, //maximum//, and //standard deviation//.
 
-**Result**s are grouped into **report**s that cover all the benchmarks on a particular revision and executable.
+'''Results''' are grouped into '''reports''' that cover all the benchmarks on a particular revision and executable.
 
 == Screens ==
 

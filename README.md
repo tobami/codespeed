@@ -36,7 +36,10 @@ can take a long time. Please be patient.
 
         python manage.py migrate
 
-* Create an admin user in the process.
+* Create an admin user:
+
+        python manage.py createsuperuser
+
 * For testing purposes, you can now start the development server:
 
         python manage.py runserver 8000

@@ -9,7 +9,8 @@
             "repo_user": "", 
             "track": true, 
             "repo_pass": "", 
-            "repo_path": ""
+            "repo_path": "",
+            "default_branch": "default"
         }
     }, 
     {
@@ -22,7 +23,8 @@
             "repo_user": "", 
             "track": true, 
             "repo_pass": "", 
-            "repo_path": ""
+            "repo_path": "",
+            "default_branch": "default"
         }
     }, 
     {
@@ -35,7 +37,8 @@
             "repo_user": "", 
             "track": false, 
             "repo_pass": "", 
-            "repo_path": ""
+            "repo_path": "",
+            "default_branch": "default"
         }
     }, 
     {

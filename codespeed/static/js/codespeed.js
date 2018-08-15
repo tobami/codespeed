@@ -28,7 +28,7 @@ $(function() {
     $('.checkall').each(function() {
         var inputs = $(this).parent().children("li").children("input");
         $(this).click(function() {
-            inputs.attr("checked", true);
+            inputs.prop("checked", true);
             return false;
         });
     });
@@ -36,7 +36,7 @@ $(function() {
     $('.uncheckall').each(function() {
         var inputs = $(this).parent().children("li").children("input");
         $(this).click(function() {
-            inputs.attr("checked", false);
+            inputs.prop("checked", false);
             return false;
         });
     });

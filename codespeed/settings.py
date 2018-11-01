@@ -40,6 +40,11 @@ DEF_BENCHMARK = None   # Default selected benchmark. Possible values:
 DEF_TIMELINE_LIMIT = 50  # Default number of revisions to be plotted
                          # Possible values 10,50,200,1000
 
+TIMELINE_GRID_LIMIT = 30  # Number of benchmarks beyond which the timeline view
+                          # is disabled as default setting. Too many benchmarks make
+                          # the view slow, and put load on the database, which may be
+                          # undeseriable.
+
 #TIMELINE_BRANCHES = True # NOTE: Only the default branch is currently shown
                          # Get timeline results for specific branches
                          # Set to False if you want timeline plots and results only for trunk.

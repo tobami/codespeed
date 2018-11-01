@@ -224,6 +224,12 @@ def comparison(request):
         'selecteddirection': selecteddirection
     })
 
+def get_setting(name, default = None):
+    if hasattr(settings, name):
+        return getattr(settings, name)
+    else:
+        return default
+
 
 @require_GET
 def gettimelinedata(request):
@@ -442,7 +448,7 @@ def timeline(request):
         defaultlast = data['revs']
 
     benchmarks = Benchmark.objects.all()
-    grid_limit = 30
+
     defaultbenchmark = "grid"
     if not len(benchmarks):
         return no_data_found(request)
@@ -457,7 +463,7 @@ def timeline(request):
                     name=settings.DEF_BENCHMARK)
             except Benchmark.DoesNotExist:
                 pass
-    elif len(benchmarks) >= grid_limit:
+    elif len(benchmarks) >= get_setting('TIMELINE_GRID_LIMIT', 30):
         defaultbenchmark = 'show_none'
 
     if 'ben' in data and data['ben'] != defaultbenchmark:

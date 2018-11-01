@@ -353,7 +353,7 @@ class TestTimeline(TestCase):
         }
         response = self.client.get(path, data)
         self.assertEquals(response.status_code, 200)
-        responsedata = json.loads(response.content.decode())
+        responsedata = json.loads(response.getvalue().decode())
 
         self.assertEquals(
             responsedata['error'], "None", "there should be no errors")

@@ -291,7 +291,9 @@ function render(data) {
   $("#revisions").attr("disabled", false);
   $("#equidistant").attr("disabled", false);
   $("span.options.median").css("display", "none");
-  $("#plotgrid").html("");
+  if (data.first !== false) {
+    $("#plotgrid").html("");
+  }
   if(data.error !== "None") {
     var h = $("#content").height();//get height for error message
     $("#plotgrid").html(getLoadText(data.error, h));
@@ -299,10 +301,16 @@ function render(data) {
   } else if ($("input[name='benchmark']:checked").val() === "show_none") {
     var h = $("#content").height();//get height for error message
     $("#plotgrid").html(getLoadText("Please select a benchmark on the left", h));
-  } else if (data.timelines.length === 0) {
+  } else if (data.timelines.length === 0 && data.first !== false) {
     var h = $("#content").height();//get height for error message
     $("#plotgrid").html(getLoadText("No data available", h));
-  } else if ($("input[name='benchmark']:checked").val() === "grid"){
+  } else if ($("input[name='benchmark']:checked").val() === "grid") {
+    if (data.nextBenchmarks !== false) {
+      var config = getConfiguration();
+      config.nextBenchmarks = data.nextBenchmarks;
+      $.getJSON("json/", config, render);
+    }
+
     //Render Grid of plots
     $("#revisions").attr("disabled",true);
     $("#equidistant").attr("disabled", true);

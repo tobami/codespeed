@@ -20,7 +20,8 @@ from .models import (Environment, Report, Project, Revision, Result,
                      Executable, Benchmark, Branch)
 from .views_data import (get_default_environment, getbaselineexecutables,
                          getdefaultexecutable, getcomparisonexes,
-                         get_benchmark_results)
+                         get_benchmark_results, get_num_revs_and_benchmarks,
+                         get_stats_with_defaults)
 from .results import save_result, create_report_if_enough_data
 from . import commits
 from .validators import validate_results_request
@@ -411,35 +412,6 @@ def get_timeline_for_benchmark(baseline_exe, baseline_rev, bench, environment, e
             return json_str
     else:
         return ""
-
-
-def get_num_revs_and_benchmarks(data):
-    if data['ben'] == 'grid':
-        benchmarks = Benchmark.objects.all().order_by('name')
-        number_of_revs = 15
-    elif data['ben'] == 'show_none':
-        benchmarks = []
-        number_of_revs = int(data.get('revs', 10))
-    else:
-        benchmarks = [get_object_or_404(Benchmark, name=data['ben'])]
-        number_of_revs = int(data.get('revs', 10))
-    return number_of_revs, benchmarks
-
-
-def get_stats_with_defaults(res):
-    val_min = ""
-    if res.val_min is not None:
-        val_min = res.val_min
-    val_max = ""
-    if res.val_max is not None:
-        val_max = res.val_max
-    q1 = ""
-    if res.q1 is not None:
-        q1 = res.q1
-    q3 = ""
-    if res.q3 is not None:
-        q3 = res.q3
-    return q1, q3, val_max, val_min
 
 
 @require_GET

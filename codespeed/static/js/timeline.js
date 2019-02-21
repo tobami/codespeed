@@ -116,7 +116,7 @@ function renderPlot(data) {
     // NOTE: Currently, only the "default" branch is shown in the timeline
     for (var exe_id in data.branches[branch]) {
       // FIXME if (branch !== "default") { label += " - " + branch; }
-      var label = $("label[for*='executable" + exe_id + "']").html();
+      var label = $("label[for*='executable" + exe_id + "']").text()+" on '"+branch+"'";
       var seriesConfig = {
         label: label,
         color: getColor(exe_id)

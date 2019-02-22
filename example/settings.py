@@ -175,3 +175,5 @@ COMP_EXECUTABLES = [('pypy-c-jit', 'L'), ('pypy-c', 'L')]  # Which executable + 
 #DEF_BRANCH = "default" # Defines the default branch to be used.
                        # In git projects, this branch is usually be calles
                        # "master"
+
+from .local_settings import *

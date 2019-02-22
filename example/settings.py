@@ -176,4 +176,4 @@ COMP_EXECUTABLES = [('pypy-c-jit', 'L'), ('pypy-c', 'L')]  # Which executable + 
                        # In git projects, this branch is usually be calles
                        # "master"
 
-from .local_settings import *
+from local_settings import *

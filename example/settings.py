@@ -172,3 +172,4 @@ COMP_EXECUTABLES = [('pypy-c-jit', 'L'), ('pypy-c', 'L')]  # Which executable + 
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
 
+from .local_settings import *

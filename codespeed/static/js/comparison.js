@@ -135,6 +135,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                     benchcounter++;
                     barcounter++;
                     var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
+                    var tooltip = val;
                     if (val !== null) {
                         if (baseline !== "none") {
                             var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
@@ -147,13 +148,14 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                                     val = -val;
                                 }
                             }
+                            tooltip += " (" + Number(val).toPrecision(4) + ")";
                         }
                     }
-                    //Add data
+                    // Add data
                     if (!horizontal) {
-                        customdata.push(val);
+                        customdata.push([benchcounter, val, tooltip]);
                     } else {
-                        customdata.push([val, benchcounter]);
+                        customdata.push([val, benchcounter, tooltip]);
                     }
                 }
                 plotdata.push(customdata);
@@ -181,6 +183,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                     var exe = $("label[for='exe_" + exes[i] + "']").text();
                     var env = $("label[for='env_" + enviros[j] + "']").text();
                     var val = compdata[exes[i]][enviros[j]][benchmarks[b]];
+                    var tooltip = val;
                     if (val !== null) {
                         if (baseline !== "none") {
                             var baseval = compdata[baseline][enviros[j]][benchmarks[b]];
@@ -194,12 +197,13 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
                                 baseline_is_empty = false;
                                 val = val / baseval;
                             }
+                            tooltip += " (" + Number(val).toPrecision(4) + ")";
                         }
                     }
                     if (!horizontal) {
-                        customdata.push(val);
+                        customdata.push([benchcounter, val, tooltip]);
                     } else {
-                        customdata.push([val, benchcounter]);
+                        customdata.push([val, benchcounter, tooltip]);
                     }
                 }
             }
@@ -370,6 +374,16 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
         plotoptions.seriesDefaults.useNegativeColors = false;
     }
 
+    // setup tooltip
+    plotoptions.highlighter = {
+        show: true, 
+        showMarker: false,
+        tooltipContentEditor: function(str, seriesIndex, pointIndex, plot) {
+            var pointValue = plot.data[seriesIndex][pointIndex];
+            return plot.series[seriesIndex]["label"] + ": " + pointValue[2];
+        }
+    };
+
     // check that legend does not overflow
     if (series.length > 14) {
         if (!horizontal || (series.length > ticks.length)) {
@@ -385,6 +399,7 @@ function renderComparisonPlot(plotid, benchmarks, exes, enviros, baseline, chart
     $("#" + plotid).css('height', h);
     $.jqplot(plotid, plotdata, plotoptions);
 }
+
 
 function init(defaults) {
     bench_units = defaults.bench_units;

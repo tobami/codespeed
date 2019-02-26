@@ -687,12 +687,13 @@ def changes(request):
     if not len(lastrevisions):
         return no_data_found(request)
     selectedrevision = lastrevisions[0]
+    defaultbranch = selectedrevision.branch # set default branch
 
     if "rev" in data:
         commitid = data['rev']
         try:
             selectedrevision = Revision.objects.get(
-                commitid__startswith=commitid, branch=branch
+                commitid__startswith=commitid, branch=defaultbranch
             )
             if selectedrevision not in revisionlists[selectedrevision.project.name]:
                 revisionlists[selectedrevision.project.name].append(selectedrevision)

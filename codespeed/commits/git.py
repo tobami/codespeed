@@ -46,7 +46,7 @@ def getlogs(endrev, startrev):
     cmd = ["git", "log",
            # NULL separated values delimited by 0x1e record separators
            # See PRETTY FORMATS in git-log(1):
-           '--format=format:%h%x00%H%x00%at%x00%an%x00%ae%x00%s%x00%b%x1e']
+           '--format=format:%h%x00%H%x00%ct%x00%an%x00%ae%x00%s%x00%b%x1e']
 
     if endrev.commitid != startrev.commitid:
         cmd.append("%s...%s" % (startrev.commitid, endrev.commitid))

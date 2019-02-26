@@ -210,7 +210,7 @@ function renderPlot(data) {
         renderer: (shouldPlotEquidistant()) ? $.jqplot.CategoryAxisRenderer : $.jqplot.DateAxisRenderer,
         label: 'Commit date',
         labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
-        tickOptions: {formatString:'%b %d'},
+        tickOptions: {formatString:'%v'},
         pad: 1.01,
         autoscale: true,
         rendererOptions: {sortMergedLabels:true} /* only relevant when

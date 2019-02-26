@@ -25,7 +25,7 @@
     {% if units.hasmin %}<td></td>
     {% endif%}{% if units.has_stddev %}<td>{{ units.totals.min }}</td>
     {% endif%}{% if units.hasmax %}<td>{{ units.totals.max }}</td>
-    {% endif%}<td>{{ units.totals.change|percentage }}</td>
+    {% endif%}<td>{% ifnotequal units.totals.change "-" %}{{ units.totals.change|floatformat:2 }}%{% else %}{{ units.totals.change }}{% endifnotequal %}</td>
     <td>{% ifnotequal units.totals.trend "-" %}{{ units.totals.trend|floatformat:2 }}%{% else %}{{ units.totals.trend }}{% endifnotequal %}</td>
   </tr>
 </tfoot>
@@ -37,8 +37,8 @@
     {% if units.has_stddev %}<td>{{ row.std_dev|floatformat:units.precission }}</td>
     {% endif%}{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>
     {% endif%}{% if units.hasmax %}<td>{{ row.val_max|floatformat:units.precission }}</td>
-    {% endif%}<td>{{ row.change|percentage }}</td>
-    <td>{% ifequal row.trend "-" %}-{% else %}{{ row.trend|floatformat:2 }}%{% endifequal %}</td>
+    {% endif%}<td>{% ifequal row.change "-" %}-{% else %}{{ row.change|percentage }}%{% endifequal %}</td>
+    <td>{% ifequal row.trend "-" %}-{% else %}{{ row.trend|percentage }}%{% endifequal %}</td>
   </tr>{% endfor %}
 </tbody>
 </table>{% endfor %}

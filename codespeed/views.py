@@ -127,7 +127,6 @@ def comparison(request):
                 else:
                     rev = Revision.objects.get(commitid=rev)
                     key += str(rev.id)
-                key += "+default"
                 if key in exekeys:
                     checkedexecutables.append(key)
                 else:
@@ -139,7 +138,7 @@ def comparison(request):
             except Revision.DoesNotExist:
                 #TODO: log
                 pass
-    if not checkedexecutables:
+    else:
         checkedexecutables = exekeys
 
     units_titles = Benchmark.objects.filter(

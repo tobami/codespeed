@@ -33,7 +33,7 @@ def get_default_environment(enviros, data, multi=False):
             if not multi:
                 break
     # Use settings.py value
-    if not defaultenviros and not multi:
+    if not defaultenviros:
         if (hasattr(settings, 'DEF_ENVIRONMENT') and
                 settings.DEF_ENVIRONMENT is not None):
             for env in enviros:

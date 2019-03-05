@@ -133,6 +133,9 @@ class Revision(models.Model):
     def get_browsing_url(self):
         return self.branch.project.commit_browsing_url.format(**self.__dict__)
 
+    def get_full_time_string(self):
+        return self.date.strftime('%d-%b-%y %H:%M:%S')
+
     def __str__(self):
         if self.date is None:
             date = None

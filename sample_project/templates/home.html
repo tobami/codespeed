@@ -24,6 +24,7 @@
         </div>
     </a>
     <br />
+    <div id="status"></div>
     <div id="reports"></div>
 </div>
 {% endblock body %}
@@ -54,6 +55,14 @@
     $(function() {
         $("#reports").html(getLoadText("Loading...", 0))
             .load("{% url "reports" %}", function(responseText) { updateTable(); });
+
+    function updateStatusTable() {
+      // do nothing for now
+    }
+
+    $(function() {
+        $("#status").html(getLoadText("Loading...", 0))
+            .load("{% url "projectstatus" %}", function(responseText) { updateStatusTable(); });
   });
 </script>
 {% endblock %}

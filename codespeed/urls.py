@@ -16,6 +16,7 @@ urlpatterns = [
 ]
 
 urlpatterns += [
+    url(r'^projectstatus/$', views.projectstatus, name='projectstatus'),
     url(r'^reports/$', views.reports, name='reports'),
     url(r'^changes/$', views.changes, name='changes'),
     url(r'^changes/table/$', views.getchangestable, name='getchangestable'),
@@ -32,3 +33,4 @@ urlpatterns += [
     url(r'^result/add/json/$', views.add_json_results, name='add-json-results'),
     url(r'^result/add/$', views.add_result, name='add-result'),
 ]
+

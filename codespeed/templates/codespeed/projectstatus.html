@@ -1,0 +1,11 @@
+{% if project_latest_commits|length %}
+<table class="reports">
+    <caption>Latest Project Commits
+    </caption>
+    <tbody>
+    {% for rev in latest_commits %}  <tr>
+        <td><label title="lessisbetter" style="display:none;">{{ rev.project.name }}</label><a href={{ rev.get_browsing_url }}> {{ rev.get_short_commitid }} </a> </td><td>{{ rev.get_full_time_string }}</td>
+    </tr>{% endfor %}
+    </tbody>
+</table>
+{% endif %}

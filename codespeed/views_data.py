@@ -74,23 +74,28 @@ def getbaselineexecutables():
                 'name': name,
             })
     # move default to first place
+    defaultbaseline = None
     if hasattr(settings, 'DEF_BASELINE') and settings.DEF_BASELINE is not None:
         try:
-            exename = settings.DEF_BASELINE['executable']
-            commitid = settings.DEF_BASELINE['revision']
+            def match_on_tag(x):
+                return x['executable'].name == settings.DEF_BASELINE['executable'] and x['revision'].tag.strip() == settings.DEF_BASELINE['tag']
+
+            def match_on_rev(x):
+                return x['executable'].name == settings.DEF_BASELINE['executable'] and x['revision'].commitid == settings.DEF_BASELINE['revision']
+
+            is_match = match_on_tag if 'tag' in settings.DEF_BASELINE else match_on_rev
+
             for base in baseline:
                 if base['key'] == "none":
                     continue
-                if (base['executable'].name == exename and
-                        base['revision'].commitid == commitid):
-                    baseline.remove(base)
-                    baseline.insert(1, base)
+                if is_match(base):
+                    defaultbaseline = str(base['executable'].id) + "+" + str(base['revision'].id)
                     break
         except KeyError:
             # TODO: write to server logs
             # error in settings.DEF_BASELINE
             pass
-    return baseline
+    return baseline, defaultbaseline
 
 
 def getdefaultexecutable():
@@ -112,7 +117,7 @@ def getdefaultexecutable():
 def getcomparisonexes():
     all_executables = {}
     exekeys = []
-    baselines = getbaselineexecutables()
+    baselines, _ = getbaselineexecutables()
     for proj in Project.objects.all():
         executables = []
         executablekeys = []

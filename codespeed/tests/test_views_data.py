@@ -17,24 +17,24 @@ class TestGetBaselineExecutables(TestCase):
 
     def test_get_baseline_executables(self):
         # No revisions, no baseline
-        result = getbaselineexecutables()
+        result, defaultbaseline = getbaselineexecutables()
         self.assertEqual(len(result), 1)
         self.assertEqual(result[0]['executable'], 'none')
 
         # Check that a tagged revision will be included as baseline
         revision1 = Revision.objects.create(commitid='1', tag='0.1',
                                             branch=self.branch)
-        result = getbaselineexecutables()
+        result, defaultbaseline = getbaselineexecutables()
         self.assertEqual(len(result), 2)
         self.assertEqual(result[0]['executable'], 'none')
         self.assertEqual(result[1]['executable'], self.executable)
         self.assertEqual(result[1]['revision'], revision1)
 
         Revision.objects.create(commitid='2', tag='0.2', branch=self.branch)
-        result = getbaselineexecutables()
+        result, defaultbaseline = getbaselineexecutables()
         self.assertEqual(len(result), 3)
 
         # An untagged revision will not be available as baseline
         Revision.objects.create(commitid='3', branch=self.branch)
-        result = getbaselineexecutables()
+        result, defaultbaseline = getbaselineexecutables()
         self.assertEqual(len(result), 3)

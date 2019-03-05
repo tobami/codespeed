@@ -194,15 +194,15 @@ def comparison(request):
     elif (len(exekeys) > 1 and hasattr(settings, 'NORMALIZATION') and
             settings.NORMALIZATION):
         try:
-            # TODO: Avoid calling twice getbaselineexecutables
-            selectedbaseline = getbaselineexecutables()[1]['key']
+            baselines, selectedbaseline = getbaselineexecutables()
+
             # Uncheck exe used for normalization
             try:
                 checkedexecutables.remove(selectedbaseline)
             except ValueError:
                 pass  # The selected baseline was not checked
         except:
-            pass  # Keep "none" as default baseline
+                pass  # Keep "none" as default baseline
 
     selecteddirection = False
     if ('hor' in data and data['hor'] == "true" or
@@ -458,11 +458,7 @@ def timeline(request):
     if data.get('bran') in branch_list:
         defaultbranch = data.get('bran')
 
-    baseline = getbaselineexecutables()
-    defaultbaseline = None
-    if len(baseline) > 1:
-        defaultbaseline = str(baseline[1]['executable'].id) + "+"
-        defaultbaseline += str(baseline[1]['revision'].id)
+    baseline, defaultbaseline = getbaselineexecutables()
     if "base" in data and data['base'] != "undefined":
         try:
             defaultbaseline = data['base']
@@ -658,11 +654,7 @@ def changes(request):
         except ValueError:
             pass
 
-    baseline = getbaselineexecutables()
-    defaultbaseline = "+"
-    if len(baseline) > 1:
-        defaultbaseline = str(baseline[1]['executable'].id) + "+"
-        defaultbaseline += str(baseline[1]['revision'].id)
+    baseline, defaultbaseline = getbaselineexecutables()
     if "base" in data and data['base'] != "undefined":
         try:
             defaultbaseline = data['base']

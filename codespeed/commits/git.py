@@ -43,10 +43,14 @@ def updaterepo(project, update=True):
 def getlogs(endrev, startrev):
     updaterepo(endrev.branch.project, update=False)
 
-    cmd = ["git", "log",
-           # NULL separated values delimited by 0x1e record separators
-           # See PRETTY FORMATS in git-log(1):
-           '--format=format:%h%x00%H%x00%ct%x00%an%x00%ae%x00%s%x00%b%x1e']
+    # NULL separated values delimited by 0x1e record separators
+    # See PRETTY FORMATS in git-log(1):
+    if hasattr(settings, 'GIT_USE_COMMIT_DATE') and settings.GIT_USE_COMMIT_DATE:
+        logfmt = '--format=format:%h%x00%H%x00%ct%x00%an%x00%ae%x00%s%x00%b%x1e'
+    else:
+        logfmt = '--format=format:%h%x00%H%x00%at%x00%an%x00%ae%x00%s%x00%b%x1e'
+
+    cmd = ["git", "log", logfmt]
 
     if endrev.commitid != startrev.commitid:
         cmd.append("%s...%s" % (startrev.commitid, endrev.commitid))

@@ -824,11 +824,9 @@ def add_json_results(request):
     logger.info("add_json_results request with %d entries." % len(data))
 
     unique_reports = set()
-    i = 0
-    for result in data:
-        i += 1
+    for (i, result) in enumerate(data):
         logger.debug("add_json_results: save item %d." % i)
-        response, error = save_result(result)
+        response, error = save_result(result, update_repo=(i==0))
         if error:
             logger.debug(
                 "add_json_results: could not save item %d because %s" % (

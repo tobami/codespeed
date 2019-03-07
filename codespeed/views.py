@@ -738,17 +738,18 @@ def reports(request):
 
 @require_GET
 def projectstatus(request):
-    context = {}
-    context['project_latest_commits'] = []
+    project_commits = []
     for branch in Branch.objects.filter(
         project__track=True, name=F('project__default_branch')):
         rev = Revision.objects.filter(branch=branch).latest('date')
         if rev:
-            context['project_latest_commits'].append({'project_name': rev.project.name, 'rev':rev})
+            project_commits.append({'project_name': rev.project.name, 'rev':rev})
+
+    project_commits = sorted(project_commits, key=lambda x: x['project_name'])
 
     # TODO: surely there must be a better way than going from the branches into the revisions...
 
-    return render_to_response('codespeed/projectstatus.html', context)
+    return render_to_response('codespeed/projectstatus.html', {'project_latest_commits': project_commits})
 
 @require_GET
 def displaylogs(request):

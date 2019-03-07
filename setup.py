@@ -2,14 +2,14 @@ from setuptools import setup, find_packages
 
 setup(
     name='codespeed',
-    version='0.12.0',
+    version='0.13.0',
     author='Miquel Torres',
     author_email='tobami@gmail.com',
     url='https://github.com/tobami/codespeed',
     download_url="https://github.com/tobami/codespeed/tags",
     license='GNU Lesser General Public License version 2.1',
     keywords=['benchmarking', 'visualization'],
-    install_requires=['django>=1.8,<2.0', 'isodate>=0.4.7,<0.6', 'matplotlib>=1.4.3,<2.0'],
+    install_requires=['django>=1.11<2.2', 'isodate>=0.4.7,<0.6', 'matplotlib>=1.4.3,<2.0'],
     packages=find_packages(exclude=['ez_setup', 'sample_project']),
     setup_requires=['setuptools-markdown'],
     long_description_markdown_filename='README.md',
@@ -28,6 +28,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
     ]
 )

@@ -4,7 +4,7 @@ import copy
 import json
 
 from django.test import TestCase, override_settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from codespeed.models import (Project, Benchmark, Revision, Branch, Executable,
                               Environment, Result, Report)

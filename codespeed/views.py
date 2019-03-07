@@ -6,7 +6,7 @@ import logging
 import django
 
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import HttpResponse, Http404, HttpResponseBadRequest, \
     HttpResponseNotFound, StreamingHttpResponse

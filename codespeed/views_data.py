@@ -124,7 +124,7 @@ def getcomparisonexes():
         maxlen = 20
         # add all tagged revs for any project
         for exe in baselines:
-            if exe['key'] is not "none" and exe['executable'].project == proj:
+            if exe['key'] != "none" and exe['executable'].project == proj:
                 executablekeys.append(exe['key'])
                 executables.append(exe)
 

@@ -47,7 +47,7 @@ def validate_result(item):
         return "Environment %(environment)s not found" % item, error
 
 
-def save_result(data):
+def save_result(data, update_repo=True):
     res, error = validate_result(data)
     if error:
         return res, True
@@ -87,7 +87,7 @@ def save_result(data):
             return str(e), True
         if p.repo_type not in ("N", ""):
             try:
-                commit_logs = commits.get_logs(rev, rev, update=True)
+                commit_logs = commits.get_logs(rev, rev, update=update_repo)
             except commits.exceptions.CommitLogError as e:
                 logger.warning("unable to save revision %s info: %s", rev, e,
                                exc_info=True)

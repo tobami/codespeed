@@ -71,6 +71,8 @@ def retrieve_tag(commit_id, username, project):
         if tag['object']['sha'] == commit_id:
             return tag['ref'].split("refs/tags/")[-1]
 
+    return ""
+
 
 def retrieve_revision(commit_id, username, project, revision=None):
     commit_url = 'https://api.github.com/repos/%s/%s/git/commits/%s' % (

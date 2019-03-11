@@ -52,6 +52,9 @@ def getlogs(endrev, startrev):
 
     cmd = ["git", "log", logfmt]
 
+    if hasattr(settings, 'GIT_USE_FIRST_PARENT') and settings.GIT_USE_FIRST_PARENT:
+        cmd.append("--first-parent")
+
     if endrev.commitid != startrev.commitid:
         cmd.append("%s...%s" % (startrev.commitid, endrev.commitid))
     else:

@@ -54,7 +54,13 @@ class Project(models.Model):
             error = 'Not supported for %s project' % self.get_repo_type_display()
             raise AttributeError(error)
 
-        return os.path.splitext(self.repo_path.split(os.sep)[-1])[0]
+        s = os.path.splitext(self.repo_path.split(os.sep)[-1])[0]
+
+        # if the repo_user is defined and we are a git repo, then combine to avoid name clashes
+        if self.repo_type == 'G' and self.repo_user:
+            s = self.repo_user + '_' + s
+
+        return s
 
     @property
     def working_copy(self):

@@ -8,7 +8,12 @@ git installed, the ability to write files, etc.
 from __future__ import absolute_import
 
 import logging
-import urllib
+try:
+    # Python 3
+    from urllib.request import urlopen
+except ImportError:
+    # Python 2
+    from urllib import urlopen
 import re
 import json
 
@@ -38,7 +43,7 @@ def fetch_json(url):
 
     if json_obj is None:
         try:
-            json_obj = json.load(urllib.urlopen(url))
+            json_obj = json.load(urlopen(url))
         except IOError as e:
             logger.exception("Unable to load %s: %s",
                              url, e, exc_info=True)

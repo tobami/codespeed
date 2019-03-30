@@ -28,19 +28,14 @@
 </div>
 {% endblock body %}
 
-{% block extra_body %}
+{% block extra_script %}
 {{ block.super }}
 <script type="text/javascript">
-    function permalinkToChanges(permalink) {
-        window.location=permalink;
-    }
-
-    function updateTable() {
+    function updateReportTables() {
         //Add permalink events to table rows
         $("div#reports table tbody tr").each(function() {
             $(this).click(function () {
-                permalink_string = $(this).find("td:eq(0) label").text();
-                permalinkToChanges(permalink_string);
+                window.location = $(this).find("td:eq(0) label").text();
             });
         });
         //Add hover effect to rows
@@ -53,7 +48,7 @@
 
     $(function() {
         $("#reports").html(getLoadText("Loading...", 0))
-            .load("{% url "reports" %}", function(responseText) { updateTable(); });
-  });
+            .load("{% url "reports" %}", function(responseText) { updateReportTables(); });
+    });
 </script>
 {% endblock %}

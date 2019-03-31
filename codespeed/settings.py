@@ -8,7 +8,7 @@ DEF_ENVIRONMENT = None # Name of the environment which should be selected as def
 
 DEF_BASELINE = None # Which executable + revision should be default as a baseline
                     # Given as the name of the executable and commitid of the revision
-                    # Example: defaultbaseline = {'executable': 'myexe', 'revision': '21'}
+                    # Example: DEF_BASELINE = {'executable': 'baseExe', 'revision': '444'}
 
 TREND = 10 # Default value for the depth of the trend
            # Used by reports for the latest runs and changes view
@@ -20,10 +20,14 @@ CHANGE_THRESHOLD = 3.0
 # over a number of revisions is significant
 TREND_THRESHOLD = 5.0
 
+## Home view options ##
+SHOW_REPORTS = True # Show report tables
+SHOW_HISTORICAL = False # Show historical graphs
+
 ## Changes view options ##
 DEF_EXECUTABLE = None # Executable that should be chosen as default in the changes view
                       # Given as the name of the executable.
-                      # Example: defaultexecutable = "myexe"
+                      # Example: DEF_EXECUTABLE = "myexe O3 64bits"
 
 SHOW_AUTHOR_EMAIL_ADDRESS = True # Whether to show the authors email address in the
                                  # changes log

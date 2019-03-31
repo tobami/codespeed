@@ -6,7 +6,7 @@ from codespeed import views
 from codespeed.feeds import LatestEntries, LatestSignificantEntries
 
 urlpatterns = [
-    url(r'^$', TemplateView.as_view(template_name='home.html'), name='home'),
+    url(r'^$', views.HomeView.as_view(), name='home'),
     url(r'^about/$',
         TemplateView.as_view(template_name='about.html'), name='about'),
     # RSS for reports
@@ -16,6 +16,7 @@ urlpatterns = [
 ]
 
 urlpatterns += [
+    url(r'^historical/json/$', views.gethistoricaldata, name='gethistoricaldata'),
     url(r'^reports/$', views.reports, name='reports'),
     url(r'^changes/$', views.changes, name='changes'),
     url(r'^changes/table/$', views.getchangestable, name='getchangestable'),

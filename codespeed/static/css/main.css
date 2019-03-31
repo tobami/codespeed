@@ -239,6 +239,28 @@ a.checkall, a.uncheckall { font-size: small; color: #AAAAAA; }
 
 p.errormessage { line-height: 10em; margin-bottom: 10em; }
 
+/* Home page */
+div#historical {
+  width: 800px;
+  margin: 0 auto;
+  padding-bottom: 5em;
+}
+div#baseline-comparison-plot {
+  width: 750px;
+  height: 400px;
+  margin: 0 auto;
+}
+div#historical-plot {
+  width:600px;
+  height:400px;
+  margin: 0 auto;
+}
+div#historical p { padding-left: 0; }
+div#historical p.plot-caption {
+  height: 1em;
+  font-size: smaller;
+}
+
 /* Changes table layout */
 div#contentwrap { display: table; table-layout: fixed; width: 100%; }
 div#contentwrap div { display: table-cell; }

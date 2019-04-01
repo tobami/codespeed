@@ -1,509 +1,563 @@
 [
-    {
-        "pk": 1, 
-        "model": "codespeed.project", 
-        "fields": {
-            "repo_type": "N", 
-            "name": "MyProject", 
-            "commit_browsing_url": "", 
-            "repo_user": "", 
-            "track": true, 
-            "repo_pass": "", 
-            "repo_path": "",
-            "default_branch": "default"
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "codespeed.project", 
-        "fields": {
-            "repo_type": "N", 
-            "name": "Other", 
-            "commit_browsing_url": "", 
-            "repo_user": "", 
-            "track": true, 
-            "repo_pass": "", 
-            "repo_path": "",
-            "default_branch": "default"
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "codespeed.project", 
-        "fields": {
-            "repo_type": "N", 
-            "name": "BaseProj", 
-            "commit_browsing_url": "", 
-            "repo_user": "", 
-            "track": false, 
-            "repo_pass": "", 
-            "repo_path": "",
-            "default_branch": "default"
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "codespeed.branch", 
-        "fields": {
-            "project": 1, 
-            "name": "default"
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "codespeed.branch", 
-        "fields": {
-            "project": 1, 
-            "name": "feature"
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "codespeed.branch", 
-        "fields": {
-            "project": 2, 
-            "name": "default"
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "codespeed.branch", 
-        "fields": {
-            "project": 3, 
-            "name": "default"
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "codespeed.revision", 
-        "fields": {
-            "project": 1, 
-            "author": "", 
-            "commitid": "1", 
-            "tag": "", 
-            "branch": 1, 
-            "date": "2011-04-12T16:43:20", 
-            "message": ""
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "codespeed.revision", 
-        "fields": {
-            "project": 1, 
-            "author": "", 
-            "commitid": "2", 
-            "tag": "", 
-            "branch": 1, 
-            "date": "2011-04-13T17:04:22", 
-            "message": ""
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "codespeed.revision", 
-        "fields": {
-            "project": 1, 
-            "author": "", 
-            "commitid": "3", 
-            "tag": "", 
-            "branch": 2, 
-            "date": "2011-04-13T12:03:38", 
-            "message": ""
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "codespeed.revision", 
-        "fields": {
-            "project": 1, 
-            "author": "", 
-            "commitid": "4", 
-            "tag": "", 
-            "branch": 2, 
-            "date": "2011-04-14T18:04:51", 
-            "message": ""
-        }
-    }, 
-    {
-        "pk": 5, 
-        "model": "codespeed.revision", 
-        "fields": {
-            "project": 1, 
-            "author": "", 
-            "commitid": "5", 
-            "tag": "", 
-            "branch": 1, 
-            "date": "2011-04-14T19:13:05", 
-            "message": ""
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "codespeed.revision", 
-        "fields": {
-            "project": 2, 
-            "author": "", 
-            "commitid": "1", 
-            "tag": "", 
-            "branch": 3, 
-            "date": "2011-04-13T12:05:11", 
-            "message": ""
-        }
-    }, 
-    {
-        "pk": 7, 
-        "model": "codespeed.revision", 
-        "fields": {
-            "project": 2, 
-            "author": "", 
-            "commitid": "2", 
-            "tag": "", 
-            "branch": 3, 
-            "date": "2011-04-14T12:05:22", 
-            "message": ""
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "codespeed.revision", 
-        "fields": {
-            "project": 3, 
-            "author": "", 
-            "commitid": "444", 
-            "tag": "1.0", 
-            "branch": 4, 
-            "date": "2011-05-24T09:37:32", 
-            "message": ""
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "codespeed.executable", 
-        "fields": {
-            "project": 1, 
-            "name": "myexe O3 64bits", 
-            "description": ""
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "codespeed.executable", 
-        "fields": {
-            "project": 2, 
-            "name": "exe", 
-            "description": ""
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "codespeed.executable", 
-        "fields": {
-            "project": 3, 
-            "name": "baseExe", 
-            "description": ""
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "codespeed.executable", 
-        "fields": {
-            "project": 1, 
-            "name": "myexe2", 
-            "description": ""
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "codespeed.benchmark", 
-        "fields": {
-            "parent": null, 
-            "name": "float", 
-            "benchmark_type": "C", 
-            "default_on_comparison": true, 
-            "units_title": "Time", 
-            "units": "seconds", 
-            "lessisbetter": true, 
-            "description": ""
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "codespeed.benchmark", 
-        "fields": {
-            "parent": null, 
-            "name": "int", 
-            "benchmark_type": "C", 
-            "default_on_comparison": true, 
-            "units_title": "Time", 
-            "units": "seconds", 
-            "lessisbetter": true, 
-            "description": ""
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "codespeed.environment", 
-        "fields": {
-            "kernel": "", 
-            "memory": "", 
-            "os": "", 
-            "name": "Dual Core", 
-            "cpu": ""
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "codespeed.environment", 
-        "fields": {
-            "kernel": "", 
-            "memory": "", 
-            "os": "", 
-            "name": "Quad Core", 
-            "cpu": ""
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "codespeed.result", 
-        "fields": {
-            "executable": 1, 
-            "benchmark": 1, 
-            "value": 4000.0, 
-            "environment": 1, 
-            "val_min": 3995.1, 
-            "std_dev": 80.0, 
-            "date": "2011-04-13T19:04:00", 
-            "val_max": 4001.6, 
-            "revision": 1
-        }
-    }, 
-    {
-        "pk": 2, 
-        "model": "codespeed.result", 
-        "fields": {
-            "executable": 1, 
-            "benchmark": 1, 
-            "value": 2000.0, 
-            "environment": 1, 
-            "val_min": 1995.1, 
-            "std_dev": 40.1, 
-            "date": "2011-04-13T17:06:19", 
-            "val_max": 2001.6, 
-            "revision": 2
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "codespeed.result", 
-        "fields": {
-            "executable": 1, 
-            "benchmark": 1, 
-            "value": 2100.0, 
-            "environment": 1, 
-            "val_min": 995.1, 
-            "std_dev": 70.1, 
-            "date": "2011-04-13T17:06:47", 
-            "val_max": 1001.6, 
-            "revision": 5
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "codespeed.result", 
-        "fields": {
-            "executable": 1, 
-            "benchmark": 1, 
-            "value": 1800.0, 
-            "environment": 1, 
-            "val_min": 3995.1, 
-            "std_dev": 1.11111, 
-            "date": "2011-04-13T19:06:11", 
-            "val_max": 4001.6, 
-            "revision": 3
-        }
-    }, 
-    {
-        "pk": 5, 
-        "model": "codespeed.result", 
-        "fields": {
-            "executable": 2, 
-            "benchmark": 1, 
-            "value": 1000.0, 
-            "environment": 1, 
-            "val_min": 995.1, 
-            "std_dev": 1.11111, 
-            "date": "2011-04-13T19:11:50", 
-            "val_max": 1001.6, 
-            "revision": 6
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "codespeed.result", 
-        "fields": {
-            "executable": 1, 
-            "benchmark": 1, 
-            "value": 3000.0, 
-            "environment": 1, 
-            "val_min": 2995.1, 
-            "std_dev": 1.11111, 
-            "date": "2011-04-13T19:06:58", 
-            "val_max": 3001.6, 
-            "revision": 4
-        }
-    }, 
-    {
-        "pk": 7, 
-        "model": "codespeed.result", 
-        "fields": {
-            "executable": 2, 
-            "benchmark": 1, 
-            "value": 500.0, 
-            "environment": 1, 
-            "val_min": 495.1, 
-            "std_dev": 1.11111, 
-            "date": "2011-04-13T19:12:23", 
-            "val_max": 501.6, 
-            "revision": 7
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "codespeed.result", 
-        "fields": {
-            "executable": 3, 
-            "benchmark": 1, 
-            "value": 1850.0, 
-            "environment": 1, 
-            "val_min": null, 
-            "std_dev": 80.0, 
-            "date": "2011-05-24T09:38:18", 
-            "val_max": null, 
-            "revision": 8
-        }
-    }, 
-    {
-        "pk": 9, 
-        "model": "codespeed.result", 
-        "fields": {
-            "executable": 1, 
-            "benchmark": 2, 
-            "value": 23.0, 
-            "environment": 1, 
-            "val_min": null, 
-            "std_dev": null, 
-            "date": "2011-07-03T16:52:15", 
-            "val_max": null, 
-            "revision": 5
-        }
-    }, 
-    {
-        "pk": 1, 
-        "model": "codespeed.report", 
-        "fields": {
-            "executable": 1, 
-            "colorcode": "green", 
-            "summary": "float -50.0%", 
-            "environment": 1, 
-            "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 1995.0999999999999, \"std_dev\": 1.11111, \"result\": 2000.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 2001.5999999999999, \"change\": -50.0}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": -50.0}}]", 
-            "revision": 2
-        }
-    }, 
-    {
-        "pk": 3, 
-        "model": "codespeed.report", 
-        "fields": {
-            "executable": 1, 
-            "colorcode": "green", 
-            "summary": "float -50.0%", 
-            "environment": 1, 
-            "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 1995.0999999999999, \"std_dev\": 1.11111, \"result\": 2000.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 2001.5999999999999, \"change\": -50.0}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": -50.0}}]", 
-            "revision": 3
-        }
-    }, 
-    {
-        "pk": 4, 
-        "model": "codespeed.report", 
-        "fields": {
-            "executable": 2, 
-            "colorcode": "none", 
-            "summary": "", 
-            "environment": 1, 
-            "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 995.10000000000002, \"std_dev\": 1.11111, \"result\": 1000.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 1001.6, \"change\": \"-\"}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": \"-\"}}]", 
-            "revision": 6
-        }
-    }, 
-    {
-        "pk": 5, 
-        "model": "codespeed.report", 
-        "fields": {
-            "executable": 1, 
-            "colorcode": "none", 
-            "summary": "", 
-            "environment": 1, 
-            "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 3995.0999999999999, \"std_dev\": 1.11111, \"result\": 4000.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 4001.5999999999999, \"change\": \"-\"}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": \"-\"}}]", 
-            "revision": 1
-        }
-    }, 
-    {
-        "pk": 6, 
-        "model": "codespeed.report", 
-        "fields": {
-            "executable": 1, 
-            "colorcode": "green", 
-            "summary": "float -50.0%", 
-            "environment": 1, 
-            "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 1995.0999999999999, \"std_dev\": 1.11111, \"result\": 2000.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 2001.5999999999999, \"change\": -50.0}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": -50.0}}]", 
-            "revision": 4
-        }
-    }, 
-    {
-        "pk": 7, 
-        "model": "codespeed.report", 
-        "fields": {
-            "executable": 2, 
-            "colorcode": "green", 
-            "summary": "float -50.0%", 
-            "environment": 1, 
-            "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 495.10000000000002, \"std_dev\": 1.11111, \"result\": 500.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 501.60000000000002, \"change\": -50.0}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": -50.0}}]", 
-            "revision": 7
-        }
-    }, 
-    {
-        "pk": 8, 
-        "model": "codespeed.report", 
-        "fields": {
-            "executable": 1, 
-            "colorcode": "none", 
-            "summary": "", 
-            "environment": 2, 
-            "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [], \"hasmax\": false, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": false, \"hasmin\": false, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": \"-\"}}]", 
-            "revision": 5
-        }
-    }, 
-    {
-        "pk": 9, 
-        "model": "codespeed.report", 
-        "fields": {
-            "executable": 1, 
-            "colorcode": "red", 
-            "summary": "Average time +5.0%", 
-            "environment": 1, 
-            "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 995.10000000000002, \"std_dev\": 1.11111, \"result\": 2100.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 1001.6, \"change\": 5.0}, {\"bench_name\": \"int\", \"val_min\": \"-\", \"std_dev\": \"-\", \"result\": 23.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": \"-\", \"change\": \"-\"}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": 5.0000000000000044}}]", 
-            "revision": 5
-        }
-    }, 
-    {
-        "pk": 10, 
-        "model": "codespeed.report", 
-        "fields": {
-            "executable": 2, 
-            "colorcode": "none", 
-            "summary": "", 
-            "environment": 2, 
-            "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [], \"hasmax\": false, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": false, \"hasmin\": false, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": \"-\"}}]", 
-            "revision": 7
-        }
+{
+    "model": "codespeed.project",
+    "pk": 1,
+    "fields": {
+        "name": "MyProject",
+        "repo_type": "N",
+        "repo_path": "",
+        "repo_user": "",
+        "repo_pass": "",
+        "commit_browsing_url": "",
+        "track": true,
+        "default_branch": "default"
     }
+},
+{
+    "model": "codespeed.project",
+    "pk": 2,
+    "fields": {
+        "name": "Other",
+        "repo_type": "N",
+        "repo_path": "",
+        "repo_user": "",
+        "repo_pass": "",
+        "commit_browsing_url": "",
+        "track": true,
+        "default_branch": "default"
+    }
+},
+{
+    "model": "codespeed.project",
+    "pk": 3,
+    "fields": {
+        "name": "BaseProj",
+        "repo_type": "N",
+        "repo_path": "",
+        "repo_user": "",
+        "repo_pass": "",
+        "commit_browsing_url": "",
+        "track": false,
+        "default_branch": "default"
+    }
+},
+{
+    "model": "codespeed.branch",
+    "pk": 1,
+    "fields": {
+        "name": "default",
+        "project": 1
+    }
+},
+{
+    "model": "codespeed.branch",
+    "pk": 2,
+    "fields": {
+        "name": "feature",
+        "project": 1
+    }
+},
+{
+    "model": "codespeed.branch",
+    "pk": 3,
+    "fields": {
+        "name": "default",
+        "project": 2
+    }
+},
+{
+    "model": "codespeed.branch",
+    "pk": 4,
+    "fields": {
+        "name": "default",
+        "project": 3
+    }
+},
+{
+    "model": "codespeed.revision",
+    "pk": 1,
+    "fields": {
+        "commitid": "1",
+        "tag": "",
+        "date": "2011-04-12T16:43:20",
+        "message": "",
+        "project": 1,
+        "author": "",
+        "branch": 1
+    }
+},
+{
+    "model": "codespeed.revision",
+    "pk": 2,
+    "fields": {
+        "commitid": "2",
+        "tag": "2.0",
+        "date": "2011-04-13T17:04:22",
+        "message": "",
+        "project": 1,
+        "author": "",
+        "branch": 1
+    }
+},
+{
+    "model": "codespeed.revision",
+    "pk": 3,
+    "fields": {
+        "commitid": "3",
+        "tag": "",
+        "date": "2011-04-13T12:03:38",
+        "message": "",
+        "project": 1,
+        "author": "",
+        "branch": 2
+    }
+},
+{
+    "model": "codespeed.revision",
+    "pk": 4,
+    "fields": {
+        "commitid": "4",
+        "tag": "",
+        "date": "2011-04-14T18:04:51",
+        "message": "",
+        "project": 1,
+        "author": "",
+        "branch": 2
+    }
+},
+{
+    "model": "codespeed.revision",
+    "pk": 5,
+    "fields": {
+        "commitid": "5",
+        "tag": "",
+        "date": "2011-04-14T19:13:05",
+        "message": "",
+        "project": 1,
+        "author": "",
+        "branch": 1
+    }
+},
+{
+    "model": "codespeed.revision",
+    "pk": 6,
+    "fields": {
+        "commitid": "1",
+        "tag": "",
+        "date": "2011-04-13T12:05:11",
+        "message": "",
+        "project": 2,
+        "author": "",
+        "branch": 3
+    }
+},
+{
+    "model": "codespeed.revision",
+    "pk": 7,
+    "fields": {
+        "commitid": "2",
+        "tag": "",
+        "date": "2011-04-14T12:05:22",
+        "message": "",
+        "project": 2,
+        "author": "",
+        "branch": 3
+    }
+},
+{
+    "model": "codespeed.revision",
+    "pk": 8,
+    "fields": {
+        "commitid": "444",
+        "tag": "1.0",
+        "date": "2011-05-24T09:37:32",
+        "message": "",
+        "project": 3,
+        "author": "",
+        "branch": 4
+    }
+},
+{
+    "model": "codespeed.executable",
+    "pk": 1,
+    "fields": {
+        "name": "myexe O3 64bits",
+        "description": "",
+        "project": 1
+    }
+},
+{
+    "model": "codespeed.executable",
+    "pk": 2,
+    "fields": {
+        "name": "exe",
+        "description": "",
+        "project": 2
+    }
+},
+{
+    "model": "codespeed.executable",
+    "pk": 3,
+    "fields": {
+        "name": "baseExe",
+        "description": "",
+        "project": 3
+    }
+},
+{
+    "model": "codespeed.executable",
+    "pk": 4,
+    "fields": {
+        "name": "myexe2",
+        "description": "",
+        "project": 1
+    }
+},
+{
+    "model": "codespeed.benchmark",
+    "pk": 1,
+    "fields": {
+        "name": "float",
+        "parent": null,
+        "benchmark_type": "C",
+        "data_type": "U",
+        "description": "",
+        "units_title": "Time",
+        "units": "seconds",
+        "lessisbetter": true,
+        "default_on_comparison": true
+    }
+},
+{
+    "model": "codespeed.benchmark",
+    "pk": 2,
+    "fields": {
+        "name": "int",
+        "parent": null,
+        "benchmark_type": "C",
+        "data_type": "U",
+        "description": "",
+        "units_title": "Time",
+        "units": "seconds",
+        "lessisbetter": true,
+        "default_on_comparison": true
+    }
+},
+{
+    "model": "codespeed.environment",
+    "pk": 1,
+    "fields": {
+        "name": "Dual Core",
+        "cpu": "",
+        "memory": "",
+        "os": "",
+        "kernel": ""
+    }
+},
+{
+    "model": "codespeed.environment",
+    "pk": 2,
+    "fields": {
+        "name": "Quad Core",
+        "cpu": "",
+        "memory": "",
+        "os": "",
+        "kernel": ""
+    }
+},
+{
+    "model": "codespeed.result",
+    "pk": 1,
+    "fields": {
+        "value": 400.0,
+        "std_dev": 8.0,
+        "val_min": 399.1,
+        "val_max": 401.6,
+        "q1": null,
+        "q3": null,
+        "date": "2011-04-13T19:04:00",
+        "revision": 1,
+        "executable": 1,
+        "benchmark": 1,
+        "environment": 1
+    }
+},
+{
+    "model": "codespeed.result",
+    "pk": 2,
+    "fields": {
+        "value": 200.0,
+        "std_dev": 4.1,
+        "val_min": 199.1,
+        "val_max": 201.6,
+        "q1": null,
+        "q3": null,
+        "date": "2011-04-13T17:06:19",
+        "revision": 2,
+        "executable": 1,
+        "benchmark": 1,
+        "environment": 1
+    }
+},
+{
+    "model": "codespeed.result",
+    "pk": 3,
+    "fields": {
+        "value": 190.0,
+        "std_dev": 7.0,
+        "val_min": 99.1,
+        "val_max": 199.6,
+        "q1": null,
+        "q3": null,
+        "date": "2011-04-13T17:06:47",
+        "revision": 5,
+        "executable": 1,
+        "benchmark": 1,
+        "environment": 1
+    }
+},
+{
+    "model": "codespeed.result",
+    "pk": 4,
+    "fields": {
+        "value": 180.0,
+        "std_dev": 1.111,
+        "val_min": 79.1,
+        "val_max": 240.6,
+        "q1": null,
+        "q3": null,
+        "date": "2011-04-13T19:06:11",
+        "revision": 3,
+        "executable": 1,
+        "benchmark": 1,
+        "environment": 1
+    }
+},
+{
+    "model": "codespeed.result",
+    "pk": 5,
+    "fields": {
+        "value": 100.0,
+        "std_dev": 1.111,
+        "val_min": 99.1,
+        "val_max": 101.6,
+        "q1": null,
+        "q3": null,
+        "date": "2011-04-13T19:11:50",
+        "revision": 6,
+        "executable": 2,
+        "benchmark": 1,
+        "environment": 1
+    }
+},
+{
+    "model": "codespeed.result",
+    "pk": 6,
+    "fields": {
+        "value": 301.0,
+        "std_dev": 1.111,
+        "val_min": 299.1,
+        "val_max": 302.6,
+        "q1": null,
+        "q3": null,
+        "date": "2011-04-13T19:06:58",
+        "revision": 4,
+        "executable": 1,
+        "benchmark": 1,
+        "environment": 1
+    }
+},
+{
+    "model": "codespeed.result",
+    "pk": 7,
+    "fields": {
+        "value": 500.0,
+        "std_dev": 1.11111,
+        "val_min": 495.1,
+        "val_max": 501.6,
+        "q1": null,
+        "q3": null,
+        "date": "2011-04-13T19:12:23",
+        "revision": 7,
+        "executable": 2,
+        "benchmark": 1,
+        "environment": 1
+    }
+},
+{
+    "model": "codespeed.result",
+    "pk": 8,
+    "fields": {
+        "value": 185.0,
+        "std_dev": 40.0,
+        "val_min": null,
+        "val_max": null,
+        "q1": null,
+        "q3": null,
+        "date": "2011-05-24T09:38:18",
+        "revision": 8,
+        "executable": 3,
+        "benchmark": 1,
+        "environment": 1
+    }
+},
+{
+    "model": "codespeed.result",
+    "pk": 9,
+    "fields": {
+        "value": 22.0,
+        "std_dev": null,
+        "val_min": null,
+        "val_max": null,
+        "q1": null,
+        "q3": null,
+        "date": "2011-07-03T16:52:15",
+        "revision": 5,
+        "executable": 1,
+        "benchmark": 2,
+        "environment": 1
+    }
+},
+{
+    "model": "codespeed.result",
+    "pk": 10,
+    "fields": {
+        "value": 25.0,
+        "std_dev": null,
+        "val_min": null,
+        "val_max": null,
+        "q1": null,
+        "q3": null,
+        "date": "2011-07-03T06:09:37",
+        "revision": 8,
+        "executable": 3,
+        "benchmark": 2,
+        "environment": 1
+    }
+},
+{
+    "model": "codespeed.result",
+    "pk": 11,
+    "fields": {
+        "value": 24.0,
+        "std_dev": null,
+        "val_min": null,
+        "val_max": null,
+        "q1": null,
+        "q3": null,
+        "date": "2011-04-13T06:18:33",
+        "revision": 2,
+        "executable": 1,
+        "benchmark": 2,
+        "environment": 1
+    }
+},
+{
+    "model": "codespeed.report",
+    "pk": 1,
+    "fields": {
+        "revision": 2,
+        "environment": 1,
+        "executable": 1,
+        "summary": "float -50.0%",
+        "colorcode": "green",
+        "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 1995.0999999999999, \"std_dev\": 1.11111, \"result\": 2000.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 2001.5999999999999, \"change\": -50.0}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": -50.0}}]"
+    }
+},
+{
+    "model": "codespeed.report",
+    "pk": 3,
+    "fields": {
+        "revision": 3,
+        "environment": 1,
+        "executable": 1,
+        "summary": "float -50.0%",
+        "colorcode": "green",
+        "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 1995.0999999999999, \"std_dev\": 1.11111, \"result\": 2000.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 2001.5999999999999, \"change\": -50.0}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": -50.0}}]"
+    }
+},
+{
+    "model": "codespeed.report",
+    "pk": 4,
+    "fields": {
+        "revision": 6,
+        "environment": 1,
+        "executable": 2,
+        "summary": "",
+        "colorcode": "none",
+        "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 995.10000000000002, \"std_dev\": 1.11111, \"result\": 1000.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 1001.6, \"change\": \"-\"}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": \"-\"}}]"
+    }
+},
+{
+    "model": "codespeed.report",
+    "pk": 5,
+    "fields": {
+        "revision": 1,
+        "environment": 1,
+        "executable": 1,
+        "summary": "",
+        "colorcode": "none",
+        "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 3995.0999999999999, \"std_dev\": 1.11111, \"result\": 4000.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 4001.5999999999999, \"change\": \"-\"}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": \"-\"}}]"
+    }
+},
+{
+    "model": "codespeed.report",
+    "pk": 6,
+    "fields": {
+        "revision": 4,
+        "environment": 1,
+        "executable": 1,
+        "summary": "float -50.0%",
+        "colorcode": "green",
+        "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 1995.0999999999999, \"std_dev\": 1.11111, \"result\": 2000.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 2001.5999999999999, \"change\": -50.0}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": -50.0}}]"
+    }
+},
+{
+    "model": "codespeed.report",
+    "pk": 7,
+    "fields": {
+        "revision": 7,
+        "environment": 1,
+        "executable": 2,
+        "summary": "float -50.0%",
+        "colorcode": "green",
+        "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 495.10000000000002, \"std_dev\": 1.11111, \"result\": 500.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 501.60000000000002, \"change\": -50.0}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": -50.0}}]"
+    }
+},
+{
+    "model": "codespeed.report",
+    "pk": 8,
+    "fields": {
+        "revision": 5,
+        "environment": 2,
+        "executable": 1,
+        "summary": "",
+        "colorcode": "none",
+        "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [], \"hasmax\": false, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": false, \"hasmin\": false, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": \"-\"}}]"
+    }
+},
+{
+    "model": "codespeed.report",
+    "pk": 9,
+    "fields": {
+        "revision": 5,
+        "environment": 1,
+        "executable": 1,
+        "summary": "Average time +5.0%",
+        "colorcode": "red",
+        "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [{\"bench_name\": \"float\", \"val_min\": 995.10000000000002, \"std_dev\": 1.11111, \"result\": 2100.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": 1001.6, \"change\": 5.0}, {\"bench_name\": \"int\", \"val_min\": \"-\", \"std_dev\": \"-\", \"result\": 23.0, \"trend\": \"-\", \"bench_description\": \"\", \"val_max\": \"-\", \"change\": \"-\"}], \"hasmax\": true, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": true, \"hasmin\": true, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": 5.0000000000000044}}]"
+    }
+},
+{
+    "model": "codespeed.report",
+    "pk": 10,
+    "fields": {
+        "revision": 7,
+        "environment": 2,
+        "executable": 2,
+        "summary": "",
+        "colorcode": "none",
+        "_tablecache": "[{\"units_title\": \"Time\", \"rows\": [], \"hasmax\": false, \"precission\": 2, \"units\": \"seconds\", \"has_stddev\": false, \"hasmin\": false, \"lessisbetter\": true, \"totals\": {\"trend\": \"-\", \"change\": \"-\"}}]"
+    }
+}
 ]

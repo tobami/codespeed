@@ -3,10 +3,10 @@ from __future__ import absolute_import, unicode_literals
 
 import json
 import logging
-import django
 
+import django
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import HttpResponse, Http404, HttpResponseBadRequest, \
     HttpResponseNotFound, StreamingHttpResponse
@@ -14,6 +14,7 @@ from django.db.models import F
 from django.shortcuts import get_object_or_404, render_to_response
 from django.views.decorators.http import require_GET, require_POST
 from django.views.decorators.csrf import csrf_exempt
+from django.views.generic.base import TemplateView
 
 from .auth import basic_auth_required
 from .models import (Environment, Report, Project, Revision, Result,
@@ -61,6 +62,92 @@ def no_data_found(request):
     })
 
 
+class HomeView(TemplateView):
+    template_name = "home.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['show_reports'] = settings.SHOW_REPORTS
+        context['show_historical'] = settings.SHOW_HISTORICAL
+        historical_settings = ['SHOW_HISTORICAL', 'DEF_BASELINE', 'DEF_EXECUTABLE']
+        if not all(getattr(settings, var) for var in historical_settings):
+            context['show_historical'] = False
+            return context
+
+        baseline_exe = Executable.objects.get(
+            name=settings.DEF_BASELINE['executable'])
+        context['baseline'] = baseline_exe
+        default_exe = Executable.objects.get(name=settings.DEF_EXECUTABLE)
+        context['default_exe'] = default_exe
+        return context
+
+
+@require_GET
+def gethistoricaldata(request):
+    data = {'results': {}, 'benchmarks': []}
+    env = Environment.objects.all()
+    if settings.DEF_ENVIRONMENT:
+        env = env.get(name=settings.DEF_ENVIRONMENT)
+    else:
+        env = env.first()
+
+    # Fetch Baseline data
+    baseline_exe = Executable.objects.get(
+        name=settings.DEF_BASELINE['executable'])
+    baseline_lastrev = Revision.objects.filter(
+        branch__project=baseline_exe.project).order_by('-date')[0]
+    data['baseline'] = '{} {}'.format(
+        settings.DEF_BASELINE['executable'], baseline_lastrev.tag)
+    baseline_results = Result.objects.filter(
+        executable=baseline_exe, revision=baseline_lastrev, environment=env)
+
+    default_exe = Executable.objects.get(name=settings.DEF_EXECUTABLE)
+    default_branch = Branch.objects.get(
+        name=default_exe.project.default_branch,
+        project=default_exe.project)
+
+    # Fetch tagged revisions for default executable
+    default_taggedrevs = Revision.objects.filter(
+        branch=default_branch
+    ).exclude(tag="").order_by('date')
+    data['tagged_revs'] = [rev.tag for rev in default_taggedrevs]
+    default_results = {}
+    for rev in default_taggedrevs:
+        default_results[rev.tag] = Result.objects.filter(
+            executable=default_exe, revision=rev, environment=env)
+
+    # Fetch data for latest results
+    revs = Revision.objects.filter(
+        branch=default_branch).order_by('-date')[:5]
+    default_lastrev = None
+    for i in range(4):
+        default_lastrev = revs[i]
+        if default_lastrev.results.filter(executable=default_exe):
+            break
+        default_lastrev = None
+    if default_lastrev is None:
+        return HttpResponse(json.dumps(data))
+    default_results['latest'] = Result.objects.filter(
+        executable=default_exe, revision=default_lastrev, environment=env)
+
+    # Collect data
+    benchmarks = []
+    for res in baseline_results:
+        if res == 0:
+            continue
+        benchmarks.append(res.benchmark.name)
+        data['results'][res.benchmark.name] = {data['baseline']: res.value}
+        for rev_name in default_results:
+            val = 0
+            for default_res in default_results[rev_name]:
+                if default_res.benchmark.name == res.benchmark.name:
+                    val = default_res.value
+            data['results'][res.benchmark.name][rev_name] = val
+    benchmarks.sort()
+    data['benchmarks'] = benchmarks
+    return HttpResponse(json.dumps(data))
+
+
 @require_GET
 def getcomparisondata(request):
     executables, exekeys = getcomparisonexes()
@@ -75,8 +162,8 @@ def getcomparisondata(request):
             for env in environments:
                 compdata[exe['key']][env.id] = {}
 
-                # Load all results for this env/executable/revision in a dict
-                # for fast lookup
+                # Load all results for this env/executable/revision in a
+                # dict for fast lookup
                 results = dict(Result.objects.filter(
                     environment=env,
                     executable=exe['executable'],
@@ -678,7 +765,7 @@ def changes(request):
     for proj in Project.objects.filter(track=True):
         executables[proj] = Executable.objects.filter(project=proj)
         projectlist.append(proj)
-        branch = Branch.objects.filter(name=proj.default_branch, project=proj)
+        branch = Branch.objects.get(name=proj.default_branch, project=proj)
         revisionlists[proj.name] = list(Revision.objects.filter(
             branch=branch
         ).order_by('-date')[:revlimit])
@@ -819,11 +906,9 @@ def add_json_results(request):
     logger.info("add_json_results request with %d entries." % len(data))
 
     unique_reports = set()
-    i = 0
-    for result in data:
-        i += 1
+    for (i, result) in enumerate(data):
         logger.debug("add_json_results: save item %d." % i)
-        response, error = save_result(result)
+        response, error = save_result(result, update_repo=(i==0))
         if error:
             logger.debug(
                 "add_json_results: could not save item %d because %s" % (

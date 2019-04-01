@@ -6,7 +6,7 @@ import os
 import json
 
 from django.core.exceptions import ValidationError
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 from django.db import models
 from django.utils.encoding import python_2_unicode_compatible
@@ -104,8 +104,9 @@ class HistoricalValue(object):
 
 @python_2_unicode_compatible
 class Branch(models.Model):
-    name = models.CharField(max_length=50)
-    project = models.ForeignKey(Project, related_name="branches")
+    name = models.CharField(max_length=32)
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="branches")
 
     def __str__(self):
         return self.project.name + ":" + self.name
@@ -122,10 +123,12 @@ class Revision(models.Model):
     tag = models.CharField(max_length=20, blank=True)
     date = models.DateTimeField(null=True)
     message = models.TextField(blank=True)
-    project = models.ForeignKey(Project, related_name="revisions",
-                                null=True, blank=True)
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="revisions",
+        null=True, blank=True)
     author = models.CharField(max_length=100, blank=True)
-    branch = models.ForeignKey(Branch, related_name="revisions")
+    branch = models.ForeignKey(
+        Branch, on_delete=models.CASCADE, related_name="revisions")
 
     def get_short_commitid(self):
         return self.commitid[:10]
@@ -160,7 +163,8 @@ class Revision(models.Model):
 class Executable(models.Model):
     name = models.CharField(max_length=30)
     description = models.CharField(max_length=200, blank=True)
-    project = models.ForeignKey(Project, related_name="executables")
+    project = models.ForeignKey(
+        Project, on_delete=models.CASCADE, related_name="executables")
 
     class Meta:
         unique_together = ('name', 'project')
@@ -182,7 +186,7 @@ class Benchmark(models.Model):
 
     name = models.CharField(unique=True, max_length=100)
     parent = models.ForeignKey(
-        'self', verbose_name="parent",
+        'self', on_delete=models.CASCADE, verbose_name="parent",
         help_text="allows to group benchmarks in hierarchies",
         null=True, blank=True, default=None)
     benchmark_type = models.CharField(max_length=1, choices=B_TYPES, default='C')
@@ -225,10 +229,14 @@ class Result(models.Model):
     q1 = models.FloatField(blank=True, null=True)
     q3 = models.FloatField(blank=True, null=True)
     date = models.DateTimeField(blank=True, null=True)
-    revision = models.ForeignKey(Revision, related_name="results")
-    executable = models.ForeignKey(Executable, related_name="results")
-    benchmark = models.ForeignKey(Benchmark, related_name="results")
-    environment = models.ForeignKey(Environment, related_name="results")
+    revision = models.ForeignKey(
+        Revision, on_delete=models.CASCADE, related_name="results")
+    executable = models.ForeignKey(
+        Executable, on_delete=models.CASCADE, related_name="results")
+    benchmark = models.ForeignKey(
+        Benchmark, on_delete=models.CASCADE, related_name="results")
+    environment = models.ForeignKey(
+        Environment, on_delete=models.CASCADE, related_name="results")
 
     def __str__(self):
         return u"%s: %s" % (self.benchmark.name, self.value)
@@ -239,9 +247,12 @@ class Result(models.Model):
 
 @python_2_unicode_compatible
 class Report(models.Model):
-    revision = models.ForeignKey(Revision, related_name="reports")
-    environment = models.ForeignKey(Environment, related_name="reports")
-    executable = models.ForeignKey(Executable, related_name="reports")
+    revision = models.ForeignKey(
+        Revision, on_delete=models.CASCADE, related_name="reports")
+    environment = models.ForeignKey(
+        Environment, on_delete=models.CASCADE, related_name="reports")
+    executable = models.ForeignKey(
+        Executable, on_delete=models.CASCADE, related_name="reports")
     summary = models.CharField(max_length=64, blank=True)
     colorcode = models.CharField(max_length=10, default="none")
     _tablecache = models.TextField(blank=True)

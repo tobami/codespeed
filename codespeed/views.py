@@ -931,38 +931,3 @@ def add_json_results(request):
         create_report_if_enough_data(rep[0], rep[1], rep[2])
 
     return HttpResponse("All result data saved successfully", status=202)
-
-
-def django_has_content_type():
-    return (django.VERSION[0] > 1 or
-            (django.VERSION[0] == 1 and django.VERSION[1] >= 6))
-
-
-@require_GET
-def makeimage(request):
-    data = request.GET
-
-    try:
-        validate_results_request(data)
-    except ValidationError as err:
-        return HttpResponseBadRequest(str(err))
-
-    try:
-        result_data = get_benchmark_results(data)
-    except ObjectDoesNotExist as err:
-        return HttpResponseNotFound(str(err))
-
-    image_data = gen_image_from_results(
-                    result_data,
-                    int(data['width']) if 'width' in data else None,
-                    int(data['height']) if 'height' in data else None)
-
-    if django_has_content_type():
-        response = HttpResponse(content=image_data, content_type='image/png')
-    else:
-        response = HttpResponse(content=image_data, mimetype='image/png')
-
-    response['Content-Length'] = len(image_data)
-    response['Content-Disposition'] = 'attachment; filename=image.png'
-
-    return response

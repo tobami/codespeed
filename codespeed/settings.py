@@ -4,15 +4,11 @@
 ## General default options ##
 WEBSITE_NAME = "PyPy's Speed Center" # This name will be used in the reports RSS feed
 
-DEF_ENVIRONMENT = None #Name of the environment which should be selected as default
-
-DEF_BRANCH = "default" # Defines the default branch to be used.
-                       # In git projects, this branch is usually be calles
-                       # "master"
+DEF_ENVIRONMENT = None # Name of the environment which should be selected as default
 
 DEF_BASELINE = None # Which executable + revision should be default as a baseline
                     # Given as the name of the executable and commitid of the revision
-                    # Example: defaultbaseline = {'executable': 'myexe', 'revision': '21'}
+                    # Example: DEF_BASELINE = {'executable': 'baseExe', 'revision': '444'}
 
 TREND = 10 # Default value for the depth of the trend
            # Used by reports for the latest runs and changes view
@@ -22,12 +18,19 @@ CHANGE_THRESHOLD = 3.0
 
 # Threshold that determines when a performance change
 # over a number of revisions is significant
-TREND_THRESHOLD  = 5.0
+TREND_THRESHOLD = 5.0
+
+## Home view options ##
+SHOW_REPORTS = True # Show report tables
+SHOW_HISTORICAL = False # Show historical graphs
 
 ## Changes view options ##
 DEF_EXECUTABLE = None # Executable that should be chosen as default in the changes view
                       # Given as the name of the executable.
-                      # Example: defaultexecutable = "myexe"
+                      # Example: DEF_EXECUTABLE = "myexe O3 64bits"
+
+SHOW_AUTHOR_EMAIL_ADDRESS = True # Whether to show the authors email address in the
+                                 # changes log
 
 ## Timeline view options ##
 DEF_BENCHMARK = None   # Default selected benchmark. Possible values:
@@ -38,7 +41,21 @@ DEF_BENCHMARK = None   # Default selected benchmark. Possible values:
                        #       default when there are lots of benchmarks)
                        #   "mybench": will select benchmark named "mybench"
 
-#timeline_branches = True # NOTE: Only the default branch is currently shown
+DEF_TIMELINE_LIMIT = 50  # Default number of revisions to be plotted
+                         # Possible values 10,50,200,1000
+
+TIMELINE_GRID_LIMIT = 30  # Number of benchmarks beyond which the timeline view
+                          # is disabled as default setting. Too many benchmarks make
+                          # the view slow, and put load on the database, which may be
+                          # undeseriable.
+
+TIMELINE_GRID_PAGING = 4   # Number of benchmarks to be send in one grid request
+                           # May be adjusted to improve the performance of the timeline grid view.
+                           # If a large number of benchmarks is in the system,
+                           # and the database is not fast, it can take a long time
+                           # to send all results.
+
+#TIMELINE_BRANCHES = True # NOTE: Only the default branch is currently shown
                          # Get timeline results for specific branches
                          # Set to False if you want timeline plots and results only for trunk.
 
@@ -60,3 +77,9 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
                          # COMP_EXECUTABLES = [
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
+
+USE_MEDIAN_BANDS = True # True to enable median bands on Timeline view
+
+
+ALLOW_ANONYMOUS_POST = True  # Whether anonymous users can post results
+REQUIRE_SECURE_AUTH = True  # Whether auth needs to be over a secure channel

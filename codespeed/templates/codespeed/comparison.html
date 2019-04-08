@@ -1,151 +1,18 @@
-{% extends "base.html" %}
+{% extends "codespeed/base_site.html" %}
+
+{% load static %}
+
 {% block title %}{{ block.super }}: Comparison{% endblock %}
+
 {% block extra_head %}
 {{ block.super }}
-<!--[if IE]><script language="javascript" type="text/javascript" src="{{ STATIC_URL }}js/jqplot/excanvas.min.js"></script><![endif]-->
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}js/jqplot/jquery.jqplot.min.css" />
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jquery.jqplot.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.barRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.categoryAxisRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasTextRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisTickRenderer.min.js"></script>
-<script type="text/javascript" src="{{ STATIC_URL }}js/jqplot/jqplot.canvasAxisLabelRenderer.min.js"></script>
-
-<script type="text/javascript">
-  var compdata = new Object();
-  var defaultbase = "";
-  var bench_units = eval({{ bench_units|safe }});
-  var plotheight = 10;//Initial height
-
-  function getConfiguration() {
-    var config = new Object();
-    config["exe"] = readCheckbox("input[name='executables']:checked");
-    config["ben"] = readCheckbox("input[name='benchmarks']:checked");
-    config["env"] = readCheckbox("input[name='environments']:checked");
-    config["hor"] = $("input[name='direction']").is(':checked');
-    config["bas"] = $("#baseline option:selected").val();
-    config["chart"] = $("#chart_type option:selected").val();
-    return config;
-  }
-
-  function refreshContent() {
-    var conf = getConfiguration();
-    var exes = conf['exe'].split(",");
-    var bens  = conf['ben'].split(",");
-    var enviros = conf['env'].split(",");
-    var msg = "";
-
-    h = parseInt($("#plotwrapper").css("height"));//get height for error message
-    if (exes[0] == "") {
-      $("#plotwrapper").html('<p class="warning">No executables selected</p>');
-      return false;
-    } else if (bens[0] == "") {
-      $("#plotwrapper").html('<p class="warning">No benchmarks selected</p>');
-      return false;
-    } else if (enviros[0] == "") {
-      $("#plotwrapper").html('<p class="warning">No environments selected</p>');
-      return false;
-    } else if (conf['chart'] == "relative bars" &&  conf['bas'] == "none") {
-      msg = '<p class="warning">For relative bar charts, you must select a baseline to normalize to.</p>'
-      $("#plotwrapper").html(msg);
-      return false;
-    } else if (conf['chart'] == "stacked bars" &&  conf['bas'] != "none") {
-        msg = '<p class="warning">Normalized stacked bars actually represent the weighted arithmetic sum, useful to spot which individual benchmarks take up the most time. Choosing different weightings from the "Normalization" menu will change the totals relative to one another. For the correct way to calculate total bars, the geometric mean must be used (see <a href="http://portal.acm.org/citation.cfm?id=5666.5673 " title="How not to lie with statistics: the correct way to summarize benchmark results">paper</a>)</p>';
-    }
-
-    $("#plotwrapper").fadeOut("fast", function() {
-      $(this).html(msg).show();
-      var plotcounter = 1;
-      for (unit in bench_units) {
-        var benchmarks = new Array();
-        for (ben in bens) {
-          if ($.inArray(parseInt(bens[ben]), bench_units[unit][0]) != -1) {
-            benchmarks.push(bens[ben]);
-          }
-        }
-        if (benchmarks.length == 0) { continue; }
-
-        var plotid = "plot" + plotcounter;
-        $("#plotwrapper").append('<div id="' + plotid + '" class="compplot"></div>');
-        plotcounter++;
-        renderComparisonPlot(plotid, benchmarks, exes, enviros, conf['bas'], conf['chart'], conf['hor']);
-      }
-    });
-  }
-
-  function savedata(data) {
-    if (data['error'] != "None") {
-      h = parseInt($("#content").css("height"));//get height for error message
-      $("#cplot").html(getLoadText(data["error"], h));
-      return 1;
-    }
-    delete data['error'];
-    compdata = data;
-    refreshContent();
-  }
-
-  $(function() {
-    $.ajaxSetup ({
-      cache: false
-    });
-
-    //reset all checkboxes
-    $("input:checkbox").removeAttr('checked');
-
-    //set default chart type
-    $("#chart_type").val("{{ selectedchart }}");
-    $("#chart_type").change(refreshContent);
-
-    $("#baseline").val("{{ selectedbaseline }}");
-    $("#baseline").change(refreshContent);
-
-    {% if selecteddirection %}$("input[name=direction]").attr('checked', true);{% endif %}
-    $("#direction").change(refreshContent);
-
-    //set default selected executables
-    {% for checkedexecutable in checkedexecutables %}
-    $("input[name='executables']").filter('[value="{{ checkedexecutable }}"]').attr('checked', true);{% endfor %}
-    $("input[name='executables']").change(refreshContent);
-
-    //set default selected benchmarks
-    {% for checkedbenchmark in checkedbenchmarks %}
-    $("input:checkbox[name='benchmarks']").filter('[value="{{ checkedbenchmark.id }}"]').attr('checked', true);{% endfor %}
-    $("input[name='benchmarks']").change(refreshContent);
-
-    //set default selected environments
-    {% for checkedenv in checkedenviros %}
-    $("input:checkbox[name='environments']").filter('[value="{{ checkedenv.id }}"]').attr('checked', true);{% endfor %}
-    $("input[name='environments']").change(refreshContent);
-
-    // Check all and none links
-    $('.checkall').click(function() {
-      $(this).parent().children("li").children("input").each(function() {
-        $(this).attr('checked', true);
-      });
-      refreshContent();
-      return false;
-    });
-
-    $('.uncheckall').click(function() {
-      $(this).parent().children("li").children("input").each(function() {
-        $(this).attr('checked', false);
-      });
-      refreshContent();
-      return false;
-    });
-
-    plotheight = $("#cplot").height();
-    // Get comparison data
-    var h = parseInt($("#content").css("height"));//get height for loading text
-    $("#cplot").html(getLoadText("Loading...", h, true));
-    $.getJSON("json/", savedata);
-  });
-</script>
+<link rel="stylesheet" type="text/css" href="{% static 'js/jqplot/jquery.jqplot.min.css' %}" />
 {% endblock %}
+
 {% block navigation %}
     {{ block.super }}
 {% endblock %}
-{% block nav-comparison %}class="current"><a href="{% url comparison %}">Comparison</a>{% endblock %}
+{% block nav-comparison %}class="current"><a href="{% url "comparison" %}">Comparison</a>{% endblock %}
 
 {% block body %}
 <div id="sidebar">
@@ -164,7 +31,7 @@
   <div class="boxhead"><h2>Executables</h2></div>
   <div class="boxbody">
     {% for proj, executable in executables.items %}
-    <ul>{{ proj }} <a href="#" class="checkall">(All</a>, <a href="#" class="uncheckall">None)</a>
+    <ul><a href="#" class="togglefold">{{ proj }}</a> <a href="#" class="checkall">(All</a>, <a href="#" class="uncheckall">None)</a>
     {% for exe in executable %}
       <li title="{{ exe.executable }} - {{ exe.revision }}">
         <input id="exe_{{ exe.key }}" type="checkbox" name="executables" value="{{ exe.key }}" />
@@ -177,7 +44,7 @@
   <div class="boxhead"><h2>Benchmarks</h2></div>
   <div class="boxbody">
   {% for key,benchlist in benchmarks.items %}
-  <ul>{{ key }} <a href="#" class="checkall">(All</a>, <a href="#" class="uncheckall">None)</a>
+  <ul><a href="#" class="togglefold">{{ key }}</a> <a href="#" class="checkall">(All</a>, <a href="#" class="uncheckall">None)</a>
     {% for bench in benchlist|dictsort:"name" %}
     <li title="{{ bench.description }}">
       <input id="benchmark_{{ bench.id }}" type="checkbox" name="benchmarks" value="{{ bench.id }}" />
@@ -206,9 +73,35 @@
     <label for="direction">horizontal</label>
     <input id="direction" type="checkbox" name="direction" value="horizontal"/>
   </span>
-  <a id="permalink" href="javascript:permalink();">Permalink</a>
+  <a id="permalink" href="#">Permalink</a>
 </div>
 <div id="content" class="clearfix">
 <div id="plotwrapper"></div>
 </div>
+{% endblock %}
+
+{% block extra_script %}
+{{ block.super }}
+<!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{% static 'js/jqplot/excanvas.min.js' %}"></script><![endif]-->
+<script type="text/javascript" src="{% static 'js/jqplot/jquery.jqplot.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jqplot/jqplot.barRenderer.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jqplot/jqplot.categoryAxisRenderer.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jqplot/jqplot.canvasTextRenderer.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jqplot/jqplot.canvasAxisTickRenderer.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/jqplot/jqplot.canvasAxisLabelRenderer.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/comparison.js' %}"></script>
+
+<script type="text/javascript">
+  $(function() {
+    Comparison.init({
+      chart_type: "{{ selectedchart }}",
+      baseline: "{{ selectedbaseline }}",
+      direction: "{{ selecteddirection }}",
+      executables: [{% for e in checkedexecutables %}"{{ e }}",{% endfor %}],
+      benchmarks: [{% for b in checkedbenchmarks %}{{ b.id }},{% endfor %}],
+      environments: [{% for e in checkedenviros %}{{ e.id }},{% endfor %}],
+      bench_units: eval({{ bench_units|safe }})
+    });
+  });
+</script>
 {% endblock %}

@@ -54,7 +54,7 @@ def send(data):
         f = urllib2.urlopen(SPEEDURL + 'result/add/', params)
         response = f.read()
         f.close()
-    except urllib2.URLError, e:
+    except urllib2.URLError as e:
         if hasattr(e, 'reason'):
             response = '\n  We failed to reach a server\n'
             response += '  Reason: ' + str(e.reason)

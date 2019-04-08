@@ -3,7 +3,8 @@
 # Sample script that shows how to save result data #
 ####################################################
 from datetime import datetime
-import urllib, urllib2
+import urllib
+import urllib2
 
 # You need to enter the real URL and have the server running
 CODESPEED_URL = 'http://localhost:8000/'
@@ -13,7 +14,7 @@ current_date = datetime.today()
 # Mandatory fields
 data = {
     'commitid': '14',
-    'branch': 'default', # Always use default for trunk/master/tip
+    'branch': 'default',  # Always use default for trunk/master/tip
     'project': 'MyProject',
     'executable': 'myexe O3 64bits',
     'benchmark': 'float',
@@ -23,13 +24,14 @@ data = {
 
 # Optional fields
 data.update({
-    'revision_date': current_date, # Optional. Default is taken either
-                                   # from VCS integration or from current date
-    'result_date': current_date, # Optional, default is current date
-    'std_dev': 1.11111, # Optional. Default is blank
-    'max': 4001.6, # Optional. Default is blank
-    'min': 3995.1, # Optional. Default is blank
+    'revision_date': current_date,  # Optional. Default is taken either
+                                    # from VCS integration or from current date
+    'result_date': current_date,  # Optional, default is current date
+    'std_dev': 1.11111,  # Optional. Default is blank
+    'max': 4001.6,  # Optional. Default is blank
+    'min': 3995.1,  # Optional. Default is blank
 })
+
 
 def add(data):
     params = urllib.urlencode(data)

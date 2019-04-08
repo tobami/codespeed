@@ -55,7 +55,7 @@ MEDIA_URL = '/media/'
 # URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
 # trailing slash.
 # Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/admin_media/'
+ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'as%n_m#)^vee2pe91^^@c))sl7^c6t-9r8n)_69%)2yt+(la2&'
@@ -176,8 +176,5 @@ COMP_EXECUTABLES = [('pypy-c-jit', 'L'), ('pypy-c', 'L')]  # Which executable + 
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
 
-#DEF_BRANCH = "default" # Defines the default branch to be used.
-                       # In git projects, this branch is usually be calles
-                       # "master"
+from .local_settings import *
 
-from local_settings import *

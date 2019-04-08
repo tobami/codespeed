@@ -1,4 +1,11 @@
 *.pyc
+*.swp
+*.swo
+.DS_Store
 *.db
-example/repos/*
+sample_project/repos/*
 override
+build
+dist
+codespeed.egg-info/
+

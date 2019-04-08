@@ -1,10 +1,16 @@
-<div class="leftcolumn">
+{% load percentages %}
+
+<div id="contentnav">
+  {% if prev %}<a id="previous" href="#" data-revision="{{ prev.rev }}" data-desc="{{ prev.desc }}">← {{ prev.short_rev }}{% if prev.summary %} ({{ prev.summary }}){% endif %}</a>{% endif %}
+  {% if next %}<a id="next" href="#" data-revision="{{ next.rev }}" data-desc="{{ next.desc }}">{{ next.short_rev }}{% if next.summary %} ({{ next.summary }}){% endif %} →</a>{% endif %}
+</div>
+
 {% for units in tablelist %}
-<table class="tablesorter">
+<table class="tablesorter" data-lessisbetter="{{ units.lessisbetter }}">
 <thead>
   <tr>
     <th>Benchmark</th>
-    <th>{{ units.units_title }} in {{ units.units }}<label title="lessisbetter" style="display:none;">{{ units.lessisbetter }}</label></th>
+    <th>{{ units.units_title }} in {{ units.units }}</th>
     {% if units.has_stddev %}<th>Std dev</th>{% endif%}
     {% if units.hasmin %}<th>Min</th>{% endif%}
     {% if units.hasmax %}<th>Max</th>{% endif%}
@@ -13,24 +19,25 @@
   </tr>
 </thead>
 <tfoot>
-  <tr>
+  <tr data-change="{{ units.totals.change|fix_infinity }}" data-trend="{{ units.totals.trend|fix_infinity }}">
     <td title="Arithmetic mean">Average</td>
     <td></td>
     {% if units.hasmin %}<td></td>
     {% endif%}{% if units.has_stddev %}<td>{{ units.totals.min }}</td>
     {% endif%}{% if units.hasmax %}<td>{{ units.totals.max }}</td>
-    {% endif%}<td>{% ifnotequal units.totals.change "-" %}{{ units.totals.change|floatformat:2 }}%{% else %}{{ units.totals.change }}{% endifnotequal %}</td>
+    {% endif%}<td>{{ units.totals.change|percentage }}</td>
     <td>{% ifnotequal units.totals.trend "-" %}{{ units.totals.trend|floatformat:2 }}%{% else %}{{ units.totals.trend }}{% endifnotequal %}</td>
   </tr>
 </tfoot>
 <tbody>
-{% for row in units.rows|dictsort:"bench_name" %}  <tr>
+{% for row in units.rows|dictsort:"bench_name" %}
+  <tr data-change="{{ row.change|fix_infinity }}" data-trend="{{ row.trend|fix_infinity }}">
     <td title="{{ row.bench_description }}">{{ row.bench_name }}</td>
     <td>{{ row.result|floatformat:units.precission }}</td>
     {% if units.has_stddev %}<td>{{ row.std_dev|floatformat:units.precission }}</td>
     {% endif%}{% if units.hasmin %}<td>{{ row.val_min|floatformat:units.precission }}</td>
     {% endif%}{% if units.hasmax %}<td>{{ row.val_max|floatformat:units.precission }}</td>
-    {% endif%}<td>{% ifequal row.change "-" %}-{% else %}{{ row.change|floatformat:2 }}%{% endifequal %}</td>
+    {% endif%}<td>{{ row.change|percentage }}</td>
     <td>{% ifequal row.trend "-" %}-{% else %}{{ row.trend|floatformat:2 }}%{% endifequal %}</td>
   </tr>{% endfor %}
 </tbody>
@@ -61,43 +68,3 @@
     <tr><td class="infofirst">Kernel</td><td>{{ env.kernel }}</td></tr>
   </tbody>
 </table>
-</div>
-
-<div class="rightcolumn">
-<table class="revision">
-    <col/>
-    <col/>
-<thead>
-  <tr>
-    <th colspan="2">Revision</th>
-  </tr>
-</thead>
-<tbody>
-  <tr class="commit-id"><th class="infofirst">Commit</td><td>{{ rev.commitid }}</td></tr>
-  <tr class="date"><th class="infofirst">Date</td><td>{{ rev.date }}</td></tr>
-  {% ifnotequal rev.branch.project.repo_type "N" %}
-    <tr class="repo-path"><th class="infofirst">Repo</th><td>{{ rev.branch.project.repo_path }}</td></tr>
-  {% endifnotequal %}
-</tbody>
-</table>
-
-{% ifnotequal exe.project.repo_type 'N' %}
-  <table class="revision">
-      <col/>
-      <col/>
-    <thead class="commits">
-      <tr>
-        <th colspan="2">Commit logs</th>
-      </tr>
-    </thead>
-    <tbody class="commits" id="commitid__{{ rev.id }}">
-      <tr><td colspan="2" style="text-align:center;">Loading... <img src="{{ STATIC_URL}}images/ajax-loader.gif" align="bottom"></td></tr>
-    </tbody>
-    <script type="text/javascript">
-      var revisionid = $("tbody.commits").attr("id");
-      loadoption = "revisionid=" + revisionid.split('__')[1];
-      $("#" + revisionid).load("logs/", loadoption);
-    </script>
-</table>
-{% endifnotequal %}
-</div>

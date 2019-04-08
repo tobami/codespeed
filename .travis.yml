@@ -1,0 +1,23 @@
+language: python
+branches:
+  only:
+    - master
+env:
+  global:
+    - DJANGO_SETTINGS_MODULE=sample_project.settings
+matrix:
+  include:
+    - python: "2.7"
+      env: DJANGO_VERSION=1.11
+    - python: "3.5"
+      env: DJANGO_VERSION=1.11
+    - python: "3.5"
+      env: DJANGO_VERSION=2.1
+install:
+  - pip install flake8
+  - pip install -q Django==$DJANGO_VERSION
+  - python setup.py install
+before_script:
+   flake8 codespeed
+script:
+  - python manage.py test codespeed

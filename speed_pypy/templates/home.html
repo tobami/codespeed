@@ -1,0 +1,216 @@
+{% extends "codespeed/base_site.html" %}
+{% load static %}
+
+{% block navigation %}
+{% endblock navigation %}
+
+{% block body %}
+<div id="presentation" class="clearfix">
+  <a href="{% url "changes" %}">
+    <div id="changes" class="menubox">
+      <h2>Changes</h2>
+      <p>Track performance changes in the latest revisions</p>
+    </div>
+  </a>
+  <a href="{% url "timeline" %}">
+    <div id="timeline" class="menubox">
+      <h2>Timeline</h2>
+      <p>Analyze performance over time</p>
+    </div>
+  </a>
+  <a href="{% url "comparison" %}">
+    <div id="comparison" class="menubox">
+      <h2>Comparison</h2>
+      <p>Compare different executables and revisions</p>
+    </div>
+  </a>
+  <br />
+  <div id="reports"></div>
+  {% if show_historical %}
+  <div id="historical">
+    <h3>How fast is {{ default_exe.project }}?</h3>
+    <div id="baseline-comparison-plot"></div>
+    <p class="plot-caption">Plot 1: The above plot represents {{ default_exe.project }} ({{ default_exe }}) benchmark times normalized to {{ baseline }}. Smaller is better.</p>
+    <p>It depends greatly on the type of task being performed. The geometric average of all benchmarks is <span id="geomean"></span> or <strong id="geofaster"></strong> times <em>faster</em> than {{ baseline }}</p>
+
+    <h3>How has {{ default_exe.project }} performance evolved over time?</h3>
+    <div id="historical-plot"></div>
+    <p class="plot-caption">Plot 2: Speedup compared to {{ baseline }}, using the inverse of the geometric average of normalized times, out of <span id="num_of_benchs"></span> benchmarks (see <a href="http://dl.acm.org/citation.cfm?id=5673" title="How not to lie with statistics: the correct way to summarize benchmark results">paper</a> on why the geometric mean is better for normalized results).</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock body %}
+
+{% block extra_script %}
+{{ block.super }}
+{% if show_historical %}
+  <link rel="stylesheet" type="text/css" href="{% static 'js/jqplot/jquery.jqplot.min.css' %}" />
+  <script type="text/javascript" src="{% static 'js/jqplot/jquery.jqplot.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/jqplot/jqplot.barRenderer.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/jqplot/jqplot.canvasAxisTickRenderer.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/jqplot/jqplot.categoryAxisRenderer.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/jqplot/jqplot.canvasAxisLabelRenderer.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/jqplot/jqplot.pointLabels.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/jqplot/jqplot.canvasTextRenderer.min.js' %}"></script>
+{% endif %}
+
+<script type="text/javascript">
+    function updateReportTables() {
+        //Add permalink events to table rows
+        $("div#reports table tbody tr").each(function() {
+            $(this).click(function () {
+                window.location = $(this).find("td:eq(0) label").text();
+            });
+        });
+        //Add hover effect to rows
+        $("div#reports table tbody tr td").hover(function() {
+            $(this).parents('tr').addClass('highlight');
+        }, function() {
+            $(this).parents('tr').removeClass('highlight');
+        });
+    }
+
+    function numOrd(a, b){ return (a-b); }
+
+    function renderplot(data) {
+        var plotoptions = {};
+        var plotdata = [new Array(), new Array()];
+        var labels = new Array();
+        var benchmarks = new Array();
+        if (data === null || data.length === 0) {
+            $("#baseline-comparison-plot").html(getLoadText('Error retrieving data', 0));
+            return 1;
+        }
+        var trunk_geomean = 1;
+        var tagged_data = new Array();
+        for (i in data['tagged_revs']) {
+           tagged_data[i] = new Array();
+        }
+        for (var bench in data['benchmarks']) {
+            var relative_value = 0;
+            benchname = data['benchmarks'][bench];
+            var add_to_tagged_data = true;
+            for (var i in data['tagged_revs']) {
+                var rev = data['tagged_revs'][i];
+                if (data['results'][benchname][rev] === 0) {
+                    add_to_tagged_data = false;
+                }
+                if (add_to_tagged_data === false) { break; }
+                relative_value = data['results'][benchname][rev]/data['results'][benchname][data['baseline']];
+                tagged_data[i].push(relative_value)
+            }
+            // Only add benchmark if there are no 0 values
+            if (add_to_tagged_data === false) { continue; }
+            // First add benchmark
+            benchmarks.push(benchname);
+            // Add latest results and baseline
+            relative_value = data['results'][benchname]['latest']/data['results'][benchname][data['baseline']];
+            plotdata[0].push(relative_value);
+            plotdata[1].push(1.0);
+            labels.push(relative_value.toFixed(2));
+            trunk_geomean *= relative_value;
+        }
+        trunk_geomean = Math.pow(trunk_geomean, 1/plotdata[0].length);
+        var geofaster = 1/trunk_geomean;
+        $('#geomean').html(trunk_geomean.toFixed(2));
+        $('#geofaster').html(geofaster.toFixed(1));
+        // Render first plot
+        plotoptions1 = {
+            legend:{show:true},
+            seriesDefaults: {
+                showMarker: false,
+                rendererOptions:{barPadding: 2, barMargin:5}
+            },
+            axesDefaults: {
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer
+            },
+            series:[
+                {
+                    label: 'latest',
+                    renderer:$.jqplot.BarRenderer,
+                    pointLabels:{labels: labels}
+                },
+                {
+                    label: data['baseline'],
+                    pointLabels:{show: false}
+                }
+            ],
+            axes: {
+                xaxis: {
+                    renderer: $.jqplot.CategoryAxisRenderer,
+                    ticks: benchmarks,
+                    tickOptions: {angle: -40}
+                },
+                yaxis:{
+                    ticks: [0, 0.25, 0.5, 0.75, 1, 1.25],
+                    tickOptions:{formatString: '%.2f'}
+                }
+            }
+        };
+        plot1 = $.jqplot("baseline-comparison-plot", plotdata, plotoptions1);
+
+        // Prepare and render second plot
+        var geomeans = [1.0];
+        var num_of_benchs = 0;
+        for (var i in data['tagged_revs']) {
+            num_of_benchs = tagged_data[i].length;
+            var tempgeo = 1;
+            for (var j in tagged_data[i]) {
+                tempgeo *= tagged_data[i][j];
+            }
+            tempgeo = Math.pow(tempgeo, 1/tagged_data[i].length);
+            tempgeo = 1/tempgeo;
+            geomeans.push(tempgeo);
+        }
+        geomeans.push(1/trunk_geomean);
+        var ticks = [data['baseline']];
+        for (var i in data['tagged_revs']) {
+            ticks.push(data['tagged_revs'][i]);
+        }
+        ticks.push('latest');
+        var geolabels = new Array();
+        for (var i in geomeans) {
+            geolabels.push(geomeans[i].toFixed(2) + "x");
+        }
+        $('#num_of_benchs').html(num_of_benchs)
+
+        plotoptions2 = {
+            seriesDefaults: {
+                renderer:$.jqplot.BarRenderer,
+                showMarker: false
+            },
+            axesDefaults: {
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer
+            },
+            series:[
+                {
+                    pointLabels:{labels:geolabels}
+                }
+            ],
+            axes: {
+                xaxis: {
+                    renderer: $.jqplot.CategoryAxisRenderer,
+                    ticks: ticks,
+                    tickOptions: {angle: -40}
+                },
+                yaxis:{
+                    min: 0,
+                    tickOptions:{formatString:'%.2f'}
+                }
+            }
+        };
+        plot2 = $.jqplot("historical-plot", [geomeans], plotoptions2);
+    }
+
+    $(function() {
+        {% if show_reports %}
+            $("#reports").html(getLoadText("Loading...", 0))
+                .load("{% url "reports" %}", function(responseText) { updateReportTables(); });
+        {% endif %}
+
+        {% if show_historical %}
+        $.getJSON("{% url "gethistoricaldata" %}", renderplot);
+        {% endif %}
+    });
+</script>
+{% endblock %}

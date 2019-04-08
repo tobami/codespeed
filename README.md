@@ -1,25 +1,20 @@
 # Codespeed
+[![Build Status](https://travis-ci.org/tobami/codespeed.png?branch=master)](https://travis-ci.org/tobami/codespeed)
+[![PyPI version](https://img.shields.io/pypi/v/codespeed.svg)](https://pypi.python.org/pypi/codespeed)
 
-A web application to monitor and analyze the performance of your code.
+Codespeed is a web application to monitor and analyze the performance of your code.
 
-Known to be used by [PyPy](http://speed.pypy.org),
-[Twisted](http://speed.twistedmatrix.com).
-and many more.
+Known to be used by [CPython](https://speed.python.org), [PyPy](http://speed.pypy.org), [Twisted](http://speed.twistedmatrix.com) and others.
 
 For an overview of some application concepts see the [wiki page](https://github.com/tobami/codespeed/wiki/Overview)
 
-# Requirements
+## Installation
 
-You will need Python 2.6+ and Django 1.1+ with South.
+You will need Python 2.7 or 3.5+.
 
-In Debian and Ubuntu, they can be installed with:
+To install dependencies and the codespeed Django app:
 
-    sudo apt-get install python-django python-django-south
-
-Instead of using distribution packages, you can use pip:
-
-    sudo pip install django
-    sudo pip install South
+    pip install codespeed
 
 If you want version control integration, there are additional requirements:
 
@@ -32,22 +27,18 @@ If you want version control integration, there are additional requirements:
 Codespeed will try to clone the repo, which depending on the size of the project
 can take a long time. Please be patient.
 
-# Installation
-
 * Download the last stable release from
-  [http://github.com/tobami/codespeed/downloads](http://github.com/tobami/codespeed/downloads)
-  and unpack it
-* To get started, you can use the `example` directory as a starting point for your Django project, which can be normally configured by editing `example/settings.py`.
+  [github.com/tobami/codespeed/tags](https://github.com/tobami/codespeed/tags), unpack it and install it with `python setup.py install`.
+* To get started, you can use the `sample_project` directory as a starting point for your Django project, which can be normally configured by editing `sample_project/settings.py`.
 * For simplicity, you can use the default sqlite configuration, which will save
-  the data to a database named `example/data.db`
-* Create the DB by changing to the `example/` directory and running:
-
-        python manage.py syncdb
-
-* Create an admin user in the process.
-* Migrate to the new DB Schema:
+  the data to a database named `data.db`
+* Create the DB by typing from the root directory:
 
         python manage.py migrate
+
+* Create an admin user:
+
+        python manage.py createsuperuser
 
 * For testing purposes, you can now start the development server:
 
@@ -56,9 +47,20 @@ can take a long time. Please be patient.
 The codespeed installation can now be accessed by navigating to `http://localhost:8000/`.
 
 **Note**: for production, you should configure a real server like Apache or nginx (refer to the [Django docs](http://docs.djangoproject.com/en/dev/howto/deployment/)). You should also
-modify `example/settings.py` and set `DEBUG = False`.
+modify `sample_project/settings.py` and set `DEBUG = False`.
+[`sample_project/README.md`](https://github.com/tobami/codespeed/tree/master/sample_project/README.md) also describes some production settings.
 
-# Codespeed configuration
+## Codespeed configuration
+
+### Using the provided test data
+
+If you want to test drive Codespeed, you can use the testdata.json fixtures to have a working data set to browse.
+
+* From the root directory, type:
+
+        ./manage.py loaddata codespeed/fixtures/testdata.json
+
+### Starting from scratch
 
 Before you can start saving (and displaying) data, you need to first create an
 environment and define a default project.
@@ -74,9 +76,9 @@ integration, configure the relevant fields.
 **Note**: Only executables associated to projects with a checked "track changes"
 field will be shown in the Changes and Timeline views.
 
-**Note**: Git and Mercurial need to locally clone the repository. That means that your `example/repos` directory will need to be owned by the server. In the case of a typical Apache installation, you'll need to type `sudo chown www-data:www-data example/repos`
+**Note**: Git and Mercurial need to locally clone the repository. That means that your `sample_project/repos` directory will need to be owned by the server. In the case of a typical Apache installation, you'll need to type `sudo chown www-data:www-data sample_project/repos`
 
-# Saving data
+## Saving data
 
 Data is saved POSTing to `http://localhost:8000/result/add/`.
 
@@ -93,12 +95,12 @@ environment. It must always exist or the data won't be saved (that is the reason
 it is described as a necessary step in the previous "Codespeed configuration"
 section).
 
-# Further customization
+## Further customization
 
-## Custom Settings
+### Custom Settings
 
-You may override any of the default settings by creating the file
-`example/override/settings.py`. It is strongly recommended that you only override the
+You may override any of the default settings by setting them in
+`sample_project/settings.py`. It is strongly recommended that you only override the
 settings you need by importing the default settings and replacing only the
 values needed for your customizations:
 
@@ -108,44 +110,45 @@ values needed for your customizations:
 
 ### Site-wide Changes
 
-All pages inherit from the `site_base.html` template, which
-extends `base.html`. To change every page on the site simply edit (`example/templates/site_base.html`) which extends `base.html` and override
+All pages inherit from the `base.html` template. To change every page on the site 
+simply edit (`sample_project/templates/codespeed/base_site.html`) and override
 the appropriate block:
 
 * Custom title: you may replace the default "My Speed Center" for the title
   block with your prefered value:
 
-        {% block title}
+        {% block title %}
             My Project's Speed Center
         {% endblock %}
 
-* Custom logo: Place your logo in `example/override/media/img` and add a block like
-  this:
+* Replacing logo.png: Place your logo in `sample_project/static/images/logo.png`
+* Logo with custom filename: Place your logo in `sample_project/static/images/` and add a block like
+  this to `base_site.html`:
 
         {% block logo %}
-            <img src="{{ MEDIA_URL }}override/img/my-logo.png" width="120" height="48" alt="My Project">
+            <img src="{{ MEDIA_URL }}images/my-logo.jpg" width="120" height="48" alt="My Project">
         {% endblock logo %}
 
   n.b. the layout will stay exactly the same for any image with a height of
   48px (any width will do)
 
-* Custom JavaScript or CSS: add your files to the `example/override/media` directory
+* Custom JavaScript or CSS: add your files to the `sample_project/static/js` directory
   and extend the `extra_head` template block:
 
         {% block extra_head %}
             {{ block.super }}
-            <script type="text/javascript" src="{{ MEDIA_URL }}override/js/my_cool_tweaks.js">
+            <script type="text/javascript" src="{{ MEDIA_URL }}static/js/my_cool_tweaks.js">
         {% endblock extra_head %}
 
 ### Specific Pages
 
-Since `example/override/templates` is the first entry in `settings.TEMPLATE_DIRS` you
+Since `sample_project/templates/codespeed` is the first entry in `settings.TEMPLATE_DIRS` you
 may override any template on the site simply by creating a new one with the
 same name.
 
-* About page: create `example/override/templates/about.html`:
+* About page: create `sample_project/templates/about.html`:
 
-        {% extends "site_base.html" %}
+        {% extends "codespeed/base_site.html" %}
         {% block title %}{{ block.super }}: About this project{% endblock %}
         {% block body %}
             <div id="sidebar"></div>
@@ -154,18 +157,20 @@ same name.
             </div>
         {% endblock %}
 
+### Baselines and Comparison view executables
 
-## Baselines and Comparison view executables
 * The results associated to an executable and a revision which has a non blank
   tag field will be listed as a baseline option in the Timeline view.
 * Additionaly, the Comparison view will show the results of the latest revision
   of projects being tracked as an executable as well.
 
-## Defaults
-The file `example/settings.py` can contain customizations of
+### Defaults
+
+The file `sample_project/settings.py` can contain customizations of
 several parameters (the file includes comments with full examples).
 
-### General settings:
+### General settings
+
 * `WEBSITE_NAME`: The RSS results feed will use this parameter as the site name
 * `DEF_BASELINE`: Defines which baseline option will be chosen as default in
   the Timeline and Changes views.
@@ -174,19 +179,35 @@ several parameters (the file includes comments with full examples).
 * `CHANGE_THRESHOLD`
 * `TREND_THRESHOLD`
 
+### Home Page
+
+The main customization for the homepage is to display either the reports
+(daily changes) or the historical graphs (improvement over time).
+
+* `SHOW_REPORTS`: If set to `True` displays a table and RSS feed with the latest results
+* `SHOW_HISTORICAL`: Displays two graphs comparing tagged and latest versions of the default executable and project to the configured baseline.
+
+  To activate the historical graphs you will need to set the following settings (using values that work with the test data):
+
+  * `DEF_BASELINE = {'executable': 'baseExe', 'revision': '444'}`
+  * `DEF_EXECUTABLE = "myexe O3 64bits"`
+
 ### Changes View
+
 * `DEF_EXECUTABLE`: in the Changes view, a random executable is chosen as
   default. It that doesn't suite you, you can specify here which one should be
   selected. You need to specify its id (since the name alone is not unique).
 
 ### Timeline View
+
 * `DEF_BENCHMARK`: Defines the default timeline view. Possible values:
-    * `None`: will show a grid of plot thumbnails, or a text message when the number of plots exceeds 30
-    * `grid`: will always show as default the grid of plots
-    * `show_none`: will show a text message (better default when there are lots of benchmarks)
-    * `mybench`: will select benchmark named "mybench"
+  * `None`: will show a grid of plot thumbnails, or a text message when the number of plots exceeds 30
+  * `grid`: will always show as default the grid of plots
+  * `show_none`: will show a text message (better default when there are lots of benchmarks)
+  * `mybench`: will select benchmark named "mybench"
 
 ### Comparison View
+
 * `CHART_TYPE`: Chooses the default chart type (normal bars, stacked bars or
   relative bars)
 * `NORMALIZATION`: Defines whether normalization should be enabled as default
@@ -196,13 +217,16 @@ several parameters (the file includes comments with full examples).
   are a large number of tags or executables, it is better to only select a few
   so that the plots are not too cluttered.
   Given as a list of tuples containing the name of an executable + commitid of a revision. An 'L' denotes the last revision. Example:
+
 ```python
 COMP_EXECUTABLES = [
     ('myexe', '21df2423ra'),
-    ('myexe', 'L'),]
+    ('myexe', 'L'),
+]
 ```
 
 ## Getting help
+
 For help regarding the configuration of Codespeed, or to share any ideas or
 suggestions you may have, please post on Codespeed's [discussion
 group](http://groups.google.com/group/codespeed)

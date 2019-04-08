@@ -1,0 +1,56 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{% block title %}MyProject's Speed Center{% endblock %}</title>
+    <meta name="description" content="{% block description %}A performance analysis tool for software projects. It shows performance regresions and allows comparing different applications or implementations{% endblock %}">
+    <meta name="keywords" content="performance, test, plots, charts">
+    <meta charset="UTF-8">
+    <link href="{% static 'css/main.css' %}" rel="stylesheet" type="text/css">
+    {% block extra_head %}{% endblock %}
+  </head>
+  <body>
+    <div id="container">
+      {# TODO: Rename id=title to id=header and/or switch to <header> #}
+      <div id="title" class="clearfix">
+        {% block page_header %}
+        <a href="{% url 'home' %}">
+          {% block logo %}
+            <img src="{% static 'images/logo.png' %}" height="48" alt="logo"/>
+          {% endblock logo %}
+          </a>
+          <h2>{% block page_title %}SPEED CENTER{% endblock page_title %}</h2>
+          {% block top_nav %}
+            <ul id="links" class="inline">
+                <li><a href="{% url 'home' %}">Home</a></li><li><a href="{% url 'about' %}">About</a></li>
+            </ul>
+          {% endblock top_nav %}
+        {% endblock page_header %}
+      </div>
+
+<div id="wrapper">
+<div id="nav">
+{% block navigation %}
+<ul class="inline">
+  <li {% block nav-changes %}><a href=" {% url "changes" %}">Changes</a>{% endblock %}</li>
+  <li {% block nav-timeline %}><a href=" {% url "timeline" %}">Timeline</a>{% endblock %}</li>
+  <li {% block nav-comparison %}><a href=" {% url "comparison" %}">Comparison</a>{% endblock %}</li>
+</ul>
+{% endblock %}
+</div>
+<div id="workarea" class="clearfix">
+{% block body %}
+  <div id="configbar">Base template</div>
+{% endblock %}
+</div>
+</div>
+{% block footer %}
+<div class="footer">Powered by <a href="https://github.com/tobami/codespeed/">Codespeed</a>, <a href="http://www.djangoproject.com/">Django</a> and <a href="http://www.python.org">Python</a></div>
+{% endblock %}
+</div>
+
+  <script type="text/javascript" src="{% static 'js/jquery-1.12.3.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/codespeed.js' %}"></script>
+  {% block extra_script %}{% endblock %}
+</body>
+</html>

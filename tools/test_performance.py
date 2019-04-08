@@ -1,8 +1,12 @@
-import timeit, urllib, sys
+import timeit
+import urllib
+import sys
+
 
 SPEEDURL = 'http://localhost:8000/'
 
 benchmarks = ['ai', 'django',  'spambayes', 'grid']
+
 
 def test_overview():
     data = {
@@ -13,12 +17,13 @@ def test_overview():
         "host": "bigdog",
     }
     params = urllib.urlencode(data)
-    page= urllib.urlopen(SPEEDURL + 'overview/table/?' + params)
+    page = urllib.urlopen(SPEEDURL + 'overview/table/?' + params)
     jsonstring = page.read()
     page.close()
     if not '<table id="results" class="tablesorter">' in jsonstring:
         print "bad overview response"
         sys.exit(1)
+
 
 def test_timeline(bench):
     data = {
@@ -29,7 +34,7 @@ def test_timeline(bench):
         "revisions": 200
     }
     params = urllib.urlencode(data)
-    page= urllib.urlopen(SPEEDURL + 'timeline/json/?' + params)
+    page = urllib.urlopen(SPEEDURL + 'timeline/json/?' + params)
     jsonstring = page.read()
     #print jsonstring
     page.close()
@@ -44,13 +49,14 @@ if __name__ == "__main__":
     print
     print "OVERVIEW RESULTS"
     print "min:", min(results)
-    print "avg:", sum(results)/len(results)
+    print "avg:", sum(results) / len(results)
     print
     print "TIMELINE RESULTS"
     for bench in benchmarks:
-        t = timeit.Timer('test_timeline("'+bench+'")', 'from __main__ import test_timeline')
+        t = timeit.Timer('test_timeline("' + bench + '")',
+            'from __main__ import test_timeline')
         results = t.repeat(20, 1)
         print "benchmark =", bench
         print "min:", min(results)
-        print "avg:", sum(results)/len(results)
+        print "avg:", sum(results) / len(results)
     print

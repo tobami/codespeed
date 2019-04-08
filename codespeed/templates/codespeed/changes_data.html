@@ -1,0 +1,44 @@
+<div class="leftcolumn">
+{% include 'codespeed/changes_table.html' %}
+</div>
+
+<div class="rightcolumn">
+<table class="revision">
+    <col/>
+    <col/>
+<thead>
+  <tr>
+    <th colspan="2">Revision</th>
+  </tr>
+</thead>
+<tbody>
+  <tr class="commit-id">
+    <th class="infofirst">Commit</th>
+    <td>{% if rev.get_browsing_url %}<a href="{{ rev.get_browsing_url }}">{{ rev.commitid }}</a>{% else %}{{ rev.commitid }}{% endif %}</td>
+  </tr>
+  <tr class="date"><th class="infofirst">Date</td><td>{{ rev.date }}</td></tr>
+  {% ifnotequal rev.branch.project.repo_type "N" %}
+    <tr class="repo-path"><th class="infofirst">Repo</th><td>{{ rev.branch.project.repo_path }}</td></tr>
+  {% endifnotequal %}
+</tbody>
+</table>
+
+{% ifnotequal exe.project.repo_type 'N' %}
+  <table class="revision">
+      <col/>
+      <col/>
+    <thead class="commits">
+      <tr>
+        <th colspan="2">Commit logs</th>
+      </tr>
+    </thead>
+    <tbody class="commits" data-commitid="{{ rev.id }}">
+      <tr><td colspan="2" style="text-align:center;">Loading...</td></tr>
+    </tbody>
+    <script type="text/javascript">
+      var el = $("tbody.commits");
+      el.load("logs/", "revisionid=" + el.data("commitid"));
+    </script>
+</table>
+{% endifnotequal %}
+</div>

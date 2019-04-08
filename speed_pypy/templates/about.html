@@ -1,0 +1,29 @@
+{% extends "codespeed/base_site.html" %}
+{% block title %}{{ block.super }}: About this site{% endblock %}
+{% block body %}
+<div id="sidebar">
+</div>
+<div id="about" class="about_content clearfix">
+<h3>About this site</h3>
+<p>We have nightly benchmark runs of pypy, together with cpython 2.6.2 data for comparison.</p>
+<p>This site runs on top of Django and Codespeed</p>
+<h3>About the benchmarks</h3>
+<p>The code can be found <a href="https://bitbucket.org/pypy/benchmarks">here</a>.</p>
+<p>This is a benchmark suite based on Unladen Swallow, adapted for PyPY and
+runs on Python2. For a port of these benchmarks to Python3 see <a
+href="https://speed.python.org">the python speed site</a></p>
+<h3>About PyPy</h3>
+<p>PyPy is a very compliant implementation of the Python language.</p>
+<p>Main website: <a href="http://www.pypy.org">pypy.org</a></p>
+
+<p>Blog: <a href="http://morepypy.blogspot.com/">morepypy.blogspot.com</a>
+<h3>About Codespeed</h3>
+Codespeed is a web application to monitor and analyze the performance of your code.
+<p>Code: <a href="http://github.com/tobami/codespeed">github.com/tobami/codespeed</a></p>
+<p>Wiki: <a href="http://wiki.github.com/tobami/codespeed/">wiki.github.com/tobami/codespeed/</a></p>
+<h3>Contact</h3>
+<p>For problems or suggestions about this website write to</p>
+<p>the <a href="http://codespeak.net/mailman/listinfo/pypy-dev">pypy-dev mailing list</a> or directly to Miquel Torres (tobami at googlemail dot com)</p>
+
+</div>
+{% endblock %}

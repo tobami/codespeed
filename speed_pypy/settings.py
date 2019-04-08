@@ -2,6 +2,9 @@
 # Django settings for a Codespeed project.
 import os
 
+from codespeed.settings import *
+WEBSITE_NAME = "PyPy's Speed Center" # This name will be used in the reports RSS feed
+
 DEBUG = True
 
 BASEDIR = os.path.abspath(os.path.dirname(__file__))
@@ -33,8 +36,6 @@ USE_I18N = False
 MEDIA_ROOT = os.path.join(BASEDIR, "media")
 
 MEDIA_URL = '/media/'
-
-ADMIN_MEDIA_PREFIX = '/static/admin/'
 
 SECRET_KEY = 'as%n_m#)^vee2pe91^^@c))sl7^c6t-9r8n)_69%)2yt+(la2&'
 
@@ -83,6 +84,11 @@ STATICFILES_DIRS = (
     os.path.join(BASEDIR, 'static'),
 )
 
+SHOW_REPORTS = False
+SHOW_HISTORICAL = True
+DEF_BASELINE = {'executable': 'cpython', 'revision': '2.6.2'}
+DEF_EXECUTABLE = 'pypy-c-jit'
+DEF_ENVIRONMENT = 'tannit'
 
-# Codespeed settings that can be overwritten here.
-from codespeed.settings import *
+
+from .local_settings import *

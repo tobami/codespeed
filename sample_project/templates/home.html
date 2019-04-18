@@ -179,6 +179,9 @@
                 renderer:$.jqplot.BarRenderer,
                 showMarker: false
             },
+            axesDefaults: {
+                tickRenderer: $.jqplot.CanvasAxisTickRenderer
+            },
             series:[
                 {
                     pointLabels:{labels:geolabels}
@@ -187,7 +190,8 @@
             axes: {
                 xaxis: {
                     renderer: $.jqplot.CategoryAxisRenderer,
-                    ticks: ticks
+                    ticks: ticks,
+                    tickOptions: {angle: -40}
                 },
                 yaxis:{
                     min: 0,

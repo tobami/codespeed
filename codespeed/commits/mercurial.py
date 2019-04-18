@@ -63,7 +63,7 @@ def getlogs(endrev, startrev):
     if p.returncode != 0:
         raise CommitLogError(str(stderr))
     else:
-        stdout = stdout.rstrip('\n')  # Remove last newline
+        stdout = stdout.decode('utf-8').rstrip('\n')  # Remove last newline
         logs = []
         for log in stdout.split("=newlog=\n"):
             elements = []

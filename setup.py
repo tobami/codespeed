@@ -32,3 +32,4 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
     ]
 )
+

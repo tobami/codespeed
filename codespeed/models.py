@@ -475,7 +475,7 @@ class Report(models.Model):
                     val_max = "-"
 
                 # Calculate percentage change relative to previous result
-                result = resobj.value
+                result = max(resobj.value, 0)
                 change = "-"
                 if len(change_list):
                     c = change_list.filter(benchmark=bench)

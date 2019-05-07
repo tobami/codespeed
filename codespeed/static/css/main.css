@@ -119,7 +119,7 @@ div#presentation div.menubox {
 }
 div#presentation div.menubox:hover { border: 5px solid #FFCE9C; }
 
-div#presentation p { height: 5em; padding-left: 120px; }
+div#presentation div.menubox p { height: 5em; padding-left: 120px; }
 
 div#presentation div#changes p {
     background: url(../images/changes.png) no-repeat;

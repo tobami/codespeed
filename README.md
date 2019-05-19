@@ -161,7 +161,7 @@ same name.
 
 * The results associated to an executable and a revision which has a non blank
   tag field will be listed as a baseline option in the Timeline view.
-* Additionaly, the Comparison view will show the results of the latest revision
+* Additionally, the Comparison view will show the results of the latest revision
   of projects being tracked as an executable as well.
 
 ### Defaults

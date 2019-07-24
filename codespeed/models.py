@@ -417,8 +417,8 @@ class Report(models.Model):
             default_trend = settings.TREND
         # If the trend is the default and a forced save is not required
         # just return the cached changes table
-        if not force_save and trend_depth == default_trend:
-            return self._get_tablecache()
+        # if not force_save and trend_depth == default_trend:
+        #    return self._get_tablecache()
         # Otherwise generate a new changes table
         # Get latest revisions for this branch (which also sets the project)
         lastrevisions = self.get_last_revisions(trend_depth)
@@ -541,7 +541,8 @@ class Report(models.Model):
                     'val_min': val_min,
                     'val_max': val_max,
                     'change': change,
-                    'trend': trend
+                    'trend': trend,
+                    'artifacts_location': "{}/{}/".format(self.revision.commitid, bench.name)
                 })
 
             # Compute Arithmetic averages
@@ -577,6 +578,7 @@ class Report(models.Model):
             })
         if force_save:
             self._save_tablecache(tablelist)
+
         return tablelist
 
     def get_absolute_url(self):

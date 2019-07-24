@@ -417,8 +417,8 @@ class Report(models.Model):
             default_trend = settings.TREND
         # If the trend is the default and a forced save is not required
         # just return the cached changes table
-        # if not force_save and trend_depth == default_trend:
-        #    return self._get_tablecache()
+        if not force_save and trend_depth == default_trend:
+            return self._get_tablecache()
         # Otherwise generate a new changes table
         # Get latest revisions for this branch (which also sets the project)
         lastrevisions = self.get_last_revisions(trend_depth)

@@ -541,7 +541,8 @@ class Report(models.Model):
                     'val_min': val_min,
                     'val_max': val_max,
                     'change': change,
-                    'trend': trend
+                    'trend': trend,
+                    'artifacts_location': "{}/{}/".format(self.revision.commitid, bench.name)
                 })
 
             # Compute Arithmetic averages
@@ -577,6 +578,7 @@ class Report(models.Model):
             })
         if force_save:
             self._save_tablecache(tablelist)
+
         return tablelist
 
     def get_absolute_url(self):

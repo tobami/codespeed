@@ -20,6 +20,7 @@
   {% ifnotequal rev.branch.project.repo_type "N" %}
     <tr class="repo-path"><th class="infofirst">Repo</th><td>{{ rev.branch.project.repo_path }}</td></tr>
   {% endifnotequal %}
+  <tr class="artifacts"><th class="artifactstitle">Artifacts</th><td><a href="/artifacts/{{ rev.commitid }}">link</a></td></tr>
 </tbody>
 </table>
 

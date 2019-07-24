@@ -420,7 +420,7 @@ table.info tbody .infofirst { width: 10em; text-align: left; }
 
 tbody.commits tr td { border-bottom: 1px solid #CDCDCD; vertical-align: top; }
 tbody.commits tr > td:first-child { padding-right: 20px; }
-tbody.commits tr td.date, table.revision tr .infofirst, div.author, span.note, table.info tbody .infofirst {
+tbody.commits tr td.date, table.revision tr .infofirst, div.author, span.note, table.info tbody .infofirst, table.revision tr .artifactstitle {
     font-size: 92%;
     color: #666666;
 }

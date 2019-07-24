@@ -40,7 +40,7 @@
     {% endif%}{% if units.hasmax %}<td>{{ row.val_max|floatformat:units.precission }}</td>
     {% endif%}<td>{% ifequal row.change "-" %}-{% else %}{{ row.change|percentage }}%{% endifequal %}</td>
     <td>{% ifequal row.trend "-" %}-{% else %}{{ row.trend|percentage }}%{% endifequal %}</td>
-    <td><a href="/artifacts/{{ row.artifacts_location }}">url</a></td>
+    <td><a href="/artifacts/{{ row.artifacts_location }}">link</a></td>
   </tr>{% endfor %}
 </tbody>
 </table>{% endfor %}

@@ -1,7 +1,7 @@
 import datetime
 import logging
 import os
-from string import strip
+
 from subprocess import Popen, PIPE
 
 from django.conf import settings
@@ -72,7 +72,7 @@ def getlogs(endrev, startrev):
     logs = []
     for log in filter(None, stdout.split(b'\x1e')):
         (short_commit_id, commit_id, date_t, author_name, author_email,
-         subject, body) = map(strip, log.split(b'\x00', 7))
+         subject, body) = (s.strip() for s in log.split(b'\x00', 7))
 
         tag = ""
 

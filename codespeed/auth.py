@@ -1,4 +1,5 @@
 import logging
+import types
 from functools import wraps
 from django.contrib.auth import authenticate, login
 from django.http import HttpResponse, HttpResponseForbidden
@@ -7,6 +8,20 @@ from base64 import b64decode
 
 __ALL__ = ['basic_auth_required']
 logger = logging.getLogger(__name__)
+
+
+def is_authenticated(request):
+    # NOTE: We do type check so we also support newer versions of Djando when
+    # is_authenticated and some other methods have been properties
+    if isinstance(request.user.is_authenticated, (types.FunctionType,
+                                                  types.MethodType)):
+        return request.user.is_authenticated()
+    elif isinstance(request.user.is_authenticated, bool):
+        return request.user.is_authenticated
+    else:
+        logger.info('Got unexpected type for request.user.is_authenticated '
+                    'variable')
+        return False
 
 
 def basic_auth_required(realm='default'):
@@ -18,7 +33,7 @@ def basic_auth_required(realm='default'):
             if settings.ALLOW_ANONYMOUS_POST:
                 logger.debug('allowing anonymous post')
                 allowed = True
-            elif hasattr(request, 'user') and request.user.is_authenticated():
+            elif hasattr(request, 'user') and is_authenticated(request=request):
                 allowed = True
             elif 'HTTP_AUTHORIZATION' in request.META:
                 logger.debug('checking for http authorization header')

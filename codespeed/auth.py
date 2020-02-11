@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 def is_authenticated(request):
-    # NOTE: We do type check so we also support newer versions of Djando when
+    # NOTE: We do type check so we also support newer versions of Django when
     # is_authenticated and some other methods have been properties
     if isinstance(request.user.is_authenticated, (types.FunctionType,
                                                   types.MethodType)):

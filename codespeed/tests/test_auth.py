@@ -5,8 +5,10 @@ import mock
 from django.test import TestCase, override_settings
 from django.http import HttpResponse
 from django.contrib.auth.models import AnonymousUser
+from django.test import RequestFactory
 
 from codespeed.auth import basic_auth_required
+from codespeed.views import add_result
 
 
 @override_settings(ALLOW_ANONYMOUS_POST=False)
@@ -108,3 +110,29 @@ class AuthModuleTestCase(TestCase):
         self.assertTrue(isinstance(res, HttpResponse))
         self.assertEqual(res.status_code, 401)
         self.assertEqual(wrapped_function.call_count, 0)
+
+    @mock.patch('codespeed.views.save_result', mock.Mock())
+    def test_basic_auth_with_failed_auth_request_factory(self):
+        request_factory = RequestFactory()
+
+        request = request_factory.get('/timeline')
+        request.user = AnonymousUser()
+        request.method = 'POST'
+
+        response = add_result(request)
+        self.assertEqual(response.status_code, 403)
+
+    @mock.patch('codespeed.views.create_report_if_enough_data', mock.Mock())
+    @mock.patch('codespeed.views.save_result', mock.Mock(return_value=([1, 2, 3], None)))
+    def test_basic_auth_successefull_auth_request_factory(self):
+        request_factory = RequestFactory()
+
+        user = mock.Mock()
+        user.is_authenticated = True
+
+        request = request_factory.get('/result/add')
+        request.user = user
+        request.method = 'POST'
+
+        response = add_result(request)
+        self.assertEqual(response.status_code, 202)

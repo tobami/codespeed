@@ -11,13 +11,16 @@ import logging
 try:
     # Python 3
     from urllib.request import urlopen
+    from urllib.request import Request
 except ImportError:
     # Python 2
-    from urllib import urlopen
+    from urllib2 import urlopen
+    from urllib2 import Request
 import re
 import json
 
 import isodate
+from django.conf import settings
 from django.core.cache import cache
 from django.conf import settings
 
@@ -43,8 +46,17 @@ def fetch_json(url):
     json_obj = cache.get(url)
 
     if json_obj is None:
+        github_oauth_token = getattr(settings, 'GITHUB_OAUTH_TOKEN', None)
+
+        if github_oauth_token:
+            headers = {'Authorization': 'token %s' % (github_oauth_token)}
+        else:
+            headers = {}
+
+        request = Request(url=url, headers=headers)
+
         try:
-            json_obj = json.load(urlopen(url))
+            json_obj = json.load(urlopen(request))
         except IOError as e:
             logger.exception("Unable to load %s: %s",
                              url, e, exc_info=True)

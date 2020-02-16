@@ -86,3 +86,7 @@ REQUIRE_SECURE_AUTH = True  # Whether auth needs to be over a secure channel
 
 US_TZ_AWARE_DATES = False  # True to use timezone aware datetime objects with Github provider.
                            # NOTE: Some database backends may not support tz aware dates.
+
+GITHUB_OAUTH_TOKEN = None  # Github oAuth token to use when using Github repo type. If not
+                           # specified, it will utilize unauthenticated requests which have
+                           # low rate limits.

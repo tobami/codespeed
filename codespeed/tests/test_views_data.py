@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
+from django.test import override_settings
 
 from codespeed.models import Project, Executable, Branch, Revision
 from codespeed.views import getbaselineexecutables
+from codespeed.views_data import get_sanitized_executable_name_for_timeline_view
+from codespeed.views_data import get_sanitized_executable_name_for_comparison_view
 
 
 class TestGetBaselineExecutables(TestCase):
@@ -38,3 +41,25 @@ class TestGetBaselineExecutables(TestCase):
         Revision.objects.create(commitid='3', branch=self.branch)
         result = getbaselineexecutables()
         self.assertEqual(len(result), 3)
+
+
+class UtilityFunctionsTestCase(TestCase):
+    @override_settings(TIMELINE_EXECUTABLE_NAME_MAX_LEN=22)
+    def test_get_sanitized_executable_name_for_timeline_view(self):
+        executable = Executable(name='a' * 22)
+        name = get_sanitized_executable_name_for_timeline_view(executable)
+        self.assertEqual(name, 'a' * 22)
+
+        executable = Executable(name='a' * 25)
+        name = get_sanitized_executable_name_for_timeline_view(executable)
+        self.assertEqual(name, 'a' * 22 + '...')
+
+    @override_settings(COMPARISON_EXECUTABLE_NAME_MAX_LEN=20)
+    def test_get_sanitized_executable_name_for_comparision_view(self):
+        executable = Executable(name='b' * 20)
+        name = get_sanitized_executable_name_for_comparison_view(executable)
+        self.assertEqual(name, 'b' * 20)
+
+        executable = Executable(name='b' * 25)
+        name = get_sanitized_executable_name_for_comparison_view(executable)
+        self.assertEqual(name, 'b' * 20 + '...')

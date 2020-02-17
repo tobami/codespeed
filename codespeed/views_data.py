@@ -138,7 +138,7 @@ def getcomparisonexes():
                     if len(exestring) > maxlen:
                         exestring = str(exe)[0:maxlen] + "..."
                     name = exestring + " latest"
-                    if branch.name != 'default':
+                    if branch.name != proj.default_branch:
                         name += " in branch '" + branch.name + "'"
                     key = str(exe.id) + "+L+" + branch.name
                     executablekeys.append(key)

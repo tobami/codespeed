@@ -78,6 +78,13 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
 
+TIMELINE_EXECUTABLE_NAME_MAX_LEN = 22  # Maximum length of the executable name used in the
+                                       # Changes and Timeline view. If the name is longer, the name
+                                       # will be truncated and "..." will be added at the end.
+
+COMPARISON_EXECUTABLE_NAME_MAX_LEN = 20  # Maximum length of the executable name  used in the
+                                         # Coomparison view. If the name is longer, the name
+
 USE_MEDIAN_BANDS = True # True to enable median bands on Timeline view
 
 

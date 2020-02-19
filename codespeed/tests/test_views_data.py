@@ -141,7 +141,7 @@ class TestGetComparisonExes(TestCase):
         self.assertEqual(exe_keys[2], '1+L+custom')
         self.assertEqual(exe_keys[3], '2+L+custom')
 
-        
+
 class UtilityFunctionsTestCase(TestCase):
     @override_settings(TIMELINE_EXECUTABLE_NAME_MAX_LEN=22)
     def test_get_sanitized_executable_name_for_timeline_view(self):

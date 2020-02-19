@@ -58,13 +58,10 @@ def getbaselineexecutables():
     }]
     executables = Executable.objects.select_related('project')
     revs = Revision.objects.exclude(tag="").select_related('branch__project')
-    maxlen = 22
     for rev in revs:
         # Add executables that correspond to each tagged revision.
         for exe in [e for e in executables if e.project == rev.branch.project]:
-            exestring = str(exe)
-            if len(exestring) > maxlen:
-                exestring = str(exe)[0:maxlen] + "..."
+            exestring = get_sanitized_executable_name_for_timeline_view(exe)
             name = exestring + " " + rev.tag
             key = str(exe.id) + "+" + str(rev.id)
             baseline.append({
@@ -116,7 +113,6 @@ def getcomparisonexes():
     for proj in Project.objects.all():
         executables = []
         executablekeys = []
-        maxlen = 20
         # add all tagged revs for any project
         for exe in baselines:
             if exe['key'] != "none" and exe['executable'].project == proj:
@@ -134,9 +130,7 @@ def getcomparisonexes():
             # because we already added tagged revisions
             if rev.tag == "":
                 for exe in Executable.objects.filter(project=proj):
-                    exestring = str(exe)
-                    if len(exestring) > maxlen:
-                        exestring = str(exe)[0:maxlen] + "..."
+                    exestring = get_sanitized_executable_name_for_comparison_view(exe)
                     name = exestring + " latest"
                     if branch.name != proj.default_branch:
                         name += " in branch '" + branch.name + "'"
@@ -260,3 +254,47 @@ def get_stats_with_defaults(res):
     if res.q3 is not None:
         q3 = res.q3
     return q1, q3, val_max, val_min
+
+
+def get_sanitized_executable_name_for_timeline_view(executable):
+    """
+    Return sanitized executable name which is used in the sidebar in the
+    Timeline and Changes view.
+
+    If the name is longer than settings.TIMELINE_EXECUTABLE_NAME_MAX_LEN,
+    the name will be truncated to that length and "..." appended to it.
+
+    :param executable: Executable object.
+    :type executable: :class:``codespeed.models.Executable``
+
+    :return: ``str``
+    """
+    maxlen = getattr(settings, 'TIMELINE_EXECUTABLE_NAME_MAX_LEN', 20)
+
+    exestring = str(executable)
+    if len(exestring) > maxlen:
+        exestring = str(executable)[0:maxlen] + "..."
+
+    return exestring
+
+
+def get_sanitized_executable_name_for_comparison_view(executable):
+    """
+    Return sanitized executable name which is used in the sidebar in the
+    comparision view.
+
+    If the name is longer than settings.COMPARISON_EXECUTABLE_NAME_MAX_LEN,
+    the name will be truncated to that length and "..." appended to it.
+
+    :param executable: Executable object.
+    :type executable: :class:``codespeed.models.Executable``
+
+    :return: ``str``
+    """
+    maxlen = getattr(settings, 'COMPARISON_EXECUTABLE_NAME_MAX_LEN', 22)
+
+    exestring = str(executable)
+    if len(exestring) > maxlen:
+        exestring = str(executable)[0:maxlen] + "..."
+
+    return exestring

@@ -20,8 +20,8 @@ import re
 import json
 
 import isodate
-from django.conf import settings
 from django.core.cache import cache
+from django.conf import settings
 
 from .exceptions import CommitLogError
 
@@ -103,11 +103,13 @@ def retrieve_revision(commit_id, username, project, revision=None):
     if revision:
         # Overwrite any existing data we might have for this revision since
         # we never want our records to be out of sync with the actual VCS:
-
-        # We need to convert the timezone-aware date to a naive (i.e.
-        # timezone-less) date in UTC to avoid killing MySQL:
-        revision.date = date.astimezone(
-            isodate.tzinfo.Utc()).replace(tzinfo=None)
+        if not getattr(settings, 'USE_TZ_AWARE_DATES', False):
+            # We need to convert the timezone-aware date to a naive (i.e.
+            # timezone-less) date in UTC to avoid killing MySQL:
+            logger.debug('USE_TZ_AWARE_DATES setting is set to False, '
+                         'converting datetime object to a naive one')
+            revision.date = date.astimezone(
+                isodate.tzinfo.Utc()).replace(tzinfo=None)
         revision.author = commit_json['author']['name']
         revision.message = commit_json['message']
         revision.full_clean()

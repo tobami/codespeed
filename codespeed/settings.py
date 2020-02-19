@@ -78,11 +78,21 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
 
+TIMELINE_EXECUTABLE_NAME_MAX_LEN = 22  # Maximum length of the executable name used in the
+                                       # Changes and Timeline view. If the name is longer, the name
+                                       # will be truncated and "..." will be added at the end.
+
+COMPARISON_EXECUTABLE_NAME_MAX_LEN = 20  # Maximum length of the executable name  used in the
+                                         # Coomparison view. If the name is longer, the name
+
 USE_MEDIAN_BANDS = True # True to enable median bands on Timeline view
 
 
 ALLOW_ANONYMOUS_POST = True  # Whether anonymous users can post results
 REQUIRE_SECURE_AUTH = True  # Whether auth needs to be over a secure channel
+
+US_TZ_AWARE_DATES = False  # True to use timezone aware datetime objects with Github provider.
+                           # NOTE: Some database backends may not support tz aware dates.
 
 GITHUB_OAUTH_TOKEN = None  # Github oAuth token to use when using Github repo type. If not
                            # specified, it will utilize unauthenticated requests which have

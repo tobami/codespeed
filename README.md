@@ -225,6 +225,15 @@ COMP_EXECUTABLES = [
 ]
 ```
 
+### VCS Provider Specific Settings
+
+#### Github
+
+* ``GITHUB_OAUTH_TOKEN`` - Github oAuth token to use for authenticating against
+  the Github API. If not provided, it will default to unauthenticated API requests
+  which have low rate limits so an exception may be thrown when retrieving info
+  from the Github API due to the rate limit being reached.
+
 ## Getting help
 
 For help regarding the configuration of Codespeed, or to share any ideas or

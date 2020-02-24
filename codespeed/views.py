@@ -225,7 +225,7 @@ def comparison(request):
                 else:
                     rev = Revision.objects.get(commitid=rev)
                     key += str(rev.id)
-                key += "+default"
+                key += "+%s" % (exe.project.default_branch)
                 if key in exekeys:
                     checkedexecutables.append(key)
                 else:

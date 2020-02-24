@@ -37,7 +37,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(Branch)
 class BranchAdmin(admin.ModelAdmin):
-    list_display = ('name', 'project')
+    list_display = ('name', 'project', 'display_on_comparison_page')
     list_filter = ('project',)
 
 

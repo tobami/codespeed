@@ -141,6 +141,41 @@ class TestGetComparisonExes(TestCase):
         self.assertEqual(exe_keys[2], '1+L+custom')
         self.assertEqual(exe_keys[3], '2+L+custom')
 
+    def test_get_comparisionexes_branch_filtering(self):
+        # branch1 and branch3 have display_on_comparison_page flag set to False
+        # so they shouldn't be included in the result
+        branch1 = Branch.objects.create(name='branch1', project=self.project,
+                                        display_on_comparison_page=False)
+        branch2 = Branch.objects.create(name='branch2', project=self.project,
+                                        display_on_comparison_page=True)
+        branch3 = Branch.objects.create(name='branch3', project=self.project,
+                                        display_on_comparison_page=False)
+
+        Revision.objects.create(
+            branch=branch1, commitid='1')
+        Revision.objects.create(
+            branch=branch2, commitid='1')
+        Revision.objects.create(
+            branch=branch3, commitid='1')
+
+        executables, exe_keys = getcomparisonexes()
+        self.assertEqual(len(executables), 1)
+        self.assertEqual(len(executables[self.project]), 6)
+        self.assertEqual(len(exe_keys), 6)
+
+        expected_exe_keys = [
+            '1+L+master',
+            '2+L+master',
+            '1+L+custom',
+            '2+L+custom',
+            '1+L+branch2',
+            '2+L+branch2'
+        ]
+        self.assertEqual(exe_keys, expected_exe_keys)
+
+        for index, exe_key in enumerate(expected_exe_keys):
+            self.assertEqual(executables[self.project][index]['key'], exe_key)
+
 
 class UtilityFunctionsTestCase(TestCase):
     @override_settings(TIMELINE_EXECUTABLE_NAME_MAX_LEN=22)

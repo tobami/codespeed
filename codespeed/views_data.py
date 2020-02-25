@@ -132,7 +132,7 @@ def getcomparisonexes():
                 for exe in Executable.objects.filter(project=proj):
                     exestring = get_sanitized_executable_name_for_comparison_view(exe)
                     name = exestring + " latest"
-                    if branch.name != 'default':
+                    if branch.name != proj.default_branch:
                         name += " in branch '" + branch.name + "'"
                     key = str(exe.id) + "+L+" + branch.name
                     executablekeys.append(key)

@@ -4,6 +4,7 @@ from django.test import override_settings
 
 from codespeed.models import Project, Executable, Branch, Revision
 from codespeed.views import getbaselineexecutables
+from codespeed.views import getcomparisonexes
 from codespeed.views_data import get_sanitized_executable_name_for_timeline_view
 from codespeed.views_data import get_sanitized_executable_name_for_comparison_view
 
@@ -41,6 +42,104 @@ class TestGetBaselineExecutables(TestCase):
         Revision.objects.create(commitid='3', branch=self.branch)
         result = getbaselineexecutables()
         self.assertEqual(len(result), 3)
+
+
+class TestGetComparisonExes(TestCase):
+    def setUp(self):
+        self.project = Project.objects.create(name='Test')
+        self.executable_1 = Executable.objects.create(
+            name='TestExecutable1', project=self.project)
+        self.executable_2 = Executable.objects.create(
+            name='TestExecutable2', project=self.project)
+        self.branch_master = Branch.objects.create(name='master',
+                                                   project=self.project)
+        self.branch_custom = Branch.objects.create(name='custom',
+                                                   project=self.project)
+
+        self.revision_1_master = Revision.objects.create(
+            branch=self.branch_master, commitid='1')
+        self.revision_1_custom = Revision.objects.create(
+            branch=self.branch_custom, commitid='1')
+
+    def test_get_comparisionexes_master_default_branch(self):
+        # Standard "master" default branch is used
+        self.project.default_branch = 'master'
+        self.project.save()
+
+        executables, exe_keys = getcomparisonexes()
+        self.assertEqual(len(executables), 1)
+        self.assertEqual(len(executables[self.project]), 4)
+        self.assertEqual(len(exe_keys), 4)
+
+        self.assertEqual(executables[self.project][0]['executable'],
+                         self.executable_1)
+        self.assertEqual(executables[self.project][0]['revision'],
+                         self.revision_1_master)
+        self.assertEqual(executables[self.project][0]['key'],
+                         '1+L+master')
+        self.assertEqual(executables[self.project][0]['name'],
+                         'TestExecutable1 latest')
+        self.assertEqual(executables[self.project][0]['revision'],
+                         self.revision_1_master)
+
+        self.assertEqual(executables[self.project][1]['key'],
+                         '2+L+master')
+        self.assertEqual(executables[self.project][1]['name'],
+                         'TestExecutable2 latest')
+
+        self.assertEqual(executables[self.project][2]['key'],
+                         '1+L+custom')
+        self.assertEqual(executables[self.project][2]['name'],
+                         'TestExecutable1 latest in branch \'custom\'')
+
+        self.assertEqual(executables[self.project][3]['key'],
+                         '2+L+custom')
+        self.assertEqual(executables[self.project][3]['name'],
+                         'TestExecutable2 latest in branch \'custom\'')
+
+        self.assertEqual(exe_keys[0], '1+L+master')
+        self.assertEqual(exe_keys[1], '2+L+master')
+
+    def test_get_comparisionexes_custom_default_branch(self):
+        # Custom default branch is used
+        self.project.default_branch = 'custom'
+        self.project.save()
+
+        executables, exe_keys = getcomparisonexes()
+        self.assertEqual(len(executables), 1)
+        self.assertEqual(len(executables[self.project]), 4)
+        self.assertEqual(len(exe_keys), 4)
+
+        self.assertEqual(executables[self.project][0]['executable'],
+                         self.executable_1)
+        self.assertEqual(executables[self.project][0]['revision'],
+                         self.revision_1_master)
+        self.assertEqual(executables[self.project][0]['key'],
+                         '1+L+master')
+        self.assertEqual(executables[self.project][0]['name'],
+                         'TestExecutable1 latest in branch \'master\'')
+        self.assertEqual(executables[self.project][0]['revision'],
+                         self.revision_1_master)
+
+        self.assertEqual(executables[self.project][1]['key'],
+                         '2+L+master')
+        self.assertEqual(executables[self.project][1]['name'],
+                         'TestExecutable2 latest in branch \'master\'')
+
+        self.assertEqual(executables[self.project][2]['key'],
+                         '1+L+custom')
+        self.assertEqual(executables[self.project][2]['name'],
+                         'TestExecutable1 latest')
+
+        self.assertEqual(executables[self.project][3]['key'],
+                         '2+L+custom')
+        self.assertEqual(executables[self.project][3]['name'],
+                         'TestExecutable2 latest')
+
+        self.assertEqual(exe_keys[0], '1+L+master')
+        self.assertEqual(exe_keys[1], '2+L+master')
+        self.assertEqual(exe_keys[2], '1+L+custom')
+        self.assertEqual(exe_keys[3], '2+L+custom')
 
 
 class UtilityFunctionsTestCase(TestCase):

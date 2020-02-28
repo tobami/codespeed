@@ -151,12 +151,9 @@ class TestGetComparisonExes(TestCase):
         branch3 = Branch.objects.create(name='branch3', project=self.project,
                                         display_on_comparison_page=False)
 
-        Revision.objects.create(
-            branch=branch1, commitid='1')
-        Revision.objects.create(
-            branch=branch2, commitid='1')
-        Revision.objects.create(
-            branch=branch3, commitid='1')
+        Revision.objects.create(branch=branch1, commitid='1')
+        Revision.objects.create(branch=branch2, commitid='1')
+        Revision.objects.create(branch=branch3, commitid='1')
 
         executables, exe_keys = getcomparisonexes()
         self.assertEqual(len(executables), 1)

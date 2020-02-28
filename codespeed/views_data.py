@@ -120,7 +120,7 @@ def getcomparisonexes():
                 executables.append(exe)
 
         # add latest revs of the project
-        branches = Branch.objects.filter(project=proj)
+        branches = Branch.objects.filter(project=proj, display_on_comparison_page=True)
         for branch in branches:
             try:
                 rev = Revision.objects.filter(branch=branch).latest('date')

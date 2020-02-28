@@ -107,6 +107,9 @@ class Branch(models.Model):
     name = models.CharField(max_length=32)
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name="branches")
+    display_on_comparison_page = models.BooleanField(
+        "True to display this branch on the comparison page",
+        default=True)
 
     def __str__(self):
         return self.project.name + ":" + self.name

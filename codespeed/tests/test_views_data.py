@@ -199,9 +199,12 @@ class TestGetComparisonExes(TestCase):
             self.assertEqual(len(executables[self.project]), 2 * 2 + 2 * 1)
             self.assertEqual(len(exe_keys), 2 * 2 + 2 * 1)
 
-            self.assertExecutablesListContainsRevision(executables[self.project], rev_v4)
-            self.assertExecutablesListDoesntContainRevision(executables[self.project], rev_v5)
-            self.assertExecutablesListDoesntContainRevision(executables[self.project], rev_v6)
+            self.assertExecutablesListContainsRevision(
+                executables[self.project], rev_v4)
+            self.assertExecutablesListDoesntContainRevision(
+                executables[self.project], rev_v5)
+            self.assertExecutablesListDoesntContainRevision(
+                executables[self.project], rev_v6)
 
         # No tags should be included
         with override_settings(COMPARISON_TAGS=[]):
@@ -210,9 +213,12 @@ class TestGetComparisonExes(TestCase):
             self.assertEqual(len(executables[self.project]), 2 * 2)
             self.assertEqual(len(exe_keys), 2 * 2)
 
-            self.assertExecutablesListDoesntContainRevision(executables[self.project], rev_v4)
-            self.assertExecutablesListDoesntContainRevision(executables[self.project], rev_v5)
-            self.assertExecutablesListDoesntContainRevision(executables[self.project], rev_v6)
+            self.assertExecutablesListDoesntContainRevision(
+                executables[self.project], rev_v4)
+            self.assertExecutablesListDoesntContainRevision(
+                executables[self.project], rev_v5)
+            self.assertExecutablesListDoesntContainRevision(
+                executables[self.project], rev_v6)
 
     def assertExecutablesListContainsRevision(self, executables, revision):
         found = self._executable_list_contains_revision(executables=executables,
@@ -220,7 +226,7 @@ class TestGetComparisonExes(TestCase):
 
         if not found:
             self.assertFalse("Didn't find revision \"%s\" in executable list \"%s\"" %
-                            (str(revision), str(executables)))
+                             (str(revision), str(executables)))
 
     def assertExecutablesListDoesntContainRevision(self, executables, revision):
         found = self._executable_list_contains_revision(executables=executables,
@@ -228,7 +234,7 @@ class TestGetComparisonExes(TestCase):
 
         if found:
             self.assertFalse("Found revision \"%s\", but didn't expect it" %
-                            (str(revision)))
+                             (str(revision)))
 
     def _executable_list_contains_revision(self, executables, revision):
         for executable in executables:

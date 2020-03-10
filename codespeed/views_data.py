@@ -51,8 +51,8 @@ def get_default_environment(enviros, data, multi=False):
 
 def getbaselineexecutables(include_tags=None):
     """
-    :param include_tags: A list of tags to include in the result. If not specified, it will
-                        include all the available tags.
+    :param include_tags: A list of tags to include in the result. If set to
+                         None,, it will include all the available tags.
     :type include_tags: ``list``
     """
     baseline = [{

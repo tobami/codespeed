@@ -49,7 +49,12 @@ def get_default_environment(enviros, data, multi=False):
         return defaultenviros[0]
 
 
-def getbaselineexecutables():
+def getbaselineexecutables(include_tags=None):
+    """
+    :param include_tags: A list of tags to include in the result. If not specified, it will
+                        include all the available tags.
+    :type include_tags: ``list``
+    """
     baseline = [{
         'key': "none",
         'name': "None",
@@ -57,7 +62,14 @@ def getbaselineexecutables():
         'revision': "none",
     }]
     executables = Executable.objects.select_related('project')
-    revs = Revision.objects.exclude(tag="").select_related('branch__project')
+
+    if include_tags is not None:
+        revs = Revision.objects.filter(tag__in=include_tags)
+    else:
+        revs = Revision.objects.exclude(tag="")
+
+    revs = revs.select_related('branch__project')
+
     for rev in revs:
         # Add executables that correspond to each tagged revision.
         for exe in [e for e in executables if e.project == rev.branch.project]:
@@ -107,9 +119,12 @@ def getdefaultexecutable():
 
 
 def getcomparisonexes():
+    comparison_tags = getattr(settings, 'COMPARISON_TAGS', None)
+
     all_executables = {}
     exekeys = []
-    baselines = getbaselineexecutables()
+    baselines = getbaselineexecutables(include_tags=comparison_tags)
+
     for proj in Project.objects.all():
         executables = []
         executablekeys = []

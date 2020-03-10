@@ -78,6 +78,10 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
 
+COMPARISON_TAGS = None  # List of tag names which should be included on the comparision page.
+                        # If this value is set to None, all the available tags will be included.
+                        # Empty list means no tags will be included.
+
 TIMELINE_EXECUTABLE_NAME_MAX_LEN = 22  # Maximum length of the executable name used in the
                                        # Changes and Timeline view. If the name is longer, the name
                                        # will be truncated and "..." will be added at the end.

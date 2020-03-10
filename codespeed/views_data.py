@@ -296,7 +296,7 @@ def get_sanitized_executable_name_for_timeline_view(executable):
 def get_sanitized_executable_name_for_comparison_view(executable):
     """
     Return sanitized executable name which is used in the sidebar in the
-    comparision view.
+    comparison view.
 
     If the name is longer than settings.COMPARISON_EXECUTABLE_NAME_MAX_LEN,
     the name will be truncated to that length and "..." appended to it.

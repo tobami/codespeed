@@ -61,7 +61,7 @@ class TestGetComparisonExes(TestCase):
         self.revision_1_custom = Revision.objects.create(
             branch=self.branch_custom, commitid='1')
 
-    def test_get_comparisionexes_master_default_branch(self):
+    def test_get_comparisonexes_master_default_branch(self):
         # Standard "master" default branch is used
         self.project.default_branch = 'master'
         self.project.save()
@@ -100,7 +100,7 @@ class TestGetComparisonExes(TestCase):
         self.assertEqual(exe_keys[0], '1+L+master')
         self.assertEqual(exe_keys[1], '2+L+master')
 
-    def test_get_comparisionexes_custom_default_branch(self):
+    def test_get_comparisonexes_custom_default_branch(self):
         # Custom default branch is used
         self.project.default_branch = 'custom'
         self.project.save()
@@ -141,7 +141,7 @@ class TestGetComparisonExes(TestCase):
         self.assertEqual(exe_keys[2], '1+L+custom')
         self.assertEqual(exe_keys[3], '2+L+custom')
 
-    def test_get_comparisionexes_branch_filtering(self):
+    def test_get_comparisonexes_branch_filtering(self):
         # branch1 and branch3 have display_on_comparison_page flag set to False
         # so they shouldn't be included in the result
         branch1 = Branch.objects.create(name='branch1', project=self.project,
@@ -173,7 +173,7 @@ class TestGetComparisonExes(TestCase):
         for index, exe_key in enumerate(expected_exe_keys):
             self.assertEqual(executables[self.project][index]['key'], exe_key)
 
-    def test_get_comparisionexes_tag_name_filtering(self):
+    def test_get_comparisonexes_tag_name_filtering(self):
         # Insert some mock revisions with tags
         rev_v4 = Revision.objects.create(
             branch=self.branch_master, commitid='4', tag='v4.0.0')
@@ -250,7 +250,7 @@ class UtilityFunctionsTestCase(TestCase):
         self.assertEqual(name, 'a' * 22 + '...')
 
     @override_settings(COMPARISON_EXECUTABLE_NAME_MAX_LEN=20)
-    def test_get_sanitized_executable_name_for_comparision_view(self):
+    def test_get_sanitized_executable_name_for_comparison_view(self):
         executable = Executable(name='b' * 20)
         name = get_sanitized_executable_name_for_comparison_view(executable)
         self.assertEqual(name, 'b' * 20)

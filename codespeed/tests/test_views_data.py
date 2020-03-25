@@ -61,6 +61,14 @@ class TestGetComparisonExes(TestCase):
         self.revision_1_custom = Revision.objects.create(
             branch=self.branch_custom, commitid='1')
 
+    def _insert_mock_revision_objects(self):
+        self.rev_v4 = Revision.objects.create(
+            branch=self.branch_master, commitid='4', tag='v4.0.0')
+        self.rev_v5 = Revision.objects.create(
+            branch=self.branch_master, commitid='5', tag='v5.0.0')
+        self.rev_v6 = Revision.objects.create(
+            branch=self.branch_master, commitid='6', tag='v6.0.0')
+
     def test_get_comparisonexes_master_default_branch(self):
         # Standard "master" default branch is used
         self.project.default_branch = 'master'
@@ -173,24 +181,26 @@ class TestGetComparisonExes(TestCase):
         for index, exe_key in enumerate(expected_exe_keys):
             self.assertEqual(executables[self.project][index]['key'], exe_key)
 
-    def test_get_comparisonexes_tag_name_filtering(self):
+    def test_get_comparisonexes_tag_name_filtering_no_filter_specified(self):
         # Insert some mock revisions with tags
-        rev_v4 = Revision.objects.create(
-            branch=self.branch_master, commitid='4', tag='v4.0.0')
-        rev_v5 = Revision.objects.create(
-            branch=self.branch_master, commitid='5', tag='v5.0.0')
-        rev_v6 = Revision.objects.create(
-            branch=self.branch_master, commitid='6', tag='v6.0.0')
+        self._insert_mock_revision_objects()
 
-        # No COMPARIION_TAGS filters specified, all the tags should be included
+        # No COMPARISON_TAGS filters specified, all the tags should be included
         executables, exe_keys = getcomparisonexes()
         self.assertEqual(len(executables), 1)
         self.assertEqual(len(executables[self.project]), 2 * 2 + 2 * 3)
         self.assertEqual(len(exe_keys), 2 * 2 + 2 * 3)
 
-        self.assertExecutablesListContainsRevision(executables[self.project], rev_v4)
-        self.assertExecutablesListContainsRevision(executables[self.project], rev_v5)
-        self.assertExecutablesListContainsRevision(executables[self.project], rev_v6)
+        self.assertExecutablesListContainsRevision(executables[self.project],
+                                                   self.rev_v4)
+        self.assertExecutablesListContainsRevision(executables[self.project],
+                                                   self.rev_v5)
+        self.assertExecutablesListContainsRevision(executables[self.project],
+                                                   self.rev_v6)
+
+    def test_get_comparisonexes_tag_name_filtering_single_tag_specified(self):
+        # Insert some mock revisions with tags
+        self._insert_mock_revision_objects()
 
         # Only a single tag should be included
         with override_settings(COMPARISON_COMMIT_TAGS=['v4.0.0']):
@@ -200,11 +210,15 @@ class TestGetComparisonExes(TestCase):
             self.assertEqual(len(exe_keys), 2 * 2 + 2 * 1)
 
             self.assertExecutablesListContainsRevision(
-                executables[self.project], rev_v4)
+                executables[self.project], self.rev_v4)
             self.assertExecutablesListDoesntContainRevision(
-                executables[self.project], rev_v5)
+                executables[self.project], self.rev_v5)
             self.assertExecutablesListDoesntContainRevision(
-                executables[self.project], rev_v6)
+                executables[self.project], self.rev_v6)
+
+    def test_get_comparisonexes_tag_name_filtering_empty_list_specified(self):
+        # Insert some mock revisions with tags
+        self._insert_mock_revision_objects()
 
         # No tags should be included
         with override_settings(COMPARISON_COMMIT_TAGS=[]):
@@ -214,11 +228,11 @@ class TestGetComparisonExes(TestCase):
             self.assertEqual(len(exe_keys), 2 * 2)
 
             self.assertExecutablesListDoesntContainRevision(
-                executables[self.project], rev_v4)
+                executables[self.project], self.rev_v4)
             self.assertExecutablesListDoesntContainRevision(
-                executables[self.project], rev_v5)
+                executables[self.project], self.rev_v5)
             self.assertExecutablesListDoesntContainRevision(
-                executables[self.project], rev_v6)
+                executables[self.project], self.rev_v6)
 
     def assertExecutablesListContainsRevision(self, executables, revision):
         found = self._executable_list_contains_revision(executables=executables,

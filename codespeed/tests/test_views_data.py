@@ -193,7 +193,7 @@ class TestGetComparisonExes(TestCase):
         self.assertExecutablesListContainsRevision(executables[self.project], rev_v6)
 
         # Only a single tag should be included
-        with override_settings(COMPARISON_TAGS=['v4.0.0']):
+        with override_settings(COMPARISON_COMMIT_TAGS=['v4.0.0']):
             executables, exe_keys = getcomparisonexes()
             self.assertEqual(len(executables), 1)
             self.assertEqual(len(executables[self.project]), 2 * 2 + 2 * 1)
@@ -207,7 +207,7 @@ class TestGetComparisonExes(TestCase):
                 executables[self.project], rev_v6)
 
         # No tags should be included
-        with override_settings(COMPARISON_TAGS=[]):
+        with override_settings(COMPARISON_COMMIT_TAGS=[]):
             executables, exe_keys = getcomparisonexes()
             self.assertEqual(len(executables), 1)
             self.assertEqual(len(executables[self.project]), 2 * 2)

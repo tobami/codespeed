@@ -119,11 +119,11 @@ def getdefaultexecutable():
 
 
 def getcomparisonexes():
-    comparison_tags = getattr(settings, 'COMPARISON_TAGS', None)
+    comparison_commit_tags = getattr(settings, 'COMPARISON_COMMIT_TAGS', None)
 
     all_executables = {}
     exekeys = []
-    baselines = getbaselineexecutables(include_tags=comparison_tags)
+    baselines = getbaselineexecutables(include_tags=comparison_commit_tags)
 
     for proj in Project.objects.all():
         executables = []

@@ -224,6 +224,9 @@ COMP_EXECUTABLES = [
     ('myexe', 'L'),
 ]
 ```
+* `COMPARISON_COMMIT_TAGS: Defines a list of tags to display on the comparison page. This comes
+  handy when there are a lot of tags. It defaults to ``None`` which means display all the available
+  tags.
 
 ### VCS Provider Specific Settings
 

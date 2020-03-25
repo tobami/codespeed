@@ -78,12 +78,12 @@ COMP_EXECUTABLES = None  # Which executable + revision should be checked as defa
                          #     ('myexe', '21df2423ra'),
                          #     ('myexe', 'L'),]
 
-COMPARISON_TAGS = None  # List of tag names which should be included in the executables list on
-                        # the comparision page.
-                        # This comes handy where project contains a lot of tags, but you only want
-                        # to list subset of them on the comparison page.
-                        # If this value is set to None (default value), all the available tags will
-                        # be included.
+COMPARISON_COMMIT_TAGS = None  # List of tag names which should be included in the executables list
+                               # on the comparision page.
+                               # This comes handy where project contains a lot of tags, but you only want
+                               # to list subset of them on the comparison page.
+                               # If this value is set to None (default value), all the available tags will
+                               # be included.
 
 TIMELINE_EXECUTABLE_NAME_MAX_LEN = 22  # Maximum length of the executable name used in the
                                        # Changes and Timeline view. If the name is longer, the name

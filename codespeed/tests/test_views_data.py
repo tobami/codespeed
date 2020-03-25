@@ -61,7 +61,15 @@ class TestGetComparisonExes(TestCase):
         self.revision_1_custom = Revision.objects.create(
             branch=self.branch_custom, commitid='1')
 
-    def test_get_comparisionexes_master_default_branch(self):
+    def _insert_mock_revision_objects(self):
+        self.rev_v4 = Revision.objects.create(
+            branch=self.branch_master, commitid='4', tag='v4.0.0')
+        self.rev_v5 = Revision.objects.create(
+            branch=self.branch_master, commitid='5', tag='v5.0.0')
+        self.rev_v6 = Revision.objects.create(
+            branch=self.branch_master, commitid='6', tag='v6.0.0')
+
+    def test_get_comparisonexes_master_default_branch(self):
         # Standard "master" default branch is used
         self.project.default_branch = 'master'
         self.project.save()
@@ -100,7 +108,7 @@ class TestGetComparisonExes(TestCase):
         self.assertEqual(exe_keys[0], '1+L+master')
         self.assertEqual(exe_keys[1], '2+L+master')
 
-    def test_get_comparisionexes_custom_default_branch(self):
+    def test_get_comparisonexes_custom_default_branch(self):
         # Custom default branch is used
         self.project.default_branch = 'custom'
         self.project.save()
@@ -141,7 +149,7 @@ class TestGetComparisonExes(TestCase):
         self.assertEqual(exe_keys[2], '1+L+custom')
         self.assertEqual(exe_keys[3], '2+L+custom')
 
-    def test_get_comparisionexes_branch_filtering(self):
+    def test_get_comparisonexes_branch_filtering(self):
         # branch1 and branch3 have display_on_comparison_page flag set to False
         # so they shouldn't be included in the result
         branch1 = Branch.objects.create(name='branch1', project=self.project,
@@ -173,6 +181,82 @@ class TestGetComparisonExes(TestCase):
         for index, exe_key in enumerate(expected_exe_keys):
             self.assertEqual(executables[self.project][index]['key'], exe_key)
 
+    def test_get_comparisonexes_tag_name_filtering_no_filter_specified(self):
+        # Insert some mock revisions with tags
+        self._insert_mock_revision_objects()
+
+        # No COMPARISON_TAGS filters specified, all the tags should be included
+        executables, exe_keys = getcomparisonexes()
+        self.assertEqual(len(executables), 1)
+        self.assertEqual(len(executables[self.project]), 2 * 2 + 2 * 3)
+        self.assertEqual(len(exe_keys), 2 * 2 + 2 * 3)
+
+        self.assertExecutablesListContainsRevision(executables[self.project],
+                                                   self.rev_v4)
+        self.assertExecutablesListContainsRevision(executables[self.project],
+                                                   self.rev_v5)
+        self.assertExecutablesListContainsRevision(executables[self.project],
+                                                   self.rev_v6)
+
+    def test_get_comparisonexes_tag_name_filtering_single_tag_specified(self):
+        # Insert some mock revisions with tags
+        self._insert_mock_revision_objects()
+
+        # Only a single tag should be included
+        with override_settings(COMPARISON_COMMIT_TAGS=['v4.0.0']):
+            executables, exe_keys = getcomparisonexes()
+            self.assertEqual(len(executables), 1)
+            self.assertEqual(len(executables[self.project]), 2 * 2 + 2 * 1)
+            self.assertEqual(len(exe_keys), 2 * 2 + 2 * 1)
+
+            self.assertExecutablesListContainsRevision(
+                executables[self.project], self.rev_v4)
+            self.assertExecutablesListDoesntContainRevision(
+                executables[self.project], self.rev_v5)
+            self.assertExecutablesListDoesntContainRevision(
+                executables[self.project], self.rev_v6)
+
+    def test_get_comparisonexes_tag_name_filtering_empty_list_specified(self):
+        # Insert some mock revisions with tags
+        self._insert_mock_revision_objects()
+
+        # No tags should be included
+        with override_settings(COMPARISON_COMMIT_TAGS=[]):
+            executables, exe_keys = getcomparisonexes()
+            self.assertEqual(len(executables), 1)
+            self.assertEqual(len(executables[self.project]), 2 * 2)
+            self.assertEqual(len(exe_keys), 2 * 2)
+
+            self.assertExecutablesListDoesntContainRevision(
+                executables[self.project], self.rev_v4)
+            self.assertExecutablesListDoesntContainRevision(
+                executables[self.project], self.rev_v5)
+            self.assertExecutablesListDoesntContainRevision(
+                executables[self.project], self.rev_v6)
+
+    def assertExecutablesListContainsRevision(self, executables, revision):
+        found = self._executable_list_contains_revision(executables=executables,
+                                                        revision=revision)
+
+        if not found:
+            self.assertFalse("Didn't find revision \"%s\" in executable list \"%s\"" %
+                             (str(revision), str(executables)))
+
+    def assertExecutablesListDoesntContainRevision(self, executables, revision):
+        found = self._executable_list_contains_revision(executables=executables,
+                                                        revision=revision)
+
+        if found:
+            self.assertFalse("Found revision \"%s\", but didn't expect it" %
+                             (str(revision)))
+
+    def _executable_list_contains_revision(self, executables, revision):
+        for executable in executables:
+            if executable['revision'] == revision:
+                return True
+
+        return False
+
 
 class UtilityFunctionsTestCase(TestCase):
     @override_settings(TIMELINE_EXECUTABLE_NAME_MAX_LEN=22)
@@ -186,7 +270,7 @@ class UtilityFunctionsTestCase(TestCase):
         self.assertEqual(name, 'a' * 22 + '...')
 
     @override_settings(COMPARISON_EXECUTABLE_NAME_MAX_LEN=20)
-    def test_get_sanitized_executable_name_for_comparision_view(self):
+    def test_get_sanitized_executable_name_for_comparison_view(self):
         executable = Executable(name='b' * 20)
         name = get_sanitized_executable_name_for_comparison_view(executable)
         self.assertEqual(name, 'b' * 20)

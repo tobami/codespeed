@@ -66,7 +66,7 @@ class HomeView(TemplateView):
     template_name = "home.html"
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        context = super(HomeView, self).get_context_data(**kwargs)
         context['show_reports'] = settings.SHOW_REPORTS
         context['show_historical'] = settings.SHOW_HISTORICAL
         historical_settings = ['SHOW_HISTORICAL', 'DEF_BASELINE', 'DEF_EXECUTABLE']

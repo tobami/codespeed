@@ -1,14 +1,20 @@
 import datetime
 import logging
 import os
-from string import strip
+
 from subprocess import Popen, PIPE
-
 from django.conf import settings
-
 from .exceptions import CommitLogError
 
 logger = logging.getLogger(__name__)
+
+
+def execute_command(cmd, cwd):
+    p = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=cwd)
+    stdout, stderr = p.communicate()
+    stdout = stdout.decode('utf8') if stdout is not None else stdout
+    stderr = stderr.decode('utf8') if stderr is not None else stderr
+    return (p, stdout, stderr)
 
 
 def updaterepo(project, update=True):
@@ -16,10 +22,8 @@ def updaterepo(project, update=True):
         if not update:
             return
 
-        p = Popen(['git', 'pull'], stdout=PIPE, stderr=PIPE,
-                  cwd=project.working_copy)
+        p, _, stderr = execute_command(['git', 'pull'], cwd=project.working_copy)
 
-        stdout, stderr = p.communicate()
         if p.returncode != 0:
             raise CommitLogError("git pull returned %s: %s" % (p.returncode,
                                                                stderr))
@@ -27,11 +31,9 @@ def updaterepo(project, update=True):
             return [{'error': False}]
     else:
         cmd = ['git', 'clone', project.repo_path, project.repo_name]
-        p = Popen(cmd, stdout=PIPE, stderr=PIPE,
-                  cwd=settings.REPOSITORY_BASE_PATH)
+        p, stdout, stderr = execute_command(cmd, settings.REPOSITORY_BASE_PATH)
         logger.debug('Cloning Git repo {0} for project {1}'.format(
             project.repo_path, project))
-        stdout, stderr = p.communicate()
 
         if p.returncode != 0:
             raise CommitLogError("%s returned %s: %s" % (
@@ -59,32 +61,24 @@ def getlogs(endrev, startrev):
         cmd.append(endrev.commitid)
 
     working_copy = endrev.branch.project.working_copy
-    p = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=working_copy)
-
-    stdout, stderr = p.communicate()
+    p, stdout, stderr = execute_command(cmd, working_copy)
 
     if p.returncode != 0:
         raise CommitLogError("%s returned %s: %s" % (
                              " ".join(cmd), p.returncode, stderr))
     logs = []
-    for log in filter(None, stdout.split(b'\x1e')):
+    for log in filter(None, stdout.split('\x1e')):
         (short_commit_id, commit_id, date_t, author_name, author_email,
-         subject, body) = map(strip, log.split(b'\x00', 7))
-
-        tag = ""
+            subject, body) = map(lambda s: s.strip(), log.split('\x00', 7))
 
         cmd = ["git", "tag", "--points-at", commit_id]
-        proc = Popen(cmd, stdout=PIPE, stderr=PIPE, cwd=working_copy)
 
         try:
-            stdout, stderr = proc.communicate()
-        except ValueError:
-            stdout = b''
-            stderr = b''
+            p, stdout, stderr = execute_command(cmd, working_copy)
+        except Exception:
+            logger.debug('Failed to get tag', exc_info=True)
 
-        if proc.returncode == 0:
-            tag = stdout.strip()
-
+        tag = stdout.strip() if p.returncode == 0 else ""
         date = datetime.datetime.fromtimestamp(
             int(date_t)).strftime("%Y-%m-%d %H:%M:%S")
 

@@ -31,12 +31,10 @@ It is assumed you are in the root directory of the Codespeed software.
    `export PYTHONPATH=../:$PYTHONPATH`
    or
    `ln -s ./codespeed ./sample_project`
-5. Initialise the Django Database
-   `python manage.py syncdb`
-   (Yes, add a superuser.)
+5. Apply the migrations:
    `python manage.py migrate`
    Optionally, you may want to load the fixture data for a try
-   `python manage.py loaddata ../codespeed/fixtures/testdata.json`
+   `python manage.py loaddata ./codespeed/fixtures/testdata.json`
 6. Finally, start the Django development server.
    `python manage.py runserver`
 7. Enjoy.

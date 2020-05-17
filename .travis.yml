@@ -11,7 +11,7 @@ matrix:
       env: DJANGO_VERSION=1.11
     - python: "3.5"
       env: DJANGO_VERSION=1.11
-    - python: "3.5"
+    - python: "3.6"
       env: DJANGO_VERSION=2.1
 install:
   - pip install flake8 mock
